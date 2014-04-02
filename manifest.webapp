@@ -1,0 +1,24 @@
+{
+  "name": "Loop",
+  "description": "The Mozilla Loop (WebRTC app) client",
+  "launch_path": "/index.html",
+  "type": "privileged",
+  "developer": {
+    "name": "The Gaia Team",
+    "url": "https://github.com/mozilla-b2g/gaia"
+  },
+  "locales": {
+    "en-US": {
+      "name": "Loop",
+      "description": "Loop client"
+    },
+    "es-ES": {
+      "name": "Loop",
+      "description": "Cliente loop"
+    }
+  },
+  "default_locale": "en",
+  "fullscreen": "true",
+  "orientation": "portrait",
+  "origin": "app://loop.gaiamobile.org"
+}
