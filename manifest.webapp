@@ -17,6 +17,12 @@
       "description": "Cliente loop"
     }
   },
+  "permissions": {
+    "push":{}
+  },
+  "messages": [
+     { "push": "/index.html" }
+  ],
   "default_locale": "en",
   "fullscreen": "true",
   "orientation": "portrait",
