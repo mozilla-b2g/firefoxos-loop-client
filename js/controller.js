@@ -1,7 +1,7 @@
 /* -*- Mode: js; js-indent-level: 2; indent-tabs-mode: nil -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
-/* global CallHelper */
+/* global UI, CallHelper, AccountHelper */
 
 /* exported Controller */
 
@@ -22,12 +22,69 @@
 
   var Controller = {
     /**
+     * Init function.
+     */
+    init: function c_init() {
+      var onAccount = function(account) {
+        if(!account) {
+          UI.signUp(this.signUp);
+          return;
+        }
+        UI.signIn(this.signIn);
+      };
+
+      UI.init();
+
+      AccountHelper.getAccount(
+        onAccount.bind(Controller),
+        function onError(e) {
+          UI.showError(e);
+        }
+      );
+    },
+
+    /**
+     * Sign up the user.
+     *
+     * @param {Function} onsuccess Function to be called once the user gets
+     *                             signed up.
+     * @param {Function} onerror Function to be called in case of any error. An
+     *                           error object is passed as parameter.
+     */
+    signUp: function signUp(id, onsuccess, onerror) {
+      var onSuccess = function() {
+        UI.shareUrl(this.shareUrl);
+        UI.logOut(this.logOut);
+        _callback(onsuccess);
+      };
+      AccountHelper.signUp(id, onSuccess.bind(Controller), onerror);
+    },
+
+    /**
+     * Sign in the user.
+     *
+     * @param {Function} onsuccess Function to be called once the user gets
+     *                             signed in.
+     * @param {Function} onerror Function to be called in case of any error. An
+     *                           error object is passed as parameter.
+     */
+    signIn: function signIn(onsuccess, onerror) {
+      var onSuccess = function() {
+        UI.shareUrl(this.shareUrl);
+        UI.logOut(this.logOut);
+        _callback(onsuccess);
+      };
+      AccountHelper.signIn(onSuccess.bind(Controller), onerror);
+    },
+
+    /**
      * Share the call url with called party.
      *
      * @param {String} id Peer's id.
      * @param {Function} onsuccess Function to be called once the call URL is
      *                             shared correctly.
-     * @param {Function} onerror Function to be called when an error occurs.
+     * @param {Function} onerror Function to be called when an error occurs. An
+     *                           error object is passed as parameter.
      */
     shareUrl: function c_shareUrl(id, onsuccess, onerror) {
       CallHelper.generateCallUrl(id,
@@ -41,10 +98,21 @@
             }
           });
           activity.onsuccess = onsuccess;
-          activity.onerror = _callback.bind(null, onerror, [new Error('Activity error')]);
+          activity.onerror =
+           _callback.bind(null, onerror, [new Error('Activity error')]);
         },
         onerror
       );
+    },
+
+    /**
+     * Log the user out. It clears the app account.
+     *
+     * @param {Function} onlogout Function to be called once the logout call
+     *                            gets completed.
+     */
+    logOut: function logOut(onlogout) {
+      AccountHelper.logOut(onlogout);
     }
   };
 

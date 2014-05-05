@@ -1,6 +1,8 @@
 /* -*- Mode: js; js-indent-level: 2; indent-tabs-mode: nil -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
+/* global Controller */
+
 'use strict';
 
 /*
@@ -22,25 +24,5 @@
 window.addEventListener('localized', function onLocalized() {
   window.removeEventListener('localized', onLocalized);
 
-  // TODO: This piece of code will be removed eventually. Temporary start up.
-  SimplePush.createChannel(
-   'loop',
-   function onNotification(version) {
-     // TODO
-   },
-   function onRegistered(error, endpoint) {
-     if (error || !endpoint) {
-       alert('Could not get simple push url.');
-       return;
-     }
-     SimplePush.start();
-     ClientRequestHelper.register(endpoint,
-       function onRegisterSuccess() {
-         UI.init();
-       },
-       function onRegisterError() {
-         alert('Could not register the peer.');
-         return;
-       });
-   });
+  Controller.init();
 });
