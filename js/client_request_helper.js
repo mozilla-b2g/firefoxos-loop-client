@@ -6,7 +6,7 @@
 (function(exports) {
   // TODO Poing to the right server and retrieve this info
   // from a 'config' file
-  var SERVER_URL = 'http://localhost:5000';
+  var SERVER_URL = 'http://loop.dev.mozaws.net';
   var TIMEOUT = 15000;
 
   function _callback(cb, args) {
