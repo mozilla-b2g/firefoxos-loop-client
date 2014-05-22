@@ -18,7 +18,12 @@
     }
   },
   "permissions": {
-    "push":{}
+    "push":{},
+    "video-capture": {},
+    "audio-capture": {},
+    "audio-channel-telephony":{},
+    "audio-channel-ringer":{},
+    "speaker-control": {}
   },
   "messages": [
      { "push": "/index.html" }
