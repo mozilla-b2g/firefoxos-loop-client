@@ -13,10 +13,12 @@
     <link rel="stylesheet" type="text/css" href="style/loop.css">
 
     <!-- Scripts -->
+    <script defer src="js/account.js"></script>
+    <script defer src="js/account_helper.js"></script>
     <script defer src="js/call_helper.js"></script>
     <script defer src="js/client_request_helper.js"></script>
-    <script defer src="js/controller.js"></script>
     <script defer src="js/ui.js"></script>
+    <script defer src="js/controller.js"></script>
     <script defer src="js/simple_push_helper.js"></script>
     <script defer src="js/startup.js"></script>
     <script defer src="libs/l10n.js"></script>
@@ -34,7 +36,10 @@
         <section role="region">
           <div class="message">
             <p data-l10n-id="loop"> FirefoxOS Loop Client </p>
-            <button id="share" data-l10n-id="share"> Share call URL </button>
+            <button id="signup" data-l10n-id="signup" hidden> Sign up </button>
+            <button id="signin" data-l10n-id="signin" hidden> Sign in </button>
+            <button id="share" data-l10n-id="share" hidden> Share call URL </button>
+            <button id="logout" data-l10n-id="logout" hidden> Log out </button>
           </section>
         </section>
       </article>
