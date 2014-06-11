@@ -40,8 +40,13 @@
               CallHelper.hangUp();
             }
           );
+          // TODO: the constraints object should be definded based on user's
+          // preferences such as the ones exposed in the UI or the ones selected
+          // in the hipothetical settings panel we should have.
+          var constraints = {audio: true, video: true};
           CallHelper.handleIncomingCall(notificationId,
-                                        'audio-video-container');
+                                        'audio-video-container',
+                                        constraints);
         },
         function onReject() {
         }

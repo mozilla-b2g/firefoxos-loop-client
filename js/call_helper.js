@@ -1,7 +1,7 @@
 /* -*- Mode: js; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
-/* global ClientRequestHelper */
+/* global ClientRequestHelper, Opentok */
 
 /* exported CallHelper */
 
@@ -19,14 +19,15 @@
    *
    * @param {Object} call Call data.
    * @param {String} target Container element name for video/audio elements.
+   * @param {Object} constraints Constraints object defining some call details.
    * @param {Function} onconnected Function to be called once the peer
    *                               connects the session.
    * @param {Function} onstream Function to be called once the session object
    *                            receives 'streamCreated' events.
    * @param {Function} onerror Function to be called if any error happens.
    */
-  function _joinCall(call, target, onconnected, onstream, onerror) {
-
+  function _joinCall(call, target, constraints, onconnected, onstream, onerror) {
+    Opentok.setConstraints(constraints);
     var session = TB.initSession(call.apiKey, call.sessionId);
     session.on({
       streamCreated: function(event) {
@@ -95,6 +96,7 @@
      *
      * @param {Numeric} notificationId Simple push notification version.
      * @param {String} target Container element name for video/audio elements.
+     * @param {Object} constraints Constraints object defining some call details.
      * @param {Function} onconnected Function to be called once the peer
      *                               connects the session.
      * @param {Function} onstream Function to be called once the session object
@@ -102,7 +104,7 @@
      * @param {Function} onerror Function to be called if any error happens.
      */
     handleIncomingCall: function ch_handleIncomingCall(
-      notificationId, target, onconnected, onstream, onerror) {
+      notificationId, target, constraints, onconnected, onstream, onerror) {
 
       var onGetCallsSuccess = function(calls) {
         var call = calls.calls[0];
@@ -110,7 +112,9 @@
           _callback(onerror, [new Error('Unable to get call data')])
           return;
         }
-        this.session = _joinCall(call, target, onconnected, onstream, onerror);
+        this.session = _joinCall(
+          call, target, constraints, onconnected, onstream, onerror
+        );
       };
 
       ClientRequestHelper.getCalls(
