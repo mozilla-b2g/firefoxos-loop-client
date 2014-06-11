@@ -75,14 +75,13 @@
      *                             signed up.
      * @param {Function} onerror Function to be called in case of any error. An
      *                           error object is passed as parameter.
+     * @param {Function} onnotification Function to be called once the device
+     *                                  receives a simple push notification.
      */
-    signUp: function signUp(id, onsuccess, onerror) {
-      // TODO: This function will have one more paramater (a callback function)
-      // we will register it as the function to be called once a new
-      // notification arrives.
+    signUp: function signUp(id, onsuccess, onerror, onnotification) {
       SimplePush.createChannel(
        'loop',
-       null, /* onNotification callback */
+       onnotification,
        function onRegistered(error, endpoint) {
          if (error) {
            _callback(onerror, [error]);
@@ -96,13 +95,15 @@
              // Create an account locally.
              try {
                AccountStorage.store(new Account(id));
+               SimplePush.start();
                _callback(onsuccess);
              } catch(e) {
                _callback(onerror, [e]);
                return;
              }
            },
-           onerror);
+           onerror
+         );
        });
     },
 
@@ -113,18 +114,17 @@
      *                             signed in.
      * @param {Function} onerror Function to be called in case of any error. An
      *                           error object is passed as parameter.
+     * @param {Function} onnotification Function to be called once the device
+     *                                  receives a simple push notification.
      */
-    signIn: function signIn(onsuccess, onerror) {
-      // TODO: This function will have one more paramater (a callback function)
-      // we will register it as the function to be called once a new
-      // notification arrives.
+    signIn: function signIn(onsuccess, onerror, onnotification) {
       AccountStorage.load(function(account) {
         if (!account) {
           _callback(onerror, [new Error('Unable to sign in. Sing up first')])
         }
         SimplePush.createChannel(
          'loop',
-         null, /* onNotification callback */
+         onnotification,
          function onRegistered(error, endpoint) {
            if (error) {
              _callback(onerror, [error]);
@@ -132,7 +132,13 @@
            if (!endpoint) {
              _callback(onerror, [new Error('Invalid endpoint')]);
            }
-           ClientRequestHelper.register(endpoint, onsuccess, onerror);
+           ClientRequestHelper.register(endpoint,
+             function onRegisterSuccess() {
+               SimplePush.start();
+               _callback(onsuccess);
+             },
+             onerror
+           );
          });
       }, onerror);
     },

@@ -29,18 +29,24 @@
   <body role="application">
     <section role="region">
       <header>
+        <menu type="toolbar">
+            <button id="signup" data-l10n-id="signup" class="full recommend" hidden>Sign up</button>
+            <button id="logout" data-l10n-id="logout" class="full recommend" hidden>Log out</button>
+        </menu>
         <h1> Loop </h1>
       </header>
 
       <article id="screen" role="main">
         <section role="region">
           <div class="message">
-            <p data-l10n-id="loop"> FirefoxOS Loop Client </p>
-            <button id="signup" data-l10n-id="signup" hidden> Sign up </button>
-            <button id="signin" data-l10n-id="signin" hidden> Sign in </button>
             <button id="share" data-l10n-id="share" hidden> Share call URL </button>
-            <button id="logout" data-l10n-id="logout" hidden> Log out </button>
-          </section>
+            <button id="answer" data-l10n-id="answer" hidden> Answer </button>
+            <button id="reject" data-l10n-id="reject" hidden> Reject </button>
+            <button id="switchSpeaker" data-l10n-id="switchSpeaker" hidden>Switch Speaker</button>
+            <button id="hangup" data-l10n-id="hangup" hidden>Hang Up</button>
+            <div id="audio-video-container">
+            </div>
+          </div>
         </section>
       </article>
     </section>

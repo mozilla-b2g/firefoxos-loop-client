@@ -18,10 +18,14 @@
   }
 
   var UI = {
+    audioElement: null,
     signUpButton: null,
-    signInButton: null,
     logoutButton: null,
     shareUrlButton: null,
+    answerButton: null,
+    rejectButton: null,
+    switchSpeakerButton: null,
+    hangupButton: null,
 
     /**
      * Init function.
@@ -29,9 +33,12 @@
     init: function ui_init(oninit) {
       // Retrieve the various page elements
       this.signUpButton = document.getElementById('signup');
-      this.signInButton = document.getElementById('signin');
       this.logoutButton = document.getElementById('logout');
       this.shareUrlButton = document.getElementById('share');
+      this.answerButton = document.getElementById('answer');
+      this.rejectButton = document.getElementById('reject');
+      this.switchSpeakerButton = document.getElementById('switchSpeaker');
+      this.hangupButton = document.getElementById('hangup');
     },
 
     /**
@@ -86,19 +93,13 @@
      */
     signIn: function ui_signIn(onsignin) {
       var onSignInSuccess = function() {
-        this.signInButton.hidden = true;
       };
 
       var onSignInError = function(e) {
         alert(e.message);
       };
 
-      this.signInButton.hidden = false;
-      this.signInButton.onclick = function onClickSignInButton() {
-        _callback(
-          onsignin, [onSignInSuccess.bind(UI), onSignInError]
-        );
-      };
+      _callback(onsignin, [onSignInSuccess.bind(UI), onSignInError]);
     },
 
     /**
@@ -130,6 +131,68 @@
       this.shareUrlButton.onclick = function onClickShareUrlButton() {
         _callback(onshareurl, ['dummyId', onShareUrlSuccess, onShareUrlError]);
       };
+    },
+
+    /**
+     * Set the incoming call UI.
+     *
+     * @param {Function} onanswer Function to be called when answering.
+     * @param {Function} onreject Function to be called when rejecting the call.
+     */
+    incomingCall: function ui_incomingCall(onanswer, onreject) {
+      var onClickAnswerButton = function() {
+        this.audioElement.pause();
+        this.answerButton.hidden = true;
+        this.rejectButton.hidden = true;
+        _callback(onanswer);
+      };
+
+      var onClickRejectButton = function() {
+        this.audioElement.pause();
+        this.shareUrlButton.hidden = false;
+        this.answerButton.hidden = true;
+        this.rejectButton.hidden = true;
+        _callback(onreject);
+      };
+
+      this.audioElement = new Audio();
+      this.audioElement.mozAudioChannelType = 'ringer';
+      this.audioElement.src =
+        '/resources/media/ringtones/ringer_classic_wallphone.ogg';
+      this.audioElement.play();
+
+      this.shareUrlButton.hidden = true;
+      this.answerButton.hidden = false;
+      this.rejectButton.hidden = false;
+
+      this.answerButton.onclick = onClickAnswerButton.bind(this);
+      this.rejectButton.onclick = onClickRejectButton.bind(this);
+    },
+
+    /**
+     * Set the call screen UI.
+     *
+     * @param {Function} onswitchspeaker Function to be called when switching
+     *                                   audio.
+     * @param {Function} onhanup Function to be called when hanging up.
+     */
+    callScreen: function ui_callScreen(onswitchspeaker, onhangup) {
+      var onClickHangupButton = function() {
+        this.shareUrlButton.hidden = false;
+        this.switchSpeakerButton.hidden = true;
+        this.hangupButton.hidden = true;
+        _callback(onhangup);
+      };
+
+      var onClickSwitchSpeaker = function() {
+        _callback(onswitchspeaker);
+      }
+
+      this.switchSpeakerButton.hidden = false;
+      this.hangupButton.hidden = false;
+
+      this.hangupButton.onclick = onClickHangupButton.bind(this);
+      this.switchSpeakerButton.onclick = onClickSwitchSpeaker.bind(this);
     },
 
     /**

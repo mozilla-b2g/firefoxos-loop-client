@@ -20,6 +20,35 @@
     }
   }
 
+  /**
+   * Handle the simple push notifications the device receives as an incoming
+   * call.
+   *
+   * @param {Numeric} notificationId Simple push notification id (version).
+   */
+  function _onNotification(notificationId) {
+    navigator.mozApps.getSelf().onsuccess = function (evt) {
+      var app = evt.target.result;
+      app.launch();
+      UI.incomingCall(
+        function onAnswer() {
+          UI.callScreen(
+            function onSwitchSpeaker() {
+              CallHelper.switchSpeaker();
+            },
+            function onHangup() {
+              CallHelper.hangUp();
+            }
+          );
+          CallHelper.handleIncomingCall(notificationId,
+                                        'audio-video-container');
+        },
+        function onReject() {
+        }
+      );
+    };
+  }
+
   var Controller = {
     /**
      * Init function.
@@ -57,7 +86,9 @@
         UI.logOut(this.logOut);
         _callback(onsuccess);
       };
-      AccountHelper.signUp(id, onSuccess.bind(Controller), onerror);
+      AccountHelper.signUp(
+        id, onSuccess.bind(Controller), onerror, _onNotification
+      );
     },
 
     /**
@@ -74,7 +105,9 @@
         UI.logOut(this.logOut);
         _callback(onsuccess);
       };
-      AccountHelper.signIn(onSuccess.bind(Controller), onerror);
+      AccountHelper.signIn(
+        onSuccess.bind(Controller), onerror, _onNotification
+      );
     },
 
     /**

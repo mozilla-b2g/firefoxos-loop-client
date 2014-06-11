@@ -14,7 +14,60 @@
     }
   }
 
+  /**
+   * Join the call party to the ongoing call.
+   *
+   * @param {Object} call Call data.
+   * @param {String} target Container element name for video/audio elements.
+   * @param {Function} onconnected Function to be called once the peer
+   *                               connects the session.
+   * @param {Function} onstream Function to be called once the session object
+   *                            receives 'streamCreated' events.
+   * @param {Function} onerror Function to be called if any error happens.
+   */
+  function _joinCall(call, target, onconnected, onstream, onerror) {
+
+    var session = TB.initSession(call.apiKey, call.sessionId);
+    session.on({
+      streamCreated: function(event) {
+        session.subscribe(event.stream, target, null);
+        _callback(onstream, [event]);
+      }
+    });
+    session.connect(call.sessionToken, function(e) {
+      if (e) {
+        Utils.log('Session connect error ' + e.message);
+        _callback(onerror, [e]);
+        return;
+      }
+      _callback(onconnected);
+      session.publish(target, null, function onPublish(ee) {
+        if (ee) {
+          Utils.log('Session publish error ' + ee.message);
+          _callback(onerror, [ee]);
+        }
+      });
+    });
+    return session;
+  }
+
   var CallHelper = {
+    /** Opentok session */
+    session: null,
+
+    /** Speaker manager */
+    speakerManager: null,
+
+    /**
+     * Route the audio from the builtin earpiece to the speaker and viceversa.
+     */
+    switchSpeaker: function c_switchSpeaker() {
+      if (!this.speakerManager) {
+        this.speakerManager = new window.MozSpeakerManager();
+      }
+      this.speakerManager.forcespeaker = !this.speakerManager.forcespeaker;
+    },
+
     /**
      * Generate a call URL to be shared with the called party.
      *
@@ -35,6 +88,46 @@
         },
         onerror
       );
+    },
+
+    /**
+     * Answer/handle the incoming call.
+     *
+     * @param {Numeric} notificationId Simple push notification version.
+     * @param {String} target Container element name for video/audio elements.
+     * @param {Function} onconnected Function to be called once the peer
+     *                               connects the session.
+     * @param {Function} onstream Function to be called once the session object
+     *                            receives 'streamCreated' events.
+     * @param {Function} onerror Function to be called if any error happens.
+     */
+    handleIncomingCall: function ch_handleIncomingCall(
+      notificationId, target, onconnected, onstream, onerror) {
+
+      var onGetCallsSuccess = function(calls) {
+        var call = calls.calls[0];
+        if (!call) {
+          _callback(onerror, [new Error('Unable to get call data')])
+          return;
+        }
+        this.session = _joinCall(call, target, onconnected, onstream, onerror);
+      };
+
+      ClientRequestHelper.getCalls(
+        notificationId,
+        onGetCallsSuccess.bind(this),
+        onerror
+      );
+    },
+
+    /**
+     *
+     */
+    hangUp: function ch_hangUp() {
+      if (this.session) {
+        this.session.disconnect();
+        this.session = null;
+      }
     }
   };
 
