@@ -15,6 +15,7 @@
   }
 
   var ACCOUNT_KEY = 'loop';
+  var _cachedAccount;
 
   var AccountStorage = {
     /**
@@ -24,19 +25,22 @@
      *                           completes successfully.
      */
     load: function a_load(onsuccess) {
+      if (_cachedAccount !== undefined) {
+        _callback(onsuccess, [_cachedAccount]);
+        return;
+      }
+      // TODO Cache and restore the cached version
       asyncStorage.getItem(
         ACCOUNT_KEY,
         function onAccount(account) {
           if (!account) {
-            _callback(onsuccess, [null]);
-            return;
+            _cachedAccount = null;
+          } else if ((Object.keys(account)).length === 0) {
+            _cachedAccount = {};
+          } else {
+            _cachedAccount = new Account(account.id.value, account.credentials)
           }
-          if ((Object.keys(account)).length === 0) {
-            _callback(onsuccess, {});
-            return;
-          }
-          _callback(onsuccess,
-                    [new Account(account.id.value, account.credentials)]);
+          _callback(onsuccess, [_cachedAccount]);
       });
     },
 
@@ -50,8 +54,14 @@
      * @param {Account} account Account object to store.
      */
     store: function a_store(account) {
+      // Update cache
+      _cachedAccount = {
+        id: account.id,
+        credentials: account.credentials
+      };
+      // Store
       asyncStorage.setItem(
-        ACCOUNT_KEY, {id: account.id, credentials: account.credentials}
+        ACCOUNT_KEY, _cachedAccount
       );
     },
 
@@ -60,6 +70,7 @@
      *
      */
     clear: function a_clear() {
+      _cachedAccount = {};
       asyncStorage.setItem(ACCOUNT_KEY, {});
     }
   };

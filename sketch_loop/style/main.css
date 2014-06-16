@@ -1,0 +1,44 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  font-family: 'MozTT', sans-serif;
+  position: absolute;
+}
+
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: white;
+}
+
+.modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: white;
+}
+
+.main {
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+}
+
+
+
+
+
+
+
+
+
+

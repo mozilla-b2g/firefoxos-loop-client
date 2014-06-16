@@ -22,7 +22,7 @@
     websiteURL: 'http://www.tokbox.com',
 
     // The URL of the CDN when runnint on top of running FxOS
-    cdnURL: '',
+    cdnURL: '/libs',
     // The URL to use for logging
     loggingURL: 'http://hlg.tokbox.com/prod',
     // The anvil API URL
@@ -36,7 +36,7 @@
     // If this environment supports SSL
     supportSSL: 'true',
     // The CDN to use if we're using SSL when runnint on top of running FxOS
-    cdnURLSSL: '',
+    cdnURLSSL: '/libs',
     // The loggging URL to use if we're using SSL
     loggingURLSSL: 'https://hlg.tokbox.com/prod',
     // The anvil API URL to use if we're using SSL

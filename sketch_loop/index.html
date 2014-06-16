@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Loop sketch</title>
+    <!-- Prevent scrolling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <!-- App styles -->
+    <link rel="stylesheet" type="text/css" href="style/bb/switches.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/lists.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/headers.css">
+    <link rel="stylesheet" type="text/css" href="style/reset.css">
+    <link rel="stylesheet" type="text/css" href="style/share.css">
+    <link rel="stylesheet" type="text/css" href="style/settings.css">
+    <link rel="stylesheet" type="text/css" href="style/calllog.css">
+    <link rel="stylesheet" type="text/css" href="style/main.css">
+    <link rel="stylesheet" type="text/css" href="style/transitions.css">
+    <link rel="stylesheet" type="text/css" href="style/wizard.css">
+    <link rel="stylesheet" type="text/css" href="style/splash_screen.css">
+    
+    <script defer src="../libs/async_storage.js"></script>
+    <script defer src="../js/utils.js"></script>
+    <script defer src="../js/helpers/account.js"></script>
+    <script defer src="../js/helpers/account_storage.js"></script>
+
+    <script defer src="js/wizard/gum.js"></script>
+    <script defer src="js/wizard/authenticate.js"></script>
+    <script defer src="js/wizard/tutorial.js"></script>
+    <script defer src="js/wizard/wizard.js"></script>
+
+    <script defer src="js/controller.js"></script>
+    
+    <script defer src="js/splash_screen.js"></script>
+    <script defer src="js/settings.js"></script>
+    <script defer src="js/calllog.js"></script>
+    <script defer src="js/share.js"></script>
+    <script defer src="js/settings.js"></script>
+
+    <script defer src="js/boot.js"></script>
+  </head>
+
+  <body role="application" class="animate" data-layout="wizard">
+    <section id="splash-screen" class="show">
+    </section>
+    <!-- 
+      Every relevant screen which have it own 'panel'
+    -->
+    <section id="wizard-panel" class="panel main">
+      <!--
+        Wizard is based on 3 well differentiated sections:
+        - Tutorial > "wizard-tutorial-section"
+        - Authenticate > "wizard-authenticate-section"
+        - gUM > "wizard-gum-section"
+      -->
+      <section id="wizard-tutorial-section"  class="wizard-section current">
+        <button id="skip-tutorial-button">
+          Let's start!
+        </button>
+        <ul id="wizard-tutorial-progress" class="tutorial-progress-indicator">
+        </ul>
+        <ul id="wizard-tutorial-slideshow">
+          <li class="wizard-tutorial-step">
+            <!-- <img src=""> -->
+            <div>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+            </div>
+          </li>
+          <li class="wizard-tutorial-step">
+            <!-- <img src=""> -->
+            <div>
+              Proin malesuada sodales lacinia.
+            </div>
+          </li>
+          <li class="wizard-tutorial-step">
+            <!-- <img src=""> -->
+            <div>
+              Proin quis tellus velit.
+            </div>
+          </li>
+          <li class="wizard-tutorial-step">
+            <!-- <img src=""> -->
+            <div>
+              Sed commodo elementum nisl. ñalsk dñlas kdñla sdlñak dslña ksdlñaks dlñak dñlk asdl
+            </div>
+          </li>
+        </ul>
+      </section>
+      <div id="wizard-gum-section" class="wizard-section">
+        <p class="gum-explanation">
+          Tap to check how it works!
+        </p>
+        <div class="calllog-snapshot">
+          <div id="calllog-action-tap-mocked" class="calllog-action-tap-mocked">
+          </div>
+          <div class="calllog-hand-indicator">
+          </div>
+          <div class="calllog-tap-indicator">
+          </div>
+        </div>
+        <video id="call-mock" src="">
+        </video>
+        <div id="call-snapshot" class="call-mock">
+        </div>
+      </div>
+      <div id="wizard-authenticate-section" class="wizard-section">
+        <p id="wizart-authenticate-explanation">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </p>
+        <button id="authenticate-msisdn-button" class="wizard-button" disabled>
+          Use Phone Number
+        </button>
+        <button id="authenticate-fxa-button" class="wizard-button">
+          Use Firefox Accounts
+        </button>
+      </div>
+    </section>
+    <section id="calllog-panel" class="panel main" role="region">
+      <header>
+        <menu type="toolbar">
+          <a id="open-settings-button"><span class="icon icon-menu"></span></a>
+        </menu>
+        <h1>Loop</h1>
+      </header>
+      <section id="calllog-list" data-type="list">
+        <div id="calllog-container">
+        </div>
+        <div id="calllog-empty">
+          <p>
+            Oops! It seems you haven’t done any call yet
+          </p>
+        </div>
+      </section>
+      <button id="call-from-loop" disabled>
+      </button>
+    </section>
+    <section id="contact-detail-panel" class="panel main">
+      Contact detail
+    </section>
+    <section id="share-panel" class="modal share main">
+      <h1>Ups!</h1>
+      <p id="share-explanation">
+        Ha sido imposible establecer la llamada con Loop, lo más probable es que al usuario al que intentas llamar no tenga la aplicación instalada.
+        Selecciona un medio y le haremos llegar un link con el que podréis hablar directamente!
+      </p>
+      <ul id="share-options">
+        <li id="share-done-mock" class="selected">+34512123123</li>
+        <li>+44123432123</li>
+        <li>foo@bar.org</li>
+        <li>foo@foo.es</li>
+      </ul>
+    </section>
+    <section id="settings-panel" class="panel settings skin-organic" role="region">
+      <header>
+        <button id="settings-close-button"><span class="icon icon-close">close</span></button>
+        <h1>Settings</h1>
+      </header>
+      <section data-type="list">
+        <ul>
+          <li>
+            <a>
+              <p>Enable video by default</p>
+              <label class="pack-switch">
+                <input type="checkbox" checked>
+                <span></span>
+              </label>
+            </a>
+          </li>
+          <li>
+            <a>
+              <p>Clean call log</p>
+            </a>
+          </li>
+        </ul>
+        <div class="settings-logout-section">
+          <p id="settings-logout-identity"></p>
+          <button id="settings-logout-button">
+            Logout
+          </button>
+        </div>
+      </section>
+    </section>
+  </body>
+</html>

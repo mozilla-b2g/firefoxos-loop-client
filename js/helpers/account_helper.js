@@ -52,9 +52,8 @@
           return null;
         }
 
-        var unpacked = Utils.unpackAssertion(assertion.value);
-        return unpacked.claim ?
-          JSON.parse(unpacked.claim)['fxa-verifiedEmail'] : null;
+        var claim = Utils.parseClaimAssertion(assertion);
+        return claim ? claim['fxa-verifiedEmail'] : null;
       }
 
       SimplePush.createChannel(

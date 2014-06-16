@@ -51,6 +51,19 @@
         payload: atob(parts[3])
       };
     },
+    /**
+     * Helper function. Return the claim from the assertion.
+     *
+     * @param {String} assertion The assertion to unpack
+     *
+     * @return {Object} Claim object.
+     */
+    parseClaimAssertion: function u_parseClaimAssertion(assertion) {
+      var unpacked = this.unpackAssertion(assertion);
+
+      return unpacked.claim ?
+        JSON.parse(unpacked.claim) : null;
+    },
 
     /**
      * Simple dump function.

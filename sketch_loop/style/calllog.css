@@ -1,0 +1,80 @@
+#calllog-list {
+  height: calc(100% - 5rem);
+  
+  position: relative;
+}
+
+#calllog-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow: scroll;
+}
+
+#calllog-empty {
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: 10;
+  background: white;
+  background-image: url(images/tutorial_image_wf.png);
+  background-repeat: no-repeat;
+  background-size: 60% 30%;
+  background-position: center 30%;
+}
+
+#calllog-empty p {
+  position: absolute;
+  bottom: 30%;
+  text-align: center;
+  width: 100%;
+  font-size: 2rem;
+  font-weight: 300;
+  box-sizing: border-box;
+  padding: 0 2rem;
+}
+
+
+#calllog-list ul:last-child {
+  margin-bottom: 5rem;
+}
+
+#call-from-loop {
+  z-index: 10;
+  height: 8rem;
+  width: 8rem;
+  border: none;
+  margin: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.15);
+  background-image: url(images/ActionIcon_40x40_hangup.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  position: absolute;
+  bottom: 1rem;
+  left: calc(50% - 4rem);
+  border-radius: 4rem;
+  overflow: hidden;
+}
+
+#call-from-loop:disabled {
+  pointer-events: none;
+}
+
+#call-from-loop:disabled:after {
+  font-weight: 600;
+  transform: rotate(45deg);
+  content: 'Disabled';
+  position: absolute;
+  width: 9rem;
+  font-size: 1.1rem;
+  line-height: 3rem;
+  text-align: center;
+  left: 1rem;
+  top: 0.8rem;
+  height: 3rem;
+  background: #AAA;
+  color: white;
+}
