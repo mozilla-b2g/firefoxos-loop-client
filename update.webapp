@@ -8,7 +8,5 @@
     "url": "https://github.com/mozilla-b2g/gaia"
   },
   "launch_path": "/index.html",
-  // The package_path property should be the path of the package on the store
-  // (Marketplace).
   "package_path": "/application.zip"
 }

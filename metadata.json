@@ -1,5 +1,4 @@
 {
-  // The manifestURL property should be a Marketplace path.
   "manifestURL": "https://loop.services.mozilla.com",
   "removable": false,
   "type": "privileged"
