@@ -1,7 +1,7 @@
 /* -*- Mode: js; js-indent-level: 2; indent-tabs-mode: nil -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
-/* global UI, CallHelper, AccountHelper */
+/* global UI, CallHelper, AccountHelper, FxacHelper */
 
 /* exported Controller */
 
@@ -60,7 +60,11 @@
      */
     init: function c_init() {
       var onAccount = function(account) {
-        if(!account) {
+        // If account is null it means there wasn't a account before.
+        // This will let us know if there was an account before, and we need
+        // this to check if we need to show the full Tutorial or just the
+        // authentication flow.
+        if(!account || !account.id) {
           UI.signUp(this.signUp);
           return;
         }
@@ -69,31 +73,60 @@
 
       UI.init();
 
-      AccountHelper.getAccount(
-        onAccount.bind(Controller),
-        function onError(e) {
-          UI.showError(e);
-        }
-      );
+      AccountHelper.getAccount(onAccount.bind(Controller));
     },
 
     /**
      * Sign up the user.
      *
+     * @param {Bool} msisdnSignUp Flag to determine whether the user performs
+     *                            the sign up process with a MSISDN assertion.
+     *                            If false, the user performs the sign up
+     *                            process with a Fx Account assertion.
      * @param {Function} onsuccess Function to be called once the user gets
      *                             signed up.
      * @param {Function} onerror Function to be called in case of any error. An
      *                           error object is passed as parameter.
      */
-    signUp: function signUp(id, onsuccess, onerror) {
+    signUp: function signUp(msisdnSignUp, onsuccess, onerror) {
       var onSuccess = function() {
         UI.shareUrl(this.shareUrl);
         UI.logOut(this.logOut);
         _callback(onsuccess);
       };
-      AccountHelper.signUp(
-        id, onSuccess.bind(Controller), onerror, _onNotification
-      );
+
+      var onLogin = function(assertion) {
+        if (msisdnSignUp) {
+        } else {
+          FxacHelper.logout();
+        }
+
+        var credentials = {};
+        if (msisdnSignUp) {
+          credentials.type = '';
+        } else {
+          credentials.type = 'BrowserID';
+        }
+        credentials.value = assertion;
+
+        AccountHelper.signUp(
+          credentials, onSuccess.bind(Controller), onerror, _onNotification
+        );
+      };
+
+      if (msisdnSignUp) {
+        // TODO: Request the MSISD assertion and start the registation dance.
+        _callback(
+          onerror, [new Error('Cannot register user through MSISDN yet.')]
+        );
+      } else {
+        // TODO: Uncomment this once the prod server supports FxA-based sign up.
+        // FxacHelper.init(onLogin);
+        // FxacHelper.register();
+        AccountHelper.signUp(
+          null, onSuccess.bind(Controller), onerror, _onNotification
+        );
+      }
     },
 
     /**

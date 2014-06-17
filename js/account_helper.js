@@ -3,7 +3,7 @@
 
 /* exported AccountHelper */
 
-/* globals Account, SimplePush, ClientRequestHelper */
+/* globals AccountStorage, Account, SimplePush, ClientRequestHelper */
 
 (function(exports) {
   'use strict';
@@ -14,46 +14,6 @@
     }
   }
 
-  var ID_KEY = 'loop';
-
-  var AccountStorage = {
-    /**
-     * Load the account object.
-     *
-     * @param {Function} success A callback invoked when the transaction
-     *                           completes successfully.
-     * @param {Function} error A callback invoked if an operation fails.
-     */
-    load: function a_load(onsuccess, onerror) {
-      asyncStorage.getItem(
-        ID_KEY,
-        function onId(id) {
-          if (!id) {
-            _callback(onsuccess, [null]);
-            return;
-          }
-          _callback(onsuccess, [new Account(id.value)]);
-      });
-    },
-
-    /**
-     * Store the account id object.
-     *
-     * @param {Account} account Account object to store.
-     */
-    store: function a_store(account) {
-      asyncStorage.setItem(ID_KEY, account.id);
-    },
-
-    /**
-     * Clear the account storage.
-     *
-     */
-    clear: function a_clear(identifier) {
-      asyncStorage.setItem(ID_KEY, null);
-    }
-  };
-
   var AccountHelper = {
     /**
      * Get the app account.
@@ -61,16 +21,16 @@
      * @param {Function} onsuccess Function to be called once it gets the
      *                             account. The account object is passed as
      *                             parameter.
-     * @param {Function} onerror Function to be called in case of any error. An
-     *                           error object is passed as parameter.
      */
-    getAccount: function getAccount(onsuccess, onerror) {
-      AccountStorage.load(onsuccess, onerror);
+    getAccount: function getAccount(onsuccess) {
+      AccountStorage.load(onsuccess);
     },
 
     /**
      * Sign up the user.
      *
+     * @param {Object} credentials Assertion to sign up the user with. It could
+     *                             be either a MSISDN or a Fx Account assertion.
      * @param {Function} onsuccess Function to be called once the user gets
      *                             signed up.
      * @param {Function} onerror Function to be called in case of any error. An
@@ -78,7 +38,25 @@
      * @param {Function} onnotification Function to be called once the device
      *                                  receives a simple push notification.
      */
-    signUp: function signUp(id, onsuccess, onerror, onnotification) {
+    signUp: function signUp(credentials, onsuccess, onerror, onnotification) {
+      /**
+       * Helper function. Return the identifier in the assertion.
+       *
+       * @param {Object} assertion Assertion object.
+       *
+       * @return {String} The indetifier in the assertion.
+       */
+      function _getIdentifier(assertion) {
+        // TODO: Get MSISDN in case of MSISDN assertion.
+        if (!assertion || (assertion.type !== 'BrowserID')) {
+          return null;
+        }
+
+        var unpacked = Utils.unpackAssertion(assertion.value);
+        return unpacked.claim ?
+          JSON.parse(unpacked.claim)['fxa-verifiedEmail'] : null;
+      }
+
       SimplePush.createChannel(
        'loop',
        onnotification,
@@ -90,11 +68,15 @@
            _callback(onerror, [new Error('Invalid endpoint')]);
          }
          // Register the peer.
-         ClientRequestHelper.register(endpoint,
-           function onRegisterSuccess() {
+         ClientRequestHelper.signUp(
+           credentials,
+           endpoint,
+           function onRegisterSuccess(result, hawkCredentials) {
              // Create an account locally.
              try {
-               AccountStorage.store(new Account(id));
+               AccountStorage.store(
+                 new Account(_getIdentifier(credentials), hawkCredentials)
+               );
                SimplePush.start();
                _callback(onsuccess);
              } catch(e) {
@@ -119,7 +101,7 @@
      */
     signIn: function signIn(onsuccess, onerror, onnotification) {
       AccountStorage.load(function(account) {
-        if (!account) {
+        if (!account || !account.id) {
           _callback(onerror, [new Error('Unable to sign in. Sing up first')])
         }
         SimplePush.createChannel(
@@ -132,7 +114,9 @@
            if (!endpoint) {
              _callback(onerror, [new Error('Invalid endpoint')]);
            }
-           ClientRequestHelper.register(endpoint,
+           ClientRequestHelper.signIn(
+             account.credentials,
+             endpoint,
              function onRegisterSuccess() {
                SimplePush.start();
                _callback(onsuccess);
@@ -148,7 +132,7 @@
      */
     logOut: function logOut(onlogout) {
       AccountStorage.load(function(account) {
-        if (!account) {
+        if (!account || !account.id) {
           return;
         }
         AccountStorage.clear();

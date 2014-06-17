@@ -1,0 +1,14 @@
+{
+  "name": "Loop",
+  "description": "The Mozilla Loop (WebRTC app) client",
+  "launch_path": "/index.html",
+  "type": "privileged",
+  "developer": {
+    "name": "The Gaia Team",
+    "url": "https://github.com/mozilla-b2g/gaia"
+  },
+  "launch_path": "/index.html",
+  // The package_path property should be the path of the package on the store
+  // (Marketplace).
+  "package_path": "/application.zip"
+}

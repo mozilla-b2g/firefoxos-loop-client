@@ -31,11 +31,15 @@
   /** Peer's id object (value and type) for the current account. */
   var _id = null;
 
+  /** Peer's credentials. */
+  var _credentials = null;
+
   /**
    * Represents a parsed Account object.
    */
-  function Account(identifier) {
+  function Account(identifier, credentials) {
     _id = _parse(identifier);
+    _credentials = credentials;
   }
 
   Account.prototype = {
@@ -51,6 +55,15 @@
      */
     get id() {
       return _id;
+    },
+
+    /**
+     * Return peer's credentials object for the current account.
+     *
+     * @return {Object} Peer's credentials object.
+     */
+    get credentials() {
+      return _credentials;
     }
   };
 

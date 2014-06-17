@@ -33,13 +33,29 @@
      */
     isEmailValid: function u_isEmailValid(id) {
       // TODO.
-      return false;
+      return true;
+    },
+
+    /**
+     * Helper function. Unpack the given assertion.
+     *
+     * @param {String} assertion The assertion to unpack
+     *
+     * @return {Object} Unpacked assertion object.
+     */
+    unpackAssertion: function u_unpackAssertion(assertion) {
+      var parts = assertion.split('.');
+      return {
+        header: atob(parts[0]),
+        claim: atob(parts[1]),
+        payload: atob(parts[3])
+      };
     },
 
     /**
      * Simple dump function.
-     * 
-     * @param {String} s Message. 
+     *
+     * @param {String} s Message.
      */
     log: function u_log(s) {
       DEBUG && console.log(s);

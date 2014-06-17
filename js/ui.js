@@ -64,13 +64,13 @@
       };
 
       var onSignUpError = function(e) {
-        alert(e.message);
+        alert(e);
       };
 
       this.signUpButton.hidden = false;
       this.signUpButton.onclick = function onClickSignUpButton() {
         _callback(
-          onsignup, ['+34667447797', onSignUpSuccess.bind(UI), onSignUpError]
+          onsignup, [false, onSignUpSuccess.bind(UI), onSignUpError]
         );
       };
     },
@@ -96,7 +96,7 @@
       };
 
       var onSignInError = function(e) {
-        alert(e.message);
+        alert(e);
       };
 
       _callback(onsignin, [onSignInSuccess.bind(UI), onSignInError]);
