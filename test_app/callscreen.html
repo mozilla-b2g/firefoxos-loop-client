@@ -5,9 +5,6 @@
     <meta charset="utf-8">
     <title>Loop</title>
 
-    <!-- L10 support -->
-    <link rel="resource" type="application/l10n" href="../locales/locales.ini"/>
-
     <!-- App styles -->
     <link rel="stylesheet" type="text/css" href="../style/bb/headers.css">
     <link rel="stylesheet" type="text/css" href="style/loop.css">
@@ -35,24 +32,25 @@
     <script defer src="../js/utils.js"></script>
     <script defer src="js/ui.js"></script>
     <script defer src="js/push.js"></script>
-    <script defer src="js/controller.js"></script>
-    <script defer src="../js/startup.js"></script>
-
+    <script defer src="js/callscreen.js"></script>
+    <script defer src="js/startup.js"></script>
   </head>
+
   <body role="application">
     <section role="region">
       <header>
-        <menu type="toolbar">
-            <button id="signup" data-l10n-id="signup" class="full recommend" hidden>Sign up</button>
-            <button id="logout" data-l10n-id="logout" class="full recommend" hidden>Log out</button>
-        </menu>
         <h1> Loop </h1>
       </header>
 
       <article id="screen" role="main">
         <section role="region">
           <div class="message">
-            <button id="share" data-l10n-id="share" hidden> Share call URL </button>
+            <button id="answer" data-l10n-id="answer" hidden> Answer </button>
+            <button id="reject" data-l10n-id="reject" hidden> Reject </button>
+            <button id="switchSpeaker" data-l10n-id="switchSpeaker" hidden>Switch Speaker</button>
+            <button id="hangup" data-l10n-id="hangup" hidden>Hang Up</button>
+            <div id="audio-video-container">
+            </div>
           </div>
         </section>
       </article>

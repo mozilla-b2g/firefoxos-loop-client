@@ -149,7 +149,6 @@
 
       var onClickRejectButton = function() {
         this.audioElement.pause();
-        this.shareUrlButton.hidden = false;
         this.answerButton.hidden = true;
         this.rejectButton.hidden = true;
         _callback(onreject);
@@ -161,7 +160,6 @@
         '/resources/media/ringtones/ringer_classic_wallphone.ogg';
       this.audioElement.play();
 
-      this.shareUrlButton.hidden = true;
       this.answerButton.hidden = false;
       this.rejectButton.hidden = false;
 
@@ -178,7 +176,6 @@
      */
     callScreen: function ui_callScreen(onswitchspeaker, onhangup) {
       var onClickHangupButton = function() {
-        this.shareUrlButton.hidden = false;
         this.switchSpeakerButton.hidden = true;
         this.hangupButton.hidden = true;
         _callback(onhangup);
