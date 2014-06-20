@@ -44,7 +44,7 @@
       req.setRequestHeader('authorization', authorization);
     }
     req.onload = function() {
-      if (req.status !== 200 && req.status !== 302) {
+      if (req.status !== 200 && req.status !== 204 && req.status !== 302) {
         _callback(onerror, [req.statusText]);
         return;
       }
@@ -111,6 +111,24 @@
         },
         onerror
       );
+    },
+
+    unregister: function unregister(
+      credentials, pushEndpoint, onsuccess, onerror) {
+        // TODO: Uncomment this once the prod server support this feature.
+        _callback(onsuccess);
+        return;
+        _request({
+            method: 'DELETE',
+            url: SERVER_URL + '/registration',
+            body: {
+              simple_push_url: pushEndpoint
+            },
+            credentials: credentials
+          },
+          onsuccess,
+          onerror
+        );
     },
 
     generateCallUrl: function generateCallUrl(callerId, onsuccess, onerror) {

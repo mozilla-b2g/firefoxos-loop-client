@@ -38,7 +38,9 @@
           } else if ((Object.keys(account)).length === 0) {
             _cachedAccount = {};
           } else {
-            _cachedAccount = new Account(account.id.value, account.credentials)
+            _cachedAccount = new Account(account.id.value,
+                                         account.credentials,
+                                         account.simplePushUrl);
           }
           _callback(onsuccess, [_cachedAccount]);
       });
@@ -50,6 +52,7 @@
      * of properties such as type and value. For the id object type could be
      * 'msisdn' or 'fxac' (phone number or email address respectively). For the
      * credentials object type could be 'BrowserID', 'MSISDN', or 'Hwak'.
+     * Moreover the simple Push URL is saved along with the properties above.
      *
      * @param {Account} account Account object to store.
      */
@@ -57,7 +60,8 @@
       // Update cache
       _cachedAccount = {
         id: account.id,
-        credentials: account.credentials
+        credentials: account.credentials,
+        simplePushUrl: account.simplePushUrl
       };
       // Store
       asyncStorage.setItem(
