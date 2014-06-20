@@ -34,12 +34,16 @@
   /** Peer's credentials. */
   var _credentials = null;
 
+  /** Simple Push URL . */
+  var _simplePushUrl = null;
+
   /**
    * Represents a parsed Account object.
    */
-  function Account(identifier, credentials) {
+  function Account(identifier, credentials, simplePushUrl) {
     _id = _parse(identifier);
     _credentials = credentials;
+    _simplePushUrl = simplePushUrl;
   }
 
   Account.prototype = {
@@ -64,6 +68,15 @@
      */
     get credentials() {
       return _credentials;
+    },
+
+    /**
+     * Return peer's simple Push URL for the current account.
+     *
+     * @return {String} Peer's simple Push URL.
+     */
+    get simplePushUrl() {
+      return _simplePushUrl;
     }
   };
 

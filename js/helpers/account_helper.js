@@ -74,7 +74,9 @@
              // Create an account locally.
              try {
                AccountStorage.store(
-                 new Account(_getIdentifier(credentials), hawkCredentials)
+                 new Account(_getIdentifier(credentials),
+                             hawkCredentials,
+                             endpoint)
                );
                SimplePush.start();
                _callback(onsuccess);
@@ -113,6 +115,7 @@
            if (!endpoint) {
              _callback(onerror, [new Error('Invalid endpoint')]);
            }
+           // TODO: we should update the simple Push URL for the account object.
            ClientRequestHelper.signIn(
              account.credentials,
              endpoint,
@@ -135,8 +138,13 @@
           return;
         }
         AccountStorage.clear();
-        // TODO We should remove the endpoint from the server as well.
-        _callback(onlogout);
+        ClientRequestHelper.unregister(
+          account.credentials,
+          account.simplePushUrl,
+          onlogout,
+          // TODO: We could fail silently and we do not want that.
+          onlogout
+        );
       });
     }
   };
