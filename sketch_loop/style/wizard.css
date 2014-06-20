@@ -1,0 +1,357 @@
+
+/*
+ * Wizard is based on 3 well differentiated sections:
+ *  [1] Tutorial > "wizard-tutorial-section"
+ *  [3] Authenticate > "wizard-authenticate-section"
+ *  [2] gUM > "wizard-gum-section"
+ */
+
+/*
+ * Each section is using the full height & width
+ */
+
+.wizard-section {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  display: none;
+  background: #E5E5E5;
+}
+
+/*
+ * We show one section or another without transitions
+ */
+
+.wizard-section.current {
+  display: block;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * *
+ * [1] Tutorial > "wizard-tutorial-section"
+ * It's based on:
+ * - Slideshow with the explanation & images
+ * - Button for skipping the tutorial
+ * - Tutorial progress
+ * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+
+#wizard-tutorial-slideshow {
+  /*
+    Width will be defined by JS, due to we dont know
+    in advance how many steps we have. The structure is
+    based on an UL > LI. Every step is a LI
+  */
+  height: 100%;
+  background: white;
+}
+
+#wizard-tutorial-slideshow.swipe {
+  transition: all ease-out .2s;
+}
+
+.wizard-tutorial-step {
+  /*
+    Width will be defined by JS, due to we dont know
+    in advance how many steps we have.
+  */
+  height: 100%;
+  display: inline-block;
+  float: left;
+  position: relative;
+
+  text-align: center;
+  /*
+    TODO Apply new images per step when ready
+  */
+  background-image: url(images/tutorial_image_wf.png);
+  background-size: 16rem 23rem;
+  background-repeat: no-repeat;
+  background-position: center 5rem;
+}
+
+.wizard-tutorial-step div {
+  width: 100%;
+  height: 4.7rem;
+  overflow: hidden;
+  position: absolute;
+  bottom: 11rem;
+
+  padding: 0 4rem;
+  box-sizing: border-box;
+
+  font-weight: 300;
+  font-size: 2rem;
+  line-height: 2.3rem;
+}
+
+/*
+ * Button for skipping the Tutorial
+ */
+
+#skip-tutorial-button {
+  display: none;
+  width: calc(100% - 4rem);
+  height: 5rem;
+  position: absolute;
+  z-index: 10;
+  bottom: 4rem;
+  left: 2rem;
+  border-radius: 1rem;
+  border: .3rem solid white;
+  box-sizing: border-box;
+
+  font-size: 2.2rem;
+  color: white;
+
+  background: #ccc;
+  
+  opacity: 0;
+  transition: opacity ease .3s;
+  pointer-events: none;
+}
+
+#skip-tutorial-button.visible {
+  transition: opacity ease .6s;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tutorial-progress-indicator {
+  display: none;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 10;
+  text-align: center;
+}
+
+.tutorial-progress-indicator-step {
+  height: 1rem;
+  width: 1rem;
+  display: inline-block;
+  background: white;
+  border-radius: 50%;
+  margin: 1rem .25rem;
+  border: .1rem solid #ccc;
+}
+
+.tutorial-progress-indicator-step.active {
+  background: #ccc;
+  border: .1rem solid #ccc;
+}
+
+.wizard-section.current #skip-tutorial-button {
+  display: block;
+}
+
+.wizard-section.current .tutorial-progress-indicator {
+  display: block;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * *
+ * [2] gUM > "wizard-gum-section"
+ * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+#wizard-gum-section {
+  position: absolute;
+  background: white;
+}
+
+.gum-explanation {
+  padding: 1rem 2rem 0 2rem;
+  /*background: red;*/
+  font-size: 2.8rem;
+  line-height: 2.8rem;
+  /*font-weight: 300;*/
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.explanation-emphasis{
+  line-height: 2rem;
+  font-size: 1.9rem;
+  text-align: center;
+  color: #4EADE6;
+}
+
+.calllog-snapshot {
+  height: 36rem;
+  width: 100%;
+  background: url(images/calllog_snapshot.png);
+  background-repeat: no-repeat;
+  background-size: 28rem auto;
+  background-position: center 0;
+  position: absolute;
+  bottom: 0;
+}
+
+.calllog-action-tap-mocked {
+  position: absolute;
+  height: 5rem;
+  width: 28rem;
+  top: 17rem;
+  right: calc(50% - 14rem);
+  z-index: 30;
+  background: #4EADE6;
+  opacity: .2;
+}
+
+.calllog-hand-indicator {
+  pointer-events: none;
+  position: absolute;
+  height: 6rem;
+  width: 6rem;
+  top: 19rem;
+  right: calc(50% - 6rem);
+  background: url(images/hand.png);
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: center;
+  z-index: 30;
+}
+
+@-webkit-keyframes tap-indicator-animation {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@-moz-keyframes tap-indicator-animation {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes tap-indicator-animation {
+  0%   { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.calllog-tap-indicator {
+  pointer-events: none;
+  border-radius: 1.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  position: absolute;
+  top: 18.5rem;
+  right: calc(50% - 3.5rem);
+  background: #4EADE6;
+  z-index: 10;
+  -webkit-animation: tap-indicator-animation 4s infinite; /* Safari 4+ */
+  -moz-animation:    tap-indicator-animation 4s infinite; /* Fx 5+ */
+  animation:         tap-indicator-animation 4s infinite; /* IE 10+ */
+}
+
+video {
+  background: white;
+  display: none;
+  /*z-index: 100;*/
+  position: absolute;
+  /*width: 100%;*/
+  height: 100%;
+  /*background: red;*/
+  top: 0;
+  z-index: 100;
+}
+
+.call-mock{
+  display: none;
+  background: url(images/call_screen_mock_wf.png);
+  background-size: 100% 100%;
+  z-index: 200;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0px;
+
+}
+
+video.show {
+  display: block;
+}
+
+.call-mock.show {
+  display: block;
+}
+/* * * * * * * * * * * * * * * * * * * * * * * * *
+ * [3] Authenticate > "wizard-authenticate-section"
+ * * * * * * * * * * * * * * * * * * * * * * * * *
+ */
+
+#wizard-authenticate-section {
+  background: white;
+  background-image: url(images/tutorial_image_wf.png);
+  background-size: 28rem 20rem;
+  background-repeat: no-repeat;
+  background-position: center 10%;
+}
+
+#wizart-authenticate-explanation {
+  text-align: center;
+  width: 100%;
+  padding: 1rem 2rem;
+  /*background: red;*/
+  font-weight: 300;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 15rem;
+  font-size: 2rem;
+  line-height: 2.3rem;
+}
+
+.wizard-button {
+  height: 5rem;
+  font-size: 2.2rem;
+  width: calc(100% - 4rem);
+  border-radius: 1rem;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  border: 0;
+  background: #ccc;
+  color: white;
+}
+
+.wizard-button:disabled {
+  background: #ccc;
+
+}
+
+#authenticate-fxa-button {
+  position: absolute;
+  bottom: 2rem;
+  left: 2rem;
+}
+
+#authenticate-msisdn-button {
+  position: absolute;
+  bottom: 8rem;
+  left: 2rem;
+}
+
+
+
+/*
+  MEDIA QUERIES FOR FIRE E/FLAME
+*/
+
+@media all and (min--moz-device-pixel-ratio: 1.5) {
+  .wizard-tutorial-step {
+    background-size: 20rem 28rem;
+    background-position: center 7rem;*/
+  }
+
+  .wizard-tutorial-step div {
+    bottom: 13rem;
+  }
+
+  #skip-tutorial-button {
+    bottom: 6rem;
+  }
+
+  #wizard-authenticate-section {
+    background-size: 60% auto;
+  }
+}

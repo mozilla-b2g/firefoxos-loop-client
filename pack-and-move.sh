@@ -22,13 +22,14 @@ mkdir deliver/loop.services.mozilla.com
 
 # Pack application.zip file.
 zip -r deliver/loop.services.mozilla.com/application.zip manifest.webapp \
-                                                         index.html \
+                                                         launcher.html \
                                                          js \
-                                                         style \
                                                          libs \
-                                                         tokbox \
                                                          locales \
                                                          locales-obj \
+                                                         sketch_loop \
+                                                         style \
+                                                         test_app \
                                                          resources
 # Add some other files.
 cp update.webapp deliver/loop.services.mozilla.com/

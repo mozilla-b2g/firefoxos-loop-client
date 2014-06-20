@@ -1,0 +1,21 @@
+#splash-screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: #ccc;
+  position: absolute;
+  z-index: 1000;
+  background-image: url(images/splash_logo_wf.png);
+  background-repeat: no-repeat;
+  background-position: center;
+  transition: opacity linear .5s ;
+  opacity: 1;
+}
+
+#splash-screen.invisible {
+  opacity: 0;
+}
+
+#splash-screen.show {
+  display: block;
+}
