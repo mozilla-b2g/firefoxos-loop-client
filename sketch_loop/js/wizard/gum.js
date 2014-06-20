@@ -16,12 +16,16 @@
         'click',
         function onClick() {
           calllogMockButton.removeEventListener('click', onClick);
+          // Choose default camera
+          var cameraConstraint = navigator.mozCameras.getListOfCameras().length > 1 ?
+            {facingMode: 'user', require:['facingMode']} : true;
+
           // Ask for the Stream
           navigator.mozGetUserMedia(
             {
               // TODO Ask for facing mode if possible
-              // video: {facingMode: 'user', require:['facingMode']},
-              video: true,
+              video: cameraConstraint,
+              // video: true,
               audio: true
             },
             function onStreamReady(stream) {

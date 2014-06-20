@@ -47,6 +47,11 @@
       .actions {
         margin-top: 3rem;
       }
+
+      .disabled {
+        pointer-events: none;
+        background: #CCC;
+      }
     </style>
   </head>
   <body role="application">
@@ -57,11 +62,12 @@
       - <strong>APP</strong>: Final UI. We will add, step by step, new features and UI designs. This will be the final App.
     </p>
     <p>
-      - <strong>TEST</strong>: App for testing the libraries, server & performance. We will test here, with a simple UI, the features which will be added to the APP. Once the DEV stage will be over, this 'TEST' entry point will be removed.
+      - <strong>TEST</strong>: App for testing the libraries, server & performance. CURRENTLY DISABLED due to push messaging are redirected to the final App. If you want to use this one, change this param in the manifest pointing to the test_app/test.html.
+      This TEST App will be removed soon, in the bug 1023773.
     </p>
     <div class="actions">
       <a href="sketch_loop/index.html">Launch App</a>
-      <a href="test_app/test.html">Launch Test app</a>
+      <a href="test_app/test.html" class="disabled">Launch Test app</a>
     </div>
     
   </body>

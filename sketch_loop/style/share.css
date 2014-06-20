@@ -1,79 +1,103 @@
+.share {
+  z-index: 200;
+  background: #ccc;
+  -webkit-transform: translateY(100%);
+  transform: translateY(100%);
+}
+
 .share.show {
-  z-index: 100;
   -webkit-transform: translateY(0);
-  transform: translateY(0);  
+  transform: translateY(0);
 }
 
-#share-panel {
-  /*color: #3F8CFC;*/
-  /*color: white;*/
-}
-
-#share-panel h1 {
-
-  /*color: #3F8CFC;*/
-  /*font-weight: 300;*/
-  font-size: 6rem;
-  width: 100%;
-  height: 14rem;
-  line-height: 14rem;
-  text-align: center;
-} 
-
-#share-explanation {
+.share-options-title {
   font-weight: 300;
-  /*position: relative;*/
-  font-size: 1.5rem;
-  /*margin-top: 8rem;*/
-  padding: 1rem 2rem;
-  -webkit-box-sizing: border-box;
+  font-size: 1.8rem;
+  padding: 1rem 0;
   box-sizing: border-box;
-  /*background: red;*/
-
 }
 
-#share-options {
-  text-align: center;
-  /*position: relative;
-  top: */
-}
-
-#share-options{
-  margin-top: 3rem;
-}
-
-#share-options li:first-child {
-  border-top: .1rem solid #64AAD0;
-}
-
-#share-options li {
-  /*background: #64AAD0;*/
-  /*font-weight: 300;*/
-  font-size: 1.7rem !important;
-  height: 3rem;
-  line-height: 3rem;
-  color: #64AAD0;
-  border-bottom: .1rem solid #64AAD0;
-}
-
-#share-options li.selected {
-  color: white;
-  background: #64AAD0;
-}
-
-#share-button {
-  border: none;
-  bottom: 0;
+.share-options {
   position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1.8rem;
+}
+
+.share-options .pack-end {
+  float: left !important;
+  margin-right: 1rem !important;
+}
+
+.share-link {
   width: 100%;
-  height: 5rem;
-  background: #3F8CFC;
-  background-image: url(images/share.png);
-  background-size: auto 80%;
-  background-repeat: no-repeat;
-  background-position: center;
-  -webkit-box-sizing: border-box;
+  padding: 0 2rem;
+  font-size: 1.8rem;
   box-sizing: border-box;
-  padding: 0;
-  border-radius: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #999;
+}
+
+.share-link-url {
+  font-style: italic;
+  color: black;
+  
+}
+
+.share-explanation {
+  font-size: 1.8rem;
+  padding: 1rem 2rem;
+  width: 100%;
+  overflow: hidden;
+  max-height: 12rem;
+  box-sizing: border-box;
+  line-height: 2.4rem;
+
+}
+
+.share-contact-info {
+  width: 100%;
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+  height: 12rem;
+}
+.share-contact-details {
+  height: 7rem;
+  margin-top: 1.5rem;
+  width: calc(100% - 9rem);
+  float: right;
+}
+
+.share-contact-details p {
+  height: 50%;
+  font-size: 1.8rem;
+}
+
+.share-contact-details p:first-child {
+  font-weight: bold;
+  padding-top: 1.5rem;
+  box-sizing: border-box;
+}
+
+.share-contact-details p:last-child {
+  padding-top: .3rem;
+  box-sizing: border-box;
+  color: #999;
+  font-style: italic;
+}
+
+.share-contact-photo {
+  height: 7rem;
+  width: 7rem;
+  border-radius: 3.5rem;
+  background: #ccc;
+  float: left;
+  margin-top: 1.5rem;
+  margin-right: 2rem;
+}
+
+.share-options ul {
+  font-style: italic;
 }

@@ -19,10 +19,22 @@
     <link rel="stylesheet" type="text/css" href="style/wizard.css">
     <link rel="stylesheet" type="text/css" href="style/splash_screen.css">
     
-    <script defer src="../libs/async_storage.js"></script>
+    <script defer src="../js/config.js"></script>
     <script defer src="../js/utils.js"></script>
+
+    <script defer src="../libs/async_storage.js"></script>
+    <script defer src="../libs/hawk.js"></script>
+    <script defer src="../libs/sjcl.min.js"></script>
+    <script defer src="../libs/token.js"></script>
+
+    
+
     <script defer src="../js/helpers/account.js"></script>
+    <script defer src="../js/helpers/account_helper.js"></script>
     <script defer src="../js/helpers/account_storage.js"></script>
+    <script defer src="../js/helpers/call_helper.js"></script>
+    <script defer src="../js/helpers/simple_push_helper.js"></script>
+    <script defer src="../js/helpers/client_request_helper.js"></script>
 
     <script defer src="js/wizard/gum.js"></script>
     <script defer src="js/wizard/authenticate.js"></script>
@@ -131,24 +143,58 @@
           </p>
         </div>
       </section>
-      <button id="call-from-loop" disabled>
+      <button id="call-from-loop">
       </button>
     </section>
     <section id="contact-detail-panel" class="panel main">
       Contact detail
     </section>
-    <section id="share-panel" class="modal share main">
-      <h1>Ups!</h1>
-      <p id="share-explanation">
-        Ha sido imposible establecer la llamada con Loop, lo más probable es que al usuario al que intentas llamar no tenga la aplicación instalada.
-        Selecciona un medio y le haremos llegar un link con el que podréis hablar directamente!
-      </p>
-      <ul id="share-options">
-        <li id="share-done-mock" class="selected">+34512123123</li>
-        <li>+44123432123</li>
-        <li>foo@bar.org</li>
-        <li>foo@foo.es</li>
-      </ul>
+    <section id="share-panel" class="panel share skin-organic" role="region">
+      <header>
+        <button id="share-close-button"><span class="icon icon-close">close</span></button>
+        <h1>Share link</h1>
+      </header>
+      <section class="share-contact-info">
+        <div class="share-contact-photo"></div>
+        <div class="share-contact-details">
+          <p id="contact-name-to-share">Travis Grey</p>
+          <p>Not connected to Loop</p>
+        </div>
+      </section>
+      <section class="share-explanation">
+        No problem! Just share the link below and they can call you back from any modern browser.
+      </section>
+      <section class="share-link">
+        <span class="share-link-label">Link: </span> <span id="link-to-share" class="share-link-url"></span>
+      </section>
+      <section class="share-options" data-type="list">
+        <p class="share-options-title">
+          Share link via:
+        </p>
+        <ul>
+          <li id="share-by-sms">
+            <aside class="pack-end">
+              <img alt="placeholder" src="style/images/icon_message@2,25x.png">
+            </aside>
+            <a>
+              <p>Messages</p>
+            </a>
+          </li>
+          <!-- <li>
+            <a>
+              <p>Email</p>
+            </a>
+          </li> -->
+          <li id="share-by-others">
+            <aside class="pack-end">
+              <img alt="placeholder" src="style/images/icon_share@2,25x.png">
+            </aside>
+            <a>
+              <p>Other</p>
+            </a>
+          </li>
+        </ul>
+      </section>
     </section>
     <section id="settings-panel" class="panel settings skin-organic" role="region">
       <header>

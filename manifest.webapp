@@ -15,10 +15,11 @@
     "audio-capture": {},
     "audio-channel-telephony":{},
     "audio-channel-ringer":{},
-    "speaker-control": {}
+    "speaker-control": {},
+    "camera":{}
   },
   "messages": [
-     { "push": "/test_app/test.html" }
+     { "push": "/sketch_loop/index.html" }
   ],
   "default_locale": "en",
   "orientation": "portrait",

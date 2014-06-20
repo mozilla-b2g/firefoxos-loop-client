@@ -18,6 +18,12 @@
         'click',
         Settings.show
       );
+
+      document.getElementById('call-from-loop').addEventListener(
+        'click',
+        Controller.call
+      );
+
       // Shield against multiple calls
       _initialized = true;
     }
