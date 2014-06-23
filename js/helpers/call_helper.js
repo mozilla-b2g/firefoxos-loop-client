@@ -1,7 +1,7 @@
 /* -*- Mode: js; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
-/* global ClientRequestHelper, Opentok */
+/* global ClientRequestHelper, Opentok, Utils */
 
 /* exported CallHelper */
 
@@ -12,44 +12,6 @@
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
     }
-  }
-
-  /**
-   * Join the call party to the ongoing call.
-   *
-   * @param {Object} call Call data.
-   * @param {String} target Container element name for video/audio elements.
-   * @param {Object} constraints Constraints object defining some call details.
-   * @param {Function} onconnected Function to be called once the peer
-   *                               connects the session.
-   * @param {Function} onstream Function to be called once the session object
-   *                            receives 'streamCreated' events.
-   * @param {Function} onerror Function to be called if any error happens.
-   */
-  function _joinCall(call, target, constraints, onconnected, onstream, onerror) {
-    Opentok.setConstraints(constraints);
-    var session = TB.initSession(call.apiKey, call.sessionId);
-    session.on({
-      streamCreated: function(event) {
-        session.subscribe(event.stream, target, null);
-        _callback(onstream, [event]);
-      }
-    });
-    session.connect(call.sessionToken, function(e) {
-      if (e) {
-        Utils.log('Session connect error ' + e.message);
-        _callback(onerror, [e]);
-        return;
-      }
-      _callback(onconnected);
-      session.publish(target, null, function onPublish(ee) {
-        if (ee) {
-          Utils.log('Session publish error ' + ee.message);
-          _callback(onerror, [ee]);
-        }
-      });
-    });
-    return session;
   }
 
   var CallHelper = {
@@ -96,7 +58,7 @@
      *
      * @param {Numeric} notificationId Simple push notification version.
      * @param {String} target Container element name for video/audio elements.
-     * @param {Object} constraints Constraints object defining some call details.
+     * @param {Object} constraints Constraints object defining call details.
      * @param {Function} onconnected Function to be called once the peer
      *                               connects the session.
      * @param {Function} onstream Function to be called once the session object
@@ -112,7 +74,7 @@
           _callback(onerror, [new Error('Unable to get call data')])
           return;
         }
-        this.session = _joinCall(
+        this.session = this.joinCall(
           call, target, constraints, onconnected, onstream, onerror
         );
       };
@@ -125,7 +87,48 @@
     },
 
     /**
+     * Join the call party to the ongoing call.
      *
+     * @param {Object} call Call data.
+     * @param {String} target Container element name for video/audio elements.
+     * @param {Object} constraints Constraints object defining some call details.
+     * @param {Function} onconnected Function to be called once the peer
+     *                               connects the session.
+     * @param {Function} onstream Function to be called once the session object
+     *                            receives 'streamCreated' events.
+     * @param {Function} onerror Function to be called if any error happens.
+     */
+    joinCall: function ch_joinCall(
+      call, target, constraints, onconnected, onstream, onerror) {
+
+      Opentok.setConstraints(constraints);
+      var session = TB.initSession(call.apiKey, call.sessionId);
+      session.on({
+        streamCreated: function(event) {
+          session.subscribe(event.stream, target, null);
+          Utils.log('Subcribed to remote peers stream, video should appear');
+          _callback(onstream, [event]);
+        }
+      });
+      session.connect(call.sessionToken, function(e) {
+        if (e) {
+          Utils.log('Session connect error ' + e.message);
+          _callback(onerror, [e]);
+          return;
+        }
+        _callback(onconnected);
+        session.publish(target, null, function onPublish(ee) {
+          if (ee) {
+            Utils.log('Session publish error ' + ee.message);
+            _callback(onerror, [ee]);
+          }
+        });
+      });
+      return session;
+    },
+
+    /**
+     * Hangs up the call.
      */
     hangUp: function ch_hangUp() {
       if (this.session) {

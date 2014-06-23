@@ -1,7 +1,7 @@
 /* -*- Mode: js; js-indent-level: 2; indent-tabs-mode: nil -*- */
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
-/* global UI, CallHelper, AccountHelper, FxacHelper */
+/* global UI, CallHelper, AccountHelper, FxacHelper, PushNotification */
 
 /* exported Controller */
 
@@ -18,40 +18,6 @@
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
     }
-  }
-
-  /**
-   * Handle the simple push notifications the device receives as an incoming
-   * call.
-   *
-   * @param {Numeric} notificationId Simple push notification id (version).
-   */
-  function _onNotification(notificationId) {
-    navigator.mozApps.getSelf().onsuccess = function (evt) {
-      var app = evt.target.result;
-      app.launch();
-      UI.incomingCall(
-        function onAnswer() {
-          UI.callScreen(
-            function onSwitchSpeaker() {
-              CallHelper.switchSpeaker();
-            },
-            function onHangup() {
-              CallHelper.hangUp();
-            }
-          );
-          // TODO: the constraints object should be definded based on user's
-          // preferences such as the ones exposed in the UI or the ones selected
-          // in the hipothetical settings panel we should have.
-          var constraints = {audio: true, video: true};
-          CallHelper.handleIncomingCall(notificationId,
-                                        'audio-video-container',
-                                        constraints);
-        },
-        function onReject() {
-        }
-      );
-    };
   }
 
   var Controller = {
@@ -110,7 +76,10 @@
         credentials.value = assertion;
 
         AccountHelper.signUp(
-          credentials, onSuccess.bind(Controller), onerror, _onNotification
+          credentials,
+          onSuccess.bind(Controller),
+          onerror,
+          PushNotification.onNotification
         );
       };
 
@@ -124,7 +93,10 @@
         // FxacHelper.init(onLogin);
         // FxacHelper.register();
         AccountHelper.signUp(
-          null, onSuccess.bind(Controller), onerror, _onNotification
+          null,
+          onSuccess.bind(Controller),
+          onerror,
+          PushNotification.onNotification
         );
       }
     },
@@ -144,7 +116,9 @@
         _callback(onsuccess);
       };
       AccountHelper.signIn(
-        onSuccess.bind(Controller), onerror, _onNotification
+        onSuccess.bind(Controller),
+        onerror,
+        PushNotification.onNotification
       );
     },
 
