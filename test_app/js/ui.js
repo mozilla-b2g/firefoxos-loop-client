@@ -158,6 +158,7 @@
       this.audioElement.mozAudioChannelType = 'ringer';
       this.audioElement.src =
         '/resources/media/ringtones/ringer_classic_wallphone.ogg';
+      this.audioElement.loop = true;
       this.audioElement.play();
 
       this.answerButton.hidden = false;

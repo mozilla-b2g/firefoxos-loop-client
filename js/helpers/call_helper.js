@@ -1,7 +1,7 @@
 /* -*- Mode: js; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
-/* global ClientRequestHelper, Opentok, Utils */
+/* global ClientRequestHelper, Opentok, Utils, AudioCompetingHelper */
 
 /* exported CallHelper */
 
@@ -12,6 +12,25 @@
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
     }
+  }
+
+  /**
+   * Set the call given as parameter on hold.
+   *
+   * @param {Object} call Call data.
+   */
+  function _setCallOnHold(call) {
+    Utils.log('CallHelper.setCallOnHold()');
+    AudioCompetingHelper.leaveCompetition();
+  }
+
+  /**
+   * Resume the call given as parameter.
+   *
+   * @param {Object} call Call data.
+   */
+  function _resumeCall(call) {
+    Utils.log('CallHelper.resumeCall()');
   }
 
   var CallHelper = {
@@ -101,6 +120,14 @@
     joinCall: function ch_joinCall(
       call, target, constraints, onconnected, onstream, onerror) {
 
+      AudioCompetingHelper.clearListeners();
+      var setCallOnHold = _setCallOnHold.bind(null, call);
+      AudioCompetingHelper.addListener('mozinterruptbegin', setCallOnHold);
+      var resumeCall = _resumeCall.bind(null, call);
+      AudioCompetingHelper.addListener('mozinterruptend', resumeCall);
+
+      AudioCompetingHelper.compete();
+
       Opentok.setConstraints(constraints);
       var session = TB.initSession(call.apiKey, call.sessionId);
       session.on({
@@ -135,6 +162,7 @@
         this.session.disconnect();
         this.session = null;
       }
+      AudioCompetingHelper.leaveCompetition();
     }
   };
 
