@@ -22,6 +22,7 @@
     signUpButton: null,
     logoutButton: null,
     shareUrlButton: null,
+    callUserButton: null,
     answerButton: null,
     rejectButton: null,
     switchSpeakerButton: null,
@@ -35,10 +36,12 @@
       this.signUpButton = document.getElementById('signup');
       this.logoutButton = document.getElementById('logout');
       this.shareUrlButton = document.getElementById('share');
+      this.callUserButton = document.getElementById('callUser');
       this.answerButton = document.getElementById('answer');
       this.rejectButton = document.getElementById('reject');
       this.switchSpeakerButton = document.getElementById('switchSpeaker');
       this.hangupButton = document.getElementById('hangup');
+      this.userIdInput = document.getElementById('userId');
     },
 
     /**
@@ -131,6 +134,21 @@
       this.shareUrlButton.onclick = function onClickShareUrlButton() {
         _callback(onshareurl, ['dummyId', onShareUrlSuccess, onShareUrlError]);
       };
+    },
+
+    callUser: function ui_callUser(oncall) {
+      var onCallSuccess = function() {
+      };
+
+      var onCallError = function(e) {
+        alert(e.message);
+      };
+
+      this.callUserButton.hidden = false;
+      this.callUserButton.onclick = (function onClickCallButton() {
+        _callback(oncall, [this.userIdInput.value, onCallSuccess, onCallError]);
+      }).bind(this);
+      this.userIdInput.hidden = false;
     },
 
     /**

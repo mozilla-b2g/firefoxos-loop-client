@@ -23,5 +23,5 @@
   ],
   "default_locale": "en",
   "orientation": "portrait",
-  "origin": "app://loop.services.mozilla.com"
+  "origin": "app://loop.dev.mozaws.net"
 }
