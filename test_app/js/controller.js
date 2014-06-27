@@ -57,6 +57,7 @@
     signUp: function signUp(msisdnSignUp, onsuccess, onerror) {
       var onSuccess = function() {
         UI.shareUrl(this.shareUrl);
+        UI.callUser(this.callUser);
         UI.logOut(this.logOut);
         _callback(onsuccess);
       };
@@ -84,21 +85,14 @@
       };
 
       if (msisdnSignUp) {
-        // TODO: Request the MSISD assertion and start the registation dance.
+        // TODO: Request the MSISDN assertion and start the registation dance.
         _callback(
           onerror, [new Error('Cannot register user through MSISDN yet.')]
         );
       } else {
-        // TODO: Uncomment this once the prod server supports FxA-based sign up.
-        // FxacHelper.init(onLogin);
-        // FxacHelper.register();
-        AccountHelper.signUp(
-          null,
-          onSuccess.bind(Controller),
-          onerror,
-          PushNotification.onNotification
-        );
-      }
+        FxacHelper.init(onLogin);
+        FxacHelper.register();
+     }
     },
 
     /**
@@ -112,6 +106,7 @@
     signIn: function signIn(onsuccess, onerror) {
       var onSuccess = function() {
         UI.shareUrl(this.shareUrl);
+        UI.callUser(this.callUser);
         UI.logOut(this.logOut);
         _callback(onsuccess);
       };
@@ -145,6 +140,16 @@
           activity.onsuccess = onsuccess;
           activity.onerror =
            _callback.bind(null, onerror, [new Error('Activity error')]);
+        },
+        onerror
+      );
+    },
+
+    callUser: function c_callUser(calleeId, onsuccess, onerror) {
+      CallHelper.callUser(calleeId,
+        function onCallUserSuccess(result) {
+          Utils.log('Call user result ' + JSON.stringify(result));
+          _callback(onsuccess);
         },
         onerror
       );

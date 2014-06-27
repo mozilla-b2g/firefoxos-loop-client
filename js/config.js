@@ -3,5 +3,5 @@ Config = {
   //   Development: 'http://loop.dev.mozaws.net'
   //   Stage: 'https://loop.stage.mozaws.net'
   //   Prod: 'https://loop.services.mozilla.com'
-  server_url: 'https://loop.services.mozilla.com'
+  server_url: 'http://loop.dev.mozaws.net'
 };

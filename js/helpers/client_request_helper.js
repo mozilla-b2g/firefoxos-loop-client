@@ -5,6 +5,11 @@
 
 /* globals Config */
 
+/**
+ * Server side docs for this REST client can be found at
+ * https://docs.services.mozilla.com/loop/apis.html
+ */
+
 'use strict';
 
 (function(exports) {
@@ -204,6 +209,27 @@
       _request({
         method: 'DELETE',
         url: SERVER_URL + '/calls/id/' + callId
+      }, onsuccess, onerror);
+    },
+
+    callUser: function callUser(calleeId, onsuccess, onerror) {
+      if (!_hawkCredentials) {
+        _callback(onerror, [new Error('No HAWK credentials')]);
+        return;
+      }
+
+      if (!calleeId) {
+        _callback(onerror, [new Error('No callee ID')]);
+        return;
+      }
+
+      _request({
+        method: 'POST',
+        url: SERVER_URL + '/calls/',
+        body: {
+          calleeId: calleeId
+        },
+        credentials: _hawkCredentials
       }, onsuccess, onerror);
     }
   };
