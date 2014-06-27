@@ -14,13 +14,38 @@
   /** HAWK credentials */
   var _hawkCredentials = null;
 
+  var _localtimeOffsetMsec = 0;
+
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
     }
   }
 
-  function _request(options, onsuccess, onerror) {
+  /**
+   * Update clock offset by determining difference from date gives in the (RFC
+   * 1123) Date header of a server response.  Because HAWK tolerates a window
+   * of one minute of clock skew (so two minutes total since the skew can be
+   * positive or negative), the simple method of calculating offset here is
+   * probably good enough.  We keep the value in milliseconds to make life
+   * easier, even though the value will not have millisecond accuracy.
+   *
+   * @param dateString
+   *        An RFC 1123 date string (e.g., "Mon, 13 Jan 2014 21:45:06 GMT")
+   *
+   * For HAWK clock skew and replay protection, see
+   * https://github.com/hueniverse/hawk#replay-protection
+   */
+  function _updateClockOffset(dateString) {
+    try {
+      var serverDateMsec = Date.parse(dateString);
+      _localtimeOffsetMsec = serverDateMsec - hawk.utils.now();
+    } catch(err) {
+      console.warn('Bad date header in server response: ' + dateString);
+    }
+  }
+
+  function _request(options, onsuccess, onerror, skipRetry) {
     var req = new XMLHttpRequest({mozSystem: true});
     req.open(options.method, options.url, true);
     req.setRequestHeader('Content-Type', 'application/json');
@@ -36,7 +61,8 @@
           break;
         default:
           var hawkHeader = hawk.client.header(options.url, options.method, {
-            credentials: options.credentials.value
+            credentials: options.credentials.value,
+            localtimeOffsetMsec: _localtimeOffsetMsec
           });
           authorization = hawkHeader.field;
           break;
@@ -44,6 +70,15 @@
       req.setRequestHeader('authorization', authorization);
     }
     req.onload = function() {
+      _updateClockOffset(req.getResponseHeader('Date'));
+
+      // We may fail because of clock skew issues. In that cases we retry once
+      // after setting the clock offset.
+      if (req.status === 401 && !skipRetry) {
+        _request(options, onsuccess, onerror, true);
+        return;
+      }
+
       if (req.status !== 200 && req.status !== 204 && req.status !== 302) {
         _callback(onerror, [req.statusText]);
         return;
