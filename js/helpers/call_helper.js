@@ -59,6 +59,20 @@
       );
     },
 
+    callUser: function ch_callUser(calleeId, onsuccess, onerror) {
+      if (!calleeId) {
+        _callback(onerror, [new Error('Invalid callee id')]);
+        return;
+      }
+
+      ClientRequestHelper.callUser(calleeId,
+        function onCallUser(result) {
+          _callback(onsuccess, [result]);
+        },
+        onerror
+      );
+    },
+
     /**
      * Answer/handle the incoming call.
      *
