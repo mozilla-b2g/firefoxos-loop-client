@@ -44,7 +44,14 @@
             var constraints = {audio: true, video: true};
             CallHelper.handleIncomingCall(notificationId,
                                           'audio-video-container',
-                                          constraints);
+                                          constraints,
+                                          null,
+                                          function onDisconnected() {
+                                            CallHelper.hangUp();
+                                            window.close();
+                                          },
+                                          null,
+                                          null);
           },
           function onReject() {
             window.close();

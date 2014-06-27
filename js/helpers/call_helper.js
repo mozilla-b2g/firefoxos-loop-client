@@ -14,6 +14,12 @@
     }
   }
 
+  /** Number of peers connected to the session. */
+  var _peersInSession = 0;
+
+  /** Number of peers publishing the media stream. */
+  var _publishersInSession = 0;
+
   var CallHelper = {
     /** Opentok session */
     session: null,
@@ -61,12 +67,16 @@
      * @param {Object} constraints Constraints object defining call details.
      * @param {Function} onconnected Function to be called once the peer
      *                               connects the session.
+     * @param {Function} ondisconnected Function to be called once the peer
+     *                                  disconnects from the session.
      * @param {Function} onstream Function to be called once the session object
      *                            receives 'streamCreated' events.
      * @param {Function} onerror Function to be called if any error happens.
      */
     handleIncomingCall: function ch_handleIncomingCall(
-      notificationId, target, constraints, onconnected, onstream, onerror) {
+      notificationId, target, constraints,
+      onconnected, ondisconnected,
+      onstream, onerror) {
 
       var onGetCallsSuccess = function(calls) {
         var call = calls.calls[0];
@@ -75,7 +85,9 @@
           return;
         }
         this.session = this.joinCall(
-          call, target, constraints, onconnected, onstream, onerror
+          call, target, constraints,
+          onconnected, ondisconnected,
+          onstream, onerror
         );
       };
 
@@ -94,20 +106,54 @@
      * @param {Object} constraints Constraints object defining some call details.
      * @param {Function} onconnected Function to be called once the peer
      *                               connects the session.
+     * @param {Function} ondisconnected Function to be called once the peer
+     *                                  disconnects from the session.
      * @param {Function} onstream Function to be called once the session object
      *                            receives 'streamCreated' events.
      * @param {Function} onerror Function to be called if any error happens.
      */
     joinCall: function ch_joinCall(
-      call, target, constraints, onconnected, onstream, onerror) {
+      call, target, constraints,
+      onconnected, ondisconnected,
+      onstream, onerror) {
 
       Opentok.setConstraints(constraints);
       var session = TB.initSession(call.apiKey, call.sessionId);
+      var that = this;
       session.on({
+        // Fired when a new peer is connected to the session.
+        connectionCreated: function(event) {
+          _peersInSession += 1;
+          if (_peersInSession === 1) {
+            // Lets wait 10 second until we hang up the call when no answer from
+            // the called party.
+            window.setTimeout(function onTimeout() {
+              if (_peersInSession > 1) {
+                return;
+              }
+              that.hangUp();
+              _callback(ondisconnected);
+            }, 10000);
+          }
+        },
+        // Fired when an existing peer is disconnected from the session.
+        connectionDestroyed: function(event) {
+          _peersInSession -= 1;
+          if (_peersInSession === 1) {
+            // We are alone in the session now so lets disconnect.
+            that.hangUp();
+            _callback(ondisconnected);
+          }
+        },
+        // Fired when a peer publishes the media stream.
         streamCreated: function(event) {
           session.subscribe(event.stream, target, null);
-          Utils.log('Subcribed to remote peers stream, video should appear');
+          _publishersInSession += 1;
           _callback(onstream, [event]);
+        },
+        // Fired when a peer stops publishing the media stream.
+        streamDestroyed: function(event) {
+          _publishersInSession -= 1;
         }
       });
       session.connect(call.sessionToken, function(e) {
@@ -122,6 +168,7 @@
             Utils.log('Session publish error ' + ee.message);
             _callback(onerror, [ee]);
           }
+          _publishersInSession += 1;
         });
       });
       return session;
