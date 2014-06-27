@@ -43,3 +43,9 @@ body[data-layout="contact-detail"] #contact-detail-panel {
   -webkit-transform: translateX(0);
   transform: translateX(0);
 }
+
+
+body[data-layout="share"] #share-panel {
+  -webkit-transform: translateX(0);
+  transform: translateX(0);
+}

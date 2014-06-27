@@ -1,0 +1,269 @@
+html, body {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  font-family: 'MozTT', sans-serif;
+
+}
+
+.panel {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-image: url(images/wallpaper.jpg);
+}
+
+/*
+ * Remove the styles by default
+ */
+button {
+  border-radius: 0;
+}
+
+button::-moz-focus-inner {
+  border: 0;
+}
+
+/*
+ * Buttons
+ */
+
+.action-button {
+  position: absolute;
+  height: 5rem;
+  width: 5rem;
+  z-index: 10;
+  position: absolute;
+  border-radius: 2.5rem;
+  border: none;
+  transition: all .5s ease;
+}
+
+
+#hang-out {
+  bottom: 2rem;
+  
+  -webkit-transform: translateX(3rem);
+  transform: translateX(3rem);
+  
+  background: rgba(255, 0, 0, .7);
+  background-image: url(images/call.png);
+  background-size: auto 5rem;
+  background-size: 60%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+#answer {
+  bottom: 2rem;
+  right: 3rem;
+  
+  background: rgba(0, 255, 0, .7);
+  background-image: url(images/call.png);
+  background-size: auto 5rem;
+  background-size: 60%;
+  background-repeat: no-repeat;
+  background-position: center;
+  
+  border: none;
+  z-index: 100;
+}
+
+#call-settings {
+  bottom: 2rem;
+  right: 3rem;
+  
+  background: #ccc;
+  border: none;
+
+}
+
+#answer-video {
+  right: calc(50% - 2.5rem);
+  bottom: 18rem;
+  
+  background: #2A6918;
+  background-image: url(images/video.png);
+  background-size: auto 5rem;
+  background-size: 40%;
+  background-repeat: no-repeat;
+  background-position: center;
+  
+  border: none;
+}
+
+/*
+ * Remote buble. We show a picture of the contact we are calling to.
+ * This will dissapear if the other will answer.
+ */
+
+.remote-bubble {
+  height: 12rem !important;
+  width: 12rem  !important;
+  
+  position: absolute !important;
+  border-radius: 6rem;
+  bottom: 2rem !important;
+  left: calc(50% - 6rem) !important;
+  z-index: 10 !important;
+  
+  border: .2rem solid white !important;
+  box-sizing: border-box;
+  
+  opacity: 1;
+  transition: all .7s ease;
+
+  background: #E5E5E5;
+  background-image: url(images/image2.jpg);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+/*
+ * Contact info.
+ */
+
+.info-panel {
+  height: 14rem;
+  width: 100%;
+
+  position: absolute;
+  top: 2rem;
+  left: 0;
+  z-index: 10;
+
+  text-align: center;
+  color: white;
+  text-shadow: #333 1px 0px 2px;
+}
+
+
+
+/*
+ * Main info extracted from the Contact
+ */
+
+.info-panel h1{
+  width: 100%;
+  padding: .5rem 1rem 0 1rem;
+  margin: 0;
+  box-sizing:border-box;
+  
+  font-size: 3.2rem;
+  font-weight: 300;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+.info-panel h2{
+  width: 100%;
+  padding: .2rem 2rem;
+  margin: 0;
+  box-sizing:border-box;
+  
+  font-size: 2.6rem;
+  font-weight: 300;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info-panel h3{
+  width: 100%;
+  padding: .2rem 2rem;
+  margin: 0;
+  box-sizing:border-box;
+  
+  font-size: 1.8rem;
+  font-weight: 300;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/*
+ * Wrapper to the video one
+ */
+
+.video-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+
+/*
+ * Status bar of the call screen
+ */
+
+
+
+footer {
+  text-align: center;
+  line-height: 4rem;
+  font-size: 2rem;
+  color: white;
+  font-weight: 300;
+  display: none;
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  background: green;
+  height: 4rem;
+}
+
+
+body.status-bar footer {
+  display: block;
+}
+
+/*
+ * Call types
+ */
+
+body[data-call-type='audio'] .remote-bubble{
+  opacity: 0;
+}
+
+body[data-call-type='audio'] #hang-out {
+  -webkit-transform: translateX(10rem);
+  transform: translateX(10rem);
+}
+
+body[data-call-type='audio'] #call-settings {
+  -webkit-transform: translateX(-7rem);
+  transform: translateX(-7rem);
+}
+
+body[data-call-type='audio'] #call-settings {
+  background-image: url(images/icon_videocall.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+
+
+body[data-call-type='video'] .remote-bubble{
+  opacity: 1;
+}
+
+body[data-call-type='video'] #call-settings {
+  background-image: url(images/icon_videocall_disabled.png);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+

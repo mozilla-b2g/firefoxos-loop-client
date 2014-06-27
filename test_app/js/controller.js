@@ -152,12 +152,10 @@
 
     /**
      * Log the user out. It clears the app account.
-     *
-     * @param {Function} onlogout Function to be called once the logout call
-     *                            gets completed.
      */
-    logOut: function logOut(onlogout) {
-      AccountHelper.logOut(onlogout);
+    logOut: function logOut() {
+      AccountHelper.logOut();
+      onlogout();
     }
   };
 
