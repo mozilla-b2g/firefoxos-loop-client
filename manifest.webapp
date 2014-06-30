@@ -21,6 +21,15 @@
   "messages": [
      { "push": "/sketch_loop/index.html" }
   ],
+  "activities": {
+    "webrtc-call": {
+      "href": "sketch_loop/index.html",
+      "filters": {
+        "type": "webcontacts/contact"
+       },
+      "disposition": "window"
+    }
+  },
   "default_locale": "en",
   "orientation": "portrait",
   "origin": "app://loop.dev.mozaws.net"
