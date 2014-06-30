@@ -44,7 +44,7 @@
       );
 
       window.addEventListener(
-        'logged',
+        'onlogin',
         function onLogged() {
           _isLogged = true;
           _executeActivity();

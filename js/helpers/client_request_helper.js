@@ -155,9 +155,6 @@
 
     unregister: function unregister(
       credentials, pushEndpoint, onsuccess, onerror) {
-        // TODO: Uncomment this once the prod server support this feature.
-        _callback(onsuccess);
-        return;
         _request({
             method: 'DELETE',
             url: SERVER_URL + '/registration',

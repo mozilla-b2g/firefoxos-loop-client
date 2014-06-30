@@ -25,7 +25,7 @@
     var nextScreen = document.querySelector(selector);
     nextScreen.classList.add('current');
   }
-  
+
   var Wizard = {
     init: function w_init(isFirstUse) {
       // Show the section
@@ -33,9 +33,7 @@
 
       function showAuthenticate() {
         // If tutorial is done, let's authenticate!
-        Authenticate.init(function onAuthenticated() {
-          document.body.dataset.layout = 'calllog';
-        });
+        Authenticate.init();
 
         // Show the right panel
         _showSection('authenticate');

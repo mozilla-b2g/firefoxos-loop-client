@@ -8,11 +8,13 @@
       // Show the section
       document.body.dataset.layout = 'calllog';
 
+      // Initialize Settings
+      Settings.init(identity);
+
       if (_initialized) {
         return;
       }
-      // Initialize Settings
-      Settings.init(identity);
+
       // Add a listener to the right button
       document.getElementById('open-settings-button').addEventListener(
         'click',

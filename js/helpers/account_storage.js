@@ -71,11 +71,13 @@
 
     /**
      * Clear the account storage.
-     *
      */
     clear: function a_clear() {
       _cachedAccount = {};
-      asyncStorage.setItem(ACCOUNT_KEY, {});
+      asyncStorage.setItem(
+        ACCOUNT_KEY,
+        _cachedAccount
+      );
     }
   };
 
