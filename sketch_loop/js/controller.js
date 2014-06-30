@@ -56,6 +56,8 @@
               // Launch the Call Log
               CallLog.init(assertionParsed['fxa-verifiedEmail']);
               // TODO Add LoadingOverlay.hide() when implemented
+              // Dispatch event when logged
+              _dispatchLoggedEvent();
             },
             function onError(e) {
               // TODO Add error message
@@ -91,6 +93,8 @@
                     CallLog.init(assertionParsed['fxa-verifiedEmail']);
                     // Hide the splash screen if needed
                     SplashScreen.hide();
+                    // Dispatch event when logged
+                    _dispatchLoggedEvent();
                   },
                   function onError() {
                     debug && console.log('Error executing AccountHelper.signIn');
@@ -247,6 +251,13 @@
     );
   }
 
+  function _dispatchLoggedEvent() {
+    var loggedEvent = new CustomEvent(
+      'logged'
+    );
+    window.dispatchEvent(loggedEvent);
+  }
+
   var Controller = {
     set isFxaRunning(value) {
       _isFxaFlowRunning = value;
@@ -255,6 +266,8 @@
       return _isFxaFlowRunning;
     },
     init: function () {
+      // Start listening activities
+      Activities.init();
       // Check when booting if there was an Account or not
       AccountStorage.load(function onAccount(account) {
         debug && console.log('Controller.init: Account is ' + JSON.stringify(account));
@@ -293,6 +306,8 @@
               CallLog.init(account.id.value);
               // Hide Splash Screen
               SplashScreen.hide();
+              // Dispatch event when logged
+              _dispatchLoggedEvent();
             },
             function onError() {
               debug && console.log('Error executing AccountHelper.signIn with msisdn');
@@ -322,7 +337,7 @@
         }
       });
     },
-    call: function() {
+    pickAndCall: function() {
       var activity = new MozActivity({
             name: 'pick',
             data: {
@@ -331,27 +346,40 @@
           });
       // TODO Add email handling
       activity.onsuccess = function() {
-        if (!activity.result ||
-            !activity.result.tel ||
-            !activity.result.tel.length ||
-            !activity.result.tel[0].value) {
-          console.error('The pick activity result is invalid.');
-          return;
-        }
-
-        CallHelper.generateCallUrl(activity.result.tel[0].value,
-          function onCallUrlSuccess(result) {
-            Share.show(activity.result, result.call_url);
-          },
-          function() {
-            alert('Unable to retrieve link to share');
-          }
-        );
+        this.call(activity.result);
       }.bind(this);
 
       activity.onerror = function() {
         // TODO Check if needed to show any prompt to the user
       };
+    },
+    
+    call: function(contact, isVideoOn) {
+      if (!_isFxaLogged) {
+        alert('You need to be logged in before making a call with Loop');
+        return;
+      }
+
+      if (!contact ||
+          !contact.tel ||
+          !contact.tel.length ||
+          !contact.tel[0].value) {
+        console.error('The pick activity result is invalid.');
+        return;
+      }
+
+      // TODO When doing the direct call, use 'isVideoOn' or
+      // the param retrieved from Loop Settings. By default
+      // this param will be true.
+
+      CallHelper.generateCallUrl(contact.tel[0].value,
+        function onCallUrlSuccess(result) {
+          Share.show(contact, result.call_url);
+        },
+        function() {
+          alert('Unable to retrieve link to share');
+        }
+      );
     },
 
     shareUrl: function (id, onsuccess, onerror) {
