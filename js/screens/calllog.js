@@ -23,7 +23,7 @@
 
       document.getElementById('call-from-loop').addEventListener(
         'click',
-        Controller.call
+        Controller.pickAndCall
       );
 
       // Shield against multiple calls

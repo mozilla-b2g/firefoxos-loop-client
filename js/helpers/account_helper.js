@@ -237,9 +237,6 @@
             // need to check for new identities different than the one that we
             // are already using.
             _watchFxA(true /* checkIdChange*/);
-            _dispatchEvent('onauthentication', {
-              firstRun: false
-            });
             break;
           default:
             _dispatchEvent('onfirstrun');
@@ -261,7 +258,7 @@
           }).then(_onlogin, _onloginerror);
           break;
         default:
-          log.error('Should never get here. Wrong authentication id');
+          console.error('Should never get here. Wrong authentication id');
           _isIdFlowRunning = false;
           break;
       }
@@ -360,36 +357,31 @@
      * Log the user out. It clears the app account.
      */
     logout: function logout() {
-
+      // Dispatch onlogout
+      _dispatchEvent('onlogout');
+      // Clean the account
+      AccountStorage.clear();
+      // Reset the push channel
+      SimplePush.reset();
+      // Clean up flags.
+      _isIdCheckNeeded = false;
+      _isLogged = false;
+      _isIdFlowRunning = false;
+      
       if (!_cachedAccount) {
         return;
       }
 
-      function done() {
-        // Clean the account
-        AccountStorage.clear();
-        // Reset the push channel
-        SimplePush.reset();
-        // Clean up flags.
+      function cleanCache() {
+        // Clean cached Account
         _cachedAccount = null;
-        _isIdCheckNeeded = false;
-        _isLogged = false;
-        _isIdFlowRunning = false;
-        // Dispatch onlogout
-        _dispatchEvent('onlogout');
       }
 
       ClientRequestHelper.unregister(
         _cachedAccount.credentials,
         _cachedAccount.simplePushUrl,
-        done,
-        function onError() {
-          // Even if we couldn't unregister ourselves with the server, we do
-          // a local clean up. Future logins will just change the SimplePush
-          // url in the server.
-          log.warn('Could not unregister with the server');
-          done();
-        }
+        cleanCache,
+        cleanCache
       );
     }
   };

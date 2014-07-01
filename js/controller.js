@@ -187,8 +187,8 @@
           });
       // TODO Add email handling
       activity.onsuccess = function() {
-        this.call(activity.result);
-      }.bind(this);
+        Controller.call(activity.result);
+      };
 
       activity.onerror = function() {
         // TODO Check if needed to show any prompt to the user

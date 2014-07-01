@@ -18,24 +18,23 @@ fi
 rm -rf deliver && mkdir deliver
 
 # Create dir where to copy the app to.
-mkdir deliver/loop.services.mozilla.com
+mkdir deliver/loop.dev.mozaws.net
 
 # Pack application.zip file.
-zip -r deliver/loop.services.mozilla.com/application.zip manifest.webapp \
-                                                         launcher.html \
+zip -r deliver/loop.dev.mozaws.net/application.zip manifest.webapp \
                                                          js \
                                                          libs \
                                                          locales \
                                                          locales-obj \
-                                                         sketch_loop \
+                                                         call_screen \
                                                          style \
                                                          test_app \
                                                          resources
 # Add some other files.
-cp update.webapp deliver/loop.services.mozilla.com/
-cp metadata.json deliver/loop.services.mozilla.com/
+cp update.webapp deliver/loop.dev.mozaws.net/
+cp metadata.json deliver/loop.dev.mozaws.net/
 
 # Move the app to the destination folder.
-cp -r deliver/loop.services.mozilla.com/ $1
+cp -r deliver/loop.dev.mozaws.net/ $1
 
 echo "Done, you should reinstall Gaia now."
