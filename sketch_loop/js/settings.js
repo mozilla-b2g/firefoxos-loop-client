@@ -5,7 +5,9 @@
 
   var Settings = {
     init: function s_init(identity) {
-      document.getElementById('settings-logout-identity').textContent = 'Logged as ' + identity;
+      document.getElementById('settings-logout-identity').textContent =
+        'Logged as ' + identity;
+
       if (settingsPanel) {
         return;
       }

@@ -340,7 +340,7 @@ video.show {
 @media all and (min--moz-device-pixel-ratio: 1.5) {
   .wizard-tutorial-step {
     background-size: 20rem 28rem;
-    background-position: center 7rem;*/
+    background-position: center 7rem;
   }
 
   .wizard-tutorial-step div {

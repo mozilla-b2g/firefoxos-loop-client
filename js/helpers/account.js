@@ -19,7 +19,7 @@
     if (Utils.isPhoneNumberValid(id)) {
       parsedId.type = 'msisdn';
     } else if (Utils.isEmailValid(id)) {
-      parsedId.type = 'fxac';
+      parsedId.type = 'fxa';
     } else {
       throw new Error('Invalid id');
     }

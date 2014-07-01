@@ -6,7 +6,7 @@
 (function (exports) {
   // Default should be 'false'.
   var debug = false;
-  
+
   // Private handler for handling the cache of channels & endpoints
   // previously registered
   var ChannelCache = {
@@ -53,9 +53,17 @@
 
     // Reset all previously stored channels
     reset: function() {
-      asyncStorage.clear();
+      asyncStorage.removeItem(this.CACHE_KEY);
       this.registeredHandlers = {};
       this.registeredChannels = null;
+      if (!navigator.push) {
+        console.warn('Could not unregister push endpoints');
+        return;
+      }
+      for (var channel in this.registeredChannels) {
+        var req = navigator.push.unregister(this.registeredHandlers[channel]);
+        req.onerror = console.error;
+      }
     },
 
     // Set handler for the channels registered
@@ -94,7 +102,7 @@
   //    SimplePush.start()
   //  });
   //
-  
+
   //
   // Other methods are exposed for getting a simple endpoint, or reset
   // all channels.
@@ -187,5 +195,5 @@
   };
 
   exports.SimplePush = SimplePush;
-  
+
 }(this));

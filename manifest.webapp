@@ -9,14 +9,15 @@
   },
   "permissions": {
     "attention":{},
-    "systemXHR":{},
-    "push":{},
-    "video-capture": {},
     "audio-capture": {},
-    "audio-channel-telephony":{},
     "audio-channel-ringer":{},
+    "audio-channel-telephony":{},
+    "camera":{},
+    "mobileid": {},
+    "push":{},
     "speaker-control": {},
-    "camera":{}
+    "systemXHR":{},
+    "video-capture": {}
   },
   "messages": [
      { "push": "/sketch_loop/index.html" }
