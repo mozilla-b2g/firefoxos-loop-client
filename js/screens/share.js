@@ -3,7 +3,7 @@
 
   var _sharePanel, _closeButton, _shareOthers, _shareSMS,
       _contactName, _urlshown;
-  var _contact;
+  var _contact, _url;
 
   function _init() {
     if (_sharePanel) {
@@ -27,7 +27,7 @@
       'click',
       function() {
         Controller.shareUrl(
-          _contact.tel[0].value,
+          _url,
           function onShared() {
             Share.hide();
           },
@@ -43,6 +43,7 @@
       function() {
         Controller.sendUrlBySMS(
           _contact.tel[0].value,
+          _url,
           function onSMSShared() {
             Share.hide();
           },
@@ -68,6 +69,7 @@
       }
       _init();
       _contact = contact;
+      _url = url;
       _render(contact, url);
       _sharePanel.classList.add('show');
     },
