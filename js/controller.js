@@ -2,113 +2,7 @@
   'use strict';
 
   var debug = true;
-
-  function _onAttentionLoaded(attention, callback) {
-    if (typeof callback !== 'function') {
-      console.log('Error when waiting for attention onload');
-      return;
-    }
-
-    // Flag for handling both methods
-    var isAttentionLoaded = false;
-
-    // Method to use when available. Currently is not working
-    // so tracked in bug XXX
-    function _onloaded() {
-      // Update flag
-      isAttentionLoaded = true;
-      // Execute CB
-      callback();
-    }
-
-    attention.onload = _onloaded;
-
-    // Workaround while the bug is being fixed
-    window.addEventListener(
-      'message',
-      function onPingMessageListener(event) {
-        try {
-          var pongObjectCandidate = JSON.parse(event.data);
-          if (pongObjectCandidate.message === 'pong') {
-            window.removeEventListener('message', onPingMessageListener);
-            _onloaded();
-          }
-        } catch(e) {
-          console.log('Message from iFrame not related with Loop');
-        }
-      }
-    );
-
-    // Function to fake the 'onload' method which is not working
-    var pingMessage = {
-      id: 'controller',
-      message: 'ping'
-    };
-
-    function _fakeLoaded() {
-      if (isAttentionLoaded) {
-        return;
-      }
-      // Send to the attention screen
-      attention.postMessage(JSON.stringify(pingMessage), '*');
-      // Enable polling
-      setTimeout(function() {
-        _fakeLoaded();
-      }, 20);
-    }
-    // Boot the fake loader
-    _fakeLoaded();
-  }
-
-  function _launchAttention(call) {
-    // Retrieve the params and pass them as part of the URL
-    var attentionParams = '';
-    if (call) {
-      Object.keys(call).forEach(function(param) {
-        if (attentionParams.length > 0) {
-          attentionParams += '&'
-        }
-        attentionParams += param + '=' + encodeURIComponent(call[param])
-      });
-    }
-    // Launch the Attention
-    var host = document.location.host;
-    var protocol = document.location.protocol;
-    var urlBase = protocol + '//' + host +
-      '/call_screen/call.html?' + attentionParams;
-    var attention = window.open(urlBase, 'call_screen', 'attention');
-    // Enable handshaking with the Call Screen
-    _onAttentionLoaded(
-      attention,
-      function onLoaded() {
-        debug && console.log('handshaking ready!');
-        window.addEventListener(
-          'message',
-          function onHandShakingEvent(event) {
-            try {
-              var messageFromCallScreen = JSON.parse(event.data);
-              if (messageFromCallScreen.id != 'call_screen') {
-                debug && console.log('CallScreen: PostMessage not from CallScreen')
-                return;
-              }
-              switch(messageFromCallScreen.message) {
-                case 'hangout':
-                  // TODO Add Call log info & Feedback
-                  debug && console.log('Call duration ' +
-                                       messageFromCallScreen.params.duration);
-                  attention.close();
-                  break;
-              }
-
-            } catch(e) {
-              console.log('ERROR: Message received from CallScreen not valid');
-            }
-          }
-        )
-      }
-    );
-  }
-
+  
   function _onauthentication(event) {
     Wizard.init(event.detail.firstRun);
     SplashScreen.hide();
@@ -151,7 +45,8 @@
         version,
         function onsuccess(callsArray) {
           var call = callsArray.calls[0];
-          _launchAttention(call);
+          CallScreenManager.launch('incoming', call);
+          // _launchAttention(call);
         },
         function onerror(e) {
           debug && console.log('Error: ClientRequestHelper.getCalls ' + e);
@@ -182,10 +77,11 @@
       var activity = new MozActivity({
             name: 'pick',
             data: {
-              type: 'webcontacts/tel'
+              type: 'webcontacts/contact',
+              fullContact: true
             }
           });
-      // TODO Add email handling
+      
       activity.onsuccess = function() {
         Controller.call(activity.result);
       };
@@ -202,23 +98,48 @@
       }
 
       if (!contact ||
-          !contact.tel ||
-          !contact.tel.length ||
-          !contact.tel[0].value) {
-        console.error('The pick activity result is invalid.');
+          (!contact.email &&
+           !contact.tel)) {
+        alert('The pick activity result is invalid.');
         return;
+      }
+
+      // Create an array of identities      
+      var identities = [];
+
+      var mails = contact.email || [];
+      for (var i = 0; i < mails.length; i++) {
+        identities.push(mails[i].value);
+      }
+
+      var tels = contact.tel || [];
+      for (var i = 0; i < tels.length; i++) {
+        identities.push(tels[i].value);
+      }
+
+      if (identities.length === 0) {
+        alert('The pick activity result is invalid.');
       }
 
       // TODO When doing the direct call, use 'isVideoOn' or
       // the param retrieved from Loop Settings. By default
       // this param will be true.
 
-      CallHelper.generateCallUrl(contact.tel[0].value,
-        function onCallUrlSuccess(result) {
-          Share.show(contact, result.callUrl);
+      CallHelper.callUser(
+        identities,
+        function onLoopIdentity(call) {
+          CallScreenManager.launch('outgoing', call);
         },
-        function() {
-          alert('Unable to retrieve link to share');
+        function onFallback() {
+          // TODO Update this when an array of identities will be ready
+          CallHelper.generateCallUrl(identities[0],
+            function onCallUrlSuccess(result) {
+              Share.show(contact, result.callUrl);
+            },
+            function() {
+              alert('Unable to retrieve link to share');
+            }
+          );
         }
       );
     },
@@ -237,7 +158,7 @@
     },
 
     sendUrlBySMS: function (id, url, onsuccess, onerror) {
-      debug && console.log('Loop web URL for SMS ' + url);
+      debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
       var activity = new MozActivity({
         name: 'new',
         data: {
@@ -250,10 +171,24 @@
       activity.onerror = onerror;
     },
 
-    logout: function() {
-      AccountHelper.logout();
+    sendUrlByEmail: function (id, url, onsuccess, onerror) {
+      debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
+      var activity = new MozActivity({
+        name: 'new',
+        data: {
+          type: 'mail',
+          to: id,
+          subject: 'Loop!',
+          body: 'Lets join the call with Loop! ' + url
+        }
+      });
+      activity.onsuccess = onsuccess;
+      activity.onerror = onerror;
     },
 
+    logout: function() {
+      AccountHelper.logout();
+    }
   };
 
   exports.Controller = Controller;

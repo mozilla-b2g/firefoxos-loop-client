@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
     <!-- App styles -->
+    <link rel="stylesheet" type="text/css" href="style/bb/action_menu.css">
     <link rel="stylesheet" type="text/css" href="style/bb/switches.css">
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css">
     <link rel="stylesheet" type="text/css" href="style/bb/headers.css">
@@ -22,11 +23,13 @@
     <script defer src="js/config.js"></script>
     <script defer src="js/utils.js"></script>
 
+    <script defer src="libs/l10n.js"></script>
     <script defer src="libs/async_storage.js"></script>
     <script defer src="libs/hawk.js"></script>
     <script defer src="libs/sjcl.min.js"></script>
     <script defer src="libs/token.js"></script>
 
+    <script defer src="js/helpers/call_screen_manager.js"></script>
     <script defer src="js/helpers/activities.js"></script>
     <script defer src="js/helpers/account.js"></script>
     <script defer src="js/helpers/account_helper.js"></script>
@@ -42,6 +45,7 @@
 
     <script defer src="js/controller.js"></script>
     
+    <script defer src="js/screens/option_menu.js"></script>
     <script defer src="js/screens/splash_screen.js"></script>
     <script defer src="js/screens/settings.js"></script>
     <script defer src="js/screens/calllog.js"></script>
@@ -179,11 +183,14 @@
               <p>Messages</p>
             </a>
           </li>
-          <!-- <li>
+          <li id="share-by-email">
+            <aside class="pack-end">
+              <img alt="placeholder" src="style/images/icon_message@2,25x.png">
+            </aside>
             <a>
               <p>Email</p>
             </a>
-          </li> -->
+          </li>
           <li id="share-by-others">
             <aside class="pack-end">
               <img alt="placeholder" src="style/images/icon_share@2,25x.png">

@@ -19,12 +19,8 @@
   }
 
   var Countdown = {
-    init: function (element) {
-      if (!element) {
-        console.log('Countdown: Error due to "element" is undefined')
-        return;
-      }
-      _countdownUI = element;
+    init: function () {
+      _countdownUI = document.getElementById('counter');
       _reset();
       return this;
     },
@@ -39,6 +35,9 @@
     },
     stop: function() {
       clearInterval(_counterTimer);
+    },
+    reset: function() {
+      _reset();
     }
   };
 

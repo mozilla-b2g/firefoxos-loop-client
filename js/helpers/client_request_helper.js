@@ -13,6 +13,7 @@
 'use strict';
 
 (function(exports) {
+  var debug = true;
   var SERVER_URL = Config.server_url;
   var TIMEOUT = 15000;
 
@@ -189,7 +190,10 @@
     getCallUrl: function getCallUrl(token, onsuccess, onerror) {
       _request({
         method: 'GET',
-        url: SERVER_URL + '/calls/' + token
+        url: SERVER_URL + '/calls/' + token,
+        body: {
+          callType: "audio-video"
+        }
       }, onsuccess, onerror);
     },
 
