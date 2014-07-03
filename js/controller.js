@@ -215,7 +215,7 @@
 
       CallHelper.generateCallUrl(contact.tel[0].value,
         function onCallUrlSuccess(result) {
-          Share.show(contact, result.call_url);
+          Share.show(contact, result.callUrl);
         },
         function() {
           alert('Unable to retrieve link to share');
@@ -223,41 +223,31 @@
       );
     },
 
-    shareUrl: function (id, onsuccess, onerror) {
-      CallHelper.generateCallUrl(id,
-        function onCallUrlSuccess(result) {
-          debug && console.log('Loop web URL ' + result.call_url);
-          var activity = new MozActivity({
-            name: 'share',
-            data: {
-              type: 'url',
-              url: result.call_url
-            }
-          });
-          activity.onsuccess = onsuccess;
-          activity.onerror = onerror;
-        },
-        onerror
-      );
+    shareUrl: function (url, onsuccess, onerror) {
+      debug && console.log('Loop web URL ' + url);
+      var activity = new MozActivity({
+        name: 'share',
+        data: {
+          type: 'url',
+          url: url
+        }
+      });
+      activity.onsuccess = onsuccess;
+      activity.onerror = onerror;
     },
 
-    sendUrlBySMS: function (id, onsuccess, onerror) {
-      CallHelper.generateCallUrl(id,
-        function onCallUrlSuccess(result) {
-          debug && console.log('Loop web URL for SMS ' + result.call_url);
-          var activity = new MozActivity({
-            name: 'new',
-            data: {
-              type: 'websms/sms',
-              number: id,
-              body: 'Lets join the call with Loop! ' + result.call_url
-            }
-          });
-          activity.onsuccess = onsuccess;
-          activity.onerror = onerror;
-        },
-        onerror
-      );
+    sendUrlBySMS: function (id, url, onsuccess, onerror) {
+      debug && console.log('Loop web URL for SMS ' + url);
+      var activity = new MozActivity({
+        name: 'new',
+        data: {
+          type: 'websms/sms',
+          number: id,
+          body: 'Lets join the call with Loop! ' + url
+        }
+      });
+      activity.onsuccess = onsuccess;
+      activity.onerror = onerror;
     },
 
     logout: function() {

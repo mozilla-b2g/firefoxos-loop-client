@@ -285,7 +285,7 @@
           ClientRequestHelper.signUp(
             // TODO: We need to pass in the credentials once the prod server
             // runs (at least) "version":"0.6.0" (currently v.0.5.0).
-            null,
+            credentials,
             endpoint,
             function onRegisterSuccess(result, hawkCredentials) {
               // Create an account locally.
