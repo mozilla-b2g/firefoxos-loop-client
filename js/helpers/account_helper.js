@@ -148,7 +148,7 @@
   }
 
   function _onloginerror(error) {
-    debug && console.log('onloginerror');
+    debug && console.log('onloginerror ' + error);
 
     _isIdFlowRunning = false;
     _isLogged = false;
@@ -219,6 +219,7 @@
 
         switch (account.id.type) {
           case 'msisdn':
+            _isLogged = true;
             this.signIn(function() {
               _dispatchEvent('onlogin', { identity: account.id.value });
             }, _onloginerror);

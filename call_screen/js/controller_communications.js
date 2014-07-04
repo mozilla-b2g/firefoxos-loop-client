@@ -20,7 +20,7 @@
           // issues
           try {
             var messageFromController = JSON.parse(event.data);
-            if (messageFromController.id != 'controller') {
+            if (messageFromController.id !== 'controller') {
               debug && console.log('CallScreen: PostMessage not from Controller')
               return;
             }
@@ -35,10 +35,9 @@
                 }
                 break;
             }
-
-            this.send(answer);
+            ControllerCommunications.send(answer);
           } catch(e) {
-            debug && console.log('CallScreen: Error when parsing message')
+            debug && console.log('CallScreen: Error when parsing message ' + e)
           }
         }.bind(this)
       );
