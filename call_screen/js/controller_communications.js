@@ -21,7 +21,7 @@
           try {
             var messageFromController = JSON.parse(event.data);
             if (messageFromController.id !== 'controller') {
-              debug && console.log('CallScreen: PostMessage not from Controller')
+              debug && console.log('CallScreen: PostMessage not from Controller');
               return;
             }
 
@@ -32,12 +32,12 @@
                 answer = {
                   id: 'call_screen',
                   message: 'pong'
-                }
+                };
                 break;
             }
             ControllerCommunications.send(answer);
           } catch(e) {
-            debug && console.log('CallScreen: Error when parsing message ' + e)
+            debug && console.log('CallScreen: Error when parsing message ' + e);
           }
         }.bind(this)
       );
@@ -46,7 +46,7 @@
       controllerWindow.postMessage(JSON.stringify(params), '*');
     }
 
-  }
+  };
 
   exports.ControllerCommunications = ControllerCommunications;
 }(this));
