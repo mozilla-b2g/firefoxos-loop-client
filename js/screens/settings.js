@@ -1,7 +1,8 @@
 (function(exports) {
   'use strict';
 
-  var settingsPanel, closeSettingsButton, logoutSettingsButton;
+  var settingsPanel, closeSettingsButton, logoutSettingsButton,
+      cleanCallsButton, cleanUrlsButton;
 
   var Settings = {
     init: function s_init(identity) {
@@ -14,7 +15,24 @@
       settingsPanel = document.getElementById('settings-panel');
       closeSettingsButton = document.getElementById('settings-close-button');
       logoutSettingsButton = document.getElementById('settings-logout-button');
+      cleanCallsButton = document.getElementById('settings-clean-calls-button');
+      cleanUrlsButton = document.getElementById('settings-clean-urls-button');
+      
+      cleanCallsButton.addEventListener(
+        'click',
+        function() {
+          CallLog.cleanCalls();
+          this.hide();
+        }.bind(this)
+      );
 
+      cleanUrlsButton.addEventListener(
+        'click',
+         function() {
+          CallLog.cleanUrls();
+          this.hide();
+        }.bind(this)
+      );
       
       closeSettingsButton.addEventListener(
         'click',

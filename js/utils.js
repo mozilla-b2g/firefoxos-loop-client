@@ -6,7 +6,73 @@
 (function(exports) {
   var DEBUG = true;
 
+  function _beautify(value) {
+    if (value < 10) {
+      return '0' + value;
+    } else {
+      return value;
+    }
+  }
+
   var Utils = {
+    date: {
+      shared: new Date(),
+      get format() {
+        // Remove the accessor
+        delete Utils.date.format;
+        // Late initialization allows us to safely mock the mozL10n object
+        // without creating race conditions or hard script dependencies
+        return (Utils.date.format = new navigator.mozL10n.DateTimeFormat());
+      }
+    },
+    getFormattedHour: function ut_getFormattedHour(time) {
+      this.date.shared.setTime(+time);
+      return this.date.format.localeFormat(
+        this.date.shared, navigator.mozL10n.get('shortTimeFormat')
+      );
+    },
+    getDayDate: function ut_getDayDate(time) {
+      this.date.shared.setTime(+time);
+      this.date.shared.setHours(0, 0, 0, 0);
+      return this.date.shared.getTime();
+    },
+    getDurationPretty: function ut_getDurationPretty(time) {
+      var minutes = _beautify(Math.round(time/60));
+      var seconds = _beautify(Math.round(time%60));
+      return minutes + ':' + seconds + ' min';
+    },
+    getRevokeDate: function ut_getDurationPretty(time) {
+      var currentMs = (new Date()).getTime();
+      var diff = time - currentMs;
+      
+      if (diff <= 0) {
+        return null;
+      }
+      return Math.round(diff/86400000) + ' days left';
+    },
+    getHeaderDate: function ut_giveHeaderDate(time) {
+      var _ = navigator.mozL10n.get;
+      var today = Utils.getDayDate(Date.now());
+      var otherDay = Utils.getDayDate(time);
+      var dayDiff = (today - otherDay) / 86400000;
+      this.date.shared.setTime(+time);
+
+      if (isNaN(dayDiff)) {
+        return _('incorrectDate');
+      }
+
+      if (dayDiff < 0) {
+        // future time
+        return this.date.format.localeFormat(
+          this.date.shared, '%x'
+        );
+      }
+
+      return dayDiff === 0 && _('today') ||
+        dayDiff === 1 && _('yesterday') ||
+        dayDiff < 6 && this.date.format.localeFormat(this.date.shared, '%A') ||
+        this.date.format.localeFormat(this.date.shared, '%x');
+    },
     /**
      * Helper function. Check whether the id parameter is a phone number.
      *

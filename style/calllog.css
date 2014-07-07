@@ -1,44 +1,163 @@
-#calllog-list {
-  height: calc(100% - 5rem);
-  
-  position: relative;
-}
-
 #calllog-container {
+  height: calc(100% - 5rem);
+  padding: 0 !important;
+  position: relative;
+}
+
+#calllog-not-empty {
   height: 100%;
   width: 100%;
   position: relative;
-  overflow: scroll;
+  overflow: hidden;
 }
 
-#calllog-empty {
-  top: 0;
-  left: 0;
+.calllog-sections-container {
+  height: calc(100% - 4rem);
+  width: 200%;
+  transition: all .2s ease-in-out;
+}
+
+.calllog-section {
+  float: left;
+  width: 50%;
   height: 100%;
-  width: 100%;
-  position: absolute;
-  z-index: 10;
-  background: white;
-  background-image: url(images/tutorial_image_wf.png);
-  background-repeat: no-repeat;
-  background-size: 60% 30%;
-  background-position: center 30%;
+ overflow: hidden;
 }
 
-#calllog-empty p {
-  position: absolute;
-  bottom: 30%;
-  text-align: center;
+.section-empty {
+  display: none;
   width: 100%;
-  font-size: 2rem;
-  font-weight: 300;
+  height: 100%;
+  position: relative;
+}
+
+.section-empty-label{
+  font-size: 1.8rem;
+  position: absolute;
+  bottom: 10rem;
+  padding: 2rem;
   box-sizing: border-box;
-  padding: 0 2rem;
+  width: 100%;
+  text-align: center;
 }
 
+.section-entries {
+  background: white;
+  width: 100%;
+  height: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
 
-#calllog-list ul:last-child {
-  margin-bottom: 5rem;
+#urls-section.empty .section-empty {
+  background-image: url(images/Link_icon_big@2,25x.png);
+  background-repeat: no-repeat;
+  background-position: center 8rem;
+}
+
+#calls-section.empty .section-empty {
+  background-image: url(images/Pickup_icon_big@2.25x.png);
+  background-repeat: no-repeat;
+  background-position: center 8rem;
+}
+
+#calls-section.empty .section-empty,
+#urls-section.empty .section-empty {
+  display: block;
+}
+
+#calls-section.empty .calls-section-entries,
+#urls-section.empty .urls-section-entries {
+  display: none;
+}
+
+.calllog-elements {
+  box-sizing: boder-box;
+  padding: 0 1.5rem !important;
+}
+
+.calllog-elements:last-child {
+  margin-bottom: 10rem;
+}
+
+.calllog-elements li {
+  height: 7rem;
+  padding: 0.5rem 0 0;
+  -moz-box-sizing: border-box;
+}
+
+.icon-missed {
+  background-image: url(images/Missedcall_icon@2x.png) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 90% !important;
+}
+
+.icon-outgoing-audio {
+  background-image: url(images/Audio_icon@2x.png) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+.icon-incoming-audio {
+  background-image: url(images/Outgoing_audio@2x.png) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+.icon-outgoing-video {
+  background-image: url(images/Outgoing_video@2x.png) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+.icon-incoming-video {
+  background: red;
+  background-image: url(images/Incoming_video@2x.png) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+.icon-url {
+  background-image: url(images/Link_icon_small@2x.png) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+}
+
+.generic-image-aside {
+  /*background: red !important;*/
+  background-image: url(images/icon_contact@2,25x.png) !important;
+  background-size: 60%  !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+.calllog-elements li a p {
+  line-height: 1.9rem;
+}
+
+.calllog-elements li a p:nth-last-of-type(3) {
+  padding: 0;
+  line-height: 2rem;
+}
+
+#calllog-container.active li:active:after,
+#calllog-container.active li:hover:after,
+#calllog-container li > a:active:after,
+#calllog-container li > a:hover:after {
+  margin: -0.5rem !important;
+  top: 0;
+  height: 7rem !important;
+  background-color: rgba(0,213,255,0.3);
+}
+
+.call-background-bar {
+  position: absolute;
+  width: 100%;
+  height: 5rem;
+  background: #737272;
+  z-index: 5;
+  bottom: 0;
 }
 
 #call-from-loop {
@@ -48,7 +167,7 @@
   border: none;
   margin: 0;
   padding: 0;
-  background: rgba(0, 0, 0, 0.15);
+  background: #ccc;
   background-image: url(images/icon_contact@2,25x.png);
   background-position: center;
   background-repeat: no-repeat;
@@ -59,22 +178,33 @@
   overflow: hidden;
 }
 
-#call-from-loop:disabled {
-  pointer-events: none;
-}
+/*
+  MEDIA QUERIES FOR Hamachi or similar
+*/
 
-#call-from-loop:disabled:after {
-  font-weight: 600;
-  transform: rotate(45deg);
-  content: 'Disabled';
-  position: absolute;
-  width: 9rem;
-  font-size: 1.1rem;
-  line-height: 3rem;
-  text-align: center;
-  left: 1rem;
-  top: 0.8rem;
-  height: 3rem;
-  background: #AAA;
-  color: white;
+@media all and (max--moz-device-pixel-ratio: 1) {
+
+  .call-background-bar {
+    height: 3.5rem;
+  }
+
+  #call-from-loop {
+    background-image: url(images/icon_contact.png);
+    height: 7rem;
+    width: 7rem;
+    left: calc(50% - 3.5rem);
+    border-radius: 3.5rem;
+  }
+
+  #urls-section.empty .section-empty {
+    background-image: url(images/Link_icon_big@2x.png);
+    background-repeat: no-repeat;
+    background-position: center 1rem;
+  }
+
+  #calls-section.empty .section-empty {
+    background-image: url(images/Pickup_icon_big@2x.png);
+    background-repeat: no-repeat;
+    background-position: center 1rem;
+  }
 }
