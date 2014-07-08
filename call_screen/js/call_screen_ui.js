@@ -9,7 +9,7 @@
 
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _settingsButtonVideo, _settingsButtonMute,
-      _settingsButtonSpeaker, _title , _subtitle;
+      _settingsButtonSpeaker, _resumeButton, _title , _subtitle;
   
   function _updateUI(params) {
     var identities = params.identities.split(',');
@@ -65,6 +65,8 @@
       _settingsButtonVideo = document.getElementById('call-settings-video');
       _settingsButtonMute = document.getElementById('call-settings-mute');
       _settingsButtonSpeaker = document.getElementById('call-settings-speaker');
+      _resumeButton = document.getElementById('resume-button');
+
       _title = document.getElementById('contact-name-details');
       _subtitle = document.getElementById('contact-phone-details');
 
@@ -118,6 +120,19 @@
           _isSpeakerEnabled = !_isSpeakerEnabled;
           CallManager.toggleSpeaker(_isSpeakerEnabled);
           _toggleSettings();
+        }
+      );
+
+      // Set the callback function to be called once the call is held in the
+      // call manager helper.
+      CallManager.onhold = this.toggleHold;
+
+      // Resume button. On click resume the call.
+      _resumeButton.addEventListener(
+        'click',
+        function() {
+          CallManager.resume();
+          CallScreenUI.update('connected', params);
         }
       );
 
@@ -194,14 +209,16 @@
         case 'connected':
           _answerAudioButton.style.display = 'none';
           _answerVideoButton.style.display = 'none';
+          _settingsButton.style.display = 'block';
+          _resumeButton.style.display = 'none';
           break;
         case 'disconnected':
           // TODO Styles not defined yet.
 
           break;
         case 'hold':
-          // TODO Implement this when ready
-
+          _settingsButton.style.display = 'none';
+          _resumeButton.style.display = 'block';
           break;
       }
     },
@@ -251,6 +268,9 @@
       );
 
       document.body.dataset.feedback = true;
+    },
+    toggleHold: function() {
+      CallScreenUI.update('hold');
     }
   };
 

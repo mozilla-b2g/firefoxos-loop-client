@@ -10,9 +10,8 @@
 
     <script defer src="../libs/tokbox/v2.2.6/js/TB.js"></script>
     <script defer src="../libs/opentok.js"></script>
-    
     <script defer src="../js/helpers/contacts_helper.js"></script>
-
+    <script defer src="../js/helpers/audio_competing_helper.js"></script>
     <script defer src="js/call_screen_ui.js"></script>
     <script defer src="../js/helpers/call_progress_helper.js"></script>
     <script defer src="js/call_manager.js"></script>
@@ -46,6 +45,8 @@
       <button id="call-settings-speaker" class="action-button">
       </button>
       <button id="call-settings-video" class="action-button">
+      </button>
+      <button id="resume-button" class="action-button">
       </button>
       <section id="feedback" data-type="list">
         <div class="feedback-questions" data-question="1">
@@ -112,8 +113,8 @@
         </footer>
       </section>
     </div>
-  	<footer id="call-bar">
+    <footer id="call-bar">
       Loop: call in progress
-  	</footer>
+    </footer>
   </body>
 </html>

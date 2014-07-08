@@ -76,7 +76,7 @@ button::-moz-focus-inner {
   z-index: 200;
 }
 
-#call-settings {
+#call-settings, #resume-button {
   bottom: 2rem;
   right: 3rem;
   
@@ -86,6 +86,12 @@ button::-moz-focus-inner {
   background-position: center;
   z-index: 100;
   border: none;
+}
+
+#resume-button {
+  display: none;
+  background: pink;
+  z-index: 200;
 }
 
 #call-settings-video {

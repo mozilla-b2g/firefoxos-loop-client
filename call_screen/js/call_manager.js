@@ -12,6 +12,27 @@
   var _callee;
   var _reason;
   var _speakerManager;
+  var _onhold = function noop() {};
+  var _publishAudio = true;
+  var _publishVideo = true;
+  var _subscribeToAudio = true;
+  var _subscribeToVideo = true;
+
+  /**
+   * Set the current call on hold.
+   */
+  function _setCallOnHold() {
+    if (_publisher) {
+      _publisher.publishAudio(false);
+      _publisher.publishVideo(false);
+    }
+    if (_subscriber) {
+      _subscriber.subscribeToAudio(false);
+      _subscriber.subscribeToVideo(false);
+    }
+    _onhold();
+    AudioCompetingHelper.leaveCompetition();
+  }
 
   /**
    * Helper function. Handles call progress protocol state changes.
@@ -83,6 +104,7 @@
       _callProgressHelper.onerror = function onError(evt) {
         _handleCallProgress(_callProgressHelper);
       };
+
       return {
         identities: identities,
         layout: layout,
@@ -101,6 +123,7 @@
       }
       _speakerManager.forcespeaker = isVideoOn;
       _publisher.publishVideo(isVideoOn);
+      _publishVideo = isVideoOn;
     },
 
     toggleSpeaker: function(isSpeakerOn) {
@@ -109,6 +132,7 @@
         return;
       }
       _subscriber.subscribeToAudio(isSpeakerOn);
+      _subscribeToAudio = isSpeakerOn;
     },
 
     toggleMic: function(isMicOn) {
@@ -117,10 +141,17 @@
         return;
       }
       _publisher.publishAudio(isMicOn);
+      _publishAudio = isMicOn;
     },
 
     join: function(isVideoCall) {
+      AudioCompetingHelper.clearListeners();
+      AudioCompetingHelper.addListener('mozinterruptbegin', _setCallOnHold);
+      AudioCompetingHelper.compete();
+
       Countdown.reset();
+
+      _publishVideo = _subscribeToVideo = isVideoCall;
 
       // Choose default camera
       var cameraConstraint =
@@ -154,7 +185,9 @@
         },
         // Fired when a peer publishes the media stream.
         streamCreated: function(event) {
-          _subscriber = _session.subscribe(event.stream, 'fullscreen-video', null);
+          _subscriber = _session.subscribe(event.stream,
+                                           'fullscreen-video',
+                                           null);
           _publishersInSession += 1;
 
           // Hack to fix OT Css
@@ -180,11 +213,29 @@
       };
     },
 
+    set onhold(onhold) {
+      _onhold = onhold;
+    },
+
+    resume: function() {
+      if (_publisher) {
+	_publisher.publishAudio(_publishAudio);
+	_publisher.publishVideo(_publishVideo);
+      }
+      if (_subscriber) {
+	_subscriber.subscribeToAudio(_subscribeToAudio);
+	_subscriber.subscribeToVideo(_subscribeToVideo);
+      }
+      AudioCompetingHelper.addListener('mozinterruptbegin', _setCallOnHold);
+      AudioCompetingHelper.compete();
+    },
+
     stop: function() {
       if ((_callProgressHelper.state !== 'connected') ||
           (_callProgressHelper.state !== 'closed')) {
         _callProgressHelper.terminate(_reason);
       }
+      AudioCompetingHelper.leaveCompetition();
       try {
         _session.disconnect();
       } catch(e) {
