@@ -38,9 +38,6 @@
    * @param {String} type A string representing the event type being fired.
    */
   function _fireEvent(type) {
-    console.log(
-      'AudioCompetingHelper(' + _appName+ ')._fireEvent(' + type + ')'
-    );
     if (!_listeners[type]) {
       return;
     }
@@ -88,7 +85,6 @@
       }
 
       _silenceBufferSource.start(0);
-      console.log('AudioCompetingHelper(' + _appName+ ').compete()');
     },
 
     /**
@@ -100,7 +96,6 @@
         return;
       }
       _silenceBufferSource.stop(0);
-      console.log('AudioCompetingHelper(' + _appName+ ').leaveCompetition()');
       _ac.removeEventListener('mozinterruptbegin', _onmozinterruptbegin);
       _ac.removeEventListener('mozinterruptend', _onmozinterruptend);
       _addListenersBeforeCompeting = true;
