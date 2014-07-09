@@ -35,6 +35,7 @@
     },
     stop: function() {
       clearInterval(_counterTimer);
+      return _counter;
     },
     reset: function() {
       _reset();

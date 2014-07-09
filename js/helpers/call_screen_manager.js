@@ -40,6 +40,7 @@
         try {
           var pongObjectCandidate = JSON.parse(event.data);
           if (pongObjectCandidate.message === 'pong') {
+            attention.onload = null;
             window.removeEventListener('message', onPingMessageListener);
             _onloaded();
           }
@@ -71,10 +72,9 @@
   }
 
   var attention;
-
-  function _launchAttention(type, call) {
+  function _launchAttention(type, call, identities, contact) {
     // Retrieve the params and pass them as part of the URL
-    var attentionParams = 'layout=' + type;
+    var attentionParams = 'layout=' + type + '&timestamp=' + (new Date()).getTime();
     if (call) {
       Object.keys(call).forEach(function(param) {
         attentionParams += '&' + param + '=' + encodeURIComponent(call[param])
@@ -91,6 +91,7 @@
       attention,
       function onLoaded() {
         debug && console.log('handshaking ready!');
+        var attentionLoadedDate = new Date();
         window.addEventListener(
           'message',
           function onHandShakingEvent(event) {
@@ -102,10 +103,31 @@
               }
               switch(messageFromCallScreen.message) {
                 case 'hangout':
-                  // TODO Add Call log info & Feedback
-                  debug && console.log('Call duration ' +
-                                       messageFromCallScreen.params.duration);
+                  // Stop listener
+                  window.removeEventListener('message', onHandShakingEvent);
+                  
+                  // Clean attention params
                   attention.close();
+                  attention = null;
+
+                  // Create CALL object
+                  var params = messageFromCallScreen.params;
+                  var callObject = {
+                    date: attentionLoadedDate,
+                    identities: identities || [],
+                    video: true,
+                    type: type,
+                    connected: params.connected,
+                    duration: params.duration,
+                    url: null,
+                    urlToken: null,
+                    contactId: contact && contact.id || null,
+                    contactPrimaryInfo: contact && contact.name[0] || null,
+                    contactPhoto: null
+                  };
+                  
+                  // Add Call log info & Feedback
+                  CallLog.addCall(callObject);
                   break;
               }
 
@@ -119,13 +141,14 @@
   }
 
   var CallScreenManager = {
-    launch: function(type, call) {
+    launch: function(type, call, identities, contact) {
       // TODO Depending on the type show one or another
-      _launchAttention(type, call);
+      _launchAttention(type, call, identities, contact);
     },
     close: function() {
       if (attention) {
         attention.close();
+        attention = null;
       }
     }
   };

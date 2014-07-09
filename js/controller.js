@@ -45,8 +45,11 @@
         version,
         function onsuccess(callsArray) {
           var call = callsArray.calls[0];
-          CallScreenManager.launch('incoming', call);
-          // _launchAttention(call);
+          // TODO Add search of the Contact and pass to the
+          // callscreen when ready. We should NOT block the attention
+          // until getting the info.
+          // This will be handled in bug #1036309
+          CallScreenManager.launch('incoming', call, [call.callerId]);
         },
         function onerror(e) {
           debug && console.log('Error: ClientRequestHelper.getCalls ' + e);
@@ -128,13 +131,14 @@
       CallHelper.callUser(
         identities,
         function onLoopIdentity(call) {
-          CallScreenManager.launch('outgoing', call);
+          CallScreenManager.launch('outgoing', call, identities, contact);
         },
         function onFallback() {
           // TODO Update this when an array of identities will be ready
           CallHelper.generateCallUrl(identities[0],
             function onCallUrlSuccess(result) {
-              Share.show(contact, result.callUrl);
+              console.log(JSON.stringify(result));
+              Share.show(contact, result);
             },
             function() {
               alert('Unable to retrieve link to share');
@@ -171,19 +175,17 @@
       activity.onerror = onerror;
     },
 
-    sendUrlByEmail: function (id, url, onsuccess, onerror) {
+    sendUrlByEmail: function (id, url) {
       debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
-      var activity = new MozActivity({
-        name: 'new',
-        data: {
-          type: 'mail',
-          to: id,
-          subject: 'Loop!',
-          body: 'Lets join the call with Loop! ' + url
-        }
-      });
-      activity.onsuccess = onsuccess;
-      activity.onerror = onerror;
+      var a = document.createElement('a');
+      var params = 'mailto:' + id + '?subject=Loop' +
+        '&body=Lets join the call with Loop! ' + url;
+
+      a.href = params; 
+      a.classList.add('hide');
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     },
 
     logout: function() {

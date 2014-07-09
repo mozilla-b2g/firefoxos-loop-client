@@ -7,7 +7,7 @@
   var _peersInSession = 0;
   var _publishersInSession = 0;
   var _connectionTimeout;
-  var _startDate = 0;
+  
 
   var CallManager = {
     init: function() {
@@ -60,6 +60,11 @@
             }, 10000);
           }
 
+          if (_peersInSession > 1) {
+            // Start counter
+            Countdown.start();
+          }
+
         },
         // Fired when an existing peer is disconnected from the session.
         connectionDestroyed: function(event) {
@@ -74,12 +79,6 @@
           _session.subscribe(event.stream, 'fullscreen-video', null);
           _publishersInSession += 1;
 
-          if (_publishersInSession > 1) {
-            // Start date
-            _startDate = new Date().getTime();
-            // Start counter
-            Countdown.start();
-          }
           // Hack to fix OT Css
           var container =  document.querySelector('.OT_subscriber');
           if (!container) {
@@ -125,21 +124,26 @@
       }
 
       // Stop the countdown
-      Countdown.stop();
+      var duration = Countdown.stop();
+      var connected = false;
 
+      if (duration > 0) {
+        connected = true;
+      }
+      
       // Send result to the Controller
       var hangoutMessage = {
         id: 'call_screen',
         message: 'hangout',
         params: {
-          duration: new Date().getTime() - _startDate
+          duration: duration,
+          connected: connected
         }
       }
       ControllerCommunications.send(hangoutMessage);
 
       // Clean the call
       _call = {};
-      _startDate = 0;
     }
   };
 

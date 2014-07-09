@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
     <!-- App styles -->
+    <link rel="stylesheet" type="text/css" href="style/bb/tabs.css">
     <link rel="stylesheet" type="text/css" href="style/bb/action_menu.css">
     <link rel="stylesheet" type="text/css" href="style/bb/switches.css">
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css">
@@ -20,15 +21,21 @@
     <link rel="stylesheet" type="text/css" href="style/wizard.css">
     <link rel="stylesheet" type="text/css" href="style/splash_screen.css">
     
+    <link rel="resource" type="application/l10n" href="locales/locales.ini">
+    <link rel="resource" type="application/l10n" href="locales/date.ini">
+
     <script defer src="js/config.js"></script>
     <script defer src="js/utils.js"></script>
 
+    <script defer src="libs/template.js"></script>
     <script defer src="libs/l10n.js"></script>
+    <script defer src="libs/l10n_date.js"></script>
     <script defer src="libs/async_storage.js"></script>
     <script defer src="libs/hawk.js"></script>
     <script defer src="libs/sjcl.min.js"></script>
     <script defer src="libs/token.js"></script>
 
+    <script defer src="js/helpers/action_log_db.js"></script>
     <script defer src="js/helpers/call_screen_manager.js"></script>
     <script defer src="js/helpers/activities.js"></script>
     <script defer src="js/helpers/account.js"></script>
@@ -137,17 +144,42 @@
         </menu>
         <h1>Loop</h1>
       </header>
-      <section id="calllog-list" data-type="list">
-        <div id="calllog-container">
-        </div>
-        <div id="calllog-empty">
-          <p>
-            Oops! It seems you haven’t done any call yet
-          </p>
+      <section id="calllog-container" data-type="list">
+        <nav>
+          <ul role="tablist" class="bb-tablist" data-type="filter">
+            <li role="presentation">
+              <a id="calls-section-filter" role="tab" aria-selected="true">Calls</a>
+            </li>
+            <li role="presentation">
+              <a id="urls-section-filter" role="tab" aria-selected="false">Shared links</a>
+            </li>
+          </ul>
+        </nav>
+        <div class="calllog-sections-container">
+          <div id="calls-section" class="calllog-section">
+            <div class="section-empty">
+              <p class="section-empty-label">
+                Oops! It seems you haven’t called yet!
+              </p>
+            </div>
+            <div id="calls-section-entries" class="section-entries">
+            </div>
+          </div>
+          <div id="urls-section" class="calllog-section">
+            <div class="section-empty">
+              <p class="section-empty-label">
+                Oops! It seems you haven’t shared any link yet
+              </p>
+            </div>
+            <div id="urls-section-entries" class="section-entries">
+            </div>
+          </div>
         </div>
       </section>
       <button id="call-from-loop">
       </button>
+      <footer class="call-background-bar">
+      </footer>
     </section>
     <section id="contact-detail-panel" class="panel main">
       Contact detail
@@ -218,9 +250,14 @@
               </label>
             </a>
           </li>
-          <li>
+          <li id="settings-clean-calls-button">
             <a>
-              <p>Clean call log</p>
+              <p>Clean calls</p>
+            </a>
+          </li>
+          <li id="settings-clean-urls-button">
+            <a>
+              <p>Clean shared urls</p>
             </a>
           </li>
         </ul>
@@ -232,5 +269,64 @@
         </div>
       </section>
     </section>
+
+    <!-- Templates -->
+
+    <div id="calls-url-tmpl" class="hide">
+      <!--
+      <aside class="pack-end">
+        <span data-type="img" class="generic-image-aside"></span>
+      </aside>
+      <a role="button" class="no-url">
+        <aside class="icon call-type-icon icon icon-${iconName}">
+        </aside>
+        <p aria-hidden="true" class="primary-info">
+          <span class="primary-info-main">${primary}</span>
+        </p>
+        <p aria-hidden="true" class="call-additional-info">${link}</p>
+        <p aria-hidden="true">
+          <span class="call-time">TIME:${time} / </span>
+          <span class="retry-count">${duration}</span>
+        </p>
+      </a>
+      -->
+    </div>
+    <div id="calls-without-url-tmpl" class="hide">
+      <!-- 
+      <aside class="pack-end">
+        <span data-type="img" class="generic-image-aside"></span>
+      </aside>
+      <a role="button" class="url">
+        <aside class="icon call-type-icon icon icon-${iconName}">
+        </aside>
+        <p aria-hidden="true" class="primary-info">
+          <span class="primary-info-main">${primary}</span>
+        </p>
+        <p aria-hidden="true">
+          <span class="call-time">${time} / </span>
+          <span class="retry-count">${duration}</span>
+        </p>
+      </a>
+      -->
+    </div>
+    <div id="url-tmpl" class="hide">
+      <!--
+      <aside class="pack-end">
+        <span data-type="img" class="generic-image-aside"></span>
+      </aside>
+      <a role="button" class="url-shared">
+        <aside class="icon call-type-icon icon icon-${type}">
+        </aside>
+        <p aria-hidden="true" class="primary-info">
+          <span class="primary-info-main">${primary}</span>
+        </p>
+        <p aria-hidden="true" class="call-additional-info">${link}</p>
+        <p aria-hidden="true">
+          <span class="call-time">${time} / </span>
+          <span class="retry-count" data-need-update="true" data-format-date="revoke" data-timestamp="${revokeTimestamp}">${expiration}</span>
+        </p>
+      </a>
+      -->
+    </div>
   </body>
 </html>

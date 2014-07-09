@@ -3,13 +3,38 @@
 
   var _sharePanel, _closeButton, _shareOthers, _shareSMS,
       _shareEmail, _contactName, _urlshown;
-  var _contact, _url;
+  var _contact, _url, _urlObject;
+
+  function _generateUrlObject() {
+    var phones = _contact.tel || [];
+    var emails = _contact.email || [];
+    var candidates = phones.concat(emails);
+    var identities = [];
+    var expirationDate = new Date(+_urlObject.expiresAt * 1000);
+
+    for (var i = 0, l = candidates.length; i < l; i++) {
+      identities.push(candidates[i].value);
+    }
+
+    return {
+      date: new Date(),
+      identities: identities,
+      url: _url,
+      urlToken: null,
+      expiration: expirationDate,
+      revoked: false,
+      contactId: _contact.id,
+      contactPrimaryInfo: _contact.name[0],
+      contactPhoto: null
+    }
+  }
 
   function _newSMS(id) {
     Controller.sendUrlBySMS(
       id,
       _url,
       function onSMSShared() {
+        CallLog.addUrl(_generateUrlObject());
         Share.hide();
       },
       function onError() {
@@ -21,14 +46,10 @@
   function _newMail(id) {
     Controller.sendUrlByEmail(
       id,
-      _url,
-      function onSMSShared() {
-        Share.hide();
-      },
-      function onError() {
-        // TODO Do we need to show something to the user?
-      }
+      _url
     );
+    CallLog.addUrl(_generateUrlObject());
+    Share.hide();
   }
 
   function _newFromArray(identities, newCB) {
@@ -84,6 +105,7 @@
         Controller.shareUrl(
           _url,
           function onShared() {
+            CallLog.addUrl(_generateUrlObject());
             Share.hide();
           },
           function onError() {
@@ -118,13 +140,13 @@
   }
 
   function _render(contact, url) {
-    if (!contact.tel) {
+    if (!contact.tel || !contact.tel.length) {
       _shareSMS.style.display = 'none';
     } else {
       _shareSMS.style.display = 'block';
     }
 
-    if (!contact.email) {
+    if (!contact.email || !contact.email.length) {
       _shareEmail.style.display = 'none';
     } else {
       _shareEmail.style.display = 'block';
@@ -136,15 +158,16 @@
     
 
   var Share = {
-    show: function s_show(contact, url) {
+    show: function s_show(contact, urlObject) {
       if (!contact) {
         console.log('ERROR: Contact is undefined in SHARE').
         return;
       }
       _init();
       _contact = contact;
-      _url = url;
-      _render(contact, url);
+      _urlObject = urlObject;
+      _url = urlObject.callUrl;
+      _render(contact, _url);
       _sharePanel.classList.add('show');
     },
     hide: function s_hide() {

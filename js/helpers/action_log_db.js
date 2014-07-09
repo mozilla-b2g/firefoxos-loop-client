@@ -187,6 +187,10 @@
    *       Object to be stored.
    */
   function _addRecord(aCallback, aObjectStore, aRecord) {
+    if (typeof aCallback !== 'function') {
+      aCallback = function(){};
+    }
+
     if (typeof aRecord !== "object") {
       aCallback("INVALID_RECORD");
       return;
@@ -316,12 +320,16 @@
         aCallback(error);
         return;
       }
-      txn.clear();
+      store.clear();
       txn.oncomplete = function() {
-        aCallback();
+        if (typeof aCallback === 'function') {
+          aCallback()
+        }
       };
       txn.onerror = function(event) {
-        aCallback(event.target.error.name);
+        if (typeof aCallback === 'function') {
+          aCallback(event.target.error.name);
+        }
       };
     }, "readwrite", [aObjectStore]);
   }
