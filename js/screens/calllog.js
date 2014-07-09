@@ -33,7 +33,6 @@
               value = Utils.getHeaderDate(+dataset.timestamp);
               break;
             case 'revoke':
-              console.log('DATASET ' +  JSON.stringify(dataset));
               value = Utils.getRevokeDate(+dataset.timestamp) || 'Expired';
               break;
           }
@@ -213,6 +212,9 @@
   function _createCallDOM(call) {
     var callElement = document.createElement('li');
     callElement.dataset.timestampIndex = call.date.getTime();
+    callElement.dataset.contactId = call.contactId;
+    callElement.dataset.identities = call.identities[0];
+
 
     var datePretty = Utils.getFormattedHour(call.date.getTime());
     var durationPretty = Utils.getDurationPretty(+call.duration);
@@ -395,6 +397,27 @@
         _templateUrlCalls = Template('calls-url-tmpl');
       }
       callsSectionEntries.innerHTML = '';
+      callsSectionEntries.addEventListener(
+        'click',
+        function(event) {
+          var callElement = event.target;
+          if (callElement.tagName !== 'LI') {
+            return;
+          }
+          ContactsHelper.find(
+            {
+              contactId: callElement.dataset.contactId,
+              identities: callElement.dataset.identities,
+            },
+            function onsuccess(contact) {
+              Controller.call(contact);
+            },
+            function onerror() {
+              Controller.callIdentities([callElement.dataset.identities]);
+            }
+          );
+        }
+      )
       ActionLogDB.getCalls(_renderCalls);
 
       // Render urls

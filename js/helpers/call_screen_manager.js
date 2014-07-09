@@ -74,12 +74,17 @@
   var attention;
   function _launchAttention(type, call, identities, contact) {
     // Retrieve the params and pass them as part of the URL
-    var attentionParams = 'layout=' + type + '&timestamp=' + (new Date()).getTime();
+    var attentionParams = 'layout=' + type;
+    attentionParams += '&identity=' + identities[0]
     if (call) {
       Object.keys(call).forEach(function(param) {
         attentionParams += '&' + param + '=' + encodeURIComponent(call[param])
       });
     }
+    if (contact) {
+      attentionParams += '&contactId=' + contact.id
+    }
+
     // Launch the Attention
     var host = document.location.host;
     var protocol = document.location.protocol;

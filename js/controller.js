@@ -45,16 +45,23 @@
         version,
         function onsuccess(callsArray) {
           var call = callsArray.calls[0];
-          // TODO Add search of the Contact and pass to the
-          // callscreen when ready. We should NOT block the attention
-          // until getting the info.
-          // This will be handled in bug #1036309
-          CallScreenManager.launch('incoming', call, [call.callerId]);
+          var identities = [call.callerId];
+          ContactsHelper.find(
+            {
+              identities: identities
+            },
+            function onContact(contact) {
+              CallScreenManager.launch('incoming', call, identities, contact);
+            },
+            function onFallback() {
+              CallScreenManager.launch('incoming', call, identities);
+            }
+          );
         },
         function onerror(e) {
           debug && console.log('Error: ClientRequestHelper.getCalls ' + e);
         }
-      )
+      );
     }
   }
 
@@ -94,6 +101,25 @@
       };
     },
 
+    callIdentities: function(identities, contact) {
+      CallHelper.callUser(
+        identities,
+        function onLoopIdentity(call) {
+          CallScreenManager.launch('outgoing', call, identities, contact);
+        },
+        function onFallback() {
+          CallHelper.generateCallUrl(identities[0],
+            function onCallUrlSuccess(result) {
+              Share.show(contact, result);
+            },
+            function() {
+              alert('Unable to retrieve link to share');
+            }
+          );
+        }
+      );
+    },
+
     call: function(contact, isVideoOn) {
       if (!AccountHelper.logged) {
         alert('You need to be logged in before making a call with Loop');
@@ -127,25 +153,7 @@
       // TODO When doing the direct call, use 'isVideoOn' or
       // the param retrieved from Loop Settings. By default
       // this param will be true.
-
-      CallHelper.callUser(
-        identities,
-        function onLoopIdentity(call) {
-          CallScreenManager.launch('outgoing', call, identities, contact);
-        },
-        function onFallback() {
-          // TODO Update this when an array of identities will be ready
-          CallHelper.generateCallUrl(identities[0],
-            function onCallUrlSuccess(result) {
-              console.log(JSON.stringify(result));
-              Share.show(contact, result);
-            },
-            function() {
-              alert('Unable to retrieve link to share');
-            }
-          );
-        }
-      );
+      Controller.callIdentities(identities, contact);
     },
 
     shareUrl: function (url, onsuccess, onerror) {

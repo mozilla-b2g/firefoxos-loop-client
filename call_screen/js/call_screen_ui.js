@@ -6,6 +6,26 @@
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _title , _subtitle;
   
+  var _contact;
+
+  function _updateUI(params) {
+    ContactsHelper.find(
+      {
+        contactId: params.contactId,
+        identities: [params.identity]
+      },
+      function(contact) {
+        _contact = contact;
+        _title.textContent = contact.name;
+        _subtitle.textContent = params.identity;
+      },
+      function() {
+        _title.textContent = params.identity;
+        _subtitle.textContent = '';
+      }
+    );
+  }
+
   var CallScreenUI = {
     init: function(params) {
       if (_hangoutButton) {
@@ -47,7 +67,7 @@
       // publishing video or not
       function _answer(isVideo) {
         Ringer.stop();
-        CallScreenUI.update('connected');
+        CallScreenUI.update('connected', params);
         CallManager.join(isVideo);
       }
 
@@ -67,23 +87,22 @@
 
       
       this.toggleVideoButton(params.video);
-      this.update(params.layout);
+      this.update(params.layout, params);
     },
-    update: function(state) {
+    update: function(state, params) {
+      
       switch(state) {
         case 'incoming':
           Ringer.play();
           _answerAudioButton.style.display = 'block';
           _answerVideoButton.style.display = 'block';
-          _title.textContent = 'Incoming Call';
-          _subtitle.textContent = 'Llamada entrante de...';
+          _updateUI(params);
           // Show 'answer' with video/audio & 'hangout'
           break;
         case 'outgoing':
           _answerAudioButton.style.display = 'none';
           _answerVideoButton.style.display = 'none';
-          _title.textContent = 'Outgoing Call';
-          _subtitle.textContent = 'Llamada a...';
+          _updateUI(params);
           CallManager.join(true);
           // _joinCall(true);
           // Show 'hangout' & 'settings'

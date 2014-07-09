@@ -13,6 +13,7 @@
     "moz-audio-channel-ringer":{},
     "moz-audio-channel-telephony":{},
     "camera":{},
+    "contacts":{ "access": "readonly" },
     "mobileid": {},
     "push":{},
     "speaker-control": {},
