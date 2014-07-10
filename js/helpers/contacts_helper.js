@@ -38,8 +38,8 @@
     }
     var options = {
       filterBy    : ['tel', 'email'],
-      filterValue : [identities],
-      filterOp    : 'contains'
+      filterValue : identities[0],
+      filterOp    : 'equal'
     }
 
     var request = navigator.mozContacts.find(options);

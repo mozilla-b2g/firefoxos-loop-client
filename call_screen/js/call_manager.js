@@ -68,8 +68,7 @@
       }
 
 
-      var contactId = _call.contactId;
-      var identity = _call.identity;
+      var identities = _call.identities;
       var layout = _call.layout;
       var video = true; // TODO Get from the default one
 
@@ -83,8 +82,7 @@
         _handleCallProgress(_callProgressHelper);
       };
       return {
-        contactId: contactId,
-        identity: identity,
+        identities: identities,
         layout: layout,
         video: video
       };

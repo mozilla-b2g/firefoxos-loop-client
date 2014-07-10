@@ -7,6 +7,132 @@
   
 
   /**
+   * Function for rendering an option prompt given a list
+   * of options
+   *
+   * @param {Array} items Items to render
+   */
+  function _showSecondaryMenu(items) {
+    // We add 'Cancel' as default one
+    items.push(
+      {
+        name: 'Cancel'
+      }
+    );
+    
+    var options = new OptionMenu({
+      type: 'action',
+      items: items
+    });
+    options.show();
+  }
+
+  function _showUrlSecondaryMenu(element) {
+    // Options to show
+    var items = [];
+
+    // TODO Add revoke in bug
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1037008
+    
+    // Delete single item
+    items.push(
+      {
+        name: 'Delete',
+        method: function(elementId) {
+          _deleteUrls([new Date(+elementId)]);
+        },
+        params: [element.id]
+      }
+    );
+    
+    _showSecondaryMenu(items);
+  }
+
+  function _showCallSecondaryMenu(element) {
+    // Options to show
+    var items = [];
+    // Retrieve important info
+    var identities = element.dataset.identities.split(',');
+    var contactId = element.dataset.contactId;
+    if (!contactId || !contactId.length) {
+      var tel, email;
+      for (var i = 0, l = identities.length; i < l && !tel && !email; i++) {
+        if (identities[i].indexOf('@') === -1) {
+          tel = identities[i];
+        } else {
+          email = identities[i];
+        }
+      }
+      var params = {};
+      if (tel) {
+        params.tel = tel;
+      }
+      if (email) {
+        params.email = email;
+      }
+
+      items.push(
+        {
+          name: 'Create a new contact',
+          method: function(params) {
+            new MozActivity({
+              name: 'new',
+              data: {
+                type: 'webcontacts/contact',
+                params: params
+              }
+            });
+          },
+          params: [params]
+        }
+      );
+      items.push(
+        {
+          name: 'Add to a contact',
+          method: function(params) {
+            new MozActivity({
+              name: 'update',
+              data: {
+                type: 'webcontacts/contact',
+                params: params
+              }
+            });
+          },
+          params: [params]
+        }
+      );
+    }
+
+    // TODO Add revoke if it's a call from an URL in
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1037008
+
+    // Delete single item
+    items.push(
+      {
+        name: 'Delete',
+        method: function(elementId) {
+          _deleteCalls([new Date(+elementId)]);
+        },
+        params: [element.id]
+      }
+    );
+
+    // Call through Loop
+    if (identities && identities.length) {
+      items.push(
+        {
+          name: 'Call',
+          method: function(identities) {
+            Controller.callIdentities(identities);
+          },
+          params: [identities]
+        }
+      );
+    }
+    
+    _showSecondaryMenu(items);
+  }
+  /**
    * Function for updating time related elements marked with 'data-need-update'
    * dataset.
    */
@@ -33,7 +159,7 @@
               value = Utils.getHeaderDate(+dataset.timestamp);
               break;
             case 'revoke':
-              value = Utils.getRevokeDate(+dataset.timestamp) || 'Expired';
+              value = _getExpiration(+dataset.timestamp, dataset.revoked === 'true');
               break;
           }
           elementsToUpdate[i].textContent = value || 'Unknown';
@@ -87,6 +213,48 @@
     }
     // Move the panel in order to show the right section
     calllogSectionsContainer.style.transform = 'translateX(' + translation + ')';
+  }
+
+
+  function _deleteElementsFromGroup(ids, type) {
+    var sectionEntries, cleanSection;
+    if (type === 'calls') {
+      sectionEntries = callsSectionEntries;
+      cleanSection = function() {
+        _isCallsSectionEmpty = true;
+        _showEmptyCalls();
+      }
+    } else {
+      sectionEntries = urlsSectionEntries;
+      cleanSection = function() {
+        _isUrlsSectionEmpty = true;
+        _showEmptyUrls();
+      }
+    }
+
+    // TODO Implement in https://bugzilla.mozilla.org/show_bug.cgi?id=1035693
+    for (var i = 0, l = ids.length; i < l; i++) {
+      // ID is the timestamp given a date
+      var elementToDelete = document.getElementById(ids[i].getTime());
+      if (!elementToDelete) {
+        continue;
+      }
+      // Delete from DB
+      var ul = elementToDelete.parentNode;
+      ul.removeChild(elementToDelete);
+
+      var ulChildrensLength = ul.children.length;
+      if (ulChildrensLength === 0) {
+        var header = ul.previousSibling;
+        // Delete the empty group
+        sectionEntries.removeChild(header);
+        sectionEntries.removeChild(ul);
+        // Check if we need to show the empty panel
+        if (sectionEntries.children.length === 0) {
+          cleanSection();
+        }
+      }
+    };
   }
 
   /**
@@ -192,7 +360,13 @@
   }
 
   function _deleteCalls(ids) {
-    // TODO Implement in https://bugzilla.mozilla.org/show_bug.cgi?id=1035693
+    ActionLogDB.deleteCalls(
+      function(error) {
+        error && console.error('Error when deleting calls from DB ' + error.name);
+      },
+      ids
+    );
+    _deleteElementsFromGroup(ids, 'calls');
   }
 
   function _renderCalls(error, callsCursor) {
@@ -211,9 +385,10 @@
 
   function _createCallDOM(call) {
     var callElement = document.createElement('li');
+    callElement.id = call.date.getTime();
     callElement.dataset.timestampIndex = call.date.getTime();
     callElement.dataset.contactId = call.contactId;
-    callElement.dataset.identities = call.identities[0];
+    callElement.dataset.identities = call.identities;
 
 
     var datePretty = Utils.getFormattedHour(call.date.getTime());
@@ -290,7 +465,13 @@
   }
 
   function _deleteUrls(ids) {
-    // TODO Implement in https://bugzilla.mozilla.org/show_bug.cgi?id=1035693
+    ActionLogDB.deleteUrls(
+      function(error) {
+        error && console.error('Error when deleting calls from DB ' + error.name);
+      },
+      ids
+    );
+    _deleteElementsFromGroup(ids, 'urls');
   }
 
   function _renderUrls(error, urlsCursor) {
@@ -306,22 +487,27 @@
     urlsCursor.continue();
   }
 
+  function _getExpiration(timestamp, revoked) {
+    return revoked ? 'Revoked' : (Utils.getRevokeDate(timestamp) || 'Expired');
+  }
+
   function _createUrlDOM(rawUrl) {
     var urlElement = document.createElement('li');
     urlElement.dataset.timestampIndex = rawUrl.date.getTime();
+    urlElement.id = rawUrl.date.getTime();
 
     var datePretty =  Utils.getFormattedHour(rawUrl.date);
-    var revokeTimestamp = '' + rawUrl.expiration.getTime();
-    var revokeDatePretty = Utils.getRevokeDate(revokeTimestamp);
+    var revokeTimestamp = rawUrl.expiration.getTime();
     var timestamp = '' + rawUrl.date.getTime();
-    
+    var revoked = rawUrl.revoked;
     urlElement.innerHTML = _templateUrl.interpolate({
       type: 'url',
       primary: rawUrl.contactPrimaryInfo || rawUrl.identities[0],
       link: rawUrl.url,
       time: datePretty,
-      revokeTimestamp: revokeTimestamp,
-      expiration: revokeDatePretty || 'Expired'
+      revoked: '' + revoked,
+      revokeTimestamp: '' + revokeTimestamp,
+      expiration: _getExpiration(revokeTimestamp, revoked) 
     });
 
     return urlElement;
@@ -397,6 +583,22 @@
         _templateUrlCalls = Template('calls-url-tmpl');
       }
       callsSectionEntries.innerHTML = '';
+
+      callsSectionEntries.addEventListener(
+        'contextmenu',
+        function(event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          var callElement = event.target;
+          if (callElement.tagName !== 'LI') {
+            return;
+          }
+
+          _showCallSecondaryMenu(callElement);
+        }
+      );
+
       callsSectionEntries.addEventListener(
         'click',
         function(event) {
@@ -404,18 +606,8 @@
           if (callElement.tagName !== 'LI') {
             return;
           }
-          ContactsHelper.find(
-            {
-              contactId: callElement.dataset.contactId,
-              identities: callElement.dataset.identities,
-            },
-            function onsuccess(contact) {
-              Controller.call(contact);
-            },
-            function onerror() {
-              Controller.callIdentities([callElement.dataset.identities]);
-            }
-          );
+          var identities = callElement.dataset.identities.split(',');
+          Controller.callIdentities(identities);
         }
       )
       ActionLogDB.getCalls(_renderCalls);
@@ -427,6 +619,21 @@
       // TODO Optimize this with the bug
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1036351
       urlsSectionEntries.innerHTML = '';
+
+      urlsSectionEntries.addEventListener(
+        'contextmenu',
+        function(event) {
+          event.stopPropagation();
+          event.preventDefault();
+
+          var urlElement = event.target;
+          if (urlElement.tagName !== 'LI') {
+            return;
+          }
+
+          _showUrlSecondaryMenu(urlElement);
+        }
+      );
       ActionLogDB.getUrls(_renderUrls);
 
       // Show the calls as initial screen
