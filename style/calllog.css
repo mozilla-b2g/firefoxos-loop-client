@@ -49,6 +49,10 @@
   overflow-x: hidden;
 }
 
+.section-entries li * {
+  pointer-events: none;
+}
+
 #urls-section.empty .section-empty {
   background-image: url(images/Link_icon_big@2,25x.png);
   background-repeat: no-repeat;

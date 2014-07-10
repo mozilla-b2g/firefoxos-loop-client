@@ -67,6 +67,9 @@
         _call[keyValue[0]] = decodeURIComponent(keyValue[1]);
       }
 
+
+      var contactId = _call.contactId;
+      var identity = _call.identity;
       var layout = _call.layout;
       var video = true; // TODO Get from the default one
 
@@ -80,6 +83,8 @@
         _handleCallProgress(_callProgressHelper);
       };
       return {
+        contactId: contactId,
+        identity: identity,
         layout: layout,
         video: video
       };
