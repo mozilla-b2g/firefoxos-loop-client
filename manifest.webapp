@@ -1,6 +1,6 @@
 {
   "name": "Loop",
-  "description": "The Mozilla Loop (WebRTC app) client",
+  "description": "The Mozilla Loop (WebRTC) client",
   "launch_path": "/index.html",
   "type": "privileged",
   "developer": {
@@ -8,10 +8,10 @@
     "url": "https://github.com/mozilla-b2g/gaia"
   },
   "permissions": {
-    "attention":{},
+    "moz-attention":{},
     "audio-capture": {},
-    "audio-channel-ringer":{},
-    "audio-channel-telephony":{},
+    "moz-audio-channel-ringer":{},
+    "moz-audio-channel-telephony":{},
     "camera":{},
     "mobileid": {},
     "push":{},
