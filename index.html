@@ -7,14 +7,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
     <!-- App styles -->
+    <link rel="stylesheet" type="text/css" href="style/bb/progress_activity.css">
     <link rel="stylesheet" type="text/css" href="style/bb/tabs.css">
     <link rel="stylesheet" type="text/css" href="style/bb/action_menu.css">
     <link rel="stylesheet" type="text/css" href="style/bb/switches.css">
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css">
     <link rel="stylesheet" type="text/css" href="style/bb/headers.css">
+
     <link rel="stylesheet" type="text/css" href="style/reset.css">
     <link rel="stylesheet" type="text/css" href="style/share.css">
     <link rel="stylesheet" type="text/css" href="style/settings.css">
+    <link rel="stylesheet" type="text/css" href="style/loading_overlay.css">
     <link rel="stylesheet" type="text/css" href="style/calllog.css">
     <link rel="stylesheet" type="text/css" href="style/main.css">
     <link rel="stylesheet" type="text/css" href="style/transitions.css">
@@ -53,6 +56,7 @@
 
     <script defer src="js/controller.js"></script>
     
+    <script defer src="js/screens/loading_overlay.js"></script>
     <script defer src="js/screens/option_menu.js"></script>
     <script defer src="js/screens/splash_screen.js"></script>
     <script defer src="js/screens/settings.js"></script>
@@ -64,6 +68,10 @@
   </head>
 
   <body role="application" class="animate" data-layout="wizard">
+    <section id="loading-overlay" class="panel" role="region" data-type="dialog">
+      <p><progress></progress></p>
+      <p id="loading-overlay-message">Connecting with the server</p>
+    </section>
     <section id="splash-screen" class="show">
     </section>
     <!-- 

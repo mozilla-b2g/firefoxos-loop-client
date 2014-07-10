@@ -1,5 +1,5 @@
 .settings {
-  z-index: 200;
+  z-index: 100;
   background: #ccc;
   -webkit-transform: translateY(100%);
   transform: translateY(100%);

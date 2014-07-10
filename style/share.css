@@ -1,5 +1,5 @@
 .share {
-  z-index: 50;
+  z-index: 100;
   background: #ccc;
   -webkit-transform: translateY(100%);
   transform: translateY(100%);
