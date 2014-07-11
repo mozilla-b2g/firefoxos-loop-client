@@ -182,6 +182,26 @@
       wizardTutorial.addEventListener('touchstart', _enableGestures);
       wizardTutorial.addEventListener('mousedown', _enableGestures);
 
+      // Add web view handler
+      var links = wizardTutorial.querySelectorAll('[data-webview]');
+      for (var i = 0, l = links.length; i < l; i++) {
+        var title = links[i].dataset.title;
+        var url = links[i].dataset.url;
+        
+        if (!url || !title) {
+          return;
+        }
+
+        links[i].addEventListener(
+          'touchstart',
+          function launchWebview(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            WebviewOverlay.show(title, url);
+          }
+        );
+      }
+
       skipButton.addEventListener(
         'click',
         onCompleted || function() {}

@@ -610,7 +610,7 @@
           Controller.callIdentities(identities);
         }
       )
-      ActionLogDB.getCalls(_renderCalls);
+      ActionLogDB.getCalls(_renderCalls, {prev: 'prev'});
 
       // Render urls
       if (!_templateUrl) {
@@ -619,7 +619,6 @@
       // TODO Optimize this with the bug
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1036351
       urlsSectionEntries.innerHTML = '';
-
       urlsSectionEntries.addEventListener(
         'contextmenu',
         function(event) {
@@ -634,7 +633,8 @@
           _showUrlSecondaryMenu(urlElement);
         }
       );
-      ActionLogDB.getUrls(_renderUrls);
+      
+      ActionLogDB.getUrls(_renderUrls, {prev: 'prev'});
 
       // Show the calls as initial screen
       _changeSection('calls');
