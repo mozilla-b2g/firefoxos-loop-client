@@ -158,7 +158,7 @@
     
 
   var Share = {
-    show: function s_show(contact, urlObject) {
+    show: function s_show(urlObject, contact) {
       if (!contact) {
         console.log('ERROR: Contact is undefined in SHARE').
         return;

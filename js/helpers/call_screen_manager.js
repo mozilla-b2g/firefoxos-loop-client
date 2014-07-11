@@ -72,19 +72,15 @@
   }
 
   var attention;
-  function _launchAttention(type, call, identities, contact) {
+  function _launchAttention(type, call, identities) {
     // Retrieve the params and pass them as part of the URL
     var attentionParams = 'layout=' + type;
-    attentionParams += '&identity=' + identities[0]
+    attentionParams += '&identities=' +  encodeURIComponent(identities.toString());
     if (call) {
       Object.keys(call).forEach(function(param) {
         attentionParams += '&' + param + '=' + encodeURIComponent(call[param])
       });
     }
-    if (contact) {
-      attentionParams += '&contactId=' + contact.id
-    }
-
     // Launch the Attention
     var host = document.location.host;
     var protocol = document.location.protocol;
@@ -110,29 +106,43 @@
                 case 'hangout':
                   // Stop listener
                   window.removeEventListener('message', onHandShakingEvent);
-                  
                   // Clean attention params
                   attention.close();
                   attention = null;
 
                   // Create CALL object
                   var params = messageFromCallScreen.params;
+                  // Create object to store
                   var callObject = {
                     date: attentionLoadedDate,
                     identities: identities || [],
-                    video: true,
+                    video: true, // TODO Update with the right value
                     type: type,
                     connected: params.connected,
                     duration: params.duration,
                     url: null,
                     urlToken: null,
-                    contactId: contact && contact.id || null,
-                    contactPrimaryInfo: contact && contact.name[0] || null,
+                    contactId: null,
+                    contactPrimaryInfo: null,
                     contactPhoto: null
                   };
-                  
-                  // Add Call log info & Feedback
-                  CallLog.addCall(callObject);
+
+                  ContactsHelper.find(
+                    {
+                      identities: identities
+                    },
+                    function onContact(contact) {
+                      // Update with contact info
+                      callObject.contactId = contact && contact.id || null;
+                      callObject.contactPrimaryInfo = contact && contact.name[0] || null;
+                      // Add Call log info & Feedback
+                      CallLog.addCall(callObject);
+                    },
+                    function onFallback() {
+                      // Add Call log info & Feedback
+                      CallLog.addCall(callObject);
+                    }
+                  );
                   break;
               }
 
@@ -146,9 +156,9 @@
   }
 
   var CallScreenManager = {
-    launch: function(type, call, identities, contact) {
+    launch: function(type, call, identities) {
       // TODO Depending on the type show one or another
-      _launchAttention(type, call, identities, contact);
+      _launchAttention(type, call, identities);
     },
     close: function() {
       if (attention) {

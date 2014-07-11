@@ -6,21 +6,18 @@
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _title , _subtitle;
   
-  var _contact;
-
   function _updateUI(params) {
+    var identities = params.identities.split(',');
     ContactsHelper.find(
       {
-        contactId: params.contactId,
-        identities: [params.identity]
+        identities: identities
       },
-      function(contact) {
-        _contact = contact;
-        _title.textContent = contact.name;
-        _subtitle.textContent = params.identity;
+      function onContact(contact) {
+        _title.textContent = contact.name[0];
+        _subtitle.textContent = identities[0];
       },
-      function() {
-        _title.textContent = params.identity;
+      function onFallback() {
+        _title.textContent = identities[0];
         _subtitle.textContent = '';
       }
     );

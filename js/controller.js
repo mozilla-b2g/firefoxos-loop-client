@@ -46,17 +46,8 @@
         function onsuccess(callsArray) {
           var call = callsArray.calls[0];
           var identities = [call.callerId];
-          ContactsHelper.find(
-            {
-              identities: identities
-            },
-            function onContact(contact) {
-              CallScreenManager.launch('incoming', call, identities, contact);
-            },
-            function onFallback() {
-              CallScreenManager.launch('incoming', call, identities);
-            }
-          );
+
+          CallScreenManager.launch('incoming', call, identities);
         },
         function onerror(e) {
           debug && console.log('Error: ClientRequestHelper.getCalls ' + e);
@@ -105,12 +96,12 @@
       CallHelper.callUser(
         identities,
         function onLoopIdentity(call) {
-          CallScreenManager.launch('outgoing', call, identities, contact);
+          CallScreenManager.launch('outgoing', call, identities);
         },
         function onFallback() {
           CallHelper.generateCallUrl(identities[0],
             function onCallUrlSuccess(result) {
-              Share.show(contact, result);
+              Share.show(result, contact);
             },
             function() {
               alert('Unable to retrieve link to share');
@@ -194,6 +185,10 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+    },
+
+    revokeUrl: function () {
+      // TODO Implement this in https://bugzilla.mozilla.org/show_bug.cgi?id=1037008
     },
 
     logout: function() {
