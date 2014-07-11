@@ -92,6 +92,7 @@
       attention,
       function onLoaded() {
         debug && console.log('handshaking ready!');
+        LoadingOverlay.hide();
         var attentionLoadedDate = new Date();
         window.addEventListener(
           'message',

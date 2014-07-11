@@ -4,7 +4,7 @@
   height: 100%;
   background: #ccc;
   position: absolute;
-  z-index: 1000;
+  z-index: 300;
   background-image: url(images/splash_logo_wf.png);
   background-repeat: no-repeat;
   background-position: center;

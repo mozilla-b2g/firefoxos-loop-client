@@ -16,17 +16,24 @@
     }
     CallLog.init(event.detail.identity);
     SplashScreen.hide();
-    // TODO Add LoadingOverlay.hide() when implemented
+    LoadingOverlay.hide();
   }
 
   function _onlogout() {
     Wizard.init(false);
     SplashScreen.hide();
+    setTimeout(function() {
+      LoadingOverlay.hide();
+    }, 2000);
+    // TODO This timeout is just for improving user experience. Check
+    // with UX.
+    
   }
 
   function _onloginerror(event) {
     Wizard.init(false /* isFirstUse */);
     SplashScreen.hide();
+    LoadingOverlay.hide();
     // TODO Add error message
     // TODO Add LoadingOverlay.hide() when implemented
   }
@@ -71,6 +78,7 @@
     },
 
     authenticate: function(id) {
+      LoadingOverlay.show('Authenticating...');
       AccountHelper.authenticate(id);
     },
 
@@ -93,14 +101,17 @@
     },
 
     callIdentities: function(identities, contact) {
+      LoadingOverlay.show('Connecting');
       CallHelper.callUser(
         identities,
         function onLoopIdentity(call) {
           CallScreenManager.launch('outgoing', call, identities);
         },
         function onFallback() {
+          LoadingOverlay.show('Generating url to share');
           CallHelper.generateCallUrl(identities[0],
             function onCallUrlSuccess(result) {
+              LoadingOverlay.hide();
               Share.show(result, contact);
             },
             function() {

@@ -247,25 +247,21 @@
 video {
   background: white;
   display: none;
-  /*z-index: 100;*/
   position: absolute;
-  /*width: 100%;*/
   height: 100%;
-  /*background: red;*/
   top: 0;
-  z-index: 100;
+  z-index: 50;
 }
 
 .call-mock{
   display: none;
   background: url(images/call_screen_mock_wf.png);
   background-size: 100% 100%;
-  z-index: 200;
+  z-index: 60;
   width: 100%;
   height: 100%;
   position: absolute;
   top: 0px;
-
 }
 
 video.show {
