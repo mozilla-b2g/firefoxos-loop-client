@@ -1,0 +1,48 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  font-family: 'Fira Sans', sans-serif;
+  background: white;
+}
+
+@media all and (min-width: 400px) {
+  body, html {
+    font-size: 15px !important;
+  }
+}
+
+.highlight {
+  color: #54A6B6;
+  font-weight: bold;
+}
+
+/*
+ * webview-overlay
+ */
+
+ #webview-overlay iframe {
+  height: calc(100% - 5rem);
+  width: 100%;
+  overflow: auto;
+ }
+
+section[data-type="dialog"] {
+  z-index: 200;
+  background: white;
+  display: none;
+}
+
+section[data-type="dialog"].show {
+  display: block;
+}
+
+#overlay section {
+  height: 100%;
+  width: 100%;
+  overflow: auto
+}

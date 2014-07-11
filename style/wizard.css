@@ -149,6 +149,11 @@
   display: block;
 }
 
+.link {
+  color: blue;
+  cursor: pointer;
+}
+
 /* * * * * * * * * * * * * * * * * * * * * * * * *
  * [2] gUM > "wizard-gum-section"
  * * * * * * * * * * * * * * * * * * * * * * * * *
