@@ -1,20 +1,20 @@
 /**
- * @license  OpenTok JavaScript Library v2.2.5
+ * @license  OpenTok JavaScript Library v2.2.6
  * http://www.tokbox.com/
  *
  * Copyright (c) 2014 TokBox, Inc.
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * Date: May 22 07:14:18 2014
+ * Date: June 24 11:09:07 2014
  */
 
 (function(window) {
   if (!window.OT) window.OT = {};
 
   OT.properties = {
-    version: 'v2.2.5',         // The current version (eg. v2.0.4) (This is replaced by gradle)
-    build: '12d9384',    // The current build hash (This is replaced by gradle)
+    version: 'v2.2.6',         // The current version (eg. v2.0.4) (This is replaced by gradle)
+    build: 'd326ad1',    // The current build hash (This is replaced by gradle)
 
     // Whether or not to turn on debug logging by default
     debug: 'false',
@@ -24,7 +24,7 @@
     // The URL of the CDN when runnint on top of running FxOS
     cdnURL: '/libs',
     // The URL to use for logging
-    loggingURL: 'http://hlg.tokbox.com/prod',
+    loggingURL: 'https://hlg.tokbox.com/prod',
     // The anvil API URL
     apiURL: 'http://anvil.opentok.com',
 
@@ -37,8 +37,6 @@
     supportSSL: 'true',
     // The CDN to use if we're using SSL when runnint on top of running FxOS
     cdnURLSSL: '/libs',
-    // The loggging URL to use if we're using SSL
-    loggingURLSSL: 'https://hlg.tokbox.com/prod',
     // The anvil API URL to use if we're using SSL
     apiURLSSL: 'https://anvil.opentok.com',
 
@@ -1693,7 +1691,7 @@ OTHelpers.roundFloat = function(value, places) {
     };
 
   };
-  
+
 })(window, window.OTHelpers);
 
 /*jshint browser:true, smarttabs:true*/
@@ -1907,7 +1905,7 @@ OTHelpers.observeStyleChanges = function(element, stylesToObserve, onChange) {
 
             OTHelpers.forEach(stylesToObserve, function(style) {
                 if(isHidden && (style == 'width' || style == 'height')) return;
-                
+
                 var newValue = getStyle(style);
 
                 if (newValue !== oldStyles[style]) {
@@ -2049,7 +2047,7 @@ OTHelpers.observeNodeOrChildNodeRemoval = function(element, onChange) {
     };
 
     document.body.appendChild(domElement);
-    
+
     if(OTHelpers.browserVersion().iframeNeedsLoad) {
       OTHelpers.on(domElement, 'load', wrappedCallback);
     } else {
@@ -2066,11 +2064,11 @@ OTHelpers.observeNodeOrChildNodeRemoval = function(element, onChange) {
     this.element = domElement;
 
   };
-  
+
 })(window, window.OTHelpers);
 
 /*
- * getComputedStyle from 
+ * getComputedStyle from
  * https://github.com/jonathantneal/Polyfills-for-IE8/blob/master/getComputedStyle.js
 
 // tb_require('../helpers.js')
@@ -2340,7 +2338,7 @@ OTHelpers.centerElement = function(element, width, height) {
       }
 
       if (!defaultDisplays[element.ownerDocument]) defaultDisplays[element.ownerDocument] = {};
-    
+
       // We need to know what display value to use for this node. The easiest way
       // is to actually create a node and read it out.
       var testNode = element.ownerDocument.createElement(element.nodeName),
@@ -2667,7 +2665,7 @@ OTHelpers.centerElement = function(element, width, height) {
     });
 
   };
-  
+
   var templateElement = function(classes, children, tagName) {
     var el = OT.$.createElement(tagName || 'div', { 'class': classes }, children, this);
     el.on = OT.$.bind(OT.$.on, OT.$, el);
@@ -2884,6 +2882,9 @@ OTHelpers.centerElement = function(element, width, height) {
     if (enumerable === void 0) enumerable = false;
 
     for (var key in getters) {
+      if(!getters.hasOwnProperty(key)) {
+        continue;
+      }
       propsDefinition[key] = {
         get: getters[key],
         enumerable: enumerable
@@ -3016,13 +3017,20 @@ OTHelpers.centerElement = function(element, width, height) {
     if (props.supportSSL && (window.location.protocol.indexOf('https') >= 0 ||
       window.location.protocol.indexOf('chrome-extension') >= 0)) {
       props.assetURL = props.cdnURLSSL + '/tokbox/' + props.version;
-      props.loggingURL = props.loggingURLSSL;
     } else {
       props.assetURL = props.cdnURL + '/tokbox/' + props.version;
     }
 
     props.configURL = props.assetURL + '/js/dynamic_config.min.js';
     props.cssURL = props.assetURL + '/css/ot.min.css';
+
+    if (window.OTProperties) {
+      // Allow window.OTProperties to override cdnURL, configURL, assetURL and cssURL
+      if (window.OTProperties.cdnURL) props.cdnURL = window.OTProperties.cdnURL;
+      if (window.OTProperties.configURL) props.configURL = window.OTProperties.configURL;
+      if (window.OTProperties.assetURL) props.assetURL = window.OTProperties.assetURL;
+      if (window.OTProperties.cssURL) props.cssURL = window.OTProperties.cssURL;
+    }
 
     return props;
   }(OT.properties);
@@ -3517,8 +3525,7 @@ OTHelpers.centerElement = function(element, width, height) {
   /* global mozRTCPeerConnection */
 
   var nativeGetUserMedia,
-      mozToW3CErrors,
-      chromeToW3CErrors,
+      vendorToW3CErrors,
       gumNamesToMessages,
       mapVendorErrorName,
       parseErrorEvent,
@@ -3599,21 +3606,19 @@ OTHelpers.centerElement = function(element, width, height) {
 
   // Mozilla error strings and the equivalent W3C names. NOT_SUPPORTED_ERROR does not
   // exist in the spec right now, so we'll include Mozilla's error description.
-  mozToW3CErrors = {
+  // Chrome TrackStartError is triggered when the camera is already used by another app (Windows)
+  vendorToW3CErrors = {
     PERMISSION_DENIED: 'PermissionDeniedError',
     NOT_SUPPORTED_ERROR: 'NotSupportedError',
     MANDATORY_UNSATISFIED_ERROR: ' ConstraintNotSatisfiedError',
     NO_DEVICES_FOUND: 'NoDevicesFoundError',
-    HARDWARE_UNAVAILABLE: 'HardwareUnavailableError'
-  };
-
-  // Chrome only seems to expose a single error with a code of 1 right now.
-  chromeToW3CErrors = {
-    1: 'PermissionDeniedError'
+    HARDWARE_UNAVAILABLE: 'HardwareUnavailableError',
+    TrackStartError: 'HardwareUnavailableError'
   };
 
   gumNamesToMessages = {
     PermissionDeniedError: 'End-user denied permission to hardware devices',
+    PermissionDismissedError: 'End-user dismissed permission to hardware devices',
     NotSupportedError: 'A constraint specified is not supported by the browser.',
     ConstraintNotSatisfiedError: 'It\'s not possible to satisfy one or more constraints ' +
       'passed into the getUserMedia function',
@@ -3624,16 +3629,22 @@ OTHelpers.centerElement = function(element, width, height) {
       'that the chosen devices are not in use by another application.'
   };
 
-// Map vendor error strings to names and messages
-  mapVendorErrorName = function mapVendorErrorName (vendorErrorName, vendorErrors) {
-    var errorName = vendorErrors[vendorErrorName],
-        errorMessage = gumNamesToMessages[errorName];
+  // Map vendor error strings to names and messages if possible
+  mapVendorErrorName = function mapVendorErrorName(vendorErrorName, vendorErrors) {
+    var errorName, errorMessage;
 
-    if (!errorMessage) {
+    if(vendorErrors.hasOwnProperty(vendorErrorName)) {
+      errorName = vendorErrors[vendorErrorName];
+    } else {
       // This doesn't map to a known error from the Media Capture spec, it's
       // probably a custom vendor error message.
-      errorMessage = null; // This is undefined?
       errorName = vendorErrorName;
+    }
+
+    if(gumNamesToMessages.hasOwnProperty(errorName)) {
+      errorMessage = gumNamesToMessages[errorName];
+    } else {
+      errorMessage = 'Unknown Error while getting user media';
     }
 
     return {
@@ -3644,30 +3655,17 @@ OTHelpers.centerElement = function(element, width, height) {
 
   // Parse and normalise a getUserMedia error event from Chrome or Mozilla
   // @ref http://dev.w3.org/2011/webrtc/editor/getusermedia.html#idl-def-NavigatorUserMediaError
-  parseErrorEvent = function parseErrorObject (event) {
+  parseErrorEvent = function parseErrorObject(event) {
     var error;
 
     if (OT.$.isObject(event) && event.name) {
-      error = {
-        name: event.name,
-        message: event.message || gumNamesToMessages[event.name],
-        constraintName: event.constraintName
-      };
-
-    } else if (OT.$.isObject(event)) {
-      error = mapVendorErrorName(event.code, chromeToW3CErrors);
-
-      // message and constraintName are probably missing if the
-      // property is also omitted, but just in case they aren't.
-      if (event.message) error.message = event.message;
-      if (event.constraintName) error.constraintName = event.constraintName;
-
-    } else if (event && mozToW3CErrors.hasOwnProperty(event)) {
-      error = mapVendorErrorName(event, mozToW3CErrors);
-
+      error = mapVendorErrorName(event.name, vendorToW3CErrors);
+      error.constraintName = event.constraintName;
+    } else if (typeof event === 'string') {
+      error = mapVendorErrorName(event, vendorToW3CErrors);
     } else {
       error = {
-        message: 'Unknown Error while getting user media'
+        message: 'Unknown Error type while getting media'
       };
     }
 
@@ -3680,6 +3678,9 @@ OTHelpers.centerElement = function(element, width, height) {
     if (!constraints || !OT.$.isObject(constraints)) return true;
 
     for (var key in constraints) {
+      if(!constraints.hasOwnProperty(key)) {
+        continue;
+      }
       if (constraints[key]) return false;
     }
 
@@ -3767,6 +3768,29 @@ OTHelpers.centerElement = function(element, width, height) {
     return OT.$.supportsWebRTC() && OT.$.browser() === 'Chrome';
   };
 
+  OT.$.shouldAskForDevices = function(callback) {
+    var memoiseReply = function(audio, video) {
+      OT.$.shouldAskForDevices = function(callback) {
+        setTimeout(callback.bind(null, { video: video, audio: audio }));
+      };
+      OT.$.shouldAskForDevices(callback);
+    };
+    var MST = window.MediaStreamTrack;
+    if(MST != null && OT.$.isFunction(MST.getSources)) {
+      window.MediaStreamTrack.getSources(function(sources) {
+        var hasAudio = sources.some(function(src) {
+          return src.kind === 'audio';
+        });
+        var hasVideo = sources.some(function(src) {
+          return src.kind === 'video';
+        });
+        memoiseReply(hasAudio, hasVideo);
+      });
+    } else {
+      memoiseReply(true, true);
+    }
+  };
+
   // A wrapper for the builtin navigator.getUserMedia. In addition to the usual
   // getUserMedia behaviour, this helper method also accepts a accessDialogOpened
   // and accessDialogClosed callback.
@@ -3848,23 +3872,8 @@ OTHelpers.centerElement = function(element, width, height) {
           var error = parseErrorEvent(event);
 
           // The error name 'PERMISSION_DENIED' is from an earlier version of the spec
-          if (error.name === 'PermissionDeniedError') {
-            var MST = window.MediaStreamTrack;
-            if(MST != null && OT.$.isFunction(MST.getSources)) {
-              window.MediaStreamTrack.getSources(function(sources) {
-                if(sources.length > 0) {
-                  accessDenied.call(null, error);
-                } else {
-                  failure.call(null, {
-                    name: 'NoDevicesFoundError',
-                    message: gumNamesToMessages.NoDevicesFoundError
-                  });
-                }
-              });
-            } else {
-              accessDenied.call(null, error);
-            }
-
+          if (error.name === 'PermissionDeniedError' || error.name === 'PermissionDismissedError') {
+            accessDenied.call(null, error);
           } else {
             failure.call(null, error);
           }
@@ -3899,7 +3908,7 @@ OTHelpers.centerElement = function(element, width, height) {
       triggerOpenedTimer = setTimeout(triggerOpened, 500);
     }
   };
-  
+
   OT.$.createPeerConnection = function (config, options) {
     var NativeRTCPeerConnection = (window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
     return new NativeRTCPeerConnection(config, options);
@@ -4201,6 +4210,24 @@ OTHelpers.centerElement = function(element, width, height) {
 
           this.trigger('orientationChanged');
         }
+      },
+
+      // see https://wiki.mozilla.org/WebAPI/AudioChannels
+      // The audioChannelType is currently only available in Firefox. This property returns
+      // "unknown" in other browser. The related HTML tag attribute is "mozaudiochannel"
+      audioChannelType: {
+        get: function() {
+          if ('mozAudioChannelType' in this.domElement) {
+            return this.domElement.mozAudioChannelType;
+          } else {
+            return 'unknown';
+          }
+        },
+        set: function(type) {
+          if ('mozAudioChannelType' in this.domElement) {
+            this.domElement.mozAudioChannelType = type;
+          }
+        }
       }
     });
   }
@@ -4222,6 +4249,9 @@ OTHelpers.centerElement = function(element, width, height) {
       }
 
       for (var key in attributes) {
+        if(!attributes.hasOwnProperty(key)) {
+          continue;
+        }
         videoElement.setAttribute(key, attributes[key]);
       }
     }
@@ -4414,9 +4444,9 @@ OTHelpers.centerElement = function(element, width, height) {
     // @param [Hash] details additional error details
     //
     // @param [Hash] options the options to log the client event with.
-    // @option options [String] action The name of the Event that we are logging. E.g. 
+    // @option options [String] action The name of the Event that we are logging. E.g.
     //  'TokShowLoaded'. Required.
-    // @option options [String] variation Usually used for Split A/B testing, when you 
+    // @option options [String] variation Usually used for Split A/B testing, when you
     //  have multiple variations of the +_action+.
     // @option options [String] payloadType A text description of the payload. Required.
     // @option options [String] payload The payload. Required.
@@ -4443,7 +4473,7 @@ OTHelpers.centerElement = function(element, width, height) {
       }
 
       if (shouldThrottleError(code, type, partnerId)) {
-        //OT.log('ClientEvents.error has throttled an error of type ' + type + '.' + 
+        //OT.log('ClientEvents.error has throttled an error of type ' + type + '.' +
         // code + ' for partner ' + (partnerId || 'No Partner Id'));
         return;
       }
@@ -4478,9 +4508,9 @@ OTHelpers.centerElement = function(element, width, height) {
     //  })
     //
     // @param [Hash] options the options to log the client event with.
-    // @option options [String] action The name of the Event that we are logging. 
+    // @option options [String] action The name of the Event that we are logging.
     //  E.g. 'TokShowLoaded'. Required.
-    // @option options [String] variation Usually used for Split A/B testing, when 
+    // @option options [String] variation Usually used for Split A/B testing, when
     //  you have multiple variations of the +_action+.
     // @option options [String] payloadType A text description of the payload. Required.
     // @option options [String] payload The payload. Required.
@@ -4716,7 +4746,7 @@ OTHelpers.centerElement = function(element, width, height) {
 *   frame rate, this property is undefined.
 *   <p>
 *   For OpenTok cloud-enabled sessions, lowering the frame rate or lowering the resolution reduces
-*   the maximum bandwidth the stream can use. However, in peer-to-peer sessions, lowering the frame 
+*   the maximum bandwidth the stream can use. However, in peer-to-peer sessions, lowering the frame
 *   rate or resolution may not reduce the stream's bandwidth.
 *   </p>
 *   <p>
@@ -4784,7 +4814,7 @@ OTHelpers.centerElement = function(element, width, height) {
 *   </p>
 *   <p>
 *   The default resolution for a stream (if you do not specify a resolution) is 640x480 pixels.
-*   If the client system cannot support the resolution you requested, the the stream will use the 
+*   If the client system cannot support the resolution you requested, the the stream will use the
 *   next largest setting supported.
 *   </p>
 *   <p>
@@ -4868,7 +4898,7 @@ OTHelpers.centerElement = function(element, width, height) {
       properties = completionHandler;
       completionHandler = arguments[3];
     }
-    
+
     if(typeof targetElement === 'function') {
       completionHandler = targetElement;
       properties = undefined;
@@ -5036,7 +5066,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
 /**
 * This method is deprecated. Use <a href="#on">on()</a> or <a href="#once">once()</a> instead.
-* 
+*
 * <p>
 * Registers a method as an event listener for a specific event.
 * </p>
@@ -5073,7 +5103,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
 /**
 * This method is deprecated. Use <a href="#off">off()</a> instead.
-* 
+*
 * <p>
 * Removes an event listener for a specific event.
 * </p>
@@ -5096,7 +5126,7 @@ OTHelpers.centerElement = function(element, width, height) {
 * Adds an event handler function for one or more events.
 *
 * <p>
-* The OT object dispatches one type of event &#151; an <code>exception</code> event. The following 
+* The OT object dispatches one type of event &#151; an <code>exception</code> event. The following
 * code adds an event
 * listener for the <code>exception</code> event:
 * </p>
@@ -5107,7 +5137,7 @@ OTHelpers.centerElement = function(element, width, height) {
 * });
 * </pre>
 *
-* <p>You can also pass in a third <code>context</code> parameter (which is optional) to define the 
+* <p>You can also pass in a third <code>context</code> parameter (which is optional) to define the
 * value of
 * <code>this</code> in the handler method:</p>
 *
@@ -5127,7 +5157,7 @@ OTHelpers.centerElement = function(element, width, height) {
 * @param {String} type The string identifying the type of event.
 * @param {Function} handler The handler function to process the event. This function takes the event
 * object as a parameter.
-* @param {Object} context (Optional) Defines the value of <code>this</code> in the event handler 
+* @param {Object} context (Optional) Defines the value of <code>this</code> in the event handler
 * function.
 *
 * @memberof OT
@@ -5138,11 +5168,11 @@ OTHelpers.centerElement = function(element, width, height) {
 */
 
 /**
-* Adds an event handler function for an event. Once the handler is called, the specified handler 
+* Adds an event handler function for an event. Once the handler is called, the specified handler
 * method is
 * removed as a handler for this event. (When you use the <code>OT.on()</code> method to add an event
 * handler, the handler
-* is <i>not</i> removed when it is called.) The <code>OT.once()</code> method is the equivilent of 
+* is <i>not</i> removed when it is called.) The <code>OT.once()</code> method is the equivilent of
 * calling the <code>OT.on()</code>
 * method and calling <code>OT.off()</code> the first time the handler is invoked.
 *
@@ -5156,7 +5186,7 @@ OTHelpers.centerElement = function(element, width, height) {
 * }
 * </pre>
 *
-* <p>You can also pass in a third <code>context</code> parameter (which is optional) to define the 
+* <p>You can also pass in a third <code>context</code> parameter (which is optional) to define the
 * value of
 * <code>this</code> in the handler method:</p>
 *
@@ -5170,9 +5200,9 @@ OTHelpers.centerElement = function(element, width, height) {
 * </pre>
 *
 * <p>
-* The method also supports an alternate syntax, in which the first parameter is an object that is a 
+* The method also supports an alternate syntax, in which the first parameter is an object that is a
 * hash map of
-* event names and handler functions and the second parameter (optional) is the context for this in 
+* event names and handler functions and the second parameter (optional) is the context for this in
 * each handler:
 * </p>
 * <pre>
@@ -5185,14 +5215,14 @@ OTHelpers.centerElement = function(element, width, height) {
 * );
 * </pre>
 *
-* @param {String} type The string identifying the type of event. You can specify multiple event 
+* @param {String} type The string identifying the type of event. You can specify multiple event
 * names in this string,
-* separating them with a space. The event handler will process the first occurence of the events. 
+* separating them with a space. The event handler will process the first occurence of the events.
 * After the first event,
 * the handler is removed (for all specified events).
 * @param {Function} handler The handler function to process the event. This function takes the event
 * object as a parameter.
-* @param {Object} context (Optional) Defines the value of <code>this</code> in the event handler 
+* @param {Object} context (Optional) Defines the value of <code>this</code> in the event handler
 * function.
 *
 * @memberof OT
@@ -5210,15 +5240,15 @@ OTHelpers.centerElement = function(element, width, height) {
 *
 * <pre>OT.off("exceptionEvent", exceptionEventHandler);</pre>
 *
-* <p>If you pass in an event name and <i>no</i> handler method, all handlers are removed for that 
+* <p>If you pass in an event name and <i>no</i> handler method, all handlers are removed for that
 * events:</p>
 *
 * <pre>OT.off("exceptionEvent");</pre>
 *
 * <p>
-* The method also supports an alternate syntax, in which the first parameter is an object that is a 
+* The method also supports an alternate syntax, in which the first parameter is an object that is a
 * hash map of
-* event names and handler functions and the second parameter (optional) is the context for matching 
+* event names and handler functions and the second parameter (optional) is the context for matching
 * handlers:
 * </p>
 * <pre>
@@ -5230,12 +5260,12 @@ OTHelpers.centerElement = function(element, width, height) {
 * );
 * </pre>
 *
-* @param {String} type (Optional) The string identifying the type of event. You can use a space to 
+* @param {String} type (Optional) The string identifying the type of event. You can use a space to
 * specify multiple events, as in "eventName1 eventName2 eventName3". If you pass in no
 * <code>type</code> value (or other arguments), all event handlers are removed for the object.
-* @param {Function} handler (Optional) The event handler function to remove. If you pass in no 
+* @param {Function} handler (Optional) The event handler function to remove. If you pass in no
 * <code>handler</code>, all event handlers are removed for the specified event <code>type</code>.
-* @param {Object} context (Optional) If you specify a <code>context</code>, the event handler is 
+* @param {Object} context (Optional) If you specify a <code>context</code>, the event handler is
 * removed for all specified events and handlers that use the specified context.
 *
 * @memberof OT
@@ -5329,6 +5359,9 @@ OTHelpers.centerElement = function(element, width, height) {
 
       return _models.filter(function(model) {
         for (var key in attrsOrFilterFn) {
+          if(!attrsOrFilterFn.hasOwnProperty(key)) {
+            continue;
+          }
           if (model[key] !== attrsOrFilterFn[key]) return false;
         }
 
@@ -5347,6 +5380,9 @@ OTHelpers.centerElement = function(element, width, height) {
       else {
         filterFn = function(model) {
           for (var key in attrsOrFilterFn) {
+            if(!attrsOrFilterFn.hasOwnProperty(key)) {
+              continue;
+            }
             if (model[key] !== attrsOrFilterFn[key]) return false;
           }
 
@@ -5853,7 +5889,7 @@ OTHelpers.centerElement = function(element, width, height) {
     } else {
       this.connections = [connection];
     }
-    
+
     this.connection = connection;
     this.reason = reason;
   };
@@ -6093,15 +6129,15 @@ OTHelpers.centerElement = function(element, width, height) {
   };
 
 /**
- * The Session object dispatches SessionDisconnectEvent object when a session has disconnected. 
- * This event may be dispatched asynchronously in response to a successful call to the 
+ * The Session object dispatches SessionDisconnectEvent object when a session has disconnected.
+ * This event may be dispatched asynchronously in response to a successful call to the
  * <code>disconnect()</code> method of the session object.
  *
  *  <h4>
  *    <a href="example"></a>Example
  *  </h4>
  *  <p>
- *    The following code initializes a session and sets up an event listener for when a session is 
+ *    The following code initializes a session and sets up an event listener for when a session is
  * disconnected.
  *  </p>
  * <pre>var apiKey = ""; // Replace with your API key. See https://dashboard.tokbox.com/projects
@@ -6127,7 +6163,7 @@ OTHelpers.centerElement = function(element, width, height) {
  *    <li><code>"forceDisconnected"</code> &#151; A moderator has disconnected you from the session
  *     by calling the <code>forceDisconnect()</code> method of the Session object. (See
  *       <a href="Session.html#forceDisconnect">Session.forceDisconnect()</a>.)</li>
- *    <li><code>"networkDisconnected"</code> &#151; The network connection terminated abruptly 
+ *    <li><code>"networkDisconnected"</code> &#151; The network connection terminated abruptly
  *       (for example, the client lost their internet connection).</li>
  *  </ul>
  *
@@ -6145,11 +6181,11 @@ OTHelpers.centerElement = function(element, width, height) {
 * <p>For the <code>sessionDisconnectEvent</code>, the default behavior is that all Subscriber
 * objects are unsubscribed and removed from the HTML DOM. Each Subscriber object dispatches a
 * <code>destroyed</code> event when the element is removed from the HTML DOM. If you call the
-* <code>preventDefault()</code> method in the event listener for the <code>sessionDisconnect</code> 
-* event, the default behavior is prevented, and you can, optionally, clean up Subscriber objects 
+* <code>preventDefault()</code> method in the event listener for the <code>sessionDisconnect</code>
+* event, the default behavior is prevented, and you can, optionally, clean up Subscriber objects
 * using your own code).
 *
-* <p>To see whether an event has a default behavior, check the <code>cancelable</code> property of 
+* <p>To see whether an event has a default behavior, check the <code>cancelable</code> property of
 * the event object. </p>
 *
 * <p>Call the <code>preventDefault()</code> method in the event listener function for the event.</p>
@@ -6159,14 +6195,14 @@ OTHelpers.centerElement = function(element, width, height) {
 */
 
 /**
- * The Session object dispatches a <code>streamPropertyChanged</code> event in the 
+ * The Session object dispatches a <code>streamPropertyChanged</code> event in the
  * following circumstances:
  *
  * <ul>
  *
- *  <li>When a publisher starts or stops publishing audio or video. This change causes 
- *  the <code>hasAudio</code> or <code>hasVideo</code> property of the Stream object to 
- *  change. This change results from a call to the <code>publishAudio()</code> or 
+ *  <li>When a publisher starts or stops publishing audio or video. This change causes
+ *  the <code>hasAudio</code> or <code>hasVideo</code> property of the Stream object to
+ *  change. This change results from a call to the <code>publishAudio()</code> or
  *  <code>publishVideo()</code> methods of the Publish object.</li>
  *
  *  <li>When the <code>videoDimensions</code> property of a stream changes. For more information,
@@ -6175,7 +6211,7 @@ OTHelpers.centerElement = function(element, width, height) {
  * </ul>
  *
  * @class StreamPropertyChangedEvent
- * @property {String} changedProperty The property of the stream that changed. This value 
+ * @property {String} changedProperty The property of the stream that changed. This value
  * is either <code>"hasAudio"</code>, <code>"hasVideo"</code>, or <code>"videoDimensions"</code>.
  * @property {Stream} stream The Stream object for which a property has changed.
  * @property {Object} newValue The new value of the property (after the change).
@@ -6195,6 +6231,19 @@ OTHelpers.centerElement = function(element, width, height) {
     this.newValue = newValue;
   };
 
+/**
+ * Defines event objects for the <code>archiveStarted</code> and <code>archiveStopped</code> events.
+ * The Session object dispatches these events when an archive recording of the session starts and
+ * stops.
+ *
+ * @property {String} id The archive ID.
+ * @property {String} name The name of the archive. You can assign an archive a name when you create
+ * it, using the <a href="http://www.tokbox.com/opentok/api">OpenTok REST API</a> or one of the
+ * <a href="http://www.tokbox.com/opentok/libraries/server">OpenTok server SDKs</a>.
+ *
+ * @class ArchiveEvent
+ * @augments Event
+ */
   OT.ArchiveEvent = function (type, archive) {
     OT.Event.call(this, type, false);
     this.type = type;
@@ -6216,7 +6265,7 @@ OTHelpers.centerElement = function(element, width, height) {
  * The Session object dispatches a signal event when the client receives a signal from the session.
  *
  * @class SignalEvent
- * @property {String} type The type assigned to the signal (if there is one). Use the type to 
+ * @property {String} type The type assigned to the signal (if there is one). Use the type to
  * filter signals received (by adding an event handler for signal:type1 or signal:type2, etc.)
  * @property {String} data The data string sent with the signal (if there is one).
  * @property {Connection} from The Connection corresponding to the client that sent with the signal.
@@ -9183,6 +9232,9 @@ OTHelpers.centerElement = function(element, width, height) {
     i = 0;
 
     for (var key in this.headers) {
+      if(!this.headers.hasOwnProperty(key)) {
+        continue;
+      }
       headerKey.push(new TextEncoder('utf-8').encode(key));
       headerVal.push(new TextEncoder('utf-8').encode(this.headers[key]));
       cBuf += 4;
@@ -9381,7 +9433,7 @@ OTHelpers.centerElement = function(element, width, height) {
   // }
   //
   // @todo Raptor Docs {
-  //   Document payload formats for incoming messages (what are the payloads for 
+  //   Document payload formats for incoming messages (what are the payloads for
   //    STREAM CREATED/MODIFIED for example)
   //   Document how keepalives work
   //   Document all the Raptor actions and types
@@ -9516,7 +9568,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
     return message;
   };
-  
+
   OT.Raptor.parseIceServers = function (message) {
     try {
       return JSON.parse(message.data).content.iceServers;
@@ -9594,13 +9646,13 @@ OTHelpers.centerElement = function(element, width, height) {
       if (frameRate) channel.frameRate = frameRate;
       channels.push(channel);
     }
-    
+
     var messageContent = {
       id: streamId,
       name: name,
       channel: channels
     };
-    
+
     if (minBitrate) messageContent.minBitrate = minBitrate;
     if (maxBitrate) messageContent.maxBitrate = maxBitrate;
 
@@ -10468,7 +10520,7 @@ OTHelpers.centerElement = function(element, width, height) {
       case 'created':
         this.emit('archive#created', message.content);
         break;
-      
+
       case 'updated':
         this.emit('archive#updated', message.params.archive, message.content);
         break;
@@ -10560,7 +10612,7 @@ OTHelpers.centerElement = function(element, width, height) {
       content.stream.forEach(function(streamParams) {
         state.streams.push( parseAndAddStreamToSession(streamParams, session) );
       });
-      
+
       (content.archive || content.archives).forEach(function(archiveParams) {
         state.archives.push( parseAndAddArchiveToSession(archiveParams, session) );
       });
@@ -11362,6 +11414,9 @@ OTHelpers.centerElement = function(element, width, height) {
           oldVideoDimensions = {};
 
       for (var key in attributes) {
+        if(!attributes.hasOwnProperty(key)) {
+          continue;
+        }
         // we shouldn't really read this before we know the key is valid
         var oldValue = this[key];
 
@@ -11441,7 +11496,9 @@ OTHelpers.centerElement = function(element, width, height) {
  * Date object by calling <code>new Date(creationTime)</code>, where <code>creationTime</code> is
  * the <code>creationTime</code> property of the Stream object.
  *
- * @property {Number} fps The frame rate of the video stream.
+ * @property {Number} frameRate The frame rate of the video stream. This property is only set if the
+ * publisher of the stream specifies a frame rate when calling the <code>OT.initPublisher()</code>
+ * method; otherwise, this property is undefined.
  *
  * @property {Boolean} hasAudio Whether the stream has audio. This property can change if the
  * publisher turns on or off audio (by calling
@@ -11545,7 +11602,7 @@ OTHelpers.centerElement = function(element, width, height) {
     var audioChannel = this.getChannelsOfType('audio')[0],
         videoChannel = this.getChannelsOfType('video')[0];
 
-    // @todo this should really be: "has at least one video/audio track" instead of 
+    // @todo this should really be: "has at least one video/audio track" instead of
     // "the first video/audio track"
     this.hasAudio = audioChannel != null && audioChannel.active;
     this.hasVideo = videoChannel != null && videoChannel.active;
@@ -11672,6 +11729,9 @@ OTHelpers.centerElement = function(element, width, height) {
     // Mass update, called by Raptor.Dispatcher
     this._.update = function (attributes) {
       for (var key in attributes) {
+        if(!attributes.hasOwnProperty(key)) {
+          continue;
+        }
         this._.updateProperty(key, attributes[key]);
       }
     }.bind(this);
@@ -11683,27 +11743,30 @@ OTHelpers.centerElement = function(element, width, height) {
 
 })(window);
 !(function() {
-  
+
 
   OT.Archive = function(id, name, status) {
-    
+
     this.id = id;
     this.name = name;
     this.status = status;
-    
+
     this._ = {};
 
     OT.$.eventing(this);
-    
+
     // Mass update, called by Raptor.Dispatcher
     this._.update = function (attributes) {
       for (var key in attributes) {
+        if(!attributes.hasOwnProperty(key)) {
+          continue;
+        }
         var oldValue = this[key];
         this[key] = attributes[key];
-        
+
         var event = new OT.ArchiveUpdatedEvent(this, key, oldValue, this[key]);
         this.dispatchEvent(event);
-        
+
       }
     }.bind(this);
 
@@ -12018,7 +12081,7 @@ OTHelpers.centerElement = function(element, width, height) {
             } else if (_peerConnection.onstatechange !== undefined) {
               _peerConnection.onstatechange = routeStateChanged.bind(this);
             }
-            
+
             if (_peerConnection.oniceconnectionstatechange !== undefined) {
               var failedStateTimer;
               _peerConnection.oniceconnectionstatechange = function (event) {
@@ -12245,7 +12308,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
       return this;
     };
-    
+
     this.setIceServers = function (iceServers) {
       if (iceServers) {
         config.iceServers = iceServers;
@@ -12347,7 +12410,7 @@ OTHelpers.centerElement = function(element, width, height) {
         }
 
       };
-        
+
       parseFrameRate = function(result) {
         if (result.stat('googFrameRateSent')) {
           return result.stat('googFrameRateSent');
@@ -12502,7 +12565,7 @@ OTHelpers.centerElement = function(element, width, height) {
    * * providing a destroy method
    * * providing a processMessage method
    *
-   * Once the PeerConnection is connected and the video element playing it triggers 
+   * Once the PeerConnection is connected and the video element playing it triggers
    * the connected event
    *
    * Triggers the following events
@@ -12743,7 +12806,7 @@ OTHelpers.centerElement = function(element, width, height) {
     this.destroy = function() {
       if (_peerConnection) {
         var numDelegates = _peerConnection.unregisterMessageDelegate(_relayMessageToPeer);
-        
+
         // Only clean up the PeerConnection if there isn't another Subscriber using it
         if (numDelegates === 0) {
           // Unsubscribe us from the stream, if it hasn't already been destroyed
@@ -12751,7 +12814,7 @@ OTHelpers.centerElement = function(element, width, height) {
               // Notify the server components
             session._.subscriberDestroy(stream, subscriber);
           }
-          
+
           // Ref: OPENTOK-2458 disable all audio tracks before removing it.
           this.subscribeToAudio(false);
         }
@@ -13396,9 +13459,9 @@ OTHelpers.centerElement = function(element, width, height) {
     var _style = new Style(initalStyles, onStyleChange);
 
   /**
-   * Returns an object that has the properties that define the current user interface controls of 
-   * the Publisher. You can modify the properties of this object and pass the object to the 
-   * <code>setStyle()</code> method of thePublisher object. (See the documentation for 
+   * Returns an object that has the properties that define the current user interface controls of
+   * the Publisher. You can modify the properties of this object and pass the object to the
+   * <code>setStyle()</code> method of thePublisher object. (See the documentation for
    * <a href="#setStyle">setStyle()</a> to see the styles that define this object.)
    * @return {Object} The object that defines the styles of the Publisher.
    * @see <a href="#setStyle">setStyle()</a>
@@ -13407,9 +13470,9 @@ OTHelpers.centerElement = function(element, width, height) {
    */
 
 	/**
-	 * Returns an object that has the properties that define the current user interface controls of 
-   * the Subscriber. You can modify the properties of this object and pass the object to the 
-   * <code>setStyle()</code> method of the Subscriber object. (See the documentation for 
+	 * Returns an object that has the properties that define the current user interface controls of
+   * the Subscriber. You can modify the properties of this object and pass the object to the
+   * <code>setStyle()</code> method of the Subscriber object. (See the documentation for
    * <a href="#setStyle">setStyle()</a> to see the styles that define this object.)
 	 * @return {Object} The object that defines the styles of the Subscriber.
 	 * @see <a href="#setStyle">setStyle()</a>
@@ -13458,8 +13521,8 @@ OTHelpers.centerElement = function(element, width, height) {
    *
    * <pre>myPublisher.setStyle({nameDisplayMode: "off"});</pre>
    *
-   * <p>If you pass two parameters, <code>style</code> and <code>value</code>, they are 
-   * key-value pair that define one property of the display style. For example, the following 
+   * <p>If you pass two parameters, <code>style</code> and <code>value</code>, they are
+   * key-value pair that define one property of the display style. For example, the following
    * code passes two parameter values to the method:</p>
    *
    * <pre>myPublisher.setStyle("nameDisplayMode", "off");</pre>
@@ -13468,12 +13531,12 @@ OTHelpers.centerElement = function(element, width, height) {
    * or <code>OT.initPublisher()</code> method. Pass a <code>style</code> property as part of the
    * <code>properties</code> parameter of the method.</p>
    *
-   * <p>The OT object dispatches an <code>exception</code> event if you pass in an invalid style 
+   * <p>The OT object dispatches an <code>exception</code> event if you pass in an invalid style
    * to the method. The <code>code</code> property of the ExceptionEvent object is set to 1011.</p>
    *
-   * @param {Object} style Either an object containing properties that define the style, or a 
+   * @param {Object} style Either an object containing properties that define the style, or a
    * String defining this single style property to set.
-   * @param {String} value The value to set for the <code>style</code> passed in. Pass a value 
+   * @param {String} value The value to set for the <code>style</code> passed in. Pass a value
    * for this parameter only if the value of the <code>style</code> parameter is a String.</p>
    *
    * @see <a href="#getStyle">getStyle()</a>
@@ -13523,22 +13586,22 @@ OTHelpers.centerElement = function(element, width, height) {
    *
    * <pre>mySubscriber.setStyle({nameDisplayMode: "off"});</pre>
    *
-   * <p>If you pass two parameters, <code>style</code> and <code>value</code>, they are key-value 
-   * pair that define one property of the display style. For example, the following code passes 
+   * <p>If you pass two parameters, <code>style</code> and <code>value</code>, they are key-value
+   * pair that define one property of the display style. For example, the following code passes
    * two parameter values to the method:</p>
    *
    * <pre>mySubscriber.setStyle("nameDisplayMode", "off");</pre>
    *
    * <p>You can set the initial settings when you call the <code>Session.subscribe()</code> method.
-   * Pass a <code>style</code> property as part of the <code>properties</code> parameter of the 
+   * Pass a <code>style</code> property as part of the <code>properties</code> parameter of the
    * method.</p>
    *
-   * <p>The OT object dispatches an <code>exception</code> event if you pass in an invalid style 
+   * <p>The OT object dispatches an <code>exception</code> event if you pass in an invalid style
    * to the method. The <code>code</code> property of the ExceptionEvent object is set to 1011.</p>
    *
-   * @param {Object} style Either an object containing properties that define the style, or a 
+   * @param {Object} style Either an object containing properties that define the style, or a
    * String defining this single style property to set.
-   * @param {String} value The value to set for the <code>style</code> passed in. Pass a value 
+   * @param {String} value The value to set for the <code>style</code> passed in. Pass a value
    * for this parameter only if the value of the <code>style</code> parameter is a String.</p>
    *
    * @returns {Subscriber} The Subscriber object.
@@ -13610,10 +13673,13 @@ OTHelpers.centerElement = function(element, width, height) {
     this.getAll = function() {
       var style = OT.$.clone(_style);
 
-      for (var i in style) {
-        if (_COMPONENT_STYLES.indexOf(i) < 0) {
+      for (var key in style) {
+        if(!style.hasOwnProperty(key)) {
+          continue;
+        }
+        if (_COMPONENT_STYLES.indexOf(key) < 0) {
           // Strip unnecessary properties out, should this happen on Set?
-          delete style[i];
+          delete style[key];
         }
       }
 
@@ -13634,6 +13700,9 @@ OTHelpers.centerElement = function(element, width, height) {
       var oldValue, newValue;
 
       for (var key in newStyles) {
+        if(!newStyles.hasOwnProperty(key)) {
+          continue;
+        }
         newValue = castValue(newStyles[key]);
 
         if (isValidStyle(key, newValue)) {
@@ -13815,10 +13884,10 @@ OTHelpers.centerElement = function(element, width, height) {
 //     NotSubscribing            (the initial state
 //     Init                      (basic setup of DOM
 //     ConnectingToPeer          (Failure Cases -> No Route, Bad Offer, Bad Answer
-//     BindingRemoteStream       (Failure Cases -> Anything to do with the media being 
+//     BindingRemoteStream       (Failure Cases -> Anything to do with the media being
 //                               (invalid, the media never plays
 //     Subscribing               (this is 'onLoad'
-//     Failed                    (terminal state, with a reason that maps to one of the 
+//     Failed                    (terminal state, with a reason that maps to one of the
 //                               (failure cases above
 //
 //
@@ -13828,7 +13897,7 @@ OTHelpers.centerElement = function(element, width, height) {
 //
 //     Init ->
 //             ConnectingToPeer
-//           | BindingRemoteStream         (if we are subscribing to ourselves and we alreay 
+//           | BindingRemoteStream         (if we are subscribing to ourselves and we alreay
 //                                         (have a stream
 //           | NotSubscribing              (destroy()
 //
@@ -13845,7 +13914,7 @@ OTHelpers.centerElement = function(element, width, height) {
 //
 //     Subscribing ->
 //             NotSubscribing              (unsubscribe
-//           | Failed                      (probably a peer connection failure after we began 
+//           | Failed                      (probably a peer connection failure after we began
 //                                         (subscribing
 //
 //     Failed ->                           (terminal error state)
@@ -14108,6 +14177,8 @@ OTHelpers.centerElement = function(element, width, height) {
             connectionId: _session && _session.connected ? _session.connection.connectionId : null,
             partnerId: _session ? _session.apiKey : OT.APIKEY,
             streamId: _stream ? _stream.id : null,
+            width: _container ? OT.$.width(_container.domElement)  : undefined,
+            height: _container ? OT.$.height(_container.domElement)  : undefined,
             widgetId: _guid,
             version: OT.properties.version,
             'media_server_name': _session ? _session.sessionInfo.messagingServer : null,
@@ -14139,7 +14210,9 @@ OTHelpers.centerElement = function(element, width, height) {
           OT.debug('OT.Publisher.onLoaded');
 
           _state.set('MediaBound');
-          _container.loading = false;
+          // If we have a session and we haven't created the stream yet then
+          // wait until that is complete before hiding the loading spinner
+          _container.loading = this.session ? !_stream : false;
           _loaded = true;
 
           _createChrome.call(this);
@@ -14257,6 +14330,7 @@ OTHelpers.centerElement = function(element, width, height) {
         },
 
         accessDialogPrompt,
+        accessDialogChromeTimeout,
         accessDialogFirefoxTimeout,
         accessDialogWasOpened = false,
 
@@ -14273,7 +14347,9 @@ OTHelpers.centerElement = function(element, width, height) {
             function(event) {
               if(!event.isDefaultPrevented()) {
                 if(browser.browser === 'Chrome') {
-                  accessDialogPrompt = OT.Dialogs.AllowDeny.Chrome.initialPrompt();
+                  accessDialogChromeTimeout = setTimeout(function() {
+                    accessDialogPrompt = OT.Dialogs.AllowDeny.Chrome.initialPrompt();
+                  }, 5000);
                 } else if(browser.browser === 'Firefox') {
                   accessDialogFirefoxTimeout = setTimeout(function() {
                     accessDialogPrompt = OT.Dialogs.AllowDeny.Firefox.maybeDenied();
@@ -14286,6 +14362,11 @@ OTHelpers.centerElement = function(element, width, height) {
 
         onAccessDialogClosed = function() {
           logAnalyticsEvent('accessDialog', 'Closed', '', '');
+
+          if(accessDialogChromeTimeout) {
+            clearTimeout(accessDialogChromeTimeout);
+            accessDialogChromeTimeout = null;
+          }
 
           if(accessDialogFirefoxTimeout) {
             clearTimeout(accessDialogFirefoxTimeout);
@@ -14365,12 +14446,13 @@ OTHelpers.centerElement = function(element, width, height) {
           _stream.on('destroyed', this.disconnect, this);
 
           _state.set('Publishing');
+          _container.loading = !_loaded;
           _publishStartTime = new Date();
 
           this.trigger('publishComplete', null, this);
-      
+
           this.dispatchEvent(new OT.StreamEvent('streamCreated', stream, null, false));
-          
+
           logAnalyticsEvent('publish', 'Success', 'streamType:streamId', 'WebRTC:' + _streamId);
         }.bind(this),
 
@@ -14545,7 +14627,7 @@ OTHelpers.centerElement = function(element, width, height) {
           _loaded = false;
 
           _session = null;
-          
+
           _state.set('NotPublishing');
         }.bind(this);
 
@@ -14560,7 +14642,7 @@ OTHelpers.centerElement = function(element, width, height) {
         publishVideo : true,
         mirror: true
       });
-        
+
       if (!_publishProperties.constraints) {
         _publishProperties.constraints = OT.$.clone(defaultConstraints);
         if (_publishProperties.resolution) {
@@ -14582,7 +14664,7 @@ OTHelpers.centerElement = function(element, width, height) {
             };
           }
         }
-    
+
         if (_publishProperties.frameRate !== void 0 &&
           _validFrameRates.indexOf(_publishProperties.frameRate) === -1) {
           OT.warn('Invalid frameRate passed to the publisher got: ' +
@@ -14622,15 +14704,25 @@ OTHelpers.centerElement = function(element, width, height) {
         _container = new OT.WidgetView(targetElement, _publishProperties);
         _domId = _container.domId;
 
-        OT.$.getUserMedia(
-          _publishProperties.constraints,
-          onStreamAvailable.bind(this),
-          onStreamAvailableError.bind(this),
-          onAccessDialogOpened.bind(this),
-          onAccessDialogClosed.bind(this),
-          onAccessDenied.bind(this),
-          OT.$.customGetUserMedia
-        );
+        OT.$.shouldAskForDevices(function(devices) {
+          if(!devices.video) {
+            OT.warn('Setting video constraint to false, there are no video sources');
+            _publishProperties.constraints.video = false;
+          }
+          if(!devices.audio) {
+            OT.warn('Setting audio constraint to false, there are no audio sources');
+            _publishProperties.constraints.audio = false;
+          }
+          OT.$.getUserMedia(
+            _publishProperties.constraints,
+            onStreamAvailable.bind(this),
+            onStreamAvailableError.bind(this),
+            onAccessDialogOpened.bind(this),
+            onAccessDialogClosed.bind(this),
+            onAccessDenied.bind(this),
+            OT.$.customGetUserMedia
+          );
+        }.bind(this));
       }, this);
 
       return this;
@@ -14656,7 +14748,7 @@ OTHelpers.centerElement = function(element, width, height) {
       if (_microphone) {
         _microphone.muted = !value;
       }
-      
+
       if (_chrome) {
         _chrome.muteButton.muted = !value;
       }
@@ -14847,10 +14939,10 @@ OTHelpers.centerElement = function(element, width, height) {
             }
 
             _streamId = streamId;
-            
+
             _iceServers = OT.Raptor.parseIceServers(message);
           }.bind(this);
-              
+
           // We set the streamWidth and streamHeight to be the minimum of the requested
           // resolution and the actual resolution.
           if (_publishProperties.videoDimensions) {
@@ -14909,7 +15001,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
         return this;
       }.bind(this),
-      
+
       streamDestroyed: function(reason) {
         if(['reset'].indexOf(reason) < 0) {
           var event = new OT.StreamEvent('streamDestroyed', _stream, reason, true);
@@ -14966,7 +15058,7 @@ OTHelpers.centerElement = function(element, width, height) {
         get: function() { return _domId; },
         enumerable: true
       },
-        
+
       element: {
         get: function() { return _container.domElement; },
         enumerable: true
@@ -15015,12 +15107,12 @@ OTHelpers.centerElement = function(element, width, height) {
           return _container && _container.loading;
         }
       },
-        
+
       videoWidth: {
         get: function() { return _targetElement.videoWidth; },
         enumerable: true
       },
-        
+
       videoHeight: {
         get: function() { return _targetElement.videoHeight; },
         enumerable: true
@@ -15094,8 +15186,8 @@ OTHelpers.centerElement = function(element, width, height) {
 
 	/**
 	 * The publisher has stopped streaming to the session. The default behavior is that
-	 * the Publisher object is removed from the HTML DOM). The Publisher object dispatches a 
-	 * <code>destroyed</code> event when the element is removed from the HTML DOM. If you call the 
+	 * the Publisher object is removed from the HTML DOM). The Publisher object dispatches a
+	 * <code>destroyed</code> event when the element is removed from the HTML DOM. If you call the
 	 * <code>preventDefault()</code> method of the event object in the event listener, the default
 	 * behavior is prevented, and you can, optionally, retain the Publisher for reuse or clean it up
 	 * using your own code.
@@ -15199,6 +15291,8 @@ OTHelpers.centerElement = function(element, width, height) {
             var QoSBlob = {
               widget_type: 'Subscriber',
               stream_type : 'WebRTC',
+              width: _container ? OT.$.width(_container.domElement) : undefined,
+              height: _container ? OT.$.height(_container.domElement) : undefined,
               session_id: _session ? _session.sessionId : null,
               connectionId: _session ? _session.connection.connectionId : null,
               media_server_name: _session ? _session.sessionInfo.messagingServer : null,
@@ -15322,6 +15416,8 @@ OTHelpers.centerElement = function(element, width, height) {
           _subscribeAudioFalseWorkaround = preserver;
 
           var streamElement = new OT.VideoElement();
+          // makes the incoming audio streams takes priority (will impact only FF OS for now)
+          streamElement.audioChannelType = 'telephony';
 
           // Initialize the audio volume
           streamElement.setAudioVolume(_audioVolume);
@@ -15703,7 +15799,7 @@ OTHelpers.centerElement = function(element, width, height) {
      *
      * @param {Number} value The audio volume, between 0 and 100.
      *
-     * @return {Subscriber} The Subscriber object. This lets you chain method calls, as in the 
+     * @return {Subscriber} The Subscriber object. This lets you chain method calls, as in the
      * following:
      *
      * <pre>mySubscriber.setAudioVolume(50).setStyle(newStyle);</pre>
@@ -15736,7 +15832,7 @@ OTHelpers.centerElement = function(element, width, height) {
     /**
     * Returns the audio volume, between 0 and 100, of the Subscriber.
     *
-    * <p>Generally you use this method in conjunction with the <code>setAudioVolume()</code> 
+    * <p>Generally you use this method in conjunction with the <code>setAudioVolume()</code>
     * method.</p>
     *
     * @return {Number} The audio volume, between 0 and 100, of the Subscriber.
@@ -15753,20 +15849,20 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     /**
-    * Toggles audio on and off. Starts subscribing to audio (if it is available and currently 
-    * not being subscribed to) when the <code>value</code> is <code>true</code>; stops 
-    * subscribing to audio (if it is currently being subscribed to) when the <code>value</code> 
+    * Toggles audio on and off. Starts subscribing to audio (if it is available and currently
+    * not being subscribed to) when the <code>value</code> is <code>true</code>; stops
+    * subscribing to audio (if it is currently being subscribed to) when the <code>value</code>
     * is <code>false</code>.
     * <p>
-    * <i>Note:</i> This method only affects the local playback of audio. It has no impact on the 
-    * audio for other connections subscribing to the same stream. If the Publsher is not 
+    * <i>Note:</i> This method only affects the local playback of audio. It has no impact on the
+    * audio for other connections subscribing to the same stream. If the Publsher is not
     * publishing audio, enabling the Subscriber audio will have no practical effect.
     * </p>
     *
-    * @param {Boolean} value Whether to start subscribing to audio (<code>true</code>) or not 
+    * @param {Boolean} value Whether to start subscribing to audio (<code>true</code>) or not
     * (<code>false</code>).
     *
-    * @return {Subscriber} The Subscriber object. This lets you chain method calls, as in the 
+    * @return {Subscriber} The Subscriber object. This lets you chain method calls, as in the
     * following:
     *
     * <pre>mySubscriber.subscribeToAudio(true).subscribeToVideo(false);</pre>
@@ -15818,20 +15914,20 @@ OTHelpers.centerElement = function(element, width, height) {
 
 
     /**
-    * Toggles video on and off. Starts subscribing to video (if it is available and 
-    * currently not being subscribed to) when the <code>value</code> is <code>true</code>; 
-    * stops subscribing to video (if it is currently being subscribed to) when the 
+    * Toggles video on and off. Starts subscribing to video (if it is available and
+    * currently not being subscribed to) when the <code>value</code> is <code>true</code>;
+    * stops subscribing to video (if it is currently being subscribed to) when the
     * <code>value</code> is <code>false</code>.
     * <p>
-    * <i>Note:</i> This method only affects the local playback of video. It has no impact on 
-    * the video for other connections subscribing to the same stream. If the Publsher is not 
+    * <i>Note:</i> This method only affects the local playback of video. It has no impact on
+    * the video for other connections subscribing to the same stream. If the Publsher is not
     * publishing video, enabling the Subscriber video will have no practical video.
     * </p>
     *
-    * @param {Boolean} value Whether to start subscribing to video (<code>true</code>) or not 
+    * @param {Boolean} value Whether to start subscribing to video (<code>true</code>) or not
     * (<code>false</code>).
     *
-    * @return {Subscriber} The Subscriber object. This lets you chain method calls, as in the 
+    * @return {Subscriber} The Subscriber object. This lets you chain method calls, as in the
     * following:
     *
     * <pre>mySubscriber.subscribeToVideo(true).subscribeToAudio(false);</pre>
@@ -15882,7 +15978,7 @@ OTHelpers.centerElement = function(element, width, height) {
         get: function() { return _domId; },
         enumerable: true
       },
-        
+
       element: {
         get: function() { return _container.domElement; },
         enumerable: true
@@ -15938,14 +16034,14 @@ OTHelpers.centerElement = function(element, width, height) {
     });
 
     /**
-    * Restricts the frame rate of the Subscriber's video stream, when you pass in 
-    * <code>true</code>. When you pass in <code>false</code>, the frame rate of the video stream 
-    * is not restricted. 
+    * Restricts the frame rate of the Subscriber's video stream, when you pass in
+    * <code>true</code>. When you pass in <code>false</code>, the frame rate of the video stream
+    * is not restricted.
     * <p>
-    * When the frame rate is restricted, the Subscriber video frame will update once or less per 
+    * When the frame rate is restricted, the Subscriber video frame will update once or less per
     * second.
     * <p>
-    * This feature is only available in sessions that use the OpenTok media server, not in 
+    * This feature is only available in sessions that use the OpenTok media server, not in
     * peer-to-peer sessions. In peer-to-peer sessions, calling this method has no effect.
     * <p>
     * Restricting the subscriber frame rate has the following benefits:
@@ -15958,10 +16054,10 @@ OTHelpers.centerElement = function(element, width, height) {
     * Reducing a subscriber's frame rate has no effect on the frame rate of the video in
     * other clients.
     *
-    * @param {Boolean} value Whether to restrict the Subscriber's video frame rate 
+    * @param {Boolean} value Whether to restrict the Subscriber's video frame rate
     * (<code>true</code>) or not (<code>false</code>).
     *
-    * @return {Subscriber} The Subscriber object. This lets you chain method calls, as in the 
+    * @return {Subscriber} The Subscriber object. This lets you chain method calls, as in the
     * following:
     *
     * <pre>mySubscriber.restrictFrameRate(false).subscribeToAudio(true);</pre>
@@ -16757,7 +16853,7 @@ OTHelpers.centerElement = function(element, width, height) {
           OT.ExceptionCodes.AUTHENTICATION_ERROR));
         return this;
       }
-      
+
       if (!_sessionId) {
         setTimeout(sessionConnectFailed.bind(this,
             'SessionID is undefined. You must pass a sessionID to initSession.',
@@ -17922,6 +18018,26 @@ OTHelpers.centerElement = function(element, width, height) {
       }.bind(this)
     }, true);
 
+
+  /**
+   * Dispatched when an archive recording of the session starts.
+   *
+   * @name archiveStarted
+   * @event
+   * @memberof Session
+   * @see ArchiveEvent
+   * @see <a href="http://www.tokbox.com/opentok/tutorials/archiving">Archiving overview</a>.
+   */
+
+  /**
+   * Dispatched when an archive recording of the session stops.
+   *
+   * @name archiveStopped
+   * @event
+   * @memberof Session
+   * @see ArchiveEvent
+   * @see <a href="http://www.tokbox.com/opentok/tutorials/archiving">Archiving overview</a>.
+   */
 
   /**
    * A new client, other than your own, has connected to the session.
