@@ -198,8 +198,45 @@
       document.body.removeChild(a);
     },
 
-    revokeUrl: function () {
-      // TODO Implement this in https://bugzilla.mozilla.org/show_bug.cgi?id=1037008
+    getUrlByToken: function(token, callback) {
+      if (typeof callback !== 'function') {
+        console.error('Error: callback is not defined');
+        return;
+      }
+      ActionLogDB.getUrlByToken(
+        function(error, result) {
+          if (error) {
+            console.error('Error when getting URL from DB ' + error.name);
+            return;
+          }
+          callback(result);
+        },
+        token
+      );
+    },
+
+    revokeUrl: function (token, date, callback) {
+      ClientRequestHelper.revokeUrl(
+        token,
+        function onDeleted() {
+          ActionLogDB.revokeUrl(
+            function(error) {
+              if (error) {
+                console.error('Error when deleting calls from DB ' + error.name);
+                return;
+              }
+              
+              if (typeof callback === 'function') {
+                callback();
+              }
+            },
+            date
+          );
+        },
+        function onError(e) {
+          console.error('Error when revoking URL in server: ' + e);
+        }
+      );
     },
 
     logout: function() {

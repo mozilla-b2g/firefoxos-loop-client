@@ -268,6 +268,22 @@
         },
         credentials: _hawkCredentials
       }, onsuccess, onerror);
+    },
+
+    revokeUrl: function revokeUrl(token, onsuccess, onerror) {
+      if (!_hawkCredentials) {
+        _callback(onerror, [new Error('No HAWK credentials')]);
+        return;
+      }
+
+      _request({
+          method: 'DELETE',
+          url: SERVER_URL + '/call-url/' + token,
+          credentials: _hawkCredentials
+        },
+        onsuccess,
+        onerror
+      );
     }
   };
 
