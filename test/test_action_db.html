@@ -182,6 +182,18 @@ var steps = [
     }, urls[0]);
   },
   function() {
+    console.log("Get url by token");
+    ActionLogDB.getUrlByToken(function(error, result) {
+      if (error) {
+        console.error(error.message);
+        return;
+      }
+      assert(result, urls[0].urlToken);
+      next();
+    }, urls[0].urlToken);
+  },
+
+  function() {
     console.log("Revoke url");
     ActionLogDB.revokeUrl(function() {
       var length = 0;

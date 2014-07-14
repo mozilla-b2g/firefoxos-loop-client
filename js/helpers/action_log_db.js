@@ -114,7 +114,7 @@
           // Initial DB schema.
           db.createObjectStore(_dbCallStore, { keyPath: 'date' });
           db.createObjectStore(_dbUrlStore, { keyPath: 'date' })
-            .createIndex('url', 'url');
+            .createIndex('urlToken', 'urlToken');
         };
       } catch(e) {
         reject(e.message);
@@ -268,6 +268,63 @@
     }, "readonly", [aObjectStore]);
   }
 
+  /**
+   * param aFilter.
+   *       So far the only use case that we found is an "equal" query,
+   *       so we will be taking an object of this kind:
+   *       {
+   *         key: <any>,
+   *         index: {
+   *           name: <string>,
+   *           value: <any>
+   *         }
+   *       }
+   *       where we would expect "key" or "index" but not both.
+   */
+  function _getRecord(aCallback, aObjectStore, aFilter) {
+
+    if (!aCallback || typeof aCallback != "function") {
+      console.error("INVALID_CALLBACK");
+      return;
+    }
+
+    if (!aFilter ||
+        (!aFilter.key && !aFilter.index) ||
+        (aFilter.key && aFilter.index) ||
+        (aFilter.index && !aFilter.index.name || !aFilter.index.value) ||
+        (aFilter.key && !aFilter.value)) {
+      aCallback("INVALID_FILTER");
+      return;
+    }
+
+    _newTxn(function(error, txn, store) {
+      if (error) {
+        console.error(error.name);
+        aCallback(error.name);
+        return;
+      }
+      var req;
+      if (aFilter.index) {
+        if (!store.indexNames.contains(aFilter.index.name)) {
+          aCallback("INVALID_FILTER");
+          return;
+        }
+        req = store.index(aFilter.index.name).get(aFilter.index.value);
+      } else {
+        req = store.get(aFilter.key);
+      }
+
+      req.onsuccess = function onsuccess(event) {
+        aCallback(null, event.target.result);
+      };
+
+      req.onerror = function onerror(event) {
+        console.error(event.target.error.name);
+        aCallback(event.target.error.name);
+      };
+    }, "readonly", [aObjectStore]);
+  }
+
   function _updateRecord(aCallback, aObjectStore, aIndex, aRecord) {
     if (!_isValidRecord(aObjectStore, aRecord)) {
       aCallback("INVALID_RECORD");
@@ -403,6 +460,19 @@
      */
     addUrl: function(aCallback, aUrl) {
       _addRecord(aCallback, _dbUrlStore, aUrl);
+    },
+
+    /**
+     * Gets an url given a custom filter.
+     *
+     */
+    getUrlByToken: function(aCallback, aToken) {
+      _getRecord(aCallback, _dbUrlStore, {
+        index: {
+          name: "urlToken",
+          value: aToken
+        }
+      });
     },
 
     revokeUrl: function(aCallback, aUrlCreationDate) {
