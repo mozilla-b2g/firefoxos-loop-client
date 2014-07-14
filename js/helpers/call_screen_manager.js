@@ -132,7 +132,7 @@
                     identities: identities
                   }, function(result) {
                     CallLog.addCall(
-                      result && result.contactIds ?
+                      result.contactIds ?
                       CallLog.addContactInfoToRecord(callObject, result) :
                       callObject
                     );

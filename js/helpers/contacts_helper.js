@@ -3,11 +3,8 @@
 'use strict';
 
 (function(exports) {
-  function _callback(cb, args) {
-    if (cb && typeof cb === 'function') {
-      cb.apply(null, args);
-    }
-  }
+
+  function noop() {}
 
   function _findById(id, onsuccessCB, onerrorCB) {
     var options = {
@@ -21,18 +18,16 @@
     request.onsuccess = function onsuccess(e) {
       var contact = e.target.result[0];
       if (!contact) {
-        _callback(onerrorCB);
+        onerrorCB();
         return;
       }
-      _callback(onsuccessCB, {
+      onsuccessCB({
         contactIds: [contact.id],
         contacts: [contact]
       });
     };
 
-    request.onerror = function onsuccess() {
-      _callback(onerrorCB);
-    };
+    request.onerror = onerrorCB;
   }
 
   function _findByIdentity(identities, onsuccessCB, onerrorCB) {
@@ -84,7 +79,8 @@
 
       _contacts = _unique(_contacts.concat(contacts));
       for (var i = 0, l = contacts.length; i < l; i++) {
-        _ids = _unique(_ids.push(contacts[i].id));
+        _ids.push(contacts[i].id);
+        _ids = _unique(_ids);
       }
       _onasyncreturn();
     }
@@ -131,15 +127,24 @@
         return;
       }
 
+      if (!onsuccessCB) {
+        onsuccessCB = noop;
+      }
+
+      if (!onerrorCB) {
+        onerrorCB = noop
+      }
+
       if (!filter || !filter.identities) {
-        return null;
+        onerrorCB();
+        return;
       }
 
       if (filter.contactId) {
         _findById(
           filter.contactId,
           function onContactIDFound(contact) {
-            _callback(onsuccessCB, [contact]);
+            onsuccessCB([contact]);
           },
           function onFallback() {
             _findByIdentity(

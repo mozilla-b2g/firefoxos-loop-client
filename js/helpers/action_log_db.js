@@ -74,6 +74,12 @@
     ]
   };
 
+  function _checkCallback(aCallback) {
+    if (!aCallback || typeof aCallback != "function") {
+      throw new Error("INVALID_CALLBACK");
+    }
+  }
+
   /**
    * Prepare the database. This may include opening the database and upgrading
    * it to the latest schema version.
@@ -112,9 +118,26 @@
           var txn = event.target.transaction;
 
           // Initial DB schema.
-          db.createObjectStore(_dbCallStore, { keyPath: 'date' });
-          db.createObjectStore(_dbUrlStore, { keyPath: 'date' })
-            .createIndex('urlToken', 'urlToken');
+          var callStore = db.createObjectStore(_dbCallStore, {
+            keyPath: 'date'
+          });
+          callStore.createIndex('identities', 'identities', {
+            multiEntry: true
+          });
+          callStore.createIndex('contactId', 'contactId', {
+            multiEntry: true
+          });
+
+          var urlStore = db.createObjectStore(_dbUrlStore, {
+            keyPath: 'date'
+          });
+          urlStore.createIndex('urlToken', 'urlToken');
+          urlStore.createIndex('identities', 'identities', {
+            multiEntry: true
+          });
+          urlStore.createIndex('contactId', 'contactId', {
+            multiEntry: true
+          });
         };
       } catch(e) {
         reject(e.message);
@@ -136,6 +159,8 @@
    *
    */
   function _newTxn(aCallback, aTxnType, aObjectStores) {
+    _checkCallback(aCallback);
+
     if (!Array.isArray(aObjectStores)) {
       aObjectStores = [aObjectStores];
     }
@@ -187,9 +212,7 @@
    *       Object to be stored.
    */
   function _addRecord(aCallback, aObjectStore, aRecord) {
-    if (typeof aCallback !== 'function') {
-      aCallback = function(){};
-    }
+    _checkCallback(aCallback);
 
     if (typeof aRecord !== "object") {
       aCallback("INVALID_RECORD");
@@ -227,6 +250,8 @@
    *
    */
   function _getList(aCallback, aObjectStore, aFilter) {
+    _checkCallback(aCallback);
+
     _newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
@@ -282,11 +307,7 @@
    *       where we would expect "key" or "index" but not both.
    */
   function _getRecord(aCallback, aObjectStore, aFilter) {
-
-    if (!aCallback || typeof aCallback != "function") {
-      console.error("INVALID_CALLBACK");
-      return;
-    }
+    _checkCallback(aCallback);
 
     if (!aFilter ||
         (!aFilter.key && !aFilter.index) ||
@@ -326,6 +347,8 @@
   }
 
   function _updateRecord(aCallback, aObjectStore, aIndex, aRecord) {
+    _checkCallback(aCallback);
+
     if (!_isValidRecord(aObjectStore, aRecord)) {
       aCallback("INVALID_RECORD");
       return;
@@ -372,6 +395,8 @@
   }
 
   function _clearObjectStore(aCallback, aObjectStore) {
+    _checkCallback(aCallback);
+
     _newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
@@ -392,6 +417,8 @@
   }
 
   function _deleteRecord(aCallback, aObjectStore, aKey) {
+    _checkCallback(aCallback);
+
     if (!aKey) {
       _clearObjectStore(aCallback, aObjectStore);
       return;
@@ -417,6 +444,263 @@
         aCallback(event.target.error.name);
       };
     }, "readwrite", [aObjectStore]);
+  }
+
+  /*********************************
+   * Contacts related functionality.
+   *********************************/
+  function _addContactInfoToRecord(aRecord, aContactInfo) {
+    // We store multiple IDs in case of a multiple contact match, but we only
+    // show the information of the first match. If this first match is removed
+    // we will refresh the information being shown for this entry.
+    aRecord.contactId = aContactInfo.contactIds || null;
+    var contact = aContactInfo.contacts ? aContactInfo.contacts[0] : null;
+    if (!contact) {
+      return aRecord;
+    }
+    aRecord.contactPrimaryInfo = contact.name ? contact.name[0] :
+                                 contact.email ? contact.email[0].value :
+                                 contact.tel ? contact.tel[0].value :
+                                 null;
+    aRecord.contactPhoto = contact.photo ? contact.photo[0] : null;
+    return aRecord;
+  }
+
+  /**
+   * We store a revision number for the contacts data local cache that we need
+   * to keep synced with the Contacts API database.
+   * This method stores the revision of the Contacts API database and it will
+   * be called after refreshing the local cache because of a contact updated,
+   * a contact deletion or a cache sync.
+   */
+  function _updateCacheRevision() {
+    navigator.mozContacts.getRevision().onsuccess = function(event) {
+      var contactsRevision = event.target.result;
+      if (contactsRevision) {
+        window.asyncStorage.setItem("contactsCacheRevision",
+                                    contactsRevision);
+      }
+    };
+  }
+
+  /**
+   * Updates the records from the groups object store with a given contact
+   * information.
+   * This function will likely be called within the handlers of the
+   * 'oncontactchange' event.
+   */
+  function _updateContactInfo(aCallback, aContactInfo, aIdentities) {
+    _checkCallback(aCallback);
+
+    if (!aContactInfo || !aContactInfo.contactIds) {
+      aCallback("INVALID_CONTACT");
+      return;
+    }
+
+    var objectStores = [_dbCallStore, _dbUrlStore];
+    var asyncCalls = objectStores.length;
+    var _updateContact = function(event) {
+      var cursor = event.target.result;
+      if (!cursor || !cursor.value) {
+        asyncCalls--;
+        if (!asyncCalls) {
+          _updateCacheRevision();
+          aCallback();
+        }
+        return;
+      }
+
+      var record = cursor.value;
+
+      record = _addContactInfoToRecord(record, aContactInfo);
+
+      cursor.update(record);
+      cursor.continue();
+    };
+
+    _newTxn(function(error, txn, stores) {
+      if (error) {
+        aCallback(error);
+        return;
+      }
+
+      for (var i = 0; i < stores.length; i++) {
+        var req = stores[i].index("identities")
+                           .openCursor(IDBKeyRange.only(aIdentities));
+        req.onsuccess = _updateContact;
+      }
+
+      txn.onerror = function(event) {
+        aCallback(event.target.error.name);
+      };
+    }, "readwrite", objectStores);
+  }
+
+  /**
+   * Removes the contact information matching the given contact id from the
+   * list of entries or the contact information from an specific entry.
+   *
+   * This function will likely be called within the handlers of the
+   * 'oncontactchange' event.
+   */
+  function _removeContactInfo(aCallback, aContactId, aRecord) {
+    _checkCallback(aCallback);
+
+    if (!aContactId && !aRecord) {
+      aCallback("MISSING_CONTACT_OR_RECORD_INFO");
+      return;
+    }
+
+    var objectStores = [_dbCallStore, _dbUrlStore];
+    var asyncCalls = 0;
+    var _deleteContact = function(event) {
+      var cursor = event.target.result;
+      if (!cursor || !cursor.value) {
+        asyncCalls--;
+        if (!asyncCalls) {
+          _updateCacheRevision();
+          aCallback();
+        }
+        return;
+      }
+
+      var record = cursor.value;
+      if (record.contactId) {
+        delete record.contactId;
+      }
+      if (record.contactPrimaryInfo) {
+        delete record.contactPrimaryInfo;
+      }
+      if (record.contactPhoto) {
+        delete record.contactPhoto;
+      }
+      cursor.update(record);
+      cursor.continue();
+    };
+
+    _newTxn(function(error, txn, stores) {
+      if (error) {
+        aCallback(error);
+        return;
+      }
+
+      for (var i = 0; i < stores.length; i++) {
+        asyncCalls++;
+        var req;
+        if (aContactId) {
+          req = stores[i].index("contactId")
+                         .openCursor(IDBKeyRange.only(aContactId));
+        } else if (aRecord) {
+          req = stores[i].openCursor(IDBKeyRange.only(aRecord.key));
+        }
+        req.onsuccess = _deleteContact;
+      }
+
+      txn.onerror = function(event) {
+        aCallback(event.target.error.name);
+      };
+
+    }, "readwrite", objectStores);
+  }
+
+  function _invalidateContactsCache(aCallback) {
+    _checkCallback(aCallback);
+
+    var objectStores = [_dbCallStore, _dbUrlStore];
+    var asyncCalls = 0;
+    var cursorDone = false;
+
+    var _error = null;
+
+    function _onupdated() {
+      if (asyncCalls) {
+        return;
+      }
+      aCallback(_error);
+      _updateCacheRevision();
+    }
+
+    function _updateContact(contactInfo, record, objectStore) {
+      // We don't want to queue db transactions that won't update anything.
+      var needsUpdate = false;
+      if (contactInfo) {
+        record = _addContactInfoToRecord(record, contactInfo);
+        needsUpdate = true;
+      } else {
+        if (record.contactId) {
+          needsUpdate = true;
+          delete record.contactId;
+        }
+        if (record.contactPhoto) {
+          needsUpdate = true;
+          delete record.contactPhoto;
+        }
+        if (record.contactPrimaryInfo) {
+          needsUpdate = true;
+          delete record.contactPrimaryInfo;
+        }
+      }
+
+      if (needsUpdate) {
+        asyncCalls++;
+        _newTxn(function(error, txn, store) {
+          asyncCalls--;
+          if (error) {
+            console.error(error);
+            _error = error;
+            return;
+          }
+
+          asyncCalls++;
+          var req = store.put(record)
+          req.onsuccess = req.onerror = function() {
+            asyncCalls--;
+            _onupdated();
+          };
+        }, "readwrite", objectStore);
+      } else {
+        _onupdated();
+      }
+    }
+
+    function _oncursor(event) {
+      var cursor = event.target.result;
+      if (!cursor) {
+        asyncCalls--;
+        _onupdated();
+        return;
+      }
+
+      var record = cursor.value;
+      asyncCalls++;
+      ContactsHelper.find({ identities: record.identities },
+                          function(contactInfo) {
+        asyncCalls--;
+        _updateContact(contactInfo, record, cursor.source.name);
+      }, function() {
+        asyncCalls--;
+        _updateContact(null, record, cursor.source.name);
+      });
+      cursor.continue();
+    }
+
+    _newTxn(function(error, txn, stores) {
+      if (error) {
+        aCallback(error);
+        return;
+      }
+
+      for (var i = 0, l = stores.length; i < l; i++) {
+        asyncCalls++;
+        stores[i].openCursor().onsuccess = _oncursor;
+      }
+
+      txn.onerror = function(event) {
+        _error = event.target.error.name;
+        _onupdated();
+        console.error(_error);
+      };
+    }, "readonly", objectStores);
   }
 
   var ActionLogDB = {
@@ -464,7 +748,6 @@
 
     /**
      * Gets an url given a custom filter.
-     *
      */
     getUrlByToken: function(aCallback, aToken) {
       _getRecord(aCallback, _dbUrlStore, {
@@ -487,16 +770,20 @@
       _deleteRecord(aCallback, _dbUrlStore, aUrls);
     },
 
-    updateContactInfo: function(aCallback, aContactId, aContact, aRecord) {
-      // TODO: bug 1035931
+    updateContactInfo: function(aCallback, aContact, aIdentities) {
+      _updateContactInfo(aCallback, aContact, aIdentities);
     },
 
     removeContactInfo: function(aCallback, aContactId, aRecord) {
-      // TODO: bug 1035931
+      _removeContactInfo(aCallback, aContactId, aRecord);
     },
 
     invalidateContactsCache: function(aCallback) {
-      // TODO: bug 1035931
+      _invalidateContactsCache(aCallback);
+    },
+
+    addContactInfoToRecord: function(aRecord, aContactInfo) {
+      return _addContactInfoToRecord(aRecord, aContactInfo);
     }
   };
 

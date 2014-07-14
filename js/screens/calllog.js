@@ -4,7 +4,7 @@
   var _initialized = false;
   var calllogSectionsContainer, callsTabSelector, urlsTabSelector,
       callsSection, urlsSection, callsSectionEntries, urlsSectionEntries;
-
+  var _contactsCache = false;
 
   /**
    * Function for rendering an option prompt given a list
@@ -423,7 +423,6 @@
       callElement.dataset.urlToken = call.urlToken;
     }
 
-
     var datePretty = Utils.getFormattedHour(call.date.getTime());
     var durationPretty = Utils.getDurationPretty(+call.duration);
 
@@ -472,8 +471,6 @@
     _appendElementToContainer(group, element)
   }
 
-
-
   /**
    * Set of methods & vars related with the 'Calls' section
    */
@@ -500,7 +497,8 @@
   function _deleteUrls(ids) {
     ActionLogDB.deleteUrls(
       function(error) {
-        error && console.error('Error when deleting calls from DB ' + error.name);
+        console.error('Error when deleting calls from DB ' +
+                      error.name || error);
       },
       ids
     );
@@ -541,6 +539,7 @@
     var urlElement = document.createElement('li');
     urlElement.dataset.timestampIndex = rawUrl.date.getTime();
     urlElement.dataset.urlToken = rawUrl.urlToken;
+    urlElement.dataset.contactId = rawUrl.contactId;
     urlElement.id = rawUrl.date.getTime();
 
     var datePretty =  Utils.getFormattedHour(rawUrl.date);
@@ -573,6 +572,152 @@
     _appendElementToContainer(group, element)
   }
 
+  /*****************************
+   * Contacts related methods.
+   *****************************/
+  function _updateContactInfo(aElement, aContactInfo, aIdentities) {
+    var primaryInfo = aElement.getElementsByClassName('primary-info-main')[0];
+
+    var contact = aContactInfo && aContactInfo.contacts ?
+                  aContactInfo.contacts[0] :
+                  null;
+    if (contact) {
+      primaryInfo.textContent = contact.name ? contact.name[0] :
+                                contact.email ? contact.email[0].value :
+                                contact.tel ? contact.tel[0].value :
+                                'Unknown';
+    } else {
+      var identity = aElement.dataset.identities;
+      if (Array.isArray(identity)) {
+        identity = identity[0];
+      }
+      primaryInfo.textContent = identity || 'Unknown';
+    }
+
+    if (aIdentities) {
+      aElement.dataset.identities = aIdentities;
+    }
+
+    if (aContactInfo && aContactInfo.contactIds) {
+      aElement.dataset.contactId = aContactInfo.contactIds[0];
+    }
+
+  }
+
+  function  _updateContact(entry, identities, updateDb) {
+    ContactsHelper.find({ identities: identities }, function(contactInfo) {
+      // Update contact info.
+      if (_contactsCache && updateDb) {
+        ActionLogDB.updateContactInfo(function(error) {
+          if (error) {
+            console.error(error);
+            return;
+          }
+          _updateContactInfo(entry, contactInfo, identities);
+        }, contactInfo, identities);
+      } else {
+        _updateContactInfo(entry, contactInfo, identities);
+      }
+    }, function () {
+      // Remove contact info.
+      if (_contactsCache && updateDb) {
+        ActionLogDB.removeContactInfo(function(error) {
+          if (error) {
+            console.error(error);
+            return;
+          }
+          _updateContactInfo(entry, null, identities);
+        }, null, entry);
+      } else {
+        _updateContactInfo(entry, null, identities);
+      }
+    });
+  }
+
+  function _removeContact(entry, contactId, updateDb) {
+    // If the cache is valid, we also need to remove the contact from the
+    // cache.
+    if (_contactsCache && updateDb) {
+      ActionLogDB.removeContactInfo(function(error) {
+        if (error) {
+          console.error(error);
+          return;
+        }
+        _updateContactInfo(entry);
+      }, contactId, entry);
+    } else {
+      _updateContactInfo(entry);
+    }
+  }
+
+  /**
+   * Updates the whole list of groups or part of it with the appropriate
+   * contact information.
+   *
+   * This function will be triggered after receiving a 'oncontactchange' event
+   * with 'create', 'remove' or 'update' reasons or during the initial
+   * rendering for each chunk of data *only* if we detect that the contacts
+   * cache is not valid.
+   *
+   * param reason
+   *        String containing the reason of the 'oncontactchange' event or
+   *        null
+   *        if the function was triggered because of an invalid contacts cache
+   * param contactId
+   *        Contact identifier if any. Only 'oncontactchange' events with
+   *        'update' or 'remove' reasons will provide a contactId parameter.
+   * param identities
+   *        Array of identities associated with a contact. Only
+   *        'oncontactchange' events with 'update' or 'add' reasons will
+   *        provide this paramater.
+   */
+  function _updateListWithContactInfo(reason, contactId, identities) {
+    var entries = [];
+    var query;
+
+    // Remove events can be applied to specific entries matching the affected
+    // contact. Create or update events require a full list iteration as there
+    // might be records with identities corresponding to the added or updated
+    // contacts.
+    switch (reason) {
+      case 'remove':
+        query = 'li[data-contact-id="' + contactId + '"]';
+        break;
+      case 'create':
+      case 'update':
+        query = 'li';
+        break;
+    }
+
+    entries = entries.concat(
+      Array.prototype.slice.call(urlsSectionEntries.querySelectorAll(query))
+    );
+    entries = entries.concat(
+      Array.prototype.slice.call(callsSectionEntries.querySelectorAll(query))
+    );
+
+    for (var i = 0, l = entries.length; i < l; i++) {
+      var entry = entries[i];
+      var dataset = entry.dataset;
+
+      if (!reason) {
+        _updateContact(entry, dataset.identities, i == 0);
+      } else if (identities) {
+        if (!Array.isArray(dataset.identities)) {
+          dataset.identities = [dataset.identities];
+        }
+        var intersection = identities.filter(function(identity) {
+          return dataset.identities.indexOf(identity) != -1;
+        });
+        if (intersection.length) {
+          _updateContact(entry, dataset.identities, i == 0);
+        }
+      } else if (dataset.contactId && (dataset.contactId === contactId)) {
+        _removeContact(entry, contactId, i == 0);
+      }
+    }
+  }
+
   var CallLog = {
     init: function w_init(identity) {
       // Show the section
@@ -589,7 +734,8 @@
       callsSectionEntries = document.getElementById('calls-section-entries');
       urlsSection = document.getElementById('urls-section');
       urlsSectionEntries = document.getElementById('urls-section-entries');
-      calllogSectionsContainer = document.querySelector('.calllog-sections-container');
+      calllogSectionsContainer =
+        document.querySelector('.calllog-sections-container');
       callsTabSelector = document.getElementById('calls-section-filter');
       urlsTabSelector = document.getElementById('urls-section-filter');
 
@@ -685,6 +831,83 @@
 
       // Show the calls as initial screen
       _changeSection('calls');
+
+      // Get the latest contact cache revision and the actual Contacts API
+      // db revision. If both values differ, we need to update the contact
+      // cache and its revision and directly query the Contacts API to render
+      // the appropriate information while the cache is being rebuilt.
+      window.asyncStorage.getItem('contactsCacheRevision',
+                                  function onItem(cacheRevision) {
+        navigator.mozContacts.getRevision()
+              .onsuccess = function(event) {
+          var contactsRevision = event.target.result;
+          // We don't need to sync if this is the first time that we use the
+          // action log.
+          if (!cacheRevision || cacheRevision > contactsRevision) {
+            window.asyncStorage.setItem('contactsCacheRevision',
+                                        contactsRevision);
+            return;
+          }
+
+          if (_contactsCache = (cacheRevision >= contactsRevision)) {
+            return;
+          }
+
+          ActionLogDB.invalidateContactsCache(function(error) {
+            if (error) {
+              console.error('Could not invalidate contacts cache ' + error);
+              return;
+            }
+            _contactsCache = true;
+          });
+        };
+      });
+
+      navigator.mozContacts.oncontactchange = function(event) {
+        var reason = event.reason;
+        var contactId = event.contactID;
+        if (reason == "remove") {
+          _updateListWithContactInfo("remove", contactId);
+          return;
+        }
+
+        var options = {
+          filterBy: ["id"],
+          filterOp: "equals",
+          filterValue: contactId
+        };
+
+        var req = navigator.mozContacts.find(options);
+        req.onsuccess = function(event) {
+          if (!event.target.result || event.target.result.length === 0) {
+            console.error("No contact found: " + contactId);
+            return;
+          }
+
+          var contact = event.target.result[0];
+          var identities = [];
+          if (contact.tel && contact.tel.length) {
+            identities = contact.tel.map(function(tel) {
+              return tel.value;
+            });
+          }
+          if (contact.email && contact.email.length) {
+            identities = contact.email.map(function(email) {
+              return email.value;
+            });
+          }
+
+          switch (reason) {
+            case "create":
+              _updateListWithContactInfo("create", null, identities);
+              break;
+            case "update":
+              _updateListWithContactInfo("update", event.contactID,
+                                         identities);
+              break;
+          }
+        };
+      };
     },
 
     cleanCalls: function() {
@@ -695,16 +918,6 @@
     cleanUrls: function() {
       _clearUrls();
       _changeSection('urls');
-    },
-
-    addContactInfoToRecord: function(aRecord, aContactInfo) {
-      aRecord.contactId = aContactInfo.contactIds || null;
-      if (!aContactInfo.contacts || !aContactInfo.contacts[0]) {
-        return aRecord;
-      }
-      aRecord.contactPrimaryInfo = aContactInfo.contacts[0].name[0] || null;
-      // TODO: photo. bug 1023764
-      return aRecord;
     },
 
     addCall: function(callObject) {
@@ -721,6 +934,10 @@
       }, urlObject);
       _appendUrl(urlObject);
       _changeSection('urls');
+    },
+
+    addContactInfoToRecord: function(aRecord, aContactInfo) {
+      return ActionLogDB.addContactInfoToRecord(aRecord, aContactInfo);
     }
   };
 
