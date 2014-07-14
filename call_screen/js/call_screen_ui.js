@@ -66,6 +66,7 @@
         Ringer.stop();
         CallScreenUI.update('connected', params);
         CallManager.join(isVideo);
+        CallScreenUI.toggleVideoButton(isVideo);
       }
 
       _answerAudioButton.addEventListener(
@@ -82,8 +83,6 @@
         }.bind(this)
       );
 
-      
-      this.toggleVideoButton(params.video);
       this.update(params.layout, params);
     },
     update: function(state, params) {
@@ -100,8 +99,9 @@
           _answerAudioButton.style.display = 'none';
           _answerVideoButton.style.display = 'none';
           _updateUI(params);
-          CallManager.join(true);
-          // _joinCall(true);
+          var isVideoCall = params.video === 'true';
+          CallManager.join(isVideoCall);
+          CallScreenUI.toggleVideoButton(isVideoCall);
           // Show 'hangout' & 'settings'
           break;
         case 'connected':

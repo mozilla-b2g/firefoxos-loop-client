@@ -123,7 +123,7 @@
         {
           name: 'Call',
           method: function(identities) {
-            Controller.callIdentities(identities);
+            Controller.callIdentities(identities, null, Settings.isVideoDefault);
           },
           params: [identities]
         }
@@ -607,7 +607,7 @@
             return;
           }
           var identities = callElement.dataset.identities.split(',');
-          Controller.callIdentities(identities);
+          Controller.callIdentities(identities, null, Settings.isVideoDefault);
         }
       )
       ActionLogDB.getCalls(_renderCalls, {prev: 'prev'});

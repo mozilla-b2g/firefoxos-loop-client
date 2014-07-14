@@ -70,7 +70,7 @@
 
       var identities = _call.identities;
       var layout = _call.layout;
-      var video = true; // TODO Get from the default one
+      var video = _call.isVideoCall;
 
       _callee = _call.layout === 'incoming' ? true : false;
       // TODO: Send busy as reason in case we are in another webrtc call.
@@ -95,7 +95,7 @@
       _publisher.publishVideo(isVideoOn);
     },
 
-    join: function() {
+    join: function(isVideoCall) {
       Countdown.reset();
 
       // Choose default camera
@@ -141,6 +141,8 @@
           // Update the styles of the video strem
           container.style.width = '100%';
           container.style.height = '100%';
+
+          CallManager.toggleVideo(isVideoCall);
         },
         // Fired when a peer stops publishing the media stream.
         streamDestroyed: function(event) {
