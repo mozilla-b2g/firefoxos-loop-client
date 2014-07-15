@@ -72,10 +72,11 @@
   }
 
   var attention;
-  function _launchAttention(type, call, identities) {
+  function _launchAttention(type, call, identities, isVideoCall) {
     // Retrieve the params and pass them as part of the URL
     var attentionParams = 'layout=' + type;
     attentionParams += '&identities=' +  encodeURIComponent(identities.toString());
+    attentionParams += '&isVideoCall=' +  encodeURIComponent(isVideoCall);
     if (call) {
       Object.keys(call).forEach(function(param) {
         attentionParams += '&' + param + '=' + encodeURIComponent(call[param])
@@ -116,7 +117,7 @@
                   var callObject = {
                     date: attentionLoadedDate,
                     identities: identities || [],
-                    video: true, // TODO Update with the right value
+                    video: isVideoCall,
                     type: type,
                     connected: params.connected,
                     duration: params.duration,
@@ -156,9 +157,9 @@
   }
 
   var CallScreenManager = {
-    launch: function(type, call, identities) {
+    launch: function(type, call, identities, isVideoCall) {
       // TODO Depending on the type show one or another
-      _launchAttention(type, call, identities);
+      _launchAttention(type, call, identities, isVideoCall);
     },
     close: function() {
       if (attention) {

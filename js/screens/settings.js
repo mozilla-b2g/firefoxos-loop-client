@@ -1,24 +1,60 @@
 (function(exports) {
   'use strict';
 
-  var settingsPanel, closeSettingsButton, logoutSettingsButton,
-      cleanCallsButton, cleanUrlsButton;
+  var _settingsPanel, _closeSettingsButton, _logoutSettingsButton,
+      _cleanCallsButton, _cleanUrlsButton, _videoDefaultCheck;
+
+  var _isVideoDefault = true;
+  const VIDEO_SETTING = 'video-default';
 
   var Settings = {
+    get isVideoDefault() {
+      return _isVideoDefault;
+    },
+    reset: function s_clear() {
+      asyncStorage.setItem(
+        VIDEO_SETTING,
+        true
+      );
+      _isVideoDefault = true;
+    },
     init: function s_init(identity) {
       document.getElementById('settings-logout-identity').textContent =
         'Logged as ' + identity;
 
-      if (settingsPanel) {
+      if (_settingsPanel) {
         return;
       }
-      settingsPanel = document.getElementById('settings-panel');
-      closeSettingsButton = document.getElementById('settings-close-button');
-      logoutSettingsButton = document.getElementById('settings-logout-button');
-      cleanCallsButton = document.getElementById('settings-clean-calls-button');
-      cleanUrlsButton = document.getElementById('settings-clean-urls-button');
+      _settingsPanel = document.getElementById('settings-panel');
+      _closeSettingsButton = document.getElementById('settings-close-button');
+      _logoutSettingsButton = document.getElementById('settings-logout-button');
+      _cleanCallsButton = document.getElementById('settings-clean-calls-button');
+      _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
+      _videoDefaultCheck = document.getElementById('video-default-setting');
       
-      cleanCallsButton.addEventListener(
+      asyncStorage.getItem(
+        VIDEO_SETTING,
+        function onSettingRetrieved(isVideoDefault) {
+          if (isVideoDefault === null) {
+            Settings.reset();
+          } else {
+            _isVideoDefault = isVideoDefault;
+          }
+          _videoDefaultCheck.checked = _isVideoDefault;
+          _videoDefaultCheck.addEventListener(
+            'change',
+            function(e) {
+              _isVideoDefault = e.target.checked;
+              asyncStorage.setItem(
+                VIDEO_SETTING,
+                _isVideoDefault
+              );
+            }
+          );
+        }
+      );
+
+      _cleanCallsButton.addEventListener(
         'click',
         function() {
           CallLog.cleanCalls();
@@ -26,7 +62,7 @@
         }.bind(this)
       );
 
-      cleanUrlsButton.addEventListener(
+      _cleanUrlsButton.addEventListener(
         'click',
          function() {
           CallLog.cleanUrls();
@@ -34,12 +70,12 @@
         }.bind(this)
       );
       
-      closeSettingsButton.addEventListener(
+      _closeSettingsButton.addEventListener(
         'click',
          this.hide.bind(this)
       );
 
-      logoutSettingsButton.addEventListener(
+      _logoutSettingsButton.addEventListener(
         'click',
         function onLogout() {
           this.hide();
@@ -50,10 +86,10 @@
 
     },
     show: function s_show() {
-      settingsPanel.classList.add('show');
+      _settingsPanel.classList.add('show');
     },
     hide: function s_hide() {
-      settingsPanel.classList.remove('show');
+      _settingsPanel.classList.remove('show');
     }
   };
 

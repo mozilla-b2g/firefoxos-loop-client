@@ -22,6 +22,7 @@
   function _onlogout() {
     Wizard.init(false);
     SplashScreen.hide();
+    Settings.reset();
     setTimeout(function() {
       LoadingOverlay.hide();
     }, 2000);
@@ -92,7 +93,7 @@
           });
       
       activity.onsuccess = function() {
-        Controller.call(activity.result);
+        Controller.call(activity.result, Settings.isVideoDefault);
       };
 
       activity.onerror = function() {
@@ -100,12 +101,12 @@
       };
     },
 
-    callIdentities: function(identities, contact) {
+    callIdentities: function(identities, contact, isVideoCall) {
       LoadingOverlay.show('Connecting');
       CallHelper.callUser(
         identities,
         function onLoopIdentity(call) {
-          CallScreenManager.launch('outgoing', call, identities);
+          CallScreenManager.launch('outgoing', call, identities, isVideoCall);
         },
         function onFallback() {
           LoadingOverlay.show('Generating url to share');
@@ -122,7 +123,7 @@
       );
     },
 
-    call: function(contact, isVideoOn) {
+    call: function(contact, isVideoCall) {
       if (!AccountHelper.logged) {
         alert('You need to be logged in before making a call with Loop');
         return;
@@ -152,10 +153,7 @@
         alert('The pick activity result is invalid.');
       }
 
-      // TODO When doing the direct call, use 'isVideoOn' or
-      // the param retrieved from Loop Settings. By default
-      // this param will be true.
-      Controller.callIdentities(identities, contact);
+      Controller.callIdentities(identities, contact, isVideoCall);
     },
 
     shareUrl: function (url, onsuccess, onerror) {
