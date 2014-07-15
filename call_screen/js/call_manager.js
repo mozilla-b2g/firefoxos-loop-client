@@ -4,12 +4,14 @@
   var _call = {};
   var _session;
   var _publisher;
+  var _subscriber;
   var _peersInSession = 0;
   var _publishersInSession = 0;
   var _connectionTimeout;
   var _callProgressHelper = null;
   var _callee;
   var _reason;
+  var _speakerManager;
 
   /**
    * Helper function. Handles call progress protocol state changes.
@@ -20,40 +22,40 @@
     var state = callProgressHelper && callProgressHelper.state || 'unknown';
     switch(state) {
       case 'alerting':
-	if (!_callee) {
-	  return;
-	}
-	callProgressHelper.accept();
-	break;
+        if (!_callee) {
+          return;
+        }
+        callProgressHelper.accept();
+        break;
       case 'connecting':
-	_session.connect(_call.sessionToken, function(e) {
-	  if (e) {
-	    console.log('Session connect error ' + e.message);
-	    return;
-	  }
-	  _publisher = _session.publish(
-	    'local-video', null, function onPublish(ee) {
-	      if (ee) {
-		console.log('Session publish error ' + ee.message);
-	      }
-	      var container =  document.querySelector('.OT_publisher');
-	      if (!container) {
-		return;
-	      }
-	      callProgressHelper.mediaUp();
-	      _publishersInSession += 1;
+        _session.connect(_call.sessionToken, function(e) {
+          if (e) {
+            console.log('Session connect error ' + e.message);
+            return;
+          }
+          _publisher = _session.publish(
+            'local-video', null, function onPublish(ee) {
+              if (ee) {
+                console.log('Session publish error ' + ee.message);
+              }
+              var container =  document.querySelector('.OT_publisher');
+              if (!container) {
+                return;
+              }
+              callProgressHelper.mediaUp();
+              _publishersInSession += 1;
 
-	      container.style.width = '140%';
-	      container.querySelector('video').style.width =
-		'140% !important';
-	  });
-	});
-	break;
+              container.style.width = '140%';
+              container.querySelector('video').style.width = '140% !important';
+          });
+        });
+        break;
       case 'error':
       case 'terminated':
-	CallManager.stop();
+        CallManager.stop();
+        break;
       default:
-	break;
+        break;
     }
   }
 
@@ -90,9 +92,31 @@
 
     toggleVideo: function(isVideoOn) {
       if (!_publisher) {
+        console.error('No publisher in this call');
         return;
       }
+      
+      if (!_speakerManager) {
+        _speakerManager = new window.MozSpeakerManager();
+      }
+      _speakerManager.forcespeaker = isVideoOn;
       _publisher.publishVideo(isVideoOn);
+    },
+
+    toggleSpeaker: function(isSpeakerOn) {
+      if (!_subscriber) {
+        console.error('No subscriber in this call');
+        return;
+      }
+      _subscriber.subscribeToAudio(isSpeakerOn);
+    },
+
+    toggleMic: function(isMicOn) {
+      if (!_publisher) {
+        console.error('No publisher in this call');
+        return;
+      }
+      _publisher.publishAudio(isMicOn);
     },
 
     join: function(isVideoCall) {
@@ -130,7 +154,7 @@
         },
         // Fired when a peer publishes the media stream.
         streamCreated: function(event) {
-          _session.subscribe(event.stream, 'fullscreen-video', null);
+          _subscriber = _session.subscribe(event.stream, 'fullscreen-video', null);
           _publishersInSession += 1;
 
           // Hack to fix OT Css
