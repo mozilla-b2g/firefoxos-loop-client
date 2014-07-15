@@ -199,17 +199,25 @@
         connected = true;
       }
       
-      // Send result to the Controller
-      var hangoutMessage = {
-        id: 'call_screen',
-        message: 'hangout',
-        params: {
-          duration: duration,
-          connected: connected
-        }
-      };
-      ControllerCommunications.send(hangoutMessage);
+      function onCallEnded() {
+        // Send result to the Controller
+        var hangoutMessage = {
+          id: 'call_screen',
+          message: 'hangout',
+          params: {
+            duration: duration,
+            connected: connected
+          }
+        };
+        ControllerCommunications.send(hangoutMessage);
+      }
 
+      if (connected) {
+        CallScreenUI.showFeedback(onCallEnded);
+      } else {
+        onCallEnded();
+      }
+      
       // Clean the call
       _call = {};
       _callProgressHelper.finish();

@@ -98,13 +98,13 @@
 }
 
 .icon-outgoing-audio {
-  background-image: url(images/Audio_icon@2x.png) !important;
+  background-image: url(images/Outgoing_audio@2x.png) !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
 }
 
 .icon-incoming-audio {
-  background-image: url(images/Outgoing_audio@2x.png) !important;
+  background-image: url(images/Incoming_audio@2x.png) !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
 }
