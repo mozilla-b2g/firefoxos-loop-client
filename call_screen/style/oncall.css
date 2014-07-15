@@ -262,7 +262,7 @@ button::-moz-focus-inner {
 
 
 
-footer {
+#call-bar {
   text-align: center;
   line-height: 4rem;
   font-size: 2rem;
@@ -279,7 +279,7 @@ footer {
 }
 
 
-body.status-bar footer {
+body.status-bar #call-bar {
   display: block;
 }
 
@@ -349,4 +349,129 @@ body.settings-hidden #call-settings-video {
 
 body[data-call-type='video'] .remote-bubble{
   opacity: 1;
+}
+
+/*
+ * Feedback screen
+ */
+
+#feedback {
+  background: rgba(0,0,0,.9);
+  width: 100%;
+  height: 100%;
+  display: none;
+  top: 0;
+  position: absolute;
+  z-index: 300;
+  overflow: hidden;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.feedback-questions {
+  width: 200%;
+  height: 30rem;
+  position: absolute;
+  top: 4rem;
+  -webkit-transition: all .4s ease;
+  transition: all .4s ease;
+}
+ 
+.feedback-questions[data-question='1'] {
+  -webkit-transform: translateX(0);
+  transform: translateX(0);
+}
+
+.fq-title {
+  font-size: 2.4rem;
+  color: white;
+  text-align: center;
+  margin-top: 6rem;
+}
+
+.feedback-questions[data-question='1'] .fq-buttons .fq-button{
+  width: 50%;
+  float: left;
+  margin: 0;
+  height: 20rem;
+  border: none;
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.fq-button-happy {
+  background: transparent;
+  background-image: url(images/Happy_icon.png);
+  background-repeat: no-repeat;
+  background-position: 75% center;
+}
+
+.fq-button-sad {
+  background: transparent;
+  background-image: url(images/Sad_icon.png);
+  background-repeat: no-repeat;
+  background-position: 25% center;
+}
+
+
+.feedback-questions[data-question='2'] {
+  -webkit-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+
+.fq-options {
+  margin-top: 2rem;
+  padding: 0 4rem;
+  overflow: hidden;
+}
+
+.fq-options *{
+  color: white !important;
+}
+
+.feedback-question {
+  width: 50%;
+  float: left;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#feedback footer {
+  padding: .5rem;
+  box-sizing: border-box;
+  height: 6rem;
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+}
+
+#feedback footer button {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: .5rem;
+  font-size: 2rem;
+}
+
+#feedback footer #rate-feedback-button {
+  display: none;
+}
+
+#feedback.two-options footer button {
+  width: calc(50% - .25rem);
+  float: left;
+}
+
+#feedback.two-options #send-feedback-button {
+  margin-right: .25rem;
+}
+
+#feedback.two-options #rate-feedback-button {
+  margin-left: .25rem;
+  display: block;
+}
+
+body[data-feedback='true'] #feedback {
+  display: block;
 }

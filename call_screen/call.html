@@ -2,7 +2,12 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no">
+
+    <link href="../style/bb/switches.css" rel="stylesheet" type="text/css">
+    <link href="../style/bb/edit_mode.css" rel="stylesheet" type="text/css">
+    <link href="../style/bb/lists.css" rel="stylesheet" type="text/css">
     <link href="style/oncall.css" rel="stylesheet" type="text/css">
+
     <script defer src="../libs/tokbox/v2.2.6/js/TB.js"></script>
     <script defer src="../libs/opentok.js"></script>
     
@@ -17,7 +22,7 @@
     <script defer src="js/oncall.js"></script>
    	<title>LoopCall</title>
   </head>
-  <body role="application" class="no-transition" data-call-type="" data-settings="false">
+  <body role="application" class="no-transition" data-call-type="" data-settings="false" data-feedback="false">
     <div class="panel">
       <section class="info-panel">
         <h1 id="contact-name-details">Incoming call</h1>
@@ -42,8 +47,72 @@
       </button>
       <button id="call-settings-video" class="action-button">
       </button>
+      <section id="feedback" data-type="list">
+        <div class="feedback-questions" data-question="1">
+          <div class="feedback-question">
+            <div class="fq-title">
+              How do you feel about Loop?
+            </div>
+            <div class="fq-buttons">
+              <button id="answer-happy" class="fq-button-happy fq-button">
+              </button>
+              <button id="answer-sad" class="fq-button-sad fq-button">
+              </button>
+            </div>
+          </div>
+          <div class="feedback-question">
+            <div class="fq-title">
+              How do you feel about Loop?
+            </div>
+            <div class="fq-options">
+              <ul data-type="edit">
+                <li>
+                  <label class="pack-checkbox danger">
+                    <input type="checkbox" value="bad_audio">
+                    <span></span>
+                  </label>
+                  <a>
+                    <p>Bad audio</p>
+                  </a>
+                </li>
+                <li>
+                  <label class="pack-checkbox danger">
+                    <input type="checkbox" value="bad_video">
+                    <span></span>
+                  </label>
+                  <a>
+                    <p>Bad video</p>
+                  </a>
+                </li>
+                <li>
+                  <label class="pack-checkbox danger">
+                    <input type="checkbox" value="got_disconnected">
+                    <span></span>
+                  </label>
+                  <a>
+                    <p>Got disconnected</p>
+                  </a>
+                </li>
+                <li>
+                  <label class="pack-checkbox danger">
+                    <input type="checkbox" value="hate_interface">
+                    <span></span>
+                  </label>
+                  <a>
+                    <p>I hate the interface</p>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <footer>
+          <button id="skip-feedback-button">Skip</button>
+          <button id="rate-feedback-button">Rate</button>
+        </footer>
+      </section>
     </div>
-  	<footer>
+  	<footer id="call-bar">
       Loop: call in progress
   	</footer>
   </body>

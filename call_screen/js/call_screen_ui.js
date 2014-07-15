@@ -5,6 +5,8 @@
   var _isSpeakerEnabled = true;
   var _isMicEnabled = true;
 
+  var _feedbackClose;
+
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _settingsButtonVideo, _settingsButtonMute,
       _settingsButtonSpeaker, _title , _subtitle;
@@ -63,7 +65,6 @@
       _settingsButtonVideo = document.getElementById('call-settings-video');
       _settingsButtonMute = document.getElementById('call-settings-mute');
       _settingsButtonSpeaker = document.getElementById('call-settings-speaker');
-
       _title = document.getElementById('contact-name-details');
       _subtitle = document.getElementById('contact-phone-details');
 
@@ -71,9 +72,7 @@
         _isVideoEnabled = true;
         _isSpeakerEnabled = true;
       }
-
-      // TODO Implement all options in Settings. Currently
-      // we have just the video on/off
+      
       _settingsButton.addEventListener(
         'click',
         function onSettingsClick() {
@@ -157,6 +156,18 @@
         }.bind(this)
       );
 
+      window.onresize = function() {
+        if (_feedbackClose && typeof _feedbackClose === 'function') {
+          _feedbackClose();
+          return;
+        }
+        if (document.body.classList.contains('status-bar')) {
+          document.body.classList.remove('status-bar');
+        } else {
+          document.body.classList.add('status-bar');
+        }
+      };
+      
       this.update(params.layout, params);
     },
     update: function(state, params) {
@@ -188,10 +199,6 @@
           // TODO Styles not defined yet.
 
           break;
-        case 'feedback':
-          // TODO Implement this when ready
-
-          break;
         case 'hold':
           // TODO Implement this when ready
 
@@ -204,6 +211,46 @@
         return;
       }
       document.body.dataset.callType = 'audio';
+    },
+    showFeedback: function(callback) {
+      _feedbackClose = callback;
+      document.getElementById('skip-feedback-button').addEventListener(
+        'click',
+        function onSkip() {
+          if (typeof callback === 'function') {
+            callback();
+          }
+        }
+      );
+
+      document.getElementById('rate-feedback-button').addEventListener(
+        'click',
+        function onSkip() {
+          if (typeof callback === 'function') {
+            // TODO Collect info and send to Controller
+            callback();
+          }
+        }
+      );
+
+      document.getElementById('answer-happy').addEventListener(
+        'click',
+        function onSkip() {
+          if (typeof callback === 'function') {
+            callback();
+          }
+        }
+      );
+
+      document.getElementById('answer-sad').addEventListener(
+        'click',
+        function onSkip() {
+          document.getElementById('feedback').classList.add('two-options');
+          document.querySelector('[data-question]').dataset.question = 2;
+        }
+      );
+
+      document.body.dataset.feedback = true;
     }
   };
 
