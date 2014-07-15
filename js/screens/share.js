@@ -11,7 +11,9 @@
     var candidates = phones.concat(emails);
     var identities = [];
     var expirationDate = new Date(+_urlObject.expiresAt * 1000);
-
+    var tokenTmp = _url.split('/');
+    var token = tokenTmp[tokenTmp.length - 1];
+    
     for (var i = 0, l = candidates.length; i < l; i++) {
       identities.push(candidates[i].value);
     }
@@ -20,7 +22,7 @@
       date: new Date(),
       identities: identities,
       url: _url,
-      urlToken: null,
+      urlToken: token,
       expiration: expirationDate,
       revoked: false,
       contactId: _contact.id,

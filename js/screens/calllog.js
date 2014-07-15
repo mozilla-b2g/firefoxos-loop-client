@@ -31,8 +31,19 @@
     // Options to show
     var items = [];
 
-    // TODO Add revoke in bug
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1037008
+    var revokeElement = element.querySelector('[data-revoked]');
+    if (revokeElement && revokeElement.dataset.revoked === 'false') {
+      // Revoke single item
+      items.push(
+        {
+          name: 'Revoke',
+          method: function(element) {
+            _revokeUrl(element, element.dataset.urlToken, new Date(+element.id));
+          },
+          params: [element]
+        }
+      );
+    }
     
     // Delete single item
     items.push(
@@ -103,8 +114,27 @@
       );
     }
 
-    // TODO Add revoke if it's a call from an URL in
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1037008
+    if (element.dataset.urlToken) {
+      // Delete single item
+      items.push(
+        {
+          name: 'Revoke',
+          method: function(element) {
+            Controller.getUrlByToken(
+              element.dataset.urlToken,
+              function onUrl(urlObject) {
+                _revokeUrl(
+                  element,
+                  urlObject.urlToken,
+                  urlObject.date
+                );
+              }
+            );
+          },
+          params: [element]
+        }
+      );
+    }
 
     // Delete single item
     items.push(
@@ -389,7 +419,10 @@
     callElement.dataset.timestampIndex = call.date.getTime();
     callElement.dataset.contactId = call.contactId;
     callElement.dataset.identities = call.identities;
-
+    if (call.urlToken) {
+      callElement.dataset.urlToken = call.urlToken;
+    }
+    
 
     var datePretty = Utils.getFormattedHour(call.date.getTime());
     var durationPretty = Utils.getDurationPretty(+call.duration);
@@ -474,6 +507,19 @@
     _deleteElementsFromGroup(ids, 'urls');
   }
 
+  function _revokeUrl(element, token, date) {
+    Controller.revokeUrl(
+      token,
+      date,
+      function onRevoked() {
+        var revokeElement = element.querySelector('[data-revoked]');
+        revokeElement.dataset.revoked = true;
+        revokeElement.textContent = 'Revoked';
+      }
+    )
+    
+  }
+
   function _renderUrls(error, urlsCursor) {
     if (!urlsCursor) {
       _showEmptyUrls();
@@ -494,6 +540,7 @@
   function _createUrlDOM(rawUrl) {
     var urlElement = document.createElement('li');
     urlElement.dataset.timestampIndex = rawUrl.date.getTime();
+    urlElement.dataset.urlToken = rawUrl.urlToken;
     urlElement.id = rawUrl.date.getTime();
 
     var datePretty =  Utils.getFormattedHour(rawUrl.date);
