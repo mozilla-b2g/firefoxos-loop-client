@@ -4,7 +4,7 @@
   var _initialized = false;
   var calllogSectionsContainer, callsTabSelector, urlsTabSelector,
       callsSection, urlsSection, callsSectionEntries, urlsSectionEntries;
-  
+
 
   /**
    * Function for rendering an option prompt given a list
@@ -19,7 +19,7 @@
         name: 'Cancel'
       }
     );
-    
+
     var options = new OptionMenu({
       type: 'action',
       items: items
@@ -44,7 +44,7 @@
         }
       );
     }
-    
+
     // Delete single item
     items.push(
       {
@@ -55,7 +55,7 @@
         params: [element.id]
       }
     );
-    
+
     _showSecondaryMenu(items);
   }
 
@@ -159,7 +159,7 @@
         }
       );
     }
-    
+
     _showSecondaryMenu(items);
   }
   /**
@@ -180,7 +180,7 @@
 
       function updateTimeElements() {
         var elementsToUpdate = document.querySelectorAll("[data-need-update]");
-        
+
         for (var i = 0, l = elementsToUpdate.length; i < l; i++) {
           var dataset = elementsToUpdate[i].dataset;
           var value;
@@ -207,7 +207,7 @@
 
     // Start listeners
     _start();
-    
+
     // If we are not visible, stop updating
     document.addEventListener(
       'visibilitychange',
@@ -357,7 +357,7 @@
     ul.classList.add('calllog-elements');
     ul.dataset.timestampIndex = timestampIndex;
     ul.id = type + '-' + timestampIndex;
-    
+
     // We need to check where to place the new group
     var container = type === 'calls' ? callsSectionEntries : urlsSectionEntries;
     // Append into the right position
@@ -422,7 +422,7 @@
     if (call.urlToken) {
       callElement.dataset.urlToken = call.urlToken;
     }
-    
+
 
     var datePretty = Utils.getFormattedHour(call.date.getTime());
     var durationPretty = Utils.getDurationPretty(+call.duration);
@@ -454,7 +454,7 @@
     }
     return callElement;
   }
- 
+
   function _appendCall(call) {
     if (!call) {
       return;
@@ -472,12 +472,12 @@
     _appendElementToContainer(group, element)
   }
 
-  
+
 
   /**
    * Set of methods & vars related with the 'Calls' section
    */
-  
+
   var _isUrlsSectionEmpty = true;
   var _templateUrl;
 
@@ -517,7 +517,7 @@
         revokeElement.textContent = 'Revoked';
       }
     )
-    
+
   }
 
   function _renderUrls(error, urlsCursor) {
@@ -554,7 +554,7 @@
       time: datePretty,
       revoked: '' + revoked,
       revokeTimestamp: '' + revokeTimestamp,
-      expiration: _getExpiration(revokeTimestamp, revoked) 
+      expiration: _getExpiration(revokeTimestamp, revoked)
     });
 
     return urlElement;
@@ -592,7 +592,7 @@
       calllogSectionsContainer = document.querySelector('.calllog-sections-container');
       callsTabSelector = document.getElementById('calls-section-filter');
       urlsTabSelector = document.getElementById('urls-section-filter');
-      
+
       // Add a listener to the right button
       document.getElementById('open-settings-button').addEventListener(
         'click',
@@ -680,30 +680,44 @@
           _showUrlSecondaryMenu(urlElement);
         }
       );
-      
+
       ActionLogDB.getUrls(_renderUrls, {prev: 'prev'});
 
       // Show the calls as initial screen
       _changeSection('calls');
     },
+
     cleanCalls: function() {
       _clearCalls();
       _changeSection('calls');
     },
+
     cleanUrls: function() {
       _clearUrls();
       _changeSection('urls');
     },
+
+    addContactInfoToRecord: function(aRecord, aContactInfo) {
+      aRecord.contactId = aContactInfo.contactIds || null;
+      if (!aContactInfo.contacts || !aContactInfo.contacts[0]) {
+        return aRecord;
+      }
+      aRecord.contactPrimaryInfo = aContactInfo.contacts[0].name[0] || null;
+      // TODO: photo. bug 1023764
+      return aRecord;
+    },
+
     addCall: function(callObject) {
       ActionLogDB.addCall(function(error) {
-        error && console.error('ERROR when storing the call ' + error);
+        console.error('ERROR when storing the call ' + error);
       }, callObject);
       _appendCall(callObject);
       _changeSection('calls');
     },
+
     addUrl: function(urlObject) {
       ActionLogDB.addUrl(function(error) {
-        error && console.log('ERROR when storing the URL ' + error);
+        console.error('ERROR when storing the URL ' + error);
       }, urlObject);
       _appendUrl(urlObject);
       _changeSection('urls');

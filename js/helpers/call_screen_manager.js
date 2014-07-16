@@ -13,7 +13,7 @@
 
   function _onAttentionLoaded(attention, callback) {
     if (typeof callback !== 'function') {
-      console.log('Error when waiting for attention onload');
+      console.error('Error when waiting for attention onload');
       return;
     }
 
@@ -45,7 +45,7 @@
             _onloaded();
           }
         } catch(e) {
-          console.log('Message from iFrame not related with Loop ' + e);
+          console.error('Message from iFrame not related with Loop ' + e);
         }
       }
     );
@@ -128,27 +128,22 @@
                     contactPhoto: null
                   };
 
-                  ContactsHelper.find(
-                    {
-                      identities: identities
-                    },
-                    function onContact(contact) {
-                      // Update with contact info
-                      callObject.contactId = contact && contact.id || null;
-                      callObject.contactPrimaryInfo = contact && contact.name[0] || null;
-                      // Add Call log info & Feedback
-                      CallLog.addCall(callObject);
-                    },
-                    function onFallback() {
-                      // Add Call log info & Feedback
-                      CallLog.addCall(callObject);
-                    }
-                  );
+                  ContactsHelper.find({
+                    identities: identities
+                  }, function(result) {
+                    CallLog.addCall(
+                      result && result.contactIds ?
+                      CallLog.addContactInfoToRecord(callObject, result) :
+                      callObject
+                    );
+                  }, function() {
+                    CallLog.addCall(callObject);
+                  });
                   break;
               }
-
             } catch(e) {
-              console.log('ERROR: Message received from CallScreen not valid');
+              console.error('ERROR: Message received from CallScreen not valid '
+                            + e.message || e);
             }
           }
         )
