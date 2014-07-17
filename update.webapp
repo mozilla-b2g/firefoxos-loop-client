@@ -1,7 +1,7 @@
 {
   "name": "Loop",
   "description": "The Mozilla Loop (WebRTC app) client",
-  "launch_path": "/launcher.html",
+  "launch_path": "/index.html",
   "type": "privileged",
   "developer": {
     "name": "The Gaia Team",
