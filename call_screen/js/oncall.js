@@ -1,6 +1,7 @@
 window.onload = function() {
   var debug = true;
 
+  AudioCompetingHelper.init();
 
   // Init the countdown element
   Countdown.init();
@@ -13,4 +14,4 @@ window.onload = function() {
   
   // Update the UI taking into account the layout
   CallScreenUI.init(callParams);
-}
+};
