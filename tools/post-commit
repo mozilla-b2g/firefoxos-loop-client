@@ -1,0 +1,12 @@
+#!/bin/sh
+
+version=$(git rev-parse --short HEAD)
+
+if [ -a .commit ]
+    then
+    rm .commit
+
+    echo 'Version = { id: version };' | sed "s/version/\'${version}\'/g" > js/version.js
+    git add js/version.js
+    git commit -m "Bump up version" --no-verify
+fi

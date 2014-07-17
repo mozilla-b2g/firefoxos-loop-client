@@ -2,7 +2,8 @@
   'use strict';
 
   var _settingsPanel, _closeSettingsButton, _logoutSettingsButton,
-      _cleanCallsButton, _cleanUrlsButton, _videoDefaultCheck;
+      _cleanCallsButton, _cleanUrlsButton, _videoDefaultCheck,
+      _commitHashTag;
 
   var _isVideoDefault = true;
   const VIDEO_SETTING = 'video-default';
@@ -31,7 +32,8 @@
       _cleanCallsButton = document.getElementById('settings-clean-calls-button');
       _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
       _videoDefaultCheck = document.getElementById('video-default-setting');
-      
+      _commitHashTag = document.getElementById('settings-commit-hash-tag');
+
       asyncStorage.getItem(
         VIDEO_SETTING,
         function onSettingRetrieved(isVideoDefault) {
@@ -84,6 +86,9 @@
         }.bind(this)
       );
 
+      if (_commitHashTag && Version.id) {
+        _commitHashTag.textContent = Version.id;
+      }
     },
     show: function s_show() {
       _settingsPanel.classList.add('show');
