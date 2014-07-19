@@ -500,5 +500,5 @@
     }
   };
 
-  exports.ActionLogDB = ActionLogDB
+  exports.ActionLogDB = ActionLogDB;
 })(window);

@@ -10,22 +10,27 @@
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _settingsButtonVideo, _settingsButtonMute,
       _settingsButtonSpeaker, _resumeButton, _title , _subtitle;
-  
+
   function _updateUI(params) {
     var identities = params.identities.split(',');
-    ContactsHelper.find(
-      {
-        identities: identities
-      },
-      function onContact(contact) {
-        _title.textContent = contact.name[0];
-        _subtitle.textContent = identities[0];
-      },
-      function onFallback() {
-        _title.textContent = identities[0];
-        _subtitle.textContent = '';
+
+    function _noContact() {
+      _title.textContent = identities[0];
+      _subtitle.textContent = '';
+    }
+
+    ContactsHelper.find({
+      identities: identities
+    }, function(result) {
+      if (!result) {
+        _noContact();
+        return;
       }
-    );
+      // We don't want to show the whole list of contacts in the call screen
+      // so we just take the first one.
+      _title.textContent = result.contacts[0].name[0];
+      _subtitle.textContent = identities[0];
+    }, _noContact);
   }
 
   function _toggleSettings(callback) {
@@ -34,11 +39,11 @@
       'transitionend',
       function onTransitionEnd() {
         _settingsButtonSpeaker.removeEventListener('transitionend', onTransitionEnd);
-        
+
         if (document.body.dataset.settings !== 'true') {
           document.body.classList.add('no-transition');
         }
-        
+
         if (typeof callback === 'function') {
           callback();
         }
@@ -74,7 +79,7 @@
         _isVideoEnabled = true;
         _isSpeakerEnabled = true;
       }
-      
+
       _settingsButton.addEventListener(
         'click',
         function onSettingsClick() {
@@ -88,7 +93,7 @@
           _settingsButtonVideo.classList.toggle('disabled');
           _isVideoEnabled = !_isVideoEnabled;
           CallManager.toggleVideo(_isVideoEnabled);
-          
+
           _toggleSettings(function() {
             document.body.classList.add('settings-hidden');
             _settingsButton.addEventListener(
@@ -182,7 +187,7 @@
           document.body.classList.add('status-bar');
         }
       };
-      
+
       this.update(params.layout, params);
     },
     update: function(state, params) {
