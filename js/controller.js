@@ -117,6 +117,7 @@
             },
             function() {
               alert('Unable to retrieve link to share');
+              LoadingOverlay.hide();
             }
           );
         }
