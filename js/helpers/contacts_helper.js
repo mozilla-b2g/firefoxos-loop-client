@@ -123,7 +123,7 @@
      */
     find: function(filter, onsuccessCB, onerrorCB) {
       if (!navigator.mozContacts) {
-        console.error('mozContacts is not available');
+        Log.error('mozContacts is not available');
         return;
       }
 

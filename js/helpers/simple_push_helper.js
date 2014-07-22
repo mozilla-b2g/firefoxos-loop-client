@@ -4,8 +4,6 @@
 'use strict';
 
 (function (exports) {
-  // Default should be 'false'.
-  var debug = false;
 
   // Private handler for handling the cache of channels & endpoints
   // previously registered
@@ -22,16 +20,16 @@
     get: function(channelName, callback = function() {}) {
       if (this.registeredChannels) {
         // Get value from cache
-        debug && console.log('Checking cache from memory');
+        Log.log('Checking cache from memory');
         callback(this.registeredChannels[channelName]);
         return;
       }
       // Populate cache
-      debug && console.log('Retrieving Cache');
+      Log.log('Retrieving Cache');
       asyncStorage.getItem(
         this.CACHE_KEY,
         function onRetrieved(cache) {
-          debug && console.log('Checking cache from memory after retrieving');
+          Log.log('Checking cache from memory after retrieving');
           this.registeredChannels = cache || {};
           callback(this.registeredChannels[channelName]);
         }.bind(this)
@@ -42,7 +40,7 @@
     // @param name String Channel name
     // @param endpoint String endpoint to be registered
     update: function(name, endpoint) {
-      debug && console.log('Registering ' + name + ' ' + endpoint);
+      Log.log('Registering ' + name + ' ' + endpoint);
       this.registeredChannels = this.registeredChannels || {};
       this.registeredChannels[name] = endpoint;
       asyncStorage.setItem(
@@ -57,12 +55,12 @@
       this.registeredHandlers = {};
       this.registeredChannels = null;
       if (!navigator.push) {
-        console.warn('Could not unregister push endpoints');
+        Log.warn('Could not unregister push endpoints');
         return;
       }
       for (var channel in this.registeredChannels) {
         var req = navigator.push.unregister(this.registeredHandlers[channel]);
-        req.onerror = console.error;
+        req.onerror = Log.error;
       }
     },
 
@@ -110,7 +108,7 @@
   var SimplePush = {
     start: function sp_start() {
       if (!window.navigator.mozSetMessageHandler) {
-        console.warn('SystemMessage are not available');
+        Log.warn('SystemMessage are not available');
         return;
       }
 
@@ -118,8 +116,8 @@
         var endpoint = event.pushEndpoint;
         var version = event.version;
 
-        debug && console.log('Push message from: ' + endpoint);
-        debug && console.log('Push message with Version: ' + version);
+        Log.log('Push message from: ' + endpoint);
+        Log.log('Push message with Version: ' + version);
 
         ChannelCache.executeHandler(endpoint, version);
       });
@@ -164,19 +162,19 @@
       // Check the cache first
       ChannelCache.get(name, function onRetrieved(registeredEndpoint) {
         if (registeredEndpoint) {
-          debug && console.log('Channel ' + name + ' was registered before');
-          debug && console.log('Endpoint is ' + registeredEndpoint);
+          Log.log('Channel ' + name + ' was registered before');
+          Log.log('Endpoint is ' + registeredEndpoint);
           onregistered(null, registeredEndpoint);
           ChannelCache.setHandler(registeredEndpoint, handler);
         } else {
-          debug && console.log('We need to register the push endpoint');
+          Log.log('We need to register the push endpoint');
           this.register(function onEndpoint(error, endpoint) {
             if (error) {
               onregistered(error);
               return;
             }
-            debug && console.log('Channel ' + name + ' was NOT registered before');
-            debug && console.log('Endpoint is ' + endpoint);
+            Log.log('Channel ' + name + ' was NOT registered before');
+            Log.log('Endpoint is ' + endpoint);
             // Return endpoint
             onregistered(null, endpoint);
             // Set handler

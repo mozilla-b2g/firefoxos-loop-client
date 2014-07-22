@@ -320,7 +320,7 @@
 
     _newTxn(function(error, txn, store) {
       if (error) {
-        console.error(error.name);
+        Log.error(error.name);
         aCallback(error.name);
         return;
       }
@@ -340,7 +340,7 @@
       };
 
       req.onerror = function onerror(event) {
-        console.error(event.target.error.name);
+        Log.error(event.target.error.name);
         aCallback(event.target.error.name);
       };
     }, "readonly", [aObjectStore]);
@@ -646,7 +646,7 @@
         _newTxn(function(error, txn, store) {
           asyncCalls--;
           if (error) {
-            console.error(error);
+            Log.error(error);
             _error = error;
             return;
           }
@@ -698,7 +698,7 @@
       txn.onerror = function(event) {
         _error = event.target.error.name;
         _onupdated();
-        console.error(_error);
+        Log.error(_error);
       };
     }, "readonly", objectStores);
   }

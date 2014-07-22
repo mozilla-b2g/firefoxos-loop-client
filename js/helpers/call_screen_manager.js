@@ -3,17 +3,16 @@
 'use strict';
 
 (function(exports) {
-  var debug = true;
+  
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
     }
   }
 
-
   function _onAttentionLoaded(attention, callback) {
     if (typeof callback !== 'function') {
-      console.error('Error when waiting for attention onload');
+      Log.error('Error when waiting for attention onload');
       return;
     }
 
@@ -45,7 +44,7 @@
             _onloaded();
           }
         } catch(e) {
-          console.error('Message from iFrame not related with Loop ' + e);
+          Log.error('Message from iFrame not related with Loop ' + e);
         }
       }
     );
@@ -92,7 +91,7 @@
     _onAttentionLoaded(
       attention,
       function onLoaded() {
-        debug && console.log('handshaking ready!');
+        Log.log('handshaking ready!');
         LoadingOverlay.hide();
         var attentionLoadedDate = new Date();
         window.addEventListener(
@@ -101,7 +100,7 @@
             try {
               var messageFromCallScreen = JSON.parse(event.data);
               if (messageFromCallScreen.id != 'call_screen') {
-                debug && console.log('CallScreen: PostMessage not from CallScreen');
+                Log.log('CallScreen: PostMessage not from CallScreen');
                 return;
               }
               switch(messageFromCallScreen.message) {
@@ -142,7 +141,7 @@
                   break;
               }
             } catch(e) {
-              console.error('ERROR: Message received from CallScreen not valid '
+              Log.error('ERROR: Message received from CallScreen not valid '
                             + e.message || e);
             }
           }

@@ -381,7 +381,7 @@
   function _clearCalls() {
     // Delete all entries in call section
     ActionLogDB.deleteCalls(function(error) {
-      error && console.error('ERROR when clearing calls db ' + error);
+      error && Log.error('ERROR when clearing calls db ' + error);
     });
     // Show 'empty' panel
     callsSectionEntries.innerHTML = '';
@@ -392,7 +392,7 @@
   function _deleteCalls(ids) {
     ActionLogDB.deleteCalls(
       function(error) {
-        error && console.error('Error when deleting calls from DB ' + error.name);
+        error && Log.error('Error when deleting calls from DB ' + error.name);
       },
       ids
     );
@@ -486,7 +486,7 @@
   function _clearUrls() {
     // Delete all entries in call section
     ActionLogDB.deleteUrls(function(error) {
-      error && console.error('ERROR when clearing urls db ' + error);
+      error && Log.error('ERROR when clearing urls db ' + error);
     });
     // Show 'empty' panel
     urlsSectionEntries.innerHTML = '';
@@ -497,7 +497,7 @@
   function _deleteUrls(ids) {
     ActionLogDB.deleteUrls(
       function(error) {
-        console.error('Error when deleting calls from DB ' +
+        Log.error('Error when deleting calls from DB ' +
                       error.name || error);
       },
       ids
@@ -610,7 +610,7 @@
       if (_contactsCache && updateDb) {
         ActionLogDB.updateContactInfo(function(error) {
           if (error) {
-            console.error(error);
+            Log.error(error);
             return;
           }
           _updateContactInfo(entry, contactInfo, identities);
@@ -623,7 +623,7 @@
       if (_contactsCache && updateDb) {
         ActionLogDB.removeContactInfo(function(error) {
           if (error) {
-            console.error(error);
+            Log.error(error);
             return;
           }
           _updateContactInfo(entry, null, identities);
@@ -640,7 +640,7 @@
     if (_contactsCache && updateDb) {
       ActionLogDB.removeContactInfo(function(error) {
         if (error) {
-          console.error(error);
+          Log.error(error);
           return;
         }
         _updateContactInfo(entry);
@@ -855,7 +855,7 @@
 
           ActionLogDB.invalidateContactsCache(function(error) {
             if (error) {
-              console.error('Could not invalidate contacts cache ' + error);
+              Log.error('Could not invalidate contacts cache ' + error);
               return;
             }
             _contactsCache = true;
@@ -880,7 +880,7 @@
         var req = navigator.mozContacts.find(options);
         req.onsuccess = function(event) {
           if (!event.target.result || event.target.result.length === 0) {
-            console.error("No contact found: " + contactId);
+            Log.error("No contact found: " + contactId);
             return;
           }
 
@@ -922,7 +922,7 @@
 
     addCall: function(callObject) {
       ActionLogDB.addCall(function(error) {
-        console.error('ERROR when storing the call ' + error);
+        Log.error('ERROR when storing the call ' + error);
       }, callObject);
       _appendCall(callObject);
       _changeSection('calls');
@@ -930,7 +930,7 @@
 
     addUrl: function(urlObject) {
       ActionLogDB.addUrl(function(error) {
-        console.error('ERROR when storing the URL ' + error);
+        Log.error('ERROR when storing the URL ' + error);
       }, urlObject);
       _appendUrl(urlObject);
       _changeSection('urls');

@@ -51,13 +51,13 @@
       case 'connecting':
         _session.connect(_call.sessionToken, function(e) {
           if (e) {
-            console.log('Session connect error ' + e.message);
+            Log.log('Session connect error ' + e.message);
             return;
           }
           _publisher = _session.publish(
             'local-video', null, function onPublish(ee) {
               if (ee) {
-                console.log('Session publish error ' + ee.message);
+                Log.log('Session publish error ' + ee.message);
               }
               var container =  document.querySelector('.OT_publisher');
               if (!container) {
@@ -114,7 +114,7 @@
 
     toggleVideo: function(isVideoOn) {
       if (!_publisher) {
-        console.error('No publisher in this call');
+        Log.error('No publisher in this call');
         return;
       }
       
@@ -128,7 +128,7 @@
 
     toggleSpeaker: function(isSpeakerOn) {
       if (!_subscriber) {
-        console.error('No subscriber in this call');
+        Log.error('No subscriber in this call');
         return;
       }
       _subscriber.subscribeToAudio(isSpeakerOn);
@@ -137,7 +137,7 @@
 
     toggleMic: function(isMicOn) {
       if (!_publisher) {
-        console.error('No publisher in this call');
+        Log.error('No publisher in this call');
         return;
       }
       _publisher.publishAudio(isMicOn);
@@ -239,7 +239,7 @@
       try {
         _session.disconnect();
       } catch(e) {
-        console.log('Session is not available to disconnect ' + e);
+        Log.log('Session is not available to disconnect ' + e);
       }
 
       // Stop the countdown

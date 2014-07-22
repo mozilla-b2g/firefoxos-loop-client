@@ -13,8 +13,7 @@
 'use strict';
 
 (function(exports) {
-  var debug = true;
-  var SERVER_URL = Config.server_url;
+  var SERVER_URL = Config.serverUrl;
   var TIMEOUT = 15000;
 
   /** HAWK credentials */
@@ -47,7 +46,7 @@
       var serverDateMsec = Date.parse(dateString);
       _localtimeOffsetMsec = serverDateMsec - hawk.utils.now();
     } catch(err) {
-      console.warn('Bad date header in server response: ' + dateString);
+      Log.warn('Bad date header in server response: ' + dateString);
     }
   }
 

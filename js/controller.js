@@ -1,8 +1,6 @@
 (function(exports) {
   'use strict';
 
-  var debug = true;
-
   function _onauthentication(event) {
     Wizard.init(event.detail.firstRun);
     SplashScreen.hide();
@@ -58,12 +56,11 @@
           CallScreenManager.launch('incoming', call, identities);
         },
         function onerror(e) {
-          debug && console.log('Error: ClientRequestHelper.getCalls ' + e);
+          Log.log('Error: ClientRequestHelper.getCalls ', e);
         }
       );
     }
   }
-
 
   var Controller = {
     init: function () {
@@ -171,7 +168,7 @@
     },
 
     shareUrl: function (url, onsuccess, onerror) {
-      debug && console.log('Loop web URL ' + url);
+      Log.log('Loop web URL ' + url);
       var activity = new MozActivity({
         name: 'share',
         data: {
@@ -184,7 +181,7 @@
     },
 
     sendUrlBySMS: function (id, url, onsuccess, onerror) {
-      debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
+      Log.log('Loop web URL for SMS ' + url + ' to ' + id);
       var activity = new MozActivity({
         name: 'new',
         data: {
@@ -198,7 +195,7 @@
     },
 
     sendUrlByEmail: function (id, url) {
-      debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
+      Log.log('Loop web URL for SMS ' + url + ' to ' + id);
       var a = document.createElement('a');
       var params = 'mailto:' + id + '?subject=Loop' +
         '&body=Lets join the call with Loop! ' + url;
@@ -212,13 +209,13 @@
 
     getUrlByToken: function(token, callback) {
       if (typeof callback !== 'function') {
-        console.error('Error: callback is not defined');
+        Log.error('Error: callback is not defined');
         return;
       }
       ActionLogDB.getUrlByToken(
         function(error, result) {
           if (error) {
-            console.error('Error when getting URL from DB ' + error.name);
+            Log.error('Error when getting URL from DB ' + error.name);
             return;
           }
           callback(result);
@@ -234,7 +231,7 @@
           ActionLogDB.revokeUrl(
             function(error) {
               if (error) {
-                console.error('Error when deleting calls from DB ' + error.name);
+                Log.error('Error when deleting calls from DB ' + error.name);
                 return;
               }
 
@@ -246,7 +243,7 @@
           );
         },
         function onError(e) {
-          console.error('Error when revoking URL in server: ' + e);
+          Log.error('Error when revoking URL in server: ', e);
         }
       );
     },

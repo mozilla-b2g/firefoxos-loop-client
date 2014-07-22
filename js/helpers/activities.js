@@ -30,21 +30,21 @@
     var activityName = _currentActivity.source.name;
 
     if (!activityParams) {
-      console.error('Activity is not sending required data');
+      Log.error('Activity is not sending required data');
       return;
     }
 
     switch (activityName) {
       case WEBRTC_CALL:
         if (!activityParams.contact) {
-          console.error('Activity is not sending required data');
+          Log.error('Activity is not sending required data');
           return;
         }
         Controller.call(activityParams.contact, activityParams.video);
         break;
       case LOOP_CALL:
         if (!activityParams.token) {
-          console.error('Activity is not sending required data');
+          Log.error('Activity is not sending required data');
           return;
         }
         Controller.callUrl(activityParams.token, activityParams.video || true);

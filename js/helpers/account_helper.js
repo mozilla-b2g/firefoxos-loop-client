@@ -10,7 +10,6 @@
 
   const LOOP_CHANNEL_NAME = 'loop';
 
-  var debug = true;
   var _cachedAccount;
   var _isLogged = false;
   var _isIdFlowRunning = false;
@@ -51,8 +50,8 @@
         LOOP_CHANNEL_NAME,
         onnotification,
         function onRegistered(error, endpoint) {
-          debug && console.log('SimplePush.createChannel: onregistered ' +
-                               endpoint);
+          Log.log('SimplePush.createChannel: onregistered ' +
+                  endpoint);
           if (error) {
              reject(error);
              return;
@@ -78,7 +77,7 @@
   }
 
   function _onlogin(assertion) {
-    debug && console.log('onlogin ' + _isIdFlowRunning + ' ' + assertion);
+    Log.log('onlogin ' + _isIdFlowRunning + ' ' + assertion);
 
     var assertionParsed = Utils.parseClaimAssertion(assertion);
 
@@ -116,9 +115,8 @@
     // If it was a FxA account let's check
     AccountHelper.getAccount(function(account) {
       if (account && account.id && account.id.type === 'fxa') {
-        debug && console.log('New FxA email ' +
-                             assertionParsed['fxa-verifiedEmail']);
-        debug && console.log('Previous FxA email ' + account.id.value);
+        Log.log('New FxA email ' + assertionParsed['fxa-verifiedEmail']);
+        Log.log('Previous FxA email ' + account.id.value);
         // If the value is the same, there is no change in FxA so we are
         // ready to show the CallLog!
         if (account.id.value === assertionParsed['fxa-verifiedEmail']) {
@@ -142,13 +140,13 @@
   }
 
   function _onlogout() {
-    debug && console.log('onlogout');
+    Log.log('onlogout');
 
     AccountHelper.logout();
   }
 
   function _onloginerror(error) {
-    debug && console.log('onloginerror ' + error);
+    Log.log('onloginerror ' + error);
 
     _isIdFlowRunning = false;
     _isLogged = false;
@@ -171,7 +169,7 @@
     try {
       navigator.mozId && navigator.mozId.watch(callbacks);
     } catch(e) {
-      console.warn(e);
+      Log.warn(e);
     }
   }
 
@@ -194,13 +192,13 @@
 
     init: function init(onnotification) {
       this.getAccount((function(account) {
-        debug && console.log('Account ' + JSON.stringify(account));
+        Log.log('Account ', account);
 
         _onnotification = onnotification;
 
         // If there is no account, this is the first run of the App.
         if (!account) {
-          debug && console.log('First run');
+          Log.log('First run');
           _dispatchEvent('onauthentication', {
             firstRun: true
           });
@@ -259,7 +257,7 @@
           }).then(_onlogin, _onloginerror);
           break;
         default:
-          console.error('Should never get here. Wrong authentication id');
+          Log.error('Should never get here. Wrong authentication id');
           _isIdFlowRunning = false;
           break;
       }
