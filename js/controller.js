@@ -2,7 +2,7 @@
   'use strict';
 
   var debug = true;
-  
+
   function _onauthentication(event) {
     Wizard.init(event.detail.firstRun);
     SplashScreen.hide();
@@ -28,7 +28,7 @@
     }, 2000);
     // TODO This timeout is just for improving user experience. Check
     // with UX.
-    
+
   }
 
   function _onloginerror(event) {
@@ -91,7 +91,7 @@
               fullContact: true
             }
           });
-      
+
       activity.onsuccess = function() {
         Controller.call(activity.result, Settings.isVideoDefault);
       };
@@ -103,24 +103,17 @@
 
     callIdentities: function(identities, contact, isVideoCall) {
       LoadingOverlay.show('Connecting');
-      CallHelper.callUser(
-        identities,
-        function onLoopIdentity(call) {
-          CallScreenManager.launch('outgoing', call, identities, isVideoCall);
-        },
-        function onFallback() {
-          LoadingOverlay.show('Generating url to share');
-          CallHelper.generateCallUrl(identities[0],
-            function onCallUrlSuccess(result) {
-              LoadingOverlay.hide();
-              Share.show(result, contact);
-            },
-            function() {
-              alert('Unable to retrieve link to share');
-            }
-          );
-        }
-      );
+      CallHelper.callUser(identities, isVideoCall, function(call) {
+        CallScreenManager.launch('outgoing', call, identities, isVideoCall);
+      }, function() {
+        LoadingOverlay.show('Generating url to share');
+        CallHelper.generateCallUrl(identities[0], function(result) {
+          LoadingOverlay.hide();
+          Share.show(result, contact);
+        }, function() {
+          alert('Unable to retrieve link to share');
+        });
+      });
     },
 
     call: function(contact, isVideoCall) {
@@ -136,7 +129,7 @@
         return;
       }
 
-      // Create an array of identities      
+      // Create an array of identities
       var identities = [];
 
       var mails = contact.email || [];
@@ -154,6 +147,27 @@
       }
 
       Controller.callIdentities(identities, contact, isVideoCall);
+    },
+
+    callUrl: function(token, isVideoCall) {
+      if (!AccountHelper.logged) {
+        alert('You need to be logged in before making a call with Loop');
+        return;
+      }
+
+      if (!token) {
+        alert('Invalid call URL');
+        return;
+      }
+
+      LoadingOverlay.show('Connecting');
+      CallHelper.callUrl(token, isVideoCall, function(call, calleeFriendlyName) {
+        CallScreenManager.launch('outgoing', call, [calleeFriendlyName],
+                                 isVideoCall);
+      }, function() {
+        LoadingOverlay.hide();
+        alert('Unable to stablish connection');
+      });
     },
 
     shareUrl: function (url, onsuccess, onerror) {
@@ -189,7 +203,7 @@
       var params = 'mailto:' + id + '?subject=Loop' +
         '&body=Lets join the call with Loop! ' + url;
 
-      a.href = params; 
+      a.href = params;
       a.classList.add('hide');
       document.body.appendChild(a);
       a.click();
@@ -223,7 +237,7 @@
                 console.error('Error when deleting calls from DB ' + error.name);
                 return;
               }
-              
+
               if (typeof callback === 'function') {
                 callback();
               }
