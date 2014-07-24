@@ -11,11 +11,18 @@
       _settingsButton, _settingsButtonVideo, _settingsButtonMute,
       _settingsButtonSpeaker, _resumeButton, _title , _subtitle;
 
+  function _callTypeString(type) {
+    // This will probably disappear once we have l10n strings.
+    return type == 'outgoing' ? 'Outgoing call' : 'Incoming call';
+  }
+
   function _updateUI(params) {
     var identities = params.identities.split(',');
 
     function _noContact() {
-      _title.textContent = identities[0];
+      _title.textContent = identities ? identities[0] :
+                           params.layout ? _callTypeString(params.layout) :
+                           'Unknown ID';
       _subtitle.textContent = '';
     }
 

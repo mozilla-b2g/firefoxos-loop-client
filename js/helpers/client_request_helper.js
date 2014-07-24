@@ -13,8 +13,7 @@
 'use strict';
 
 (function(exports) {
-  var debug = true;
-  var SERVER_URL = Config.server_url;
+  var SERVER_URL = Config.serverUrl;
   var TIMEOUT = 15000;
 
   /** HAWK credentials */
@@ -47,7 +46,7 @@
       var serverDateMsec = Date.parse(dateString);
       _localtimeOffsetMsec = serverDateMsec - hawk.utils.now();
     } catch(err) {
-      console.warn('Bad date header in server response: ' + dateString);
+      Log.warn('Bad date header in server response: ' + dateString);
     }
   }
 
@@ -75,6 +74,7 @@
       }
       req.setRequestHeader('authorization', authorization);
     }
+
     req.onload = function() {
       _updateClockOffset(req.getResponseHeader('Date'));
 
@@ -190,17 +190,17 @@
     getCallUrl: function getCallUrl(token, onsuccess, onerror) {
       _request({
         method: 'GET',
-        url: SERVER_URL + '/calls/' + token,
-        body: {
-          callType: "audio-video"
-        }
+        url: SERVER_URL + '/calls/' + token
       }, onsuccess, onerror);
     },
 
-    makeCall: function makeCall(token, onsuccess, onerror) {
+    callUrl: function makeCall(token, isVideoCall, onsuccess, onerror) {
       _request({
         method: 'POST',
-        url: SERVER_URL + '/calls/' + token
+        url: SERVER_URL + '/calls/' + token,
+        body: {
+          callType: isVideoCall ? 'audio-video' : 'audio'
+        }
       }, onsuccess, onerror);
     },
 
@@ -248,7 +248,7 @@
       }, onsuccess, onerror);
     },
 
-    callUser: function callUser(calleeId, onsuccess, onerror) {
+    callUser: function callUser(calleeId, isVideoCall, onsuccess, onerror) {
       if (!_hawkCredentials) {
         _callback(onerror, [new Error('No HAWK credentials')]);
         return;
@@ -264,7 +264,7 @@
         url: SERVER_URL + '/calls/',
         body: {
           calleeId: calleeId,
-          callType: 'audio-video'
+          callType: isVideoCall ? 'audio-video' : 'audio'
         },
         credentials: _hawkCredentials
       }, onsuccess, onerror);

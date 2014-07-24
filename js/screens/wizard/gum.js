@@ -46,7 +46,7 @@
               });
             },
             function(err) {
-              console.log("An error occured! " + err);
+              Log.error("An error occured! " + err);
             }
           );
         }

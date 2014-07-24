@@ -1,8 +1,6 @@
 (function(exports) {
   'use strict';
 
-  var debug = false;
-
   var wizardTutorial, skipButton, progressBar;
   var currentStep = 0, stepsLength;
   var viewportWidth;
@@ -12,7 +10,6 @@
   // Parar de traquear
   var stopTracking = false;
   var onAnimation = false;
-
 
   function _cancelAnimation() {
     onAnimation = false;
@@ -28,7 +25,7 @@
 
   function _moveElement() {
     if (stopTracking) {
-      debug && console.log('Stop tracking');
+      Log.log('Stop tracking');
       _enableAnimation();
 
       if (Math.abs(deltaX) > viewportWidth * 0.25) {
@@ -81,7 +78,7 @@
   }
 
   function _terminateGesture(event) {
-    debug && console.log('touchend || mouseup event');
+    Log.log('touchend || mouseup event');
 
     // Call preventDefault in the touch handler to avoid redundant mouse events
     event.preventDefault();
@@ -99,8 +96,8 @@
   }
 
   function _enableGestures(event) {
-    debug && console.log('touchstart || mousedown started');
-    debug && console.log('Lets activate the rest of touch/mouse listeners');
+    Log.log('touchstart || mousedown started');
+    Log.log('Lets activate the rest of touch/mouse listeners');
     // If a new toch/mouse gesture starts, we abort the animation if needed
     _cancelAnimation();
 
@@ -121,7 +118,7 @@
         break;
     }
     
-    debug && console.log('referenceDelta = ' + referenceDelta);
+    Log.log('referenceDelta = ' + referenceDelta);
 
     // Add the rest of listeners now
     // Touch behaviour
@@ -163,7 +160,7 @@
       // the swipe gesture
       viewportWidth = Math.max(document.body.clientWidth, window.innerWidth || 0);
       
-      debug && console.log('Number of steps in the Tutorial: ' + stepsLength);
+      Log.log('Number of steps in the Tutorial: ' + stepsLength);
 
       // We stablish the whole width taking into account the steps
       wizardTutorial.style.width = (stepsLength * 100) + '%';

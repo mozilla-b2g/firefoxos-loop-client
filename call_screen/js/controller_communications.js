@@ -1,12 +1,11 @@
 
 (function(exports) {
   'use strict';
-  var debug = true;
   var controllerWindow;
 
   var ControllerCommunications = {
     init: function cc_init() {
-      console.log('ControllerCommunications INIT');
+      Log.log('ControllerCommunications INIT');
       // We are going to communicate with Controller through post messages
       window.addEventListener(
         'message',
@@ -21,7 +20,7 @@
           try {
             var messageFromController = JSON.parse(event.data);
             if (messageFromController.id !== 'controller') {
-              debug && console.log('CallScreen: PostMessage not from Controller');
+              Log.log('CallScreen: PostMessage not from Controller');
               return;
             }
 
@@ -36,9 +35,7 @@
                 break;
             }
             ControllerCommunications.send(answer);
-          } catch(e) {
-            debug && console.log('CallScreen: Error when parsing message ' + e);
-          }
+          } catch(e) {}
         }.bind(this)
       );
     },

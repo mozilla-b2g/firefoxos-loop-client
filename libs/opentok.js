@@ -26,5 +26,7 @@
     }
   };
 
+  OT.setLogLevel(Config.logLevel || 2); // Warn by default.
+
   exports.Opentok = Opentok;
 })(this);

@@ -4,8 +4,7 @@
 'use strict';
 
 (function(exports) {
-  var DEBUG = true;
-
+  
   function _beautify(value) {
     if (value < 10) {
       return '0' + value;
@@ -129,15 +128,6 @@
 
       return unpacked.claim ?
         JSON.parse(unpacked.claim) : null;
-    },
-
-    /**
-     * Simple dump function.
-     *
-     * @param {String} s Message.
-     */
-    log: function u_log(s) {
-      DEBUG && console.log(s);
     }
   };
 
