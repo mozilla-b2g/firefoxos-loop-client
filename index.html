@@ -13,6 +13,8 @@
     <link rel="stylesheet" type="text/css" href="style/bb/switches.css">
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css">
     <link rel="stylesheet" type="text/css" href="style/bb/headers.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/buttons.css">
+    <link rel="stylesheet" type="text/css" href="libs/components/gaia-layout/style.css">
 
     <link rel="stylesheet" type="text/css" href="style/reset.css">
     <link rel="stylesheet" type="text/css" href="style/share.css">
@@ -24,7 +26,7 @@
     <link rel="stylesheet" type="text/css" href="style/transitions.css">
     <link rel="stylesheet" type="text/css" href="style/wizard.css">
     <link rel="stylesheet" type="text/css" href="style/splash_screen.css">
-    
+
     <link rel="resource" type="application/l10n" href="locales/locales.ini">
     <link rel="resource" type="application/l10n" href="locales/date.ini">
 
@@ -39,6 +41,9 @@
     <script defer src="libs/hawk.js"></script>
     <script defer src="libs/sjcl.min.js"></script>
     <script defer src="libs/token.js"></script>
+
+    <script defer src="libs/components/gaia-component-utils/index.js"></script>
+    <script defer src="libs/components/gaia-toolbar/script.js"></script>
 
     <script defer src="js/helpers/contacts_helper.js"></script>
     <script defer src="js/helpers/action_log_db.js"></script>
@@ -57,7 +62,7 @@
     <script defer src="js/screens/wizard/wizard.js"></script>
 
     <script defer src="js/controller.js"></script>
-    
+
     <script defer src="js/screens/loading_overlay.js"></script>
     <script defer src="js/screens/webview_overlay.js"></script>
     <script defer src="js/screens/option_menu.js"></script>
@@ -84,7 +89,7 @@
     </section>
     <section id="splash-screen" class="show">
     </section>
-    <!-- 
+    <!--
       Every relevant screen which have it own 'panel'
     -->
     <section id="wizard-panel" class="panel main">
@@ -317,7 +322,7 @@
       -->
     </div>
     <div id="calls-without-url-tmpl" class="hide">
-      <!-- 
+      <!--
       <aside class="pack-end">
         <span data-type="img" class="generic-image-aside"></span>
       </aside>
