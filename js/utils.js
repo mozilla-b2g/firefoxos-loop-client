@@ -6,6 +6,9 @@
 (function(exports) {
   var DEBUG = true;
 
+  //change default path for gaia-component-utils  
+  window.packagesBaseUrl = 'libs/components/';
+
   function _beautify(value) {
     if (value < 10) {
       return '0' + value;
@@ -44,7 +47,7 @@
     getRevokeDate: function ut_getDurationPretty(time) {
       var currentMs = (new Date()).getTime();
       var diff = time - currentMs;
-      
+
       if (diff <= 0) {
         return null;
       }

@@ -1,0 +1,31 @@
+
+/**
+ * Gaia Toolbar
+ *
+ * Toolbars contain actions, indicators,
+ * and navigation associated with
+ * the current view.
+ */
+
+gaia-toolbar {
+  display: flex;
+  height: 45px;
+  background: #fff;
+}
+
+gaia-toolbar button,
+gaia-toolbar a {
+  flex: 1;
+  border: none;
+  background-color: transparent;
+  background-image: no-repeat;
+  background-position: center;
+  margin: 0;
+  padding: 0;
+}
+
+gaia-toolbar button:active,
+gaia-toolbar a:active {
+  color: #fff;
+  background-color: #b2f2ff;
+}
