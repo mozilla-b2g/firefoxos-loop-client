@@ -273,6 +273,7 @@
       _call = {};
       _callProgressHelper.finish();
       _callProgressHelper = null;
+      AudioCompetingHelper.destroy();
     }
   };
 

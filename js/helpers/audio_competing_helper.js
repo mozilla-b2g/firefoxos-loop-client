@@ -109,6 +109,17 @@
       _listeners = {};
     },
 
+    /**
+     * Release audio resources explicitly.
+     */
+    destroy: function ach_destroy() {
+      if (_silenceBufferSource && _silenceBufferSource.buffer) {
+        _silenceBufferSource.buffer = null;
+      }
+      _silenceBufferSource = null;
+      _ac = null;
+    },
+
     get audioContext() {
       return _ac;
     }
