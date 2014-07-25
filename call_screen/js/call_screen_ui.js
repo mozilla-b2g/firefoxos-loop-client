@@ -195,8 +195,15 @@
       // Set the callback function to be called once the call is held in the
       // call manager helper.
       CallManager.onhold = this.toggleHold;
-     
-      
+
+      // Set the callback function to be called once the peer has set its call
+      // on hold.
+      CallManager.onpeeronhold = this.notifyCallHeld;
+
+      // Set the callback function to be called once the peer has resumed the
+      // held call.
+      CallManager.onpeerresume = this.notifyCallResume;
+
       // Use status bar in the call screen
       window.onresize = function() {
         if (_feedbackClose && typeof _feedbackClose === 'function') {
@@ -314,6 +321,12 @@
     removeFakeVideo: function() {
       _localVideo.removeChild(_fakeLocalVideo);
       _fakeLocalVideo = null;
+    },
+    notifyCallHeld: function() {
+      console.log('Nofify call held');
+    },
+    notifyCallResume: function() {
+      console.log('Nofify call resume');
     }
   };
 
