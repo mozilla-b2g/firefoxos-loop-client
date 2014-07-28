@@ -131,11 +131,7 @@
                   ContactsHelper.find({
                     identities: identities
                   }, function(result) {
-                    CallLog.addCall(
-                      result && result.contactIds ?
-                      CallLog.addContactInfoToRecord(callObject, result) :
-                      callObject
-                    );
+                    CallLog.addCall(callObject, result);
                   }, function() {
                     CallLog.addCall(callObject);
                   });
