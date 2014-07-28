@@ -8,6 +8,7 @@
     <link href="../style/bb/lists.css" rel="stylesheet" type="text/css">
     <link href="style/oncall.css" rel="stylesheet" type="text/css">
 
+    <script defer src="../libs/orientation_vendor.js"></script>
     <script defer src="../libs/tokbox/v2.2.6/js/TB.js"></script>
     <script defer src="../libs/opentok.js"></script>
     <script defer src="../js/helpers/contacts_helper.js"></script>
@@ -20,18 +21,40 @@
     <script defer src="js/countdown.js"></script>
     <script defer src="js/oncall.js"></script>
    	<title>LoopCall</title>
+    <style>
+      /* This needs to be inline in order to work properly. Dont remove! */
+      #fullscreen-image {
+        filter: url(#blur);
+      }
+    </style>
   </head>
-  <body role="application" class="no-transition" data-call-type="" data-settings="false" data-feedback="false">
+  <body role="application" class="no-transition" data-local-video="on" data-remote-video="off" data-call-status="outgoing" data-settings="false" data-feedback="false" data-rotation="0">
+    
     <div class="panel">
-      <section class="info-panel">
-        <h1 id="contact-name-details">Incoming call</h1>
-        <h3 id="contact-phone-details">Call from URL</h3>
-        <h2 id="counter"></h2>
-      </section>
-      <div id="local-video" class="remote-bubble">
+      <h1 id="contact-name-details"></h1>
+      <h2 id="counter"></h2>
+      <h3 id="call-status-info"></h3>
+      <div id="local-video" class="local-bubble connecting">
       </div>
+      <div id="remote-video" class="remote-bubble">
+        <div>Fx<b>Hello!</b></div>
+      </div>
+      <section id="fullscreen-image" class="video-wrapper">
+        <!-- As filter: blur() is not implemented, we need to use svg instead -->
+        <svg>
+          <defs>
+            <filter id="blur">
+              <feGaussianBlur stdDeviation="5" />
+            </filter>
+          </defs>
+        </svg>
+      </section>
       <section id="fullscreen-video" class="video-wrapper">
       </section>
+      <section id="fullscreen-mask" class="video-wrapper">
+      </section>
+      <button id="action-button-hit" class="action-button-hit">
+      </button>
       <button id="hang-out" class="action-button">
       </button>
       <button id="answer" class="action-button">
@@ -40,11 +63,11 @@
       </button>
       <button id="call-settings" class="action-button">
       </button>
-      <button id="call-settings-mute" class="action-button">
+      <button id="call-settings-mute" class="action-button setting-button">
       </button>
-      <button id="call-settings-speaker" class="action-button">
+      <button id="call-settings-speaker" class="action-button setting-button">
       </button>
-      <button id="call-settings-video" class="action-button">
+      <button id="call-settings-video" class="action-button setting-button">
       </button>
       <button id="resume-button" class="action-button">
       </button>

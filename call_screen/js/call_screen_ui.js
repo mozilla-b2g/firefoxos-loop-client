@@ -9,14 +9,13 @@
 
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _settingsButtonVideo, _settingsButtonMute,
-      _settingsButtonSpeaker, _resumeButton, _title , _subtitle;
+      _settingsButtonSpeaker, _resumeButton, _title , _remoteVideo, _remoteImage;
 
   function _updateUI(params) {
     var identities = params.identities.split(',');
 
     function _noContact() {
       _title.textContent = identities[0];
-      _subtitle.textContent = '';
     }
 
     ContactsHelper.find({
@@ -29,32 +28,62 @@
       // We don't want to show the whole list of contacts in the call screen
       // so we just take the first one.
       _title.textContent = result.contacts[0].name[0];
-      _subtitle.textContent = identities[0];
+      if (result.contacts[0] && result.contacts[0].photo && result.contacts[0].photo[0]) {
+        var url = URL.createObjectURL(result.contacts[0].photo[0]);
+        var urlString = 'url(' + url + ')';
+        _remoteVideo.innerHTML = '';
+        _remoteVideo.style.backgroundImage = urlString;
+        _remoteImage.style.backgroundImage = urlString;
+      }
     }, _noContact);
   }
 
   function _toggleSettings(callback) {
     document.body.classList.remove('no-transition');
-    _settingsButtonSpeaker.addEventListener(
-      'transitionend',
-      function onTransitionEnd() {
-        _settingsButtonSpeaker.removeEventListener('transitionend', onTransitionEnd);
+    setTimeout(function() {
+      _settingsButtonSpeaker.addEventListener(
+        'transitionend',
+        function onTransitionEnd() {
+          _settingsButtonSpeaker.removeEventListener('transitionend', onTransitionEnd);
 
-        if (document.body.dataset.settings !== 'true') {
-          document.body.classList.add('no-transition');
+          if (document.body.dataset.settings !== 'true') {
+            document.body.classList.add('no-transition');
+          }
+
+          if (typeof callback === 'function') {
+            callback();
+          }
         }
+      );
 
+      if (document.body.dataset.settings !== 'true') {
+        document.body.dataset.settings = true;
+      } else {
+        document.body.dataset.settings = false;
+      }
+    }, 100);
+  }
+
+  var _hitButton = document.getElementById('action-button-hit');
+
+  function _showHitEffect(buttonId, callback) {
+    _hitButton.addEventListener(
+      'transitionend',
+      function effectShown() {
+        _hitButton.removeEventListener(
+          'transitionend',
+          effectShown
+        );
+        _hitButton.className = 'action-button-hit';
         if (typeof callback === 'function') {
           callback();
         }
       }
     );
-
-    if (document.body.dataset.settings !== 'true') {
-      document.body.dataset.settings = true;
-    } else {
-      document.body.dataset.settings = false;
-    }
+    _hitButton.classList.add(buttonId);
+    setTimeout(function() {
+      _hitButton.classList.add('enabled');
+    }, 100);
   }
 
   var CallScreenUI = {
@@ -62,6 +91,12 @@
       if (_hangoutButton) {
         return;
       }
+
+      OrientationHandler.on('orientation', function(event) {
+        document.body.dataset.rotation = event;
+      });
+
+      OrientationHandler.start();
 
       _hangoutButton = document.getElementById('hang-out');
       _answerAudioButton = document.getElementById('answer');
@@ -73,58 +108,63 @@
       _resumeButton = document.getElementById('resume-button');
 
       _title = document.getElementById('contact-name-details');
-      _subtitle = document.getElementById('contact-phone-details');
-
+      _remoteVideo = document.getElementById('remote-video');
+      _remoteImage = document.getElementById('fullscreen-image');
+      
       if (params && params.video === 'true') {
         _isVideoEnabled = true;
         _isSpeakerEnabled = true;
+        _settingsButtonSpeaker.classList.add('enabled');
       }
 
       _settingsButton.addEventListener(
-        'click',
-        function onSettingsClick() {
-          _toggleSettings();
+        'mousedown',
+        function onSettingsClick(e) {
+          _showHitEffect(e.target.id, function() {
+            _toggleSettings();
+          });
         }
       );
 
       _settingsButtonVideo.addEventListener(
-        'click',
-        function onSettingsClick() {
-          _settingsButtonVideo.classList.toggle('disabled');
-          _isVideoEnabled = !_isVideoEnabled;
-          CallManager.toggleVideo(_isVideoEnabled);
-
-          _toggleSettings(function() {
-            document.body.classList.add('settings-hidden');
-            _settingsButton.addEventListener(
-              'transitionend',
-              function onTransitionEnd() {
-                _settingsButton.removeEventListener('transitionend', onTransitionEnd);
-                document.body.classList.remove('settings-hidden');
-              }
-            );
-            CallScreenUI.toggleVideoButton(_isVideoEnabled);
+        'mousedown',
+        function onSettingsClick(e) {
+          _showHitEffect(e.target.id, function() {
+            _isVideoEnabled = !_isVideoEnabled;
+            _settingsButtonVideo.classList.toggle('disabled');
+            // _toggleSettings(function() {
+              CallScreenUI.updateLocalVideo(
+                _isVideoEnabled,
+                function onUIUpdated() {
+                  CallManager.toggleVideo(_isVideoEnabled);
+                }
+              );
+            // });
           });
         }
       );
 
       _settingsButtonMute.addEventListener(
-        'click',
-        function onSettingsClick() {
-          _settingsButtonMute.classList.toggle('disabled');
-          _isMicEnabled = !_isMicEnabled;
-          CallManager.toggleMic(_isMicEnabled);
-          _toggleSettings();
+        'mousedown',
+        function onSettingsClick(e) {
+          _showHitEffect(e.target.id, function() {
+            _settingsButtonMute.classList.toggle('disabled');
+            _isMicEnabled = !_isMicEnabled;
+            CallManager.toggleMic(_isMicEnabled);
+            // _toggleSettings();
+          });
         }
       );
 
       _settingsButtonSpeaker.addEventListener(
-        'click',
-        function onSettingsClick() {
-          _settingsButtonSpeaker.classList.toggle('disabled');
-          _isSpeakerEnabled = !_isSpeakerEnabled;
-          CallManager.toggleSpeaker(_isSpeakerEnabled);
-          _toggleSettings();
+        'mousedown',
+        function onSettingsClick(e) {
+          _showHitEffect(e.target.id, function() {
+            _settingsButtonSpeaker.classList.toggle('enabled');
+            _isSpeakerEnabled = !_isSpeakerEnabled;
+            CallManager.toggleSpeaker(_isSpeakerEnabled);
+            // _toggleSettings();
+          });
         }
       );
 
@@ -145,34 +185,41 @@
       // and the countdown. Session should be disconnected
       // as well.
       _hangoutButton.addEventListener(
-        'click',
-        function hangOutClick() {
-          Ringer.stop();
-          Countdown.stop();
-          CallManager.stop();
+        'mousedown',
+        function hangOutClick(e) {
+          _showHitEffect(e.target.id, function() {
+            Ringer.stop();
+            Countdown.stop();
+            CallManager.stop();
+          });
         }
       );
 
       // We have 2 buttons for answering a call, depending on if we are
       // publishing video or not
       function _answer(isVideo) {
+        _isVideoEnabled = isVideo;
         Ringer.stop();
         CallScreenUI.update('connected', params);
         CallManager.join(isVideo);
-        CallScreenUI.toggleVideoButton(isVideo);
+        CallScreenUI.updateLocalVideo(isVideo);
       }
 
       _answerAudioButton.addEventListener(
         'click',
-        function answerClick() {
-          _answer(false);
+        function answerClick(e) {
+          _showHitEffect(e.target.id, function() {
+            _answer(false);
+          });
         }.bind(this)
       );
 
       _answerVideoButton.addEventListener(
         'click',
-        function answerVideo() {
-          _answer(true);
+        function answerVideo(e) {
+          _showHitEffect(e.target.id, function() {
+            _answer(true);
+          });
         }.bind(this)
       );
 
@@ -200,39 +247,50 @@
       switch(state) {
         case 'incoming':
           Ringer.play();
-          _answerAudioButton.style.display = 'block';
-          _answerVideoButton.style.display = 'block';
+          document.body.dataset.callStatus = 'incoming';
           _updateUI(params);
           break;
         case 'outgoing':
-          _answerAudioButton.style.display = 'none';
-          _answerVideoButton.style.display = 'none';
+          document.body.dataset.callStatus = 'outgoing';
           _updateUI(params);
           CallManager.join(_isVideoEnabled);
-          CallScreenUI.toggleVideoButton(_isVideoEnabled);
+          CallScreenUI.updateLocalVideo(_isVideoEnabled);
           break;
         case 'connected':
-          _answerAudioButton.style.display = 'none';
-          _answerVideoButton.style.display = 'none';
-          _settingsButton.style.display = 'block';
-          _resumeButton.style.display = 'none';
+          document.body.dataset.callStatus = 'connected';
           break;
         case 'disconnected':
           // TODO Styles not defined yet.
 
           break;
         case 'hold':
-          _settingsButton.style.display = 'none';
-          _resumeButton.style.display = 'block';
+          document.body.dataset.callStatus = 'hold';
           break;
       }
     },
-    toggleVideoButton: function(status) {
-      if (status) {
-        document.body.dataset.callType = 'video';
+    updateRemoteVideo: function(videoStatus) {
+      if (videoStatus == true) {
+        document.body.dataset.remoteVideo = 'on';
         return;
       }
-      document.body.dataset.callType = 'audio';
+      document.body.dataset.remoteVideo = 'off';
+    },
+    updateLocalVideo: function(videoStatus, callback) {
+      _hangoutButton.addEventListener(
+        'transitionend',
+        function onHangoutTranslated() {
+          _hangoutButton.removeEventListener('transitionend', onHangoutTranslated);
+          if (typeof callback === 'function') {
+            callback();
+          }
+        }
+      );
+
+      if (videoStatus == true) {
+        document.body.dataset.localVideo = 'on';
+        return;
+      }
+      document.body.dataset.localVideo = 'off';
     },
     showFeedback: function(callback) {
       _feedbackClose = callback;

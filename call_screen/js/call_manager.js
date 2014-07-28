@@ -54,8 +54,19 @@
             console.log('Session connect error ' + e.message);
             return;
           }
-          _publisher = _session.publish(
-            'local-video', null, function onPublish(ee) {
+           _publisher = _session.publish(
+            'local-video',
+            {
+              width: 400,
+              height:300,
+              style:{
+                nameDisplayMode: 'off',
+                buttonDisplayMode: 'off',
+                showMicButton: false,
+                showSettingsButton: false
+              }
+            },
+            function onPublish(ee) {
               if (ee) {
                 console.log('Session publish error ' + ee.message);
               }
@@ -65,9 +76,6 @@
               }
               callProgressHelper.mediaUp();
               _publishersInSession += 1;
-
-              container.style.width = '140%';
-              container.querySelector('video').style.width = '140% !important';
           });
         });
         break;
@@ -121,7 +129,6 @@
       if (!_speakerManager) {
         _speakerManager = new window.MozSpeakerManager();
       }
-      _speakerManager.forcespeaker = isVideoOn;
       _publisher.publishVideo(isVideoOn);
       _publishVideo = isVideoOn;
     },
@@ -131,8 +138,7 @@
         console.error('No subscriber in this call');
         return;
       }
-      _subscriber.subscribeToAudio(isSpeakerOn);
-      _subscribeToAudio = isSpeakerOn;
+      _speakerManager.forcespeaker = isSpeakerOn;
     },
 
     toggleMic: function(isMicOn) {
@@ -167,12 +173,27 @@
       _session = TB.initSession(_call.apiKey, _call.sessionId);
       var that = this;
       _session.on({
+        streamPropertyChanged: function(event) {
+          if (event.stream && event.stream.streamId !== _subscriber.stream.streamId) {
+            return;
+          }
+          switch(event.changedProperty) {
+            case 'hasVideo':
+              CallScreenUI.updateRemoteVideo(event.newValue);
+              break;
+            case 'hasAudio':
+              // TODO Check with UX if needed
+              break;
+          }
+          
+        },
         // Fired when a new peer is connected to the session.
         connectionCreated: function(event) {
           _peersInSession += 1;
           if (_peersInSession > 1) {
             // Start counter
             Countdown.start();
+            CallScreenUI.update('connected');
           }
         },
         // Fired when an existing peer is disconnected from the session.
@@ -185,21 +206,25 @@
         },
         // Fired when a peer publishes the media stream.
         streamCreated: function(event) {
-          _subscriber = _session.subscribe(event.stream,
-                                           'fullscreen-video',
-                                           null);
+          _subscriber =
+            _session.subscribe(
+              event.stream,
+              'fullscreen-video',
+              {
+                style:{
+                  nameDisplayMode: 'off',
+                  buttonDisplayMode: 'off',
+                  showMicButton: false,
+                  showSettingsButton: false
+                }
+              }
+            );
           _publishersInSession += 1;
-
-          // Hack to fix OT Css
-          var container =  document.querySelector('.OT_subscriber');
-          if (!container) {
-            return;
-          }
-          // Update the styles of the video strem
-          container.style.width = '100%';
-          container.style.height = '100%';
-
+          // Update the UI with the remote video status
+          CallScreenUI.updateRemoteVideo(event.stream.hasVideo);
+          // Toggle local video
           CallManager.toggleVideo(isVideoCall);
+          CallManager.toggleSpeaker(isVideoCall);
         },
         // Fired when a peer stops publishing the media stream.
         streamDestroyed: function(event) {
