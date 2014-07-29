@@ -59,16 +59,56 @@
       _cleanCallsButton.addEventListener(
         'click',
         function() {
-          CallLog.cleanCalls();
-          this.hide();
+          var options = new OptionMenu({
+            // TODO Change with l10n string when ready
+            section: 'Are you sure you want to clean your call log?',
+            type: 'confirm',
+            items: [
+              {
+                name: 'Delete',
+                method: function() {
+                  CallLog.cleanCalls();
+                  Settings.hide();
+                },
+                params: []
+              },
+              {
+                name: 'Cancel'
+              }
+            ]
+          });
+          options.show();
         }.bind(this)
       );
 
       _cleanUrlsButton.addEventListener(
         'click',
          function() {
-          CallLog.cleanUrls();
-          this.hide();
+          var options = new OptionMenu({
+            type: 'action',
+            items: [
+              {
+                name: 'Clean just revoked URLs',
+                method: function() {
+                  CallLog.cleanRevokedUrls();
+                  Settings.hide();
+                },
+                params: []
+              },
+              {
+                name: 'Clean all',
+                method: function() {
+                  CallLog.cleanUrls();
+                  Settings.hide();
+                },
+                params: []
+              },
+              {
+                name: 'Cancel'
+              }
+            ]
+          });
+          options.show();
         }.bind(this)
       );
       

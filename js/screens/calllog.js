@@ -52,10 +52,39 @@
     items.push(
       {
         name: 'Delete',
-        method: function(elementId) {
-          _deleteUrls([new Date(+elementId)]);
+        method: function(element) {
+          var tmp = element.querySelector('[data-revoked]');
+          var isRevoked = tmp.dataset.revoked === 'true';
+
+          function deleteElement() {
+            _deleteUrls([new Date(+element.id)]);
+          }
+          
+          if (isRevoked) {
+            deleteElement();
+            return;
+          }
+          var options = new OptionMenu({
+            // TODO Change with l10n string when ready
+            section: 'Are you sure you want to remove this URL?' +
+                     'You will not be able to revoke it in the future.',
+            type: 'confirm',
+            items: [
+              {
+                name: 'Delete',
+                method: function() {
+                  deleteElement();
+                },
+                params: []
+              },
+              {
+                name: 'Cancel'
+              }
+            ]
+          });
+          options.show();
         },
-        params: [element.id]
+        params: [element]
       }
     );
 
@@ -522,6 +551,19 @@
     _showEmptyUrls();
   }
 
+  function _clearRevokedUrls() {
+    // Get elements to be deleted
+    var revokedUrls = urlsSection.querySelectorAll('[data-revoked="true"]');
+    // For deleting nodes we are going to use the ID (timestamp)
+    var ids = [];
+    for (var i = 0, l = revokedUrls.length; i < l; i++) {
+      var id = revokedUrls[i].parentNode.parentNode.id;
+      ids.push(new Date(+id));
+    }
+    // Delete just the revoked URLs
+    _deleteUrls(ids);
+  }
+
   function _deleteUrls(ids) {
     ActionLogDB.deleteUrls(
       function(error) {
@@ -932,6 +974,11 @@
       _changeSection('urls');
     },
 
+    cleanRevokedUrls: function() {
+      _clearRevokedUrls();
+      _changeSection('urls');
+    },
+
     addCall: function(callObject, contactInfo) {
       ActionLogDB.addCall(function(error, callObject) {
         if (error) {
@@ -951,6 +998,10 @@
       }, urlObject);
       _appendUrl(urlObject);
       _changeSection('urls');
+    },
+    clean: function() {
+      _clearCalls();
+      _clearUrls();
     }
   };
 

@@ -431,6 +431,7 @@
       _clearObjectStore(aCallback, aObjectStore);
       return;
     }
+
     _newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
