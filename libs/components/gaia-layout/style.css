@@ -42,9 +42,9 @@ p {
 .hbox.middle { align-items: center; }
 .hbox.bottom { align-items: flex-end; }
 
-.hbox .top { align-self: flex-start; }
-.hbox .middle { align-self: center; }
-.hbox .bottom { align-self: flex-end; }
+.hbox > .self-top { align-self: flex-start; }
+.hbox > .self-middle { align-self: center; }
+.hbox > .self-bottom { align-self: flex-end; }
 
 /* Vertical layout */
 .vbox {
@@ -59,9 +59,9 @@ p {
 .vbox.middle { justify-content: center; }
 .vbox.bottom { justify-content: flex-end; }
 
-.vbox .left { align-self: flex-start; }
-.vbox .center { align-self: center; }
-.vbox .right { align-self: flex-end; }
+.vbox > .self-left { align-self: flex-start; }
+.vbox > .self-center { align-self: center; }
+.vbox > .self-right { align-self: flex-end; }
 
 /*
  * Layout properties
@@ -86,6 +86,10 @@ p {
  */
 
 /* Lists */
+.gaia-list {
+  font-size: 18px;
+}
+
 .gaia-list li {
   position: relative;
   display: flex;

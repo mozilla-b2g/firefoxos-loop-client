@@ -1,13 +1,5 @@
-html, body {
-  height: 100%;
-  width: 100%;
-  padding: 0;
-  margin: 0;
+html {
   font-size: 10px;
-  overflow-x: hidden !important;
-  overflow-y: hidden !important;
-  font-family: 'MozTT', sans-serif;
-  position: absolute;
 }
 
 .panel {
@@ -42,3 +34,34 @@ button::-moz-focus-inner {
   display: none;
 }
 
+.ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.no-overflow {
+  overflow: hidden;
+}
+
+/* General overrides for BB and lib/components */
+gaia-toolbar {
+  border-top: 0.1rem solid #f2f2f2;
+}
+
+gaia-toolbar button {
+  border-radius: 0;
+  height: auto;
+}
+
+.skin-comms .gaia-list header {
+  color: #757575;
+}
+
+.skin-comms .bb-tablist[data-type="filter"] > li:target > a,
+.skin-comms .bb-tablist[data-type="filter"] > li:target > button,
+.skin-comms .bb-tablist[data-type="filter"] > li > a[aria-selected="true"],
+.skin-comms .bb-tablist[data-type="filter"] > li > button[aria-selected="true"] {
+  color: #00adad;
+  border-bottom: 0.3rem solid #00adad;
+}
