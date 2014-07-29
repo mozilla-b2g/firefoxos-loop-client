@@ -358,6 +358,8 @@
      * Log the user out. It clears the app account.
      */
     logout: function logout() {
+      // TODO Check if we need to clean the call log
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1006563
       // Dispatch onlogout
       _dispatchEvent('onlogout');
       // Clean the account
