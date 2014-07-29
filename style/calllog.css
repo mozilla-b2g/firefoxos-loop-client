@@ -1,73 +1,58 @@
-#calllog-container {
-  height: calc(100% - 5rem);
-  padding: 0 !important;
-  position: relative;
-}
 
-#calllog-not-empty {
-  height: 100%;
-  width: 100%;
-  position: relative;
+#calllog-container {
   overflow: hidden;
 }
 
 .calllog-sections-container {
-  height: calc(100% - 4rem);
+  height: 100%;
   width: 200%;
+  overflow: hidden;
   transition: all .2s ease-in-out;
 }
 
 .calllog-section {
-  float: left;
   width: 50%;
-  height: 100%;
- overflow: hidden;
+  overflow: scroll;
 }
 
 .section-empty {
   display: none;
-  width: 100%;
   height: 100%;
   position: relative;
+  margin: 0 1.5rem;
 }
 
-.section-empty-label{
-  font-size: 1.8rem;
-  position: absolute;
-  bottom: 10rem;
-  padding: 2rem;
-  box-sizing: border-box;
-  width: 100%;
-  text-align: center;
-}
-
-.section-entries {
-  background: white;
-  width: 100%;
-  height: 100%;
-  overflow-y: scroll;
-  overflow-x: hidden;
+.section-empty-label {
+  border-top: 0.1rem solid rgba(96, 96, 96, 0.5);
+  color: #606060;
+  font-size: 2rem;
+  line-height: 3rem;
+  font-weight: 300;
+  padding: 1rem 1.5rem;
+  flex: 1;
 }
 
 .section-entries li * {
   pointer-events: none;
 }
 
+.section-empty {
+}
+
 #urls-section.empty .section-empty {
-  background-image: url(images/Link_icon_big@2,25x.png);
-  background-repeat: no-repeat;
-  background-position: center 8rem;
+  background: url(images/link_wmark.png) center no-repeat;
+  background-size: 18.1rem auto;
 }
 
 #calls-section.empty .section-empty {
-  background-image: url(images/Pickup_icon_big@2.25x.png);
-  background-repeat: no-repeat;
-  background-position: center 8rem;
+  background: url(images/ComLog_200x200_clock.png) center no-repeat;
+  background-size: 20rem auto;
 }
 
 #calls-section.empty .section-empty,
 #urls-section.empty .section-empty {
-  display: block;
+  display: flex;
+  align-items: center;
 }
 
 #calls-section.empty .calls-section-entries,
@@ -75,140 +60,153 @@
   display: none;
 }
 
-.calllog-elements {
-  box-sizing: boder-box;
-  padding: 0 1.5rem !important;
+/* Icons */
+section[role="region"] > header:first-child .icon-settings {
+  background-image: url(images/ico_settings.png);
 }
 
-.calllog-elements:last-child {
-  margin-bottom: 10rem;
+.call-type-icon {
+  background: url(images/ico_calllog_sp.png) center no-repeat;
+  background-size: 2rem auto;
+  width: 2.5rem;
+  height: 3rem;
+  margin: 0 0.5rem;
 }
 
-.calllog-elements li {
-  height: 7rem;
-  padding: 0.5rem 0 0;
-  -moz-box-sizing: border-box;
+.missed .call-type-icon {
+  background-position: 0 -12rem;
 }
 
-.icon-missed {
-  background-image: url(images/Missedcall_icon@2x.png) !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
-  background-size: 90% !important;
+.outgoing-audio .call-type-icon {
+  background-position: 0 -9rem;
 }
 
-.icon-outgoing-audio {
-  background-image: url(images/Outgoing_audio@2x.png) !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
+.incoming-audio .call-type-icon {
+  background-position: 0 -6rem;
 }
 
-.icon-incoming-audio {
-  background-image: url(images/Incoming_audio@2x.png) !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
+.outgoing-video .call-type-icon {
+  background-position: 0 -3rem;
 }
 
-.icon-outgoing-video {
-  background-image: url(images/Outgoing_video@2x.png) !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
+.incoming-video .call-type-icon {
+  background-position: 0 0;
 }
 
-.icon-incoming-video {
-  background: red;
-  background-image: url(images/Incoming_video@2x.png) !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
+gaia-toolbar .icon-user {
+  background: url(images/Ico_Contacttoolbar_40x80.png) center 0 no-repeat;
+  background-size: 4rem auto;
 }
 
-.icon-url {
-  background-image: url(images/Link_icon_small@2x.png) !important;
-  background-repeat: no-repeat !important;
-  background-position: center !important;
+gaia-toolbar .icon-user:active {
+  background-position: center -4rem;
 }
 
-.generic-image-aside {
-  /*background: red !important;*/
-  background-image: url(images/icon_contact@2,25x.png) !important;
-  background-size: 60%  !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
+/* List elelments */
+#calls-section li p {
+  margin-left: 0;
 }
 
-.calllog-elements li a p {
-  line-height: 1.9rem;
+#calls-section .primary-info {
+  margin-bottom: 0.3rem;
 }
 
-.calllog-elements li a p:nth-last-of-type(3) {
-  padding: 0;
-  line-height: 2rem;
+.calllog-section .call-time,
+.calllog-section .retry-count,
+.calllog-section .url {
+  font-size: 1.5rem;
+  color: #858585;
+  white-space: nowrap;
+}
+.calllog-section .missed .call-time {
+  color: #bc1515;
 }
 
-#calllog-container.active li:active:after,
-#calllog-container.active li:hover:after,
-#calllog-container li > a:active:after,
-#calllog-container li > a:hover:after {
-  margin: -0.5rem !important;
-  top: 0;
-  height: 7rem !important;
-  background-color: rgba(0,213,255,0.3);
+#calls-section .url {
+  margin-left: 1rem;
 }
 
-.call-background-bar {
-  position: absolute;
-  width: 100%;
-  height: 5rem;
-  background: #737272;
-  z-index: 5;
-  bottom: 0;
+#urls-section .url {
+  white-space: normal;
 }
 
-#call-from-loop {
-  z-index: 10;
-  height: 8rem;
-  width: 8rem;
-  border: none;
-  margin: 0;
-  padding: 0;
-  background: #ccc;
-  background-image: url(images/icon_contact@2,25x.png);
-  background-position: center;
-  background-repeat: no-repeat;
-  position: absolute;
-  bottom: 1rem;
-  left: calc(50% - 4rem);
-  border-radius: 4rem;
-  overflow: hidden;
+#urls-section .retry-count {
+  font-style: italic;
+  color: #00adad;
 }
+
 
 /*
-  MEDIA QUERIES FOR Hamachi or similar
+  MEDIA QUERIES FOR device-pixel-ratio
 */
 
-@media all and (max--moz-device-pixel-ratio: 1) {
+@media (min--moz-device-pixel-ratio: 1.5) {
 
-  .call-background-bar {
-    height: 3.5rem;
+  section[role="region"] > header:first-child .icon-settings {
+    background-image: url(images/ico_settings@1.5x.png);
   }
 
-  #call-from-loop {
-    background-image: url(images/icon_contact.png);
-    height: 7rem;
-    width: 7rem;
-    left: calc(50% - 3.5rem);
-    border-radius: 3.5rem;
+  .call-type-icon {
+    background-image: url(images/ico_calllog_sp@1.5x.png);
+  }
+
+  gaia-toolbar .icon-user {
+    background-image: url(images/Ico_Contacttoolbar_40x80@1.5x.png);
   }
 
   #urls-section.empty .section-empty {
-    background-image: url(images/Link_icon_big@2x.png);
-    background-repeat: no-repeat;
-    background-position: center 1rem;
+    background-image: url(images/link_wmark@1.5x.png);
   }
 
   #calls-section.empty .section-empty {
-    background-image: url(images/Pickup_icon_big@2x.png);
-    background-repeat: no-repeat;
-    background-position: center 1rem;
+    background-image: url(images/ComLog_200x200_clock@1.5x.png);
   }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+
+  section[role="region"] > header:first-child .icon-settings {
+    background-image: url(images/ico_settings@2x.png);
+  }
+  .call-type-icon {
+    background-image: url(images/ico_calllog_sp@2x.png);
+  }
+
+  gaia-toolbar .icon-user {
+    background-image: url(images/Ico_Contacttoolbar_40x80@2x.png);
+  }
+
+  #urls-section.empty .section-empty {
+    background-image: url(images/link_wmark@2x.png);
+  }
+
+  #calls-section.empty .section-empty {
+    background-image: url(images/ComLog_200x200_clock@2x.png);
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+
+  section[role="region"] > header:first-child .icon-settings {
+    background-image: url(ico_images/settings@2.25x.png);
+  }
+
+  .call-type-icon {
+    background-image: url(images/ico_calllog_sp@2.25x.png);
+  }
+
+  gaia-toolbar .icon-user {
+    background-image: url(images/Ico_Contacttoolbar_40x80@2.25x.png);
+  }
+
+  #urls-section.empty .section-empty {
+    background-image: url(images/link_wmark@2.25x.png);
+  }
+
+  #calls-section.empty .section-empty {
+    background-image: url(images/ComLog_200x200_clock@2.25x.png);
+  }
+
 }

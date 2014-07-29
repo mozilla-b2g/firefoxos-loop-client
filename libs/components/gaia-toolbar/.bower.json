@@ -1,6 +1,6 @@
 {
   "name": "gaia-toolbar",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "homepage": "https://github.com/gaia-components/gaia-toolbar",
   "authors": [
     "The Gaia Team"
@@ -17,13 +17,13 @@
   "dependencies": {
     "gaia-component-utils": "gaia-components/gaia-component-utils#~0.1.1"
   },
-  "_release": "0.1.3",
+  "_release": "0.1.4",
   "_resolution": {
     "type": "version",
-    "tag": "v0.1.3",
-    "commit": "409652cfefc7c0e18521431e405713147e4bbdd2"
+    "tag": "v0.1.4",
+    "commit": "207d80cee5507924516cba599051f3dbcce74f5d"
   },
   "_source": "git://github.com/gaia-components/gaia-toolbar.git",
-  "_target": "~0.1.3",
+  "_target": "~0.1.4",
   "_originalSource": "gaia-components/gaia-toolbar"
 }

@@ -13,11 +13,8 @@
     <link rel="stylesheet" type="text/css" href="style/bb/switches.css">
     <link rel="stylesheet" type="text/css" href="style/bb/lists.css">
     <link rel="stylesheet" type="text/css" href="style/bb/headers.css">
-    <!--
-    Now commented until landing the new call log.
     <link rel="stylesheet" type="text/css" href="style/bb/buttons.css">
     <link rel="stylesheet" type="text/css" href="libs/components/gaia-layout/style.css">
-    -->
 
     <link rel="stylesheet" type="text/css" href="style/reset.css">
     <link rel="stylesheet" type="text/css" href="style/share.css">
@@ -164,14 +161,14 @@
         </button>
       </div>
     </section>
-    <section id="calllog-panel" class="panel main" role="region">
+    <section id="calllog-panel" class="panel main vbox skin-comms" role="region">
       <header>
         <menu type="toolbar">
-          <a id="open-settings-button"><span class="icon icon-menu"></span></a>
+          <a id="open-settings-button"><span class="icon icon-settings"></span></a>
         </menu>
         <h1>Loop</h1>
       </header>
-      <section id="calllog-container" data-type="list">
+      <section id="calllog-container" class="vbox fit">
         <nav>
           <ul role="tablist" class="bb-tablist" data-type="filter">
             <li role="presentation">
@@ -182,20 +179,22 @@
             </li>
           </ul>
         </nav>
-        <div class="calllog-sections-container">
-          <div id="calls-section" class="calllog-section">
+        <div class="calllog-sections-container hbox">
+          <div id="calls-section" class="calllog-section gaia-list sticky">
             <div class="section-empty">
               <p class="section-empty-label">
-                Oops! It seems you haven’t called yet!
+                No calls recorded.<br>
+                Start communicating now
               </p>
             </div>
-            <div id="calls-section-entries" class="section-entries">
+            <div id="calls-section-entries" class="section-entries vbox middle">
             </div>
           </div>
-          <div id="urls-section" class="calllog-section">
+          <div id="urls-section" class="calllog-section gaia-list sticky">
             <div class="section-empty">
               <p class="section-empty-label">
-                Oops! It seems you haven’t shared any link yet
+                No links shared.<br>
+                Start communicating now
               </p>
             </div>
             <div id="urls-section-entries" class="section-entries">
@@ -203,10 +202,10 @@
           </div>
         </div>
       </section>
-      <button id="call-from-loop">
       </button>
-      <footer class="call-background-bar">
-      </footer>
+      <gaia-toolbar>
+        <button id="call-from-loop" class="icon-user"></button>
+      </gaia-toolbar>
     </section>
     <section id="contact-detail-panel" class="panel main">
       Contact detail
@@ -307,58 +306,47 @@
 
     <div id="calls-url-tmpl" class="hide">
       <!--
-      <aside class="pack-end">
-        <span data-type="img" class="generic-image-aside"></span>
-      </aside>
-      <a role="button" class="no-url">
-        <aside class="icon call-type-icon icon icon-${iconName}">
-        </aside>
-        <p aria-hidden="true" class="primary-info">
-          <span class="primary-info-main">${primary}</span>
-        </p>
-        <p aria-hidden="true" class="call-additional-info">${link}</p>
-        <p aria-hidden="true">
-          <span class="call-time">TIME:${time} / </span>
-          <span class="retry-count">${duration}</span>
-        </p>
-      </a>
+      <div class="hbox fit middle no-overflow ${iconName}">
+        <span class="call-type-icon"></span>
+        <div class="vbox fit no-overflow">
+          <div class="primary-info hbox bottom">
+            <p class="fit ellipsis">${primary}</p>
+            <span class="call-time">${time}</span>
+          </div>
+          <div class="hbox bottom no-overflow">
+            <span class="retry-count">${duration}</span>
+            <span class="url ellipsis">{link}</span>
+          </div>
+        </div>
+      </div>
       -->
     </div>
     <div id="calls-without-url-tmpl" class="hide">
       <!--
-      <aside class="pack-end">
-        <span data-type="img" class="generic-image-aside"></span>
-      </aside>
-      <a role="button" class="url">
-        <aside class="icon call-type-icon icon icon-${iconName}">
-        </aside>
-        <p aria-hidden="true" class="primary-info">
-          <span class="primary-info-main">${primary}</span>
-        </p>
-        <p aria-hidden="true">
-          <span class="call-time">${time} / </span>
-          <span class="retry-count">${duration}</span>
-        </p>
-      </a>
+      <div class="hbox fit middle no-overflow ${iconName}">
+        <span class="call-type-icon"></span>
+        <div class="vbox fit no-overflow">
+          <div class="primary-info hbox bottom">
+            <p class="fit ellipsis">${primary}</p>
+            <span class="call-time">${time}</span>
+          </div>
+          <div class="hbox bottom no-overflow">
+            <span class="retry-count">${duration}</span>
+          </div>
+        </div>
+      </div>
       -->
     </div>
     <div id="url-tmpl" class="hide">
       <!--
-      <aside class="pack-end">
-        <span data-type="img" class="generic-image-aside"></span>
-      </aside>
-      <a role="button" class="url-shared">
-        <aside class="icon call-type-icon icon icon-${type}">
-        </aside>
-        <p aria-hidden="true" class="primary-info">
-          <span class="primary-info-main">${primary}</span>
-        </p>
-        <p aria-hidden="true" class="call-additional-info">${link}</p>
-        <p aria-hidden="true">
-          <span class="call-time">${time} / </span>
-          <span class="retry-count" data-need-update="true" data-revoked="${revoked}" data-format-date="revoke" data-timestamp="${revokeTimestamp}">${expiration}</span>
-        </p>
-      </a>
+      <div class="vbox no-overflow">
+        <div class="hbox">
+          <p class="primary-info fit ellipsis">${primary}</p>
+          <span class="call-time">${time}</span>
+        </div>
+        <p class="url">${link}</p>
+        <p class="retry-count" data-need-update="true" data-revoked="${revoked}" data-format-date="revoke" data-timestamp="${revokeTimestamp}">${expiration}</p>
+      </div>
       -->
     </div>
   </body>

@@ -18,8 +18,7 @@ gaia-toolbar a {
   flex: 1;
   border: none;
   background-color: transparent;
-  background-image: no-repeat;
-  background-position: center;
+  background-repeat: no-repeat;
   margin: 0;
   padding: 0;
 }
