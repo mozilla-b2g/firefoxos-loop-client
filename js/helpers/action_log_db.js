@@ -138,7 +138,6 @@
           urlStore.createIndex('contactId', 'contactId', {
             multiEntry: true
           });
-          urlStore.createIndex('revoked', 'revoked');
         };
       } catch(e) {
         reject(e.message);
@@ -425,53 +424,25 @@
     }, 'readwrite', [aObjectStore]);
   }
 
-  /**
-   * Deletes specific record given its keys or all records matching a filter.
-   *
-   * param aFilter.
-   *       So far the only use case that we found is an 'equal' query,
-   *       so we will be taking an object of this kind:
-   *       {
-   *         key: <any>,
-   *         index: {
-   *           name: <string>,
-   *           value: <any>
-   *         }
-   *       }
-   *       where we would expect 'key' or 'index' but not both.
-   */
-  function _deleteRecord(aCallback, aObjectStore, aFilter) {
+  function _deleteRecord(aCallback, aObjectStore, aKey) {
     _checkCallback(aCallback);
 
+    if (!aKey) {
+      _clearObjectStore(aCallback, aObjectStore);
+      return;
+    }
     _newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
         return;
       }
 
-      if (aFilter.index) {
-        if (!store.indexNames.contains(aFilter.index.name)) {
-          aCallback('INVALID_FILTER');
-          return;
-        }
-        var range = IDBKeyRange.only(aFilter.index.value);
-        store.index(aFilter.index.name).openCursor(range)
-             .onsuccess = function(event) {
-          var cursor = event.target.result;
-          if (!cursor || !cursor.value) {
-            return;
-          }
-          cursor.delete(cursor.value);
-          cursor.continue();
-        };
-      } else {
-        if (!Array.isArray(aFilter.key)) {
-          aFilter.key = [aFilter.key];
-        }
+      if (!Array.isArray(aKey)) {
+        aKey = [aKey];
+      }
 
-        for (var i = 0, l = aFilter.key.length; i < l; i++) {
-          store.delete(aFilter.key[i]);
-        }
+      for (var i = 0, l = aKey.length; i < l; i++) {
+        store.delete(aKey[i]);
       }
 
       txn.oncomplete = function() {
@@ -844,22 +815,11 @@
     },
 
     deleteCalls: function(aCallback, aCalls) {
-      _deleteRecord(aCallback, _dbCallStore, {
-        key: aCalls
-      });
+      _deleteRecord(aCallback, _dbCallStore, aCalls);
     },
 
     deleteUrls: function(aCallback, aUrls) {
-      _deleteRecord(aCallback, _dbUrlStore, {
-        key: aUrls
-      });
-    },
-
-    deleteRevokedUrls: function(aCallback) {
-      _deleteRecord(aCallback, _dbUrlStore, {
-        index: 'revoked',
-        value: true
-      });
+      _deleteRecord(aCallback, _dbUrlStore, aUrls);
     },
 
     invalidateContactsCache: function(aCallback) {
