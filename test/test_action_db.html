@@ -71,7 +71,7 @@ var steps = [
       ActionLogDB.getCalls(function(error, cursor) {
         if (cursor) {
           console.log("Call " + JSON.stringify(cursor));
-          assert(cursor.value.identities == calls[length].identities,
+          assert(cursor.value.identities[0] == calls[length].identities,
                  "identity ok");
           assert(cursor.value.date == calls[length].date, "date ok");
           assert(cursor.value.type == calls[length].type, "type ok");
@@ -97,7 +97,7 @@ var steps = [
       ActionLogDB.getCalls(function(error, cursor) {
         if (cursor) {
           console.log("Call " + JSON.stringify(cursor.value));
-          assert(cursor.value.identities == calls[length].identities,
+          assert(cursor.value.identities[0] == calls[length].identities,
                  "identity ok");
           assert(cursor.value.date == calls[length].date, "date ok");
           assert(cursor.value.type == calls[length].type, "type ok");
@@ -119,7 +119,7 @@ var steps = [
       if (cursor) {
         length--;
         console.log("Call " + JSON.stringify(cursor.value));
-        assert(cursor.value.identities == calls[length].identities,
+        assert(cursor.value.identities[0] == calls[length].identities,
                "identity ok");
         assert(cursor.value.date == calls[length].date, "date ok");
         assert(cursor.value.type == calls[length].type, "type ok");
@@ -139,7 +139,7 @@ var steps = [
       ActionLogDB.getCalls(function(error, cursor) {
         if (cursor) {
           console.log("Call " + JSON.stringify(cursor.value));
-          assert(cursor.value.identities == calls[length].identities,
+          assert(cursor.value.identities[0] == calls[length].identities,
                  "identity ok");
           assert(cursor.value.date == calls[length].date, "date ok");
           assert(cursor.value.type == calls[length].type, "type ok");
@@ -165,7 +165,7 @@ var steps = [
       ActionLogDB.getUrls(function(error, cursor) {
         if (cursor) {
           console.log("Url " + JSON.stringify(cursor.value));
-          assert(cursor.value.identities == urls[length].identities,
+          assert(cursor.value.identities[0] == urls[length].identities,
                  "identity ok");
           assert(cursor.value.date == urls[length].date, "date ok");
           assert(cursor.value.url == urls[length].url, "url ok");
@@ -192,7 +192,6 @@ var steps = [
       next();
     }, urls[0].urlToken);
   },
-
   function() {
     console.log("Revoke url");
     ActionLogDB.revokeUrl(function() {
@@ -200,7 +199,7 @@ var steps = [
       ActionLogDB.getUrls(function(error, cursor) {
         if (cursor) {
           console.log("Url " + JSON.stringify(cursor.value));
-          assert(cursor.value.identities == urls[length].identities,
+          assert(cursor.value.identities[0] == urls[length].identities,
                  "identity ok");
           assert(cursor.value.date == urls[length].date, "date ok");
           assert(cursor.value.url == urls[length].url, "url ok");
@@ -216,6 +215,24 @@ var steps = [
       });
     }, urls[0].date)
   },
+  function() {
+    console.log("Remove revoked url");
+    ActionLogDB.deleteRevokedUrls(function() {
+      var length = 0;
+      ActionLogDB.getUrls(function(error, cursor) {
+        if (!cursor) {
+          console.log("Url " + JSON.stringify(cursor.value));
+          assert(false, "There shouldn't be any url");
+          length++;
+          cursor.continue();
+        } else {
+          assert(length == 0, "urls length 0");
+          next();
+        }
+      });
+    });
+  },
+
   function() {
     console.log("All done");
   }
