@@ -35,5 +35,5 @@
   },
   "default_locale": "en",
   "orientation": "portrait",
-  "origin": "app://loop.dev.mozaws.net"
+  "origin": "app://loop-dev.stage.mozaws.net"
 }
