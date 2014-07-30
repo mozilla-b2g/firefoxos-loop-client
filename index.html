@@ -261,46 +261,40 @@
         </ul>
       </section>
     </section>
-    <section id="settings-panel" class="panel settings skin-organic" role="region">
+    <section id="settings-panel" class="panel settings vbox skin-organic" role="region">
       <header>
-        <button id="settings-close-button"><span class="icon icon-close">close</span></button>
+        <menu type="toolbar">
+          <button id="settings-close-button">Done</button>
+        </menu>
         <h1>Settings</h1>
       </header>
-      <section data-type="list">
+      <section class="gaia-list fit scroll">
         <ul>
-          <li>
-            <a>
-              <p>Enable video by default</p>
-              <label class="pack-switch">
-                <input id="video-default-setting" type="checkbox" checked>
-                <span></span>
-              </label>
-            </a>
+          <li class="vbox">
+            <p>Default call mode</p>
+            <span class="button icon icon-dialog">
+              <select id="video-default-setting">
+                <option value="true">Video</option>
+                <option value="false">Audio</option>
+              </select>
+            </span>
           </li>
           <li id="settings-clean-calls-button">
-            <a>
-              <p>Clean calls</p>
-            </a>
+            <button>Clean all Calls</button>
           </li>
           <li id="settings-clean-urls-button">
-            <a>
-              <p>Clean shared urls</p>
-            </a>
+            <button>Clean Shared links</button>
           </li>
-          <li>
-            <a>
-              <p>Version:</p>
-              <p id="settings-commit-hash-tag">Unknown</p>
-            </a>
+          <li class="vbox">
+            <p>Version</p>
+            <p id="settings-commit-hash-tag">Unknown</p>
           </li>
         </ul>
-        <div class="settings-logout-section">
-          <p id="settings-logout-identity"></p>
-          <button id="settings-logout-button">
-            Logout
-          </button>
-        </div>
       </section>
+      <footer class="gaia-footer vbox">
+        <p id="settings-logout-identity"></p>
+        <button id="settings-logout-button">Logout</button>
+      </footer>
     </section>
 
     <!-- Templates -->

@@ -96,7 +96,7 @@ p {
   flex-direction: row;
   align-items: center;
   min-height: 40px;
-  padding: 10px 15px 10px 15px;
+  padding: 10px 15px;
 }
 
 .gaia-list li:after {
@@ -222,15 +222,46 @@ p {
   image-rendering: -moz-crisp-edges;
 }
 
-.gaia-list li button {
+.gaia-list li button,
+.gaia-list li .button {
   margin: 0;
 }
 
 .gaia-list li button + button,
 .gaia-list li p + button,
+.gaia-list li p + .button,
 .gaia-list li button + p,
-.gaia-list li label + button {
+.gaia-list li .button + p,
+.gaia-list li label + button,
+.gaia-list li label + .button {
   margin-top: 10px;
+}
+
+/* Footer */
+.gaia-footer {
+  border-top: 1px solid #e7e7e7;
+  background-color: #fff;
+  padding: 10px 15px;
+  display: flex;
+}
+
+.gaia-footer p {
+  margin: 0 15px 10px;
+  word-break: break-all;
+  text-align: center;
+  color: #858585;
+  font-size: 15px;
+  line-height: 20px;
+}
+
+.gaia-footer button,
+.gaia-footer .button {
+  margin: 0 0 0 15px;
+}
+
+.gaia-footer button:first-of-type,
+.gaia-footer .button:first-of-type {
+  margin-left: 0;
 }
 
 /*

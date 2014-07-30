@@ -2,7 +2,7 @@
   'use strict';
 
   var _settingsPanel, _closeSettingsButton, _logoutSettingsButton,
-      _cleanCallsButton, _cleanUrlsButton, _videoDefaultCheck,
+      _cleanCallsButton, _cleanUrlsButton, _videoDefaultSettings,
       _commitHashTag;
 
   var _isVideoDefault = true;
@@ -31,7 +31,7 @@
       _logoutSettingsButton = document.getElementById('settings-logout-button');
       _cleanCallsButton = document.getElementById('settings-clean-calls-button');
       _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
-      _videoDefaultCheck = document.getElementById('video-default-setting');
+      _videoDefaultSettings = document.getElementById('video-default-setting');
       _commitHashTag = document.getElementById('settings-commit-hash-tag');
 
       asyncStorage.getItem(
@@ -42,11 +42,13 @@
           } else {
             _isVideoDefault = isVideoDefault;
           }
-          _videoDefaultCheck.checked = _isVideoDefault;
-          _videoDefaultCheck.addEventListener(
+          _videoDefaultSettings.value = _isVideoDefault;
+          _videoDefaultSettings.addEventListener(
             'change',
-            function(e) {
-              _isVideoDefault = e.target.checked;
+            function() {
+              _isVideoDefault = _videoDefaultSettings.options[
+                _videoDefaultSettings.selectedIndex
+              ].value;
               asyncStorage.setItem(
                 VIDEO_SETTING,
                 _isVideoDefault
@@ -111,7 +113,7 @@
           options.show();
         }.bind(this)
       );
-      
+
       _closeSettingsButton.addEventListener(
         'click',
          this.hide.bind(this)
