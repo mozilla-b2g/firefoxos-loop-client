@@ -6,7 +6,7 @@
 
   var ControllerCommunications = {
     init: function cc_init() {
-      console.log('ControllerCommunications INIT');
+      debug && console.log('ControllerCommunications INIT');
       // We are going to communicate with Controller through post messages
       window.addEventListener(
         'message',
@@ -36,16 +36,13 @@
                 break;
             }
             ControllerCommunications.send(answer);
-          } catch(e) {
-            debug && console.log('CallScreen: Error when parsing message ' + e);
-          }
+          } catch(e) {}
         }.bind(this)
       );
     },
     send: function cc_send(params) {
       controllerWindow.postMessage(JSON.stringify(params), '*');
     }
-
   };
 
   exports.ControllerCommunications = ControllerCommunications;

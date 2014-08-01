@@ -79,6 +79,14 @@
           });
         });
         break;
+      case 'connected':
+        // A "connected" notification from the server means that both peers has
+        // successfully published their streams, but that doesn't mean that the
+        // remote stream is still available. In order to have a better UX, we
+        // show a "Connecting"-like message in the screen that will be removed
+        // once the remote media is successfully aquired.
+        CallScreenUI.update('connecting');
+        break;
       case 'error':
       case 'terminated':
         CallManager.stop();
@@ -124,7 +132,7 @@
         console.error('No publisher in this call');
         return;
       }
-      
+
       if (!_speakerManager) {
         _speakerManager = new window.MozSpeakerManager();
       }
@@ -184,16 +192,11 @@
               // TODO Check with UX if needed
               break;
           }
-          
+
         },
         // Fired when a new peer is connected to the session.
         connectionCreated: function(event) {
           _peersInSession += 1;
-          if (_peersInSession > 1) {
-            // Start counter
-            Countdown.start();
-            CallScreenUI.update('connected');
-          }
         },
         // Fired when an existing peer is disconnected from the session.
         connectionDestroyed: function(event) {
@@ -218,6 +221,12 @@
                 }
               }
             );
+          _subscriber.on({
+            loaded: function() {
+              Countdown.start();
+              CallScreenUI.update('connected');
+            }
+          });
           _publishersInSession += 1;
           // Update the UI with the remote video status
           CallScreenUI.updateRemoteVideo(event.stream.hasVideo);
@@ -243,12 +252,12 @@
 
     resume: function() {
       if (_publisher) {
-	_publisher.publishAudio(_publishAudio);
-	_publisher.publishVideo(_publishVideo);
+        _publisher.publishAudio(_publishAudio);
+        _publisher.publishVideo(_publishVideo);
       }
       if (_subscriber) {
-	_subscriber.subscribeToAudio(_subscribeToAudio);
-	_subscriber.subscribeToVideo(_subscribeToVideo);
+        _subscriber.subscribeToAudio(_subscribeToAudio);
+        _subscriber.subscribeToVideo(_subscribeToVideo);
       }
       AudioCompetingHelper.addListener('mozinterruptbegin', _setCallOnHold);
       AudioCompetingHelper.compete();
@@ -273,7 +282,7 @@
       if (duration > 0) {
         connected = true;
       }
-      
+
       function onCallEnded() {
         // Send result to the Controller
         var hangoutMessage = {
@@ -292,7 +301,7 @@
       } else {
         onCallEnded();
       }
-      
+
       // Clean the call
       _call = {};
       _callProgressHelper.finish();

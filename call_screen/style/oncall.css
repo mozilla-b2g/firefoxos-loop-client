@@ -342,6 +342,7 @@ body[data-settings='true'] #call-settings {
 }
 
 #counter {
+  display: none;
   color: #80e7e3;
   font-weight: normal;
   position: absolute;
@@ -361,10 +362,32 @@ body[data-settings='true'] #call-settings {
   font-feature-settings: 'tnum';
 }
 
-#counter.connecting {
-  font-size: 1.7rem;
+body[data-call-status='connected'] #counter {
+  display: block;
+}
+
+#call-status-info {
+  display: none;
+  position: absolute;
   color: white;
+  font-size: 1.7rem;
+  font-style: italic;
   font-weight: 300;
+  width: 100%;
+  box-sizing: border-box;
+  padding: .5rem 3rem;
+  overflow: hidden !important;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+  z-index: 10;
+  transition: transform .4s ease;
+  transform: translateY(25rem);
+}
+
+body[data-call-status='outgoing'] #call-status-info,
+body[data-call-status='connecting'] #call-status-info {
+  display: block;
 }
 
 /*

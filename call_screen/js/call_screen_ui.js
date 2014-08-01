@@ -9,7 +9,8 @@
 
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _settingsButtonVideo, _settingsButtonMute,
-      _settingsButtonSpeaker, _resumeButton, _title , _remoteVideo, _remoteImage;
+      _settingsButtonSpeaker, _resumeButton, _title, _callStatusInfo,
+      _remoteVideo, _remoteImage;
 
   function _updateUI(params) {
     var identities = params.identities.split(',');
@@ -108,6 +109,7 @@
       _resumeButton = document.getElementById('resume-button');
 
       _title = document.getElementById('contact-name-details');
+      _callStatusInfo = document.getElementById('call-status-info');
       _remoteVideo = document.getElementById('remote-video');
       _remoteImage = document.getElementById('fullscreen-image');
       
@@ -132,14 +134,12 @@
           _showHitEffect(e.target.id, function() {
             _isVideoEnabled = !_isVideoEnabled;
             _settingsButtonVideo.classList.toggle('disabled');
-            // _toggleSettings(function() {
-              CallScreenUI.updateLocalVideo(
-                _isVideoEnabled,
-                function onUIUpdated() {
-                  CallManager.toggleVideo(_isVideoEnabled);
-                }
-              );
-            // });
+            CallScreenUI.updateLocalVideo(
+              _isVideoEnabled,
+              function onUIUpdated() {
+                CallManager.toggleVideo(_isVideoEnabled);
+              }
+            );
           });
         }
       );
@@ -151,7 +151,6 @@
             _settingsButtonMute.classList.toggle('disabled');
             _isMicEnabled = !_isMicEnabled;
             CallManager.toggleMic(_isMicEnabled);
-            // _toggleSettings();
           });
         }
       );
@@ -163,7 +162,6 @@
             _settingsButtonSpeaker.classList.toggle('enabled');
             _isSpeakerEnabled = !_isSpeakerEnabled;
             CallManager.toggleSpeaker(_isSpeakerEnabled);
-            // _toggleSettings();
           });
         }
       );
@@ -254,14 +252,17 @@
           document.body.dataset.callStatus = 'outgoing';
           _updateUI(params);
           CallManager.join(_isVideoEnabled);
+          _callStatusInfo.textContent = 'Calling...';
           CallScreenUI.updateLocalVideo(_isVideoEnabled);
+          break;
+        case 'connecting':
+          _callStatusInfo.textContent = 'Connecting...';
           break;
         case 'connected':
           document.body.dataset.callStatus = 'connected';
           break;
         case 'disconnected':
           // TODO Styles not defined yet.
-
           break;
         case 'hold':
           document.body.dataset.callStatus = 'hold';

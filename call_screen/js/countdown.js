@@ -14,8 +14,6 @@
   }
   
   function _reset() {
-    _countdownUI.textContent = 'Connecting';
-    _countdownUI.classList.add('connecting');
     _counter = 0;
   }
 
@@ -32,7 +30,6 @@
         var minutes = _beautify(Math.round(_counter/60));
         var seconds = _beautify(Math.round(_counter%60));
         _countdownUI.textContent = minutes + ':' + seconds;
-        _countdownUI.classList.remove('connecting');
       }, 1000);
     },
     stop: function() {
