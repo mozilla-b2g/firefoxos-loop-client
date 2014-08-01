@@ -20,6 +20,11 @@ html, body {
  * Remove the styles by default
  */
 
+* {
+  -moz-user-select: none;
+  user-select: none;
+}
+
 h1, h2, h3 {
   margin: 0;
 }
@@ -53,7 +58,7 @@ h1, h2, h3 {
   border: none;
   opacity: 0;
   border: 0;
-  bottom: 4rem;
+  bottom: 3rem;
 }
 
 body[data-local-video='on'] .action-button-hit {
@@ -74,14 +79,14 @@ body[data-local-video='off'] .hang-out.action-button-hit {
   opacity: 1;
   background: #d74345 !important;
   left: 9rem;
-  bottom: 4rem;
+  bottom: 3rem;
 }
 
 .hang-out.action-button-hit {
   opacity: 1;
   background: #d74345 !important;
   left: 3rem;
-  bottom: 4rem;
+  bottom: 3rem;
 }
 
 .hang-out.enabled {
@@ -96,23 +101,23 @@ body[data-local-video='off'] .hang-out.action-button-hit {
 
 .answer-video.action-button-hit {
   opacity: 1;
-  bottom: 13rem !important;
+  bottom: 12rem !important;
   right: calc(50% - 2.5rem) !important;
 }
 
 .call-settings-video.action-button-hit {
   opacity: 1;
-  bottom: 10rem;
+  bottom: 9rem;
 }
 
 .call-settings-mute.action-button-hit {
   opacity: 1;
-  bottom: 16rem;
+  bottom: 15rem;
 }
 
 .call-settings-speaker.action-button-hit {
   opacity: 1;
-  bottom: 22rem;
+  bottom: 21rem;
 }
 
 
