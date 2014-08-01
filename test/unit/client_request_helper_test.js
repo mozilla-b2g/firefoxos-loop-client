@@ -61,7 +61,7 @@ suite('ClientRequestHelper >', function() {
   }, {
     name: 'Make call',
     route: '/calls/token',
-    method: 'makeCall',
+    method: 'callUrl',
     args: ['token'],
     body: function() {},
     request: 'POST'

@@ -26,26 +26,49 @@
         return;
       }
 
-      ClientRequestHelper.generateCallUrl(id,
-        function onGenerateCallUrl(result) {
-          _callback(onsuccess, [result]);
-        },
-        onerror
-      );
+      ClientRequestHelper.generateCallUrl(id, function onCallUrl(result) {
+        _callback(onsuccess, [result]);
+      }, onerror);
     },
 
-    callUser: function ch_callUser(calleeId, onsuccess, onerror) {
+    /**
+     * Call a user given a known identity.
+     *
+     * @param {Array} calleeId Array of strings that can contain the phone
+     *                         number or email associated with a Loop user
+     *                         account.
+     * @param {Boolean} isVideoCall
+     */
+    callUser: function ch_callUser(calleeId, isVideoCall, onsuccess, onerror) {
       if (!calleeId) {
         _callback(onerror, [new Error('Invalid callee id')]);
         return;
       }
 
-      ClientRequestHelper.callUser(calleeId,
-        function onCallUser(result) {
-          _callback(onsuccess, [result]);
-        },
-        onerror
-      );
+      ClientRequestHelper.callUser(calleeId, isVideoCall, function(result) {
+        _callback(onsuccess, [result]);
+      }, onerror);
+    },
+
+    /**
+     * Call a user given a call token.
+     *
+     * @param {String} token The call token comes from a previously generated
+     *                 Loop URL
+     * @param {Boolean} isVideoCall
+     */
+
+    callUrl: function ch_callUrl(token, isVideoCall, onsuccess, onerror) {
+      if (!token) {
+        _callback(onerror, [new Error('Invalid call token')]);
+        return;
+      }
+
+      ClientRequestHelper.getCallUrl(token, function(call) {
+        ClientRequestHelper.callUrl(token, isVideoCall, function(result) {
+          _callback(onsuccess, [result, call.calleeFriendlyName]);
+        }, onerror);
+      }, onerror);
     }
   };
 

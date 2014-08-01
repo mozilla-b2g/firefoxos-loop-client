@@ -2,7 +2,7 @@
   'use strict';
 
   var debug = true;
-  
+
   function _onauthentication(event) {
     Wizard.init(event.detail.firstRun);
     SplashScreen.hide();
@@ -28,7 +28,7 @@
     }, 2000);
     // TODO This timeout is just for improving user experience. Check
     // with UX.
-    
+
   }
 
   function _onloginerror(event) {
@@ -91,9 +91,9 @@
               fullContact: true
             }
           });
-      
+
       activity.onsuccess = function() {
-        Controller.call(activity.result, Settings.isVideoDefault);
+        Controller.callContact(activity.result, Settings.isVideoDefault);
       };
 
       activity.onerror = function() {
@@ -105,6 +105,7 @@
       LoadingOverlay.show('Connecting');
       CallHelper.callUser(
         identities,
+        isVideoCall,
         function onLoopIdentity(call) {
           CallScreenManager.launch('outgoing', call, identities, isVideoCall);
         },
@@ -124,7 +125,7 @@
       );
     },
 
-    call: function(contact, isVideoCall) {
+    callContact: function(contact, isVideoCall) {
       if (!AccountHelper.logged) {
         alert('You need to be logged in before making a call with Loop');
         return;
@@ -137,7 +138,7 @@
         return;
       }
 
-      // Create an array of identities      
+      // Create an array of identities
       var identities = [];
 
       var mails = contact.email || [];
@@ -155,6 +156,27 @@
       }
 
       Controller.callIdentities(identities, contact, isVideoCall);
+    },
+
+    callUrl: function(token, isVideoCall) {
+      if (!AccountHelper.logged) {
+        alert('You need to be logged in before making a call with Loop');
+        return;
+      }
+
+      if (!token) {
+        alert('Invalid call URL');
+        return;
+      }
+
+      LoadingOverlay.show('Connecting');
+      CallHelper.callUrl(token, isVideoCall, function(call, calleeFriendlyName) {
+        CallScreenManager.launch('outgoing', call, [calleeFriendlyName],
+                                 isVideoCall);
+      }, function() {
+        LoadingOverlay.hide();
+        alert('Unable to stablish connection');
+      });
     },
 
     shareUrl: function (url, onsuccess, onerror) {
@@ -190,7 +212,7 @@
       var params = 'mailto:' + id + '?subject=Loop' +
         '&body=Lets join the call with Loop! ' + url;
 
-      a.href = params; 
+      a.href = params;
       a.classList.add('hide');
       document.body.appendChild(a);
       a.click();
@@ -224,7 +246,7 @@
                 console.error('Error when deleting calls from DB ' + error.name);
                 return;
               }
-              
+
               if (typeof callback === 'function') {
                 callback();
               }

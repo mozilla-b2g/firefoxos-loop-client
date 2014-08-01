@@ -98,7 +98,6 @@
         _call[keyValue[0]] = decodeURIComponent(keyValue[1]);
       }
 
-
       var identities = _call.identities;
       var layout = _call.layout;
       var video = _call.isVideoCall;
