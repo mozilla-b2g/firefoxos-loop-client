@@ -6,7 +6,10 @@
     <link href="../style/bb/switches.css" rel="stylesheet" type="text/css">
     <link href="../style/bb/edit_mode.css" rel="stylesheet" type="text/css">
     <link href="../style/bb/lists.css" rel="stylesheet" type="text/css">
+    <link href="../style/bb/buttons.css" rel="stylesheet" type="text/css">
+    <link href="../libs/components/gaia-layout/style.css" rel="stylesheet" type="text/css" >
     <link href="style/oncall.css" rel="stylesheet" type="text/css">
+
 
     <script defer src="../libs/orientation_vendor.js"></script>
     <script defer src="../libs/tokbox/v2.2.6/js/TB.js"></script>
@@ -29,7 +32,7 @@
     </style>
   </head>
   <body role="application" class="no-transition" data-local-video="on" data-remote-video="off" data-call-status="outgoing" data-settings="false" data-feedback="false" data-rotation="0">
-    
+
     <div class="panel">
       <h1 id="contact-name-details"></h1>
       <h2 id="counter"></h2>
@@ -71,66 +74,57 @@
       </button>
       <button id="resume-button" class="action-button">
       </button>
-      <section id="feedback" data-type="list">
-        <div class="feedback-questions" data-question="1">
-          <div class="feedback-question">
-            <div class="fq-title">
-              How do you feel about Loop?
+      <section id="feedback" class="vbox">
+        <div class="feedback-questions hbox fit" data-question="1">
+          <div class="feedback-question vbox">
+            <div class="fq-title vbox fit two middle">
+              How do you feel about Firefox Hello?
             </div>
-            <div class="fq-buttons">
-              <button id="answer-happy" class="fq-button-happy fq-button">
+            <div class="fq-buttons hbox fit three">
+              <button id="answer-sad" class="fq-button-sad fq-button hbox fit bottom">
+                <span>Sad</span>
               </button>
-              <button id="answer-sad" class="fq-button-sad fq-button">
+              <button id="answer-happy" class="fq-button-happy fq-button hbox fit bottom">
+                <span>Happy</span>
               </button>
             </div>
           </div>
-          <div class="feedback-question">
-            <div class="fq-title">
-              How do you feel about Loop?
+          <div class="feedback-question vbox">
+            <div class="fq-title vbox fit two middle">
+              <span>Sad?</span>
+              <span>What makes you sad?</span>
             </div>
-            <div class="fq-options">
-              <ul data-type="edit">
+            <div class="fq-options gaia-list vbox fit five">
+              <ul>
                 <li>
-                  <label class="pack-checkbox danger">
+                  <label class="pack-checkbox reverse">
                     <input type="checkbox" value="bad_audio">
-                    <span></span>
+                    <span>Bad audio</span>
                   </label>
-                  <a>
-                    <p>Bad audio</p>
-                  </a>
                 </li>
                 <li>
-                  <label class="pack-checkbox danger">
+                  <label class="pack-checkbox reverse">
                     <input type="checkbox" value="bad_video">
-                    <span></span>
+                    <span>Bad video</span>
                   </label>
-                  <a>
-                    <p>Bad video</p>
-                  </a>
                 </li>
                 <li>
-                  <label class="pack-checkbox danger">
+                  <label class="pack-checkbox reverse">
                     <input type="checkbox" value="got_disconnected">
-                    <span></span>
-                  </label>
-                  <a>
-                    <p>Got disconnected</p>
-                  </a>
+                    <span>Got disconnected</span>
+                  </label
                 </li>
                 <li>
-                  <label class="pack-checkbox danger">
+                  <label class="pack-checkbox reverse">
                     <input type="checkbox" value="hate_interface">
-                    <span></span>
+                    <span>I hate the interface</span>
                   </label>
-                  <a>
-                    <p>I hate the interface</p>
-                  </a>
                 </li>
               </ul>
             </div>
           </div>
         </div>
-        <footer>
+        <footer class="gaia-footer">
           <button id="skip-feedback-button">Skip</button>
           <button id="rate-feedback-button">Rate</button>
         </footer>

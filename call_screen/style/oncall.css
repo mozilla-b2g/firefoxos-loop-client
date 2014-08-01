@@ -19,16 +19,9 @@ html, body {
 /*
  * Remove the styles by default
  */
-button {
-  border-radius: 0;
-}
 
 h1, h2, h3 {
   margin: 0;
-}
-
-button::-moz-focus-inner {
-  border: 0;
 }
 
 /*
@@ -43,6 +36,7 @@ button::-moz-focus-inner {
   position: absolute;
   border-radius: 2.5rem;
   border: none;
+  margin: 0;
   transition: transform .5s ease, opacity .2s ease;
   opacity: 1;
 }
@@ -123,7 +117,7 @@ body[data-local-video='off'] .hang-out.action-button-hit {
 
 
 .action-button-hit.enabled {
-  background: #00adad;
+  background: #00acac;
   transition: transform .7s ease, width  .7s ease, height .7s ease, opacity .7s ease;
   border-radius: 3.5rem;
   transform: translate(1rem, 1rem);
@@ -134,7 +128,7 @@ body[data-local-video='off'] .hang-out.action-button-hit {
 
 #hang-out {
   bottom: 4rem;
-  
+
   left: 3rem;
   z-index: 10;
   background: #d74345;
@@ -148,12 +142,12 @@ body[data-local-video='off'] .hang-out.action-button-hit {
 #answer {
   bottom: 4rem;
   right: 3rem;
-  
-  background: #00adad;
+
+  background: #00acac;
   background-image: url(images/ico_pickup.png);
   background-repeat: no-repeat;
   background-position: center;
-  
+
   border: none;
   z-index: 200;
 }
@@ -161,19 +155,19 @@ body[data-local-video='off'] .hang-out.action-button-hit {
 #answer-video {
   right: calc(50% - 2.5rem);
   bottom: 13rem;
-  
-  background: #00adad;
+
+  background: #00acac;
   background-image: url(images/ico_pickupvideo.png);
   background-repeat: no-repeat;
   background-position: center;
-  
+
   border: none;
 }
 
 #call-settings, #resume-button {
   bottom: 4rem;
   right: 3rem;
-  
+
   background: rgba(255, 255, 255, 0.7);
   background-image: url(images/ico_openmenu.png);
   background-repeat: no-repeat;
@@ -189,7 +183,7 @@ body[data-settings='true'] #call-settings {
 }
 
 #resume-button {
-  background: #00adad;
+  background: #00acac;
   z-index: 200;
 }
 
@@ -206,7 +200,7 @@ body[data-settings='true'] #call-settings {
 }
 
 #call-settings-video.disabled {
-  background: #00adad;
+  background: #00acac;
   background-image: url(images/ico_facemute_.png);
   background-repeat: no-repeat;
   background-position: center;
@@ -215,7 +209,7 @@ body[data-settings='true'] #call-settings {
 #call-settings-mute {
   bottom: 4rem;
   right: 3rem;
-  
+
   background: rgba(255, 255, 255, 0.7);
   background-image: url(images/ico_mute.png);
   background-repeat: no-repeat;
@@ -225,7 +219,7 @@ body[data-settings='true'] #call-settings {
 }
 
 #call-settings-mute.disabled {
-  background: #00adad;
+  background: #00acac;
   background-image: url(images/ico_mute_.png);
   background-repeat: no-repeat;
   background-position: center;
@@ -234,7 +228,7 @@ body[data-settings='true'] #call-settings {
 #call-settings-speaker {
   bottom: 4rem;
   right: 3rem;
-  
+
   background: rgba(255, 255, 255, 0.7);
   background-image: url(images/ico_speaker.png);
   background-repeat: no-repeat;
@@ -244,7 +238,7 @@ body[data-settings='true'] #call-settings {
 }
 
 #call-settings-speaker.enabled {
-  background: #00adad;
+  background: #00acac;
   background-image: url(images/ico_speaker_.png);
   background-repeat: no-repeat;
   background-position: center;
@@ -291,12 +285,12 @@ body[data-settings='true'] #call-settings {
 .local-bubble {
   height: 8rem !important;
   width: 8rem !important;
-  
+
   position: absolute !important;
   bottom: 2rem !important;
   left: calc(50% - 4rem) !important;
   z-index: 10;
-  
+
   opacity: 1;
   transition: all .7s ease;
 
@@ -478,7 +472,7 @@ body[data-local-video="on"] .local-bubble{
  */
 
 #feedback {
-  background: rgba(0,0,0,.9);
+  background: #00acac;
   width: 100%;
   height: 100%;
   display: none;
@@ -492,110 +486,111 @@ body[data-local-video="on"] .local-bubble{
 
 .feedback-questions {
   width: 200%;
-  height: 30rem;
-  position: absolute;
-  top: 4rem;
-  -webkit-transition: all .4s ease;
+  height: 100%;
   transition: all .4s ease;
 }
- 
+
 .feedback-questions[data-question='1'] {
-  -webkit-transform: translateX(0);
   transform: translateX(0);
 }
 
 .fq-title {
-  font-size: 2.4rem;
+  font-size: 2.3rem;
   color: white;
   text-align: center;
-  margin-top: 6rem;
+  font-weight: 300;
+  font-style: italic;
+  padding: 0 3rem;
 }
 
-.feedback-questions[data-question='1'] .fq-buttons .fq-button{
-  width: 50%;
-  float: left;
-  margin: 0;
-  height: 20rem;
-  border: none;
-  padding: 2rem;
-  box-sizing: border-box;
+.feedback-questions .fq-buttons {
+  padding: 0px 2rem;
+}
+
+.feedback-questions .fq-buttons .fq-button {
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 300;
+  font-style: italic;
+  height: 15rem;
+  position: relative;
+}
+
+.fq-buttons .fq-button span {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.fq-buttons .fq-button:active {
+  background-color: transparent;
+  background-blend-mode: hard-light;
 }
 
 .fq-button-happy {
-  background: transparent;
-  background-image: url(images/Happy_icon.png);
-  background-repeat: no-repeat;
-  background-position: 75% center;
+  background: url(images/feedback_happy.png) center top no-repeat;
+  background-size: 12.7rem auto;
 }
 
 .fq-button-sad {
-  background: transparent;
-  background-image: url(images/Sad_icon.png);
-  background-repeat: no-repeat;
-  background-position: 25% center;
+  background: url(images/feedback_sad.png) center top no-repeat;
+  background-size: 12.7rem auto;
 }
-
 
 .feedback-questions[data-question='2'] {
-  -webkit-transform: translateX(-50%);
   transform: translateX(-50%);
-}
-
-.fq-options {
-  margin-top: 2rem;
-  padding: 0 4rem;
-  overflow: hidden;
-}
-
-.fq-options *{
-  color: white !important;
 }
 
 .feedback-question {
   width: 50%;
-  float: left;
   height: 100%;
-  margin: 0;
-  padding: 0;
+}
+
+#feedback .gaia-list li:after {
+  border-color: #6adede;
+}
+
+#feedback label.pack-checkbox {
+  margin: -10px 15px;
+}
+
+#feedback label.pack-checkbox span {
+  color: #fff;
+  font-weight: 300;
+  font-style: italic;
+}
+
+#feedback label.pack-checkbox span:after {
+  background-image: none;
+}
+
+#feedback label.pack-checkbox input:checked ~ span {
+  font-weight: 400;
+}
+
+#feedback label.pack-checkbox input:checked ~ span:after {
+  background-image: url(images/ico_check.png);
+  background-size: 3rem;
 }
 
 #feedback footer {
-  padding: .5rem;
-  box-sizing: border-box;
-  height: 6rem;
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-}
-
-#feedback footer button {
-  width: 100%;
-  height: 100%;
+  background: transparent;
   border: none;
-  border-radius: .5rem;
-  font-size: 2rem;
 }
 
 #feedback footer #rate-feedback-button {
   display: none;
-}
-
-#feedback.two-options footer button {
-  width: calc(50% - .25rem);
-  float: left;
-}
-
-#feedback.two-options #send-feedback-button {
-  margin-right: .25rem;
+  color: #00adad;
+  background-color: #fff;
 }
 
 #feedback.two-options #rate-feedback-button {
-  margin-left: .25rem;
   display: block;
 }
 
 body[data-feedback='true'] #feedback {
-  display: block;
+  display: flex;
 }
 
 /*
@@ -932,4 +927,56 @@ body[data-rotation='90'][data-settings='false'][data-local-video='off'] #call-se
 
 body[data-rotation='90'][data-settings='false'][data-local-video='off'] #call-settings-speaker{
   transform: translate(-6rem, 0rem) rotate(-90deg);
+}
+
+/*
+  MEDIA QUERIES FOR device-pixel-ratio
+*/
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+
+  .fq-button-happy {
+    background-image: url(images/feedback_happy@1.5x.png);
+  }
+
+  .fq-button-sad {
+    background-image: url(images/feedback_sad@1.5x.png);
+  }
+
+  #feedback label.pack-checkbox input:checked ~ span:after {
+    background-image: url(images/ico_check@1.5x.png);
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+
+  .fq-button-happy {
+    background-image: url(images/feedback_happy@2x.png);
+  }
+
+  .fq-button-sad {
+    background-image: url(images/feedback_sad@2x.png);
+  }
+
+  #feedback label.pack-checkbox input:checked ~ span:after {
+    background-image: url(images/ico_check@2x.png);
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+
+  .fq-button-happy {
+    background-image: url(ico_images/feedback_happy@2.25x.png);
+  }
+
+  .fq-button-sad {
+    background-image: url(ico_images/feedback_sad@2.25x.png);
+  }
+
+  #feedback label.pack-checkbox input:checked ~ span:after {
+    background-image: url(images/ico_check@2.25x.png);
+  }
+
 }
