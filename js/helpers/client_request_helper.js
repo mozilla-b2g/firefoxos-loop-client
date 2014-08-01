@@ -81,8 +81,16 @@
 
       // We may fail because of clock skew issues. In that cases we retry once
       // after setting the clock offset.
-      if (req.status === 401 && !skipRetry) {
-        _request(options, onsuccess, onerror, true);
+      if (req.status === 401) {
+        if (!skipRetry) {
+          _request(options, onsuccess, onerror, true /* skipRetry */);
+          return;
+        }
+        // Getting a second 401 means that our credentials are incorrect and
+        // so we need new ones. In this case, we just logout and bail out so
+        // the user can request new credentials by login again in Loop.
+        AccountHelper.logout();
+        _callback(onerror);
         return;
       }
 
