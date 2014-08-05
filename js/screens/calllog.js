@@ -725,7 +725,7 @@
   }
 
   function _updateContactInfo(aElement, aContact) {
-    var primaryInfo = aElement.querySelector('.primary-info-main');
+    var primaryInfo = aElement.querySelector('.primary-info');
 
     if (aContact) {
       var identities = [];

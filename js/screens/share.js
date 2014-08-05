@@ -2,7 +2,8 @@
   'use strict';
 
   var _sharePanel, _closeButton, _shareOthers, _shareSMS,
-      _shareEmail, _contactName, _urlshown;
+      _shareEmail, _contactName, _urlshown, _shareInfo,
+      _shareInfoPhoto;
   var _contact, _url, _urlObject;
 
   function _generateUrlObject() {
@@ -91,9 +92,12 @@
     _shareOthers = document.getElementById('share-by-others');
     _shareSMS = document.getElementById('share-by-sms');
     _shareEmail = document.getElementById('share-by-email');
-    _contactName = document.getElementById('contact-name-to-share')
-    _urlshown = document.getElementById('link-to-share')
-
+    _contactName = document.getElementById('contact-name-to-share');
+    _urlshown = document.getElementById('link-to-share');
+    _shareInfo = document.querySelector('.share-contact-info');
+    _shareInfoPhoto = document.querySelector('.share-contact-photo');
+    
+    
     _closeButton.addEventListener(
       'click',
       function() {
@@ -156,6 +160,19 @@
 
     _contactName.textContent = contact.name[0];
     _urlshown.textContent = url;
+
+    ContactsHelper.find({
+      contactId: contact.id
+    }, function(result) {
+      if (result.contacts[0].photo && result.contacts[0].photo.length > 0) {
+        var url = URL.createObjectURL(result.contacts[0].photo[0]);
+        var urlString = 'url(' + url + ')';
+        _shareInfoPhoto.style.backgroundImage = urlString;
+        _shareInfo.classList.remove('has-no-photo');
+      } else {
+        _shareInfo.classList.add('has-no-photo');
+      }
+    });
   }
     
 

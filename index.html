@@ -211,7 +211,7 @@
     <section id="contact-detail-panel" class="panel main">
       Contact detail
     </section>
-    <section id="share-panel" class="panel share skin-organic" role="region">
+    <section id="share-panel" class="panel share skin-comms" role="region">
       <header>
         <button id="share-close-button"><span class="icon icon-close">close</span></button>
         <h1>Share link</h1>
@@ -219,15 +219,17 @@
       <section class="share-contact-info">
         <div class="share-contact-photo"></div>
         <div class="share-contact-details">
-          <p id="contact-name-to-share">Travis Grey</p>
-          <p>Not connected to Loop</p>
+          <p id="contact-name-to-share" class="share-contact-details-primary">asdas</p>
+          <p class="share-contact-details-secondary">Not a Firefox Hello user</p>
         </div>
       </section>
       <section class="share-explanation">
         No problem! Just share the link below and they can call you back from any modern browser.
       </section>
       <section class="share-link">
-        <span class="share-link-label">Link: </span> <span id="link-to-share" class="share-link-url"></span>
+        <span class="share-link-label"></span>
+        <span id="link-to-share" class="share-link-url">
+        </span>
       </section>
       <section class="share-options" data-type="list">
         <p class="share-options-title">
@@ -236,7 +238,6 @@
         <ul>
           <li id="share-by-sms">
             <aside class="pack-end">
-              <img alt="placeholder" src="style/images/icon_message@2,25x.png">
             </aside>
             <a>
               <p>Messages</p>
@@ -244,7 +245,6 @@
           </li>
           <li id="share-by-email">
             <aside class="pack-end">
-              <img alt="placeholder" src="style/images/icon_message@2,25x.png">
             </aside>
             <a>
               <p>Email</p>
@@ -252,7 +252,6 @@
           </li>
           <li id="share-by-others">
             <aside class="pack-end">
-              <img alt="placeholder" src="style/images/icon_share@2,25x.png">
             </aside>
             <a>
               <p>Other</p>
