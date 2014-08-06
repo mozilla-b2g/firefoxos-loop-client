@@ -6,6 +6,10 @@
   font-weight: 300;
 }
 
+.share * {
+  color: #333;
+}
+
 .share.show {
   -webkit-transform: translateY(0);
   transform: translateY(0);
@@ -24,7 +28,7 @@
 
 .share-options .pack-end {
   float: left !important;
-  margin-right: 1rem !important;
+  margin-right: 1.5rem !important;
 }
 
 .share-link {
@@ -49,7 +53,6 @@
 }
 
 .share-link-url {
-  font-style: italic;
   color: #858585;
   font-size: 1.5rem !important;
 }
@@ -67,9 +70,9 @@
 
 .share-contact-info {
   width: 100%;
-  padding: 1rem 2rem;
+  padding: .5rem 2rem;
   box-sizing: border-box;
-  height: 9rem;
+  height: 8rem;
 }
 
 
@@ -107,7 +110,6 @@
   padding-top: .3rem;
   box-sizing: border-box;
   color: #999;
-  font-style: italic;
   font-size: 1.5rem !important;
   overflow: hidden;
 }
@@ -130,16 +132,21 @@
 
 
 .share-options ul li {
-  height: 4rem !important;
+  height: 5rem !important;
+  font-weight: 300 !important;
 }
 
 .share-options ul li p:only-child, [data-type="list"] li p:first-of-type:last-of-type {
   line-height: 2.2rem !important;
 }
 
+.share-options li p:first-of-type {
+  padding: 1.5rem 0px 0px !important;
+}
+
 #share-by-sms aside {
   background-image: url(images/sms_84.png);
-  margin-top: .5rem;
+  margin-top: 1rem;
   width: 3rem;
   height: 3rem;
   background-size: 100%;
@@ -148,7 +155,7 @@
 
 #share-by-email aside {
   background-image: url(images/email_84.png);
-  margin-top: .5rem;
+  margin-top: 1rem;
   width: 3rem;
   height: 3rem;
   background-size: 100%;
@@ -157,9 +164,47 @@
 
 #share-by-others aside {
   background-image: url(images/ico_share.png);
-  margin-top: .5rem;
+  margin-top: 1rem;
   width: 3rem;
   height: 3rem;
   background-size: 100%;
   background-repeat: no-repeat;
+}
+
+
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+  #share-by-sms aside {
+    background-image: url(images/sms_142.png);
+  }
+  #share-by-email aside {
+    background-image: url(images/email_142.png);
+  }
+  #share-by-others aside {
+    background-image: url(images/ico_share@1.5x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+  #share-by-sms aside {
+    background-image: url(images/sms_189.png);
+  }
+  #share-by-email aside {
+    background-image: url(images/email_189.png);
+  }
+  #share-by-others aside {
+    background-image: url(images/ico_share@2x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+  #share-by-sms aside {
+    background-image: url(images/sms_284.png);
+  }
+  #share-by-email aside {
+    background-image: url(images/email_284.png);
+  }
+  #share-by-others aside {
+    background-image: url(images/ico_share@2.25x.png);
+  }
 }
