@@ -265,6 +265,7 @@
           // TODO Styles not defined yet.
           break;
         case 'hold':
+          _callStatusInfo.textContent = '(on Hold)';
           document.body.dataset.callStatus = 'hold';
           break;
       }

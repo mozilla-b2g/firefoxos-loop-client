@@ -190,6 +190,8 @@ body[data-settings='true'] #call-settings {
 #resume-button {
   background: #00acac;
   z-index: 200;
+  width: 19rem;
+  color: white;
 }
 
 #call-settings-video {
@@ -362,7 +364,8 @@ body[data-settings='true'] #call-settings {
   font-feature-settings: 'tnum';
 }
 
-body[data-call-status='connected'] #counter {
+body[data-call-status='connected'] #counter,
+body[data-call-status='hold'] #counter {
   display: block;
 }
 
@@ -386,8 +389,13 @@ body[data-call-status='connected'] #counter {
 }
 
 body[data-call-status='outgoing'] #call-status-info,
-body[data-call-status='connecting'] #call-status-info {
+body[data-call-status='connecting'] #call-status-info,
+body[data-call-status='hold'] #call-status-info {
   display: block;
+}
+
+body[data-call-status='hold'] #call-status-info{
+  transform: translateY(28rem);
 }
 
 /*
@@ -748,10 +756,10 @@ body[data-call-status='hold'] #call-settings-speaker ,
 body[data-call-status='hold'] #call-settings-video,
 body[data-call-status='hold'] #call-settings-mute,
 body[data-call-status='hold'] #answer,
-body[data-call-status='hold'] #answer-video {
+body[data-call-status='hold'] #answer-video,
+body[data-call-status='hold'] #local-video  {
   display: none;
 }
-
 
 body[data-call-status='connected'][data-remote-video="on"] #counter {
   transform: translateY(8rem);
