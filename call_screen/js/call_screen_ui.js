@@ -10,7 +10,7 @@
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _settingsButtonVideo, _settingsButtonMute,
       _settingsButtonSpeaker, _resumeButton, _title, _callStatusInfo,
-      _remoteVideo, _remoteImage;
+      _remoteVideo, _remoteImage, _fakeLocalVideo, _localVideo;
 
   function _updateUI(params) {
     var identities = params.identities.split(',');
@@ -99,6 +99,8 @@
 
       OrientationHandler.start();
 
+      // Cache HTML elements
+      _localVideo = document.getElementById('local-video');
       _hangoutButton = document.getElementById('hang-out');
       _answerAudioButton = document.getElementById('answer');
       _answerVideoButton = document.getElementById('answer-video');
@@ -118,6 +120,31 @@
         _isSpeakerEnabled = true;
         _settingsButtonSpeaker.classList.add('enabled');
       }
+
+      // Choose default camera
+      var cameraConstraint = navigator.mozCameras.getListOfCameras().length > 1 ?
+        {facingMode: 'user', require:['facingMode']} : true;
+      
+      // Ask for the Stream
+      navigator.mozGetUserMedia(
+        {
+          video: cameraConstraint,
+          audio: false
+        },
+        function onStreamReady(stream) {
+          var progress = _localVideo.querySelector('progress');
+          progress && _localVideo.removeChild(progress);
+          // Show your own stream as part of the GUM wizard
+          _fakeLocalVideo = document.createElement('video');
+          _fakeLocalVideo.className = 'fake-local-video';
+          _fakeLocalVideo.mozSrcObject = stream;
+          _localVideo.appendChild(_fakeLocalVideo);
+          _fakeLocalVideo.play();
+        },
+        function(err) {
+          console.log("An error occured! " + err);
+        }
+      );
 
       _settingsButton.addEventListener(
         'mousedown',
@@ -336,6 +363,9 @@
     },
     toggleHold: function() {
       CallScreenUI.update('hold');
+    },
+    removeFakeVideo: function() {
+      _localVideo.removeChild(_fakeLocalVideo);
     }
   };
 

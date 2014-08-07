@@ -50,35 +50,7 @@
         callProgressHelper.accept();
         break;
       case 'connecting':
-        _session.connect(_call.sessionToken, function(e) {
-          if (e) {
-            console.log('Session connect error ' + e.message);
-            return;
-          }
-           _publisher = _session.publish(
-            'local-video',
-            {
-              width: 400,
-              height:300,
-              style:{
-                nameDisplayMode: 'off',
-                buttonDisplayMode: 'off',
-                showMicButton: false,
-                showSettingsButton: false
-              }
-            },
-            function onPublish(ee) {
-              if (ee) {
-                console.log('Session publish error ' + ee.message);
-              }
-              var container =  document.querySelector('.OT_publisher');
-              if (!container) {
-                return;
-              }
-              callProgressHelper.mediaUp();
-              _publishersInSession += 1;
-          });
-        });
+        callProgressHelper.mediaUp();
         break;
       case 'connected':
         // A "connected" notification from the server means that both peers has
@@ -182,6 +154,7 @@
       Opentok.setConstraints(constraints);
 
       _session = TB.initSession(_call.apiKey, _call.sessionId);
+
       var that = this;
       _session.on({
         streamPropertyChanged: function(event) {
@@ -243,6 +216,41 @@
           _publishersInSession -= 1;
         }
       });
+      
+      // Connect asap in order to publish the video
+      _session.connect(_call.sessionToken, function(e) {
+        if (e) {
+          console.log('Session connect error ' + e.message);
+          return;
+        }
+         _publisher = _session.publish(
+          'local-video',
+          {
+            width: 400,
+            height:300,
+            style:{
+              nameDisplayMode: 'off',
+              buttonDisplayMode: 'off',
+              showMicButton: false,
+              showSettingsButton: false
+            }
+          },
+          function onPublish(ee) {
+            if (ee) {
+              console.log('Session publish error ' + ee.message);
+            }
+            var container =  document.querySelector('.OT_publisher');
+            if (!container) {
+              return;
+            }
+            
+            container.querySelector('video').addEventListener('canplay', function() {
+              CallScreenUI.removeFakeVideo();
+            });
+            _publishersInSession += 1;
+        });
+      });
+
 
       _handleCallProgress(_callProgressHelper);
       _callProgressHelper.onstatechange = function onStateChange(evt) {
@@ -268,8 +276,8 @@
     },
 
     stop: function() {
-      if ((_callProgressHelper.state !== 'connected') ||
-          (_callProgressHelper.state !== 'closed')) {
+      if (_callProgressHelper && ((_callProgressHelper.state !== 'connected') ||
+          (_callProgressHelper.state !== 'closed'))) {
         _callProgressHelper.terminate(_reason);
       }
       AudioCompetingHelper.leaveCompetition();
@@ -309,7 +317,7 @@
 
       // Clean the call
       _call = {};
-      _callProgressHelper.finish();
+      _callProgressHelper && _callProgressHelper.finish();
       _callProgressHelper = null;
       AudioCompetingHelper.destroy();
     }
