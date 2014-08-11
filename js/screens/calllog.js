@@ -97,7 +97,7 @@
     // Retrieve important info
     var identities = element.dataset.identities.split(',');
     var contactId = element.dataset.contactId;
-    if (!contactId || contactId === 'null') {
+    if (!contactId || contactId === 'null' || contactId === 'undefined') {
       var tel, email;
       for (var i = 0, l = identities.length; i < l && !tel && !email; i++) {
         if (identities[i].indexOf('@') === -1) {
