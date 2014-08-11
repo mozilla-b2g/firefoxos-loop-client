@@ -27,8 +27,8 @@
       _reset();
       _counterTimer = setInterval(function() {
         ++_counter;
-        var minutes = _beautify(Math.round(_counter/60));
-        var seconds = _beautify(Math.round(_counter%60));
+        var minutes = _beautify(Math.floor(_counter/60));
+        var seconds = _beautify(Math.floor(_counter%60));
         _countdownUI.textContent = minutes + ':' + seconds;
       }, 1000);
     },

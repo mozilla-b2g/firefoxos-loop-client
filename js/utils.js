@@ -40,8 +40,8 @@
       return this.date.shared.getTime();
     },
     getDurationPretty: function ut_getDurationPretty(time) {
-      var minutes = _beautify(Math.round(time/60));
-      var seconds = _beautify(Math.round(time%60));
+      var minutes = _beautify(Math.floor(time/60));
+      var seconds = _beautify(Math.floor(time%60));
       return minutes + ':' + seconds + ' min';
     },
     getRevokeDate: function ut_getDurationPretty(time) {
