@@ -9,6 +9,14 @@
   var _renderingUrls = false;
   var _invalidatingCache = false;
 
+  // Variables needed to track infinite scrolling
+  const CHUNK_SIZE = 10;
+  const ONSCROLL_CHUNK_SIZE = 50;
+  const SCROLL_EDGE = 50;
+
+  var callsRenderedIndex = 0;
+  var urlsRenderedIndex = 0;
+  
   /**
    * Function for rendering an option prompt given a list
    * of options
@@ -392,6 +400,9 @@
 
     // We need to check where to place the new group
     var container = type === 'calls' ? callsSectionEntries : urlsSectionEntries;
+    if (callsRenderedIndex > CHUNK_SIZE) {
+      header.classList.add('hidden');
+    }
     // Append into the right position
     _appendElementToContainer(container, ul, header);
 
@@ -508,6 +519,10 @@
     // Create elements needed
     var group = _getGroup('calls', call.date);
     var element = _createCallDOM(call);
+    callsRenderedIndex++;
+    if (callsRenderedIndex > CHUNK_SIZE) {
+      element.classList.add('hidden');
+    }
     // Append to the right position
     _appendElementToContainer(group, element)
   }
@@ -651,6 +666,10 @@
     // Create elements needed
     var group = _getGroup('urls', rawUrl.date);
     var element = _createUrlDOM(rawUrl);
+    urlsRenderedIndex++;
+    if (urlsRenderedIndex > CHUNK_SIZE) {
+      element.classList.add('hidden');
+    }
     // Append to the right position
     _appendElementToContainer(group, element)
   }
@@ -822,6 +841,22 @@
     });
   }
 
+  function _manageScroll() {
+    var scrollTop = this.scrollTop;
+    var scrollHeight = this.scrollHeight;
+    var clientHeight = this.clientHeight;
+    if (scrollTop + clientHeight > scrollHeight - SCROLL_EDGE) {
+      _showChunk(this, ONSCROLL_CHUNK_SIZE);
+    }
+  }
+
+  function _showChunk(container, numOfElements) {
+    var candidatesToShow = container.querySelectorAll('.hidden');
+    for (var i = 0, l = candidatesToShow.length; i < l && i < ONSCROLL_CHUNK_SIZE; i++) {
+      candidatesToShow[i].classList.remove('hidden');
+    }
+  }
+
   var CallLog = {
     init: function w_init(identity) {
       // Show the section
@@ -909,7 +944,11 @@
           Controller.callIdentities(identities, null, Settings.isVideoDefault);
         }
       )
+
       ActionLogDB.getCalls(_renderCalls, {prev: 'prev'});
+
+      callsSection.addEventListener('scroll', _manageScroll);
+      urlsSection.addEventListener('scroll', _manageScroll);
 
       // Render urls
       if (!_templateUrl) {

@@ -3,6 +3,10 @@
   overflow: hidden;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .calllog-sections-container {
   height: 100%;
   width: 200%;
@@ -34,9 +38,6 @@
 
 .section-entries li * {
   pointer-events: none;
-}
-
-.section-empty {
 }
 
 #urls-section.empty .section-empty {
