@@ -17,6 +17,7 @@
   var _publishVideo = true;
   var _subscribeToAudio = true;
   var _subscribeToVideo = true;
+  var _isVideoCall = false;
 
   /**
    * Set the current call on hold.
@@ -158,6 +159,9 @@
     },
 
     join: function(isVideoCall) {
+      // Cache original status of the call
+      _isVideoCall = isVideoCall;
+
       AudioCompetingHelper.clearListeners();
       AudioCompetingHelper.addListener('mozinterruptbegin', _setCallOnHold);
       AudioCompetingHelper.compete();
@@ -290,7 +294,8 @@
           message: 'hangout',
           params: {
             duration: duration,
-            connected: connected
+            connected: connected,
+            video: _isVideoCall
           }
         };
         ControllerCommunications.send(hangoutMessage);

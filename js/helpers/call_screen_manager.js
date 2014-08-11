@@ -113,11 +113,13 @@
                   attention = null;
                   // Create CALL object
                   var params = messageFromCallScreen.params;
+
+
                   // Create object to store
                   var callObject = {
                     date: attentionLoadedDate,
                     identities: identities || [],
-                    video: isVideoCall,
+                    video: params.video || null,
                     type: type,
                     connected: params.connected,
                     duration: params.duration,
