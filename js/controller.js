@@ -34,7 +34,6 @@
     SplashScreen.hide();
     LoadingOverlay.hide();
     // TODO Add error message
-    // TODO Add LoadingOverlay.hide() when implemented
   }
 
   /**
@@ -45,23 +44,14 @@
    */
   function _onnotification(version) {
     navigator.mozApps.getSelf().onsuccess = function (event) {
-      var app = event.target.result;
-      app.launch();
-      ClientRequestHelper.getCalls(
-        version,
-        function onsuccess(callsArray) {
-          var call = callsArray.calls[0];
-          var identities = [call.callerId];
-
-          CallScreenManager.launch('incoming', call, identities);
-        },
-        function onerror(e) {
-          debug && console.log('Error: ClientRequestHelper.getCalls ' + e);
+      CallScreenManager.launch(
+        'incoming',
+        {
+          version: version
         }
       );
     }
   }
-
 
   var Controller = {
     init: function () {
@@ -83,12 +73,12 @@
 
     pickAndCall: function() {
       var activity = new MozActivity({
-            name: 'pick',
-            data: {
-              type: 'webcontacts/contact',
-              fullContact: true
-            }
-          });
+        name: 'pick',
+        data: {
+          type: 'webcontacts/contact',
+          fullContact: true
+        }
+      });
 
       activity.onsuccess = function() {
         Controller.callContact(activity.result, Settings.isVideoDefault);
@@ -100,25 +90,12 @@
     },
 
     callIdentities: function(identities, contact, isVideoCall) {
-      LoadingOverlay.show('Connecting');
-      CallHelper.callUser(
-        identities,
-        isVideoCall,
-        function onLoopIdentity(call) {
-          CallScreenManager.launch('outgoing', call, identities, isVideoCall);
-        },
-        function onFallback() {
-          LoadingOverlay.show('Generating url to share');
-          CallHelper.generateCallUrl(identities[0],
-            function onCallUrlSuccess(result) {
-              LoadingOverlay.hide();
-              Share.show(result, contact);
-            },
-            function() {
-              alert('Unable to retrieve link to share');
-              LoadingOverlay.hide();
-            }
-          );
+      CallScreenManager.launch(
+        'outgoing',
+        {
+          identities: identities,
+          video: isVideoCall,
+          contact: contact
         }
       );
     },
@@ -167,14 +144,13 @@
         return;
       }
 
-      LoadingOverlay.show('Connecting');
-      CallHelper.callUrl(token, isVideoCall, function(call, calleeFriendlyName) {
-        CallScreenManager.launch('outgoing', call, [calleeFriendlyName],
-                                 isVideoCall);
-      }, function() {
-        LoadingOverlay.hide();
-        alert('Unable to stablish connection');
-      });
+      CallScreenManager.launch(
+        'outgoing',
+        {
+          token: token,
+          video: isVideoCall
+        }
+      );
     },
 
     shareUrl: function (url, onsuccess, onerror) {
