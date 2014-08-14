@@ -8,7 +8,6 @@
 }
 
 .calllog-sections-container {
-  height: 100%;
   width: 200%;
   overflow: hidden;
   transition: all .2s ease-in-out;
@@ -108,8 +107,8 @@ gaia-toolbar .icon-user:active {
   margin-left: 0;
 }
 
-#calls-section .primary-info {
-  margin-bottom: 0.3rem;
+.call-time {
+  line-height: 2rem;
 }
 
 .calllog-section .call-time,
