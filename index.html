@@ -56,7 +56,6 @@
     <script defer src="js/helpers/simple_push_helper.js"></script>
     <script defer src="js/helpers/client_request_helper.js"></script>
 
-    <script defer src="js/screens/wizard/gum.js"></script>
     <script defer src="js/screens/wizard/authenticate.js"></script>
     <script defer src="js/screens/wizard/tutorial.js"></script>
     <script defer src="js/screens/wizard/wizard.js"></script>
@@ -77,7 +76,7 @@
 
   <body role="application" class="animate" data-layout="wizard">
     <section id="loading-overlay" class="panel" role="region" data-type="dialog">
-      <p><progress></progress></p>
+      <p><progress class="light"></progress></p>
       <p id="loading-overlay-message">Connecting with the server</p>
     </section>
     <section id="webview-overlay" class="panel" role="region" data-type="dialog">
@@ -92,74 +91,78 @@
     <!--
       Every relevant screen which have it own 'panel'
     -->
-    <section id="wizard-panel" class="panel main">
+    <section id="wizard-panel" data-step="0" class="panel main">
       <!--
         Wizard is based on 3 well differentiated sections:
         - Tutorial > "wizard-tutorial-section"
         - Authenticate > "wizard-authenticate-section"
-        - gUM > "wizard-gum-section"
       -->
-      <section id="wizard-tutorial-section"  class="wizard-section current">
-        <button id="skip-tutorial-button">
-          Let's start!
-        </button>
+      <section id="wizard-tutorial-section"  class="wizard-section vbox current">
+        <header id="wizard-tutorial-header">
+          <p>Welcome to</p>
+          <P>Firefox Hello</p>
+        </header>
+        <ul id="wizard-tutorial-slideshow" class="fit">
+          <li class="wizard-tutorial-step">
+            <p>Hello! is the easiest way to keep in touch with people all over the world.</p>
+            <footer>Talk face to face and see each other!</footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <footer>Talk to anyone with a browser.</footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <footer>Anywhere in the world!</footer>
+          </li>
+        </ul>
         <ul id="wizard-tutorial-progress" class="tutorial-progress-indicator">
         </ul>
-        <ul id="wizard-tutorial-slideshow">
-          <li class="wizard-tutorial-step">
-            <!-- <img src=""> -->
-            <div>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            </div>
-          </li>
-          <li class="wizard-tutorial-step">
-            <!-- <img src=""> -->
-            <div>
-              Proin malesuada sodales lacinia.
-            </div>
-          </li>
-          <li class="wizard-tutorial-step">
-            <!-- <img src=""> -->
-            <div>
-              Proin quis tellus velit.
-            </div>
-          </li>
-          <li class="wizard-tutorial-step">
-            <!-- <img src=""> -->
-            <div>
-              <span class="link" data-url="http://www.mozilla.com" data-title="ToS" data-webview="true">Check ToS</span> Sed commodo elementum nisl. ñalsk dñlas kdñla sdlñak dslña ksdlñaks dlñak dñlk asdl
-            </div>
-          </li>
-        </ul>
+        <div id="wizard-elements">
+          <div id="wizard-face-1" class="layer-4"></div>
+          <div id="wizard-mobile" class="layer-3"></div>
+          <div id="wizard-face-2" class="layer-2"></div>
+          <div id="wizard-circle" class="layer-1"></div>
+          <div id="wizard-tablet" class="layer-2"></div>
+          <div id="wizard-desktop" class="layer-1"></div>
+          <ul id="wizard-main-pins" class="pins-container layer-3">
+            <li id="pin-1" class="left large"><span></span></li>
+            <li id="pin-2" class="right large"><span></span></li>
+            <li id="wizard-dottedline"></li>
+          </ul>
+          <ul id="wizard-pins" class="pins-container layer-3">
+            <li id="pin-3" class="left"><span></span></li>
+            <li id="pin-4" class="right"><span></span></li>
+            <li id="pin-5" class="right"><span></span></li>
+            <li id="pin-6" class="right"><span></span></li>
+            <li id="pin-7" class="left"><span></span></li>
+            <li id="pin-8" class="left"><span></span></li>
+            <li id="pin-9" class="right"><span></span></li>
+            <li id="pin-10" class="right"><span></span></li>
+            <li id="pin-11" class="right"><span></span></li>
+            <li id="pin-12" class="right"><span></span></li>
+            <li id="pin-13" class="left"><span></span></li>
+            <li id="pin-14" class="left "><span></span></li>
+          </ul>
+          <ul id="wizard-backgrounds">
+            <li id="wizard-map" class="layer-1"></li>
+            <li id="wizard-world" class="layer-0"></li>
+          </ul>
+        </div>
       </section>
-      <div id="wizard-gum-section" class="wizard-section">
-        <p class="gum-explanation">
-          Tap to check how it works!
-        </p>
-        <div class="calllog-snapshot">
-          <div id="calllog-action-tap-mocked" class="calllog-action-tap-mocked">
-          </div>
-          <div class="calllog-hand-indicator">
-          </div>
-          <div class="calllog-tap-indicator">
-          </div>
-        </div>
-        <video id="call-mock" src="">
-        </video>
-        <div id="call-snapshot" class="call-mock">
-        </div>
-      </div>
-      <div id="wizard-authenticate-section" class="wizard-section">
-        <p id="wizart-authenticate-explanation">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-        </p>
-        <button id="authenticate-msisdn-button" class="wizard-button">
-          Use Phone Number
-        </button>
-        <button id="authenticate-fxa-button" class="wizard-button">
-          Use Firefox Accounts
-        </button>
-      </div>
+      <section id="wizard-login" class="wizard-section vbox">
+        <header>
+          <p>Start using</p>
+          <P>Firefox Hello</p>
+          <p>Today!</p>
+        </header>
+        <footer class="gaia-footer vbox">
+          <button id="authenticate-msisdn-button" class="wizard-button">
+            Use Phone Number
+          </button>
+          <button id="authenticate-fxa-button" class="wizard-button">
+            Use Firefox Accounts
+          </button>
+        </footer>
+      </section>
     </section>
     <section id="calllog-panel" class="panel main vbox skin-comms" role="region">
       <header>

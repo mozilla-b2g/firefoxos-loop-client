@@ -3,7 +3,8 @@
 
   var debug = false;
 
-  var wizardTutorial, skipButton, progressBar;
+  var wizardHeader, wizardPanel, wizardTutorial, progressBar;
+  var wizardWorld, wizardMainPins, wizardPins, wizardDottedLine, wizardLogin;
   var currentStep = 0, stepsLength;
   var viewportWidth;
   // Desplazamiento a aplicar
@@ -13,6 +14,8 @@
   var stopTracking = false;
   var onAnimation = false;
 
+  var promptTimer = null;
+  var pinsAnimation = false;
 
   function _cancelAnimation() {
     onAnimation = false;
@@ -44,22 +47,16 @@
       }
 
       // Update the progress
-      _updateProgress()
+      _updateProgress();
       // Move to the right position
       var shiftValue = currentStep * -1 * (100/stepsLength);
-      wizardTutorial.style.webkitTransform = 'translateX(' + shiftValue + '%)';
-      wizardTutorial.style.MozTransform = 'translateX(' + shiftValue + '%)';
-      if (currentStep === stepsLength - 1) {
-        document.getElementById('skip-tutorial-button').classList.add('visible');
-      } else {
-        document.getElementById('skip-tutorial-button').classList.remove('visible');
-      }
+      wizardTutorial.style.transform = 'translateX(' + shiftValue + '%)';
       return;
     }
 
+
     var total = -1 * viewportWidth * currentStep + deltaX;
-    wizardTutorial.style.webkitTransform = 'translateX(' + total + 'px)';
-    wizardTutorial.style.MozTransform = 'translateX(' + total + 'px)';
+    wizardTutorial.style.transform = 'translateX(' + total + 'px)';
 
     window.requestAnimationFrame(_moveElement);
   }
@@ -115,12 +112,12 @@
         referenceDelta = event.clientX;
         break;
       case 'touchstart':
-        // We are not taking into account the ID of the touch. 
+        // We are not taking into account the ID of the touch.
         var touches = event.changedTouches;
         referenceDelta = touches[0].pageX;
         break;
     }
-    
+
     debug && console.log('referenceDelta = ' + referenceDelta);
 
     // Add the rest of listeners now
@@ -138,12 +135,64 @@
     window.requestAnimationFrame(_moveElement);
   }
 
+  function onAnimateEnd(element, callback) {
+    element.addEventListener("transitionend", function onTransitionEnded() {
+      element.removeEventListener("transitionend", onTransitionEnded);
+      if (!pinsAnimation) {
+        clearAnimation();
+        return;
+      }
+      if (typeof callback === 'function') {
+        callback();
+      }
+    });
+  }
+
+  function clearAnimation() {
+    wizardMainPins.classList.remove('animate');
+    wizardPins.classList.remove('animate');
+    wizardMainPins.classList.remove('move');
+    wizardPins.classList.remove('move');
+  }
+
   function _updateProgress() {
     var currentProgress = progressBar.querySelector('.active');
     if (currentProgress) {
       currentProgress.classList.remove('active');
     }
     progressBar.querySelector('#progress-step-' + currentStep).classList.add('active');
+
+    // Pin animations
+    if (currentStep === 1) {
+      if (pinsAnimation) {
+        clearAnimation();
+        pinsAnimation = false;
+      }
+
+      if (promptTimer) {
+        clearTimeout(promptTimer);
+      }
+    }
+    if (currentStep === 2) {
+      pinsAnimation = true;
+      onAnimateEnd(wizardWorld, function(){
+        onAnimateEnd(wizardMainPins, function() {
+          onAnimateEnd(wizardDottedLine, function(){
+            wizardMainPins.classList.add('animate');
+            wizardPins.classList.add('move');
+            onAnimateEnd(wizardPins, function() {
+              wizardPins.classList.add('animate');
+              promptTimer = setTimeout(function timer() {
+                wizardHeader.classList.add('hide');
+                wizardLogin.classList.add('show');
+              },1000);
+            });
+          })
+        });
+        wizardMainPins.classList.add('move');
+      })
+    }
+    wizardPanel.dataset.step = currentStep;
   }
 
   var _initialized = false;
@@ -153,16 +202,23 @@
         return;
       }
       // Cache the viewport width
+      wizardHeader = document.getElementById('wizard-tutorial-header');
+      wizardPanel = document.getElementById('wizard-panel');
       wizardTutorial = document.getElementById('wizard-tutorial-slideshow');
-      skipButton = document.getElementById('skip-tutorial-button');
       progressBar = document.getElementById('wizard-tutorial-progress');
+      wizardWorld = document.getElementById('wizard-world');
+      wizardMainPins = document.getElementById('wizard-main-pins');
+      wizardPins = document.getElementById('wizard-pins');
+      wizardDottedLine = document.getElementById('wizard-dottedline');
+      wizardLogin = document.getElementById('wizard-login');
+
       // Get the steps directly from the HTML
       var tutorialSteps = wizardTutorial.children;
       stepsLength = wizardTutorial.children.length;
       // We read the width from the viewport. We need it for
       // the swipe gesture
       viewportWidth = Math.max(document.body.clientWidth, window.innerWidth || 0);
-      
+
       debug && console.log('Number of steps in the Tutorial: ' + stepsLength);
 
       // We stablish the whole width taking into account the steps
@@ -177,7 +233,6 @@
       }
 
       _updateProgress();
-      
 
       wizardTutorial.addEventListener('touchstart', _enableGestures);
       wizardTutorial.addEventListener('mousedown', _enableGestures);
@@ -187,7 +242,7 @@
       for (var i = 0, l = links.length; i < l; i++) {
         var title = links[i].dataset.title;
         var url = links[i].dataset.url;
-        
+
         if (!url || !title) {
           return;
         }
@@ -202,10 +257,6 @@
         );
       }
 
-      skipButton.addEventListener(
-        'click',
-        onCompleted || function() {}
-      );
       _initialized = true;
     }
   };

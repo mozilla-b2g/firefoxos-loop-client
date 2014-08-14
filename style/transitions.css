@@ -2,50 +2,41 @@
  * Position of the elements
  */
 
-body.animate .panel {
-  transition: all ease .4s;
-}
 /*
- * Estamos en el wizard
- */ 
+ * wizard
+ */
 body[data-layout="wizard"] #wizard-panel {
-  -webkit-transform: translateX(0);
   transform: translateX(0);
 }
 
 /*
- * Estamos en el calllog
- */ 
+ * calllog
+ */
 body[data-layout="calllog"] #wizard-panel {
-  -webkit-transform: translateX(-100%);
   transform: translateX(-100%);
 }
 
 body[data-layout="calllog"] #calllog-panel {
-  -webkit-transform: translateX(0);
   transform: translateX(0);
 }
 
 /*
- * Estamos en el share
- */ 
+ * share
+ */
 body[data-layout="contact-detail"] #wizard-panel {
-  -webkit-transform: translateX(-100%);
   transform: translateX(-100%);
 }
 
 body[data-layout="contact-detail"] #calllog-panel {
-  -webkit-transform: translateX(-100%);
   transform: translateX(-100%);
 }
 
 body[data-layout="contact-detail"] #contact-detail-panel {
-  -webkit-transform: translateX(0);
   transform: translateX(0);
 }
 
 
 body[data-layout="share"] #share-panel {
-  -webkit-transform: translateX(0);
+  transition: all ease .4s;
   transform: translateX(0);
 }

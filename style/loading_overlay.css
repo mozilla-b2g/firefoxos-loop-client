@@ -1,6 +1,5 @@
 section[data-type="dialog"] {
   z-index: 200;
-  background: white;
   display: none;
 }
 
@@ -15,8 +14,7 @@ section[data-type="dialog"].show {
 }
 
 #loading-overlay {
-  background: black;
-  opacity: .8;
+  background: rgba(0, 173, 173, 0.6);
   color: white;
 }
 

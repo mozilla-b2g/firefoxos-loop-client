@@ -122,7 +122,6 @@
       _logoutSettingsButton.addEventListener(
         'click',
         function onLogout() {
-          this.hide();
           LoadingOverlay.show('Logging out...');
           Controller.logout();
         }.bind(this)
