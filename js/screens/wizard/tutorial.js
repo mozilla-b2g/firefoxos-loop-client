@@ -153,6 +153,7 @@
     wizardPins.classList.remove('animate');
     wizardMainPins.classList.remove('move');
     wizardPins.classList.remove('move');
+    wizardPanel.classList.remove('overlay');
   }
 
   function _updateProgress() {
@@ -183,7 +184,7 @@
             onAnimateEnd(wizardPins, function() {
               wizardPins.classList.add('animate');
               promptTimer = setTimeout(function timer() {
-                wizardHeader.classList.add('hide');
+                wizardPanel.classList.add('overlay');
                 wizardLogin.classList.add('show');
               },1000);
             });
