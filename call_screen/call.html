@@ -3,34 +3,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no">
 
-    <link href="../style/bb/progress_activity.css" rel="stylesheet" type="text/css" >
-    <link href="../style/bb/switches.css" rel="stylesheet" type="text/css">
-    <link href="../style/bb/edit_mode.css" rel="stylesheet" type="text/css">
-    <link href="../style/bb/lists.css" rel="stylesheet" type="text/css">
-    <link href="../style/bb/buttons.css" rel="stylesheet" type="text/css">
-    <link href="../libs/components/gaia-layout/style.css" rel="stylesheet" type="text/css" >
-    <link href="style/oncall.css" rel="stylesheet" type="text/css">
-
-
-    <script defer src="../libs/orientation_vendor.js"></script>
-    <script defer src="../libs/tokbox/v2.2.6/js/TB.js"></script>
-    <script defer src="../libs/opentok.js"></script>
-    <script defer src="../js/helpers/contacts_helper.js"></script>
-    <script defer src="../js/helpers/audio_competing_helper.js"></script>
-    <script defer src="js/call_screen_ui.js"></script>
-    <script defer src="../js/helpers/call_progress_helper.js"></script>
-    <script defer src="js/call_manager.js"></script>
+    <link href="style/oncall.css" rel="stylesheet" type="text/css"> 
+    
+    <script defer src="../libs/lazy_loader.js"></script>
     <script defer src="js/controller_communications.js"></script>
-    <script defer src="js/ringer.js"></script>
-    <script defer src="js/countdown.js"></script>
-    <script defer src="js/oncall.js"></script>
+    <script defer src="js/call_screen_ui_minified.js"></script>
    	<title>LoopCall</title>
-    <style>
-      /* This needs to be inline in order to work properly. Dont remove! */
-      #fullscreen-image {
-        filter: url(#blur);
-      }
-    </style>
   </head>
   <body role="application" class="no-transition" data-local-video="on" data-remote-video="off" data-call-status="outgoing" data-settings="false" data-feedback="false" data-rotation="0">
 
@@ -45,14 +23,6 @@
         <div>Fx<b>Hello!</b></div>
       </div>
       <section id="fullscreen-image" class="video-wrapper">
-        <!-- As filter: blur() is not implemented, we need to use svg instead -->
-        <svg>
-          <defs>
-            <filter id="blur">
-              <feGaussianBlur stdDeviation="5" />
-            </filter>
-          </defs>
-        </svg>
       </section>
       <section id="fullscreen-video" class="video-wrapper">
       </section>

@@ -72,28 +72,88 @@
   }
 
   var attention;
-  function _launchAttention(type, call, identities, isVideoCall) {
+  function _launchAttention(type, params, incomingCall, contact) {
     // Retrieve the params and pass them as part of the URL
     var attentionParams = 'layout=' + type;
-    attentionParams += '&identities=' +  encodeURIComponent(identities.toString());
-    attentionParams += '&isVideoCall=' +  encodeURIComponent(isVideoCall);
-    if (call) {
-      Object.keys(call).forEach(function(param) {
-        attentionParams += '&' + param + '=' + encodeURIComponent(call[param])
+    if (params) {
+      Object.keys(params).forEach(function(key) {
+        attentionParams += '&' + key + '=' + encodeURIComponent(params[key])
       });
     }
+
     // Launch the Attention
     var host = document.location.host;
     var protocol = document.location.protocol;
     var urlBase = protocol + '//' + host +
       '/call_screen/call.html?' + attentionParams;
     attention = window.open(urlBase, 'call_screen', 'attention');
+
     // Enable handshaking with the Call Screen
     _onAttentionLoaded(
       attention,
       function onLoaded() {
-        debug && console.log('handshaking ready!');
-        LoadingOverlay.hide();
+        // Function to post data from the server
+        function _postCall(type, call, identities, video) {
+          attention.postMessage(JSON.stringify({
+            id: 'controller',
+            message: 'call',
+            params: {
+              type: type,
+              call: call,
+              identities: identities,
+              video: video || null
+            }
+          }), '*');
+        }
+
+        // Now it's time to send ot the attention the info regarding the
+        // call object
+        switch(type) {
+          case 'incoming':
+            // Call was retrieved previously in order to accelerate the UI
+            _postCall(type, incomingCall, params.identities);
+            break;
+          case 'outgoing':
+            if (!params.token) {
+              CallHelper.callUser(
+                params.identities,
+                params.video,
+                function onLoopIdentity(call) {
+                  _postCall(type, call, params.identities, params.video);
+                },
+                function onFallback() {
+                  // Get URL to share and show prompt
+                  CallHelper.generateCallUrl(params.identities[0],
+                    function onCallUrlSuccess(result) {
+                      Share.show(result, params.identities, function onShareShown() {
+                        attention.close();
+                      });
+                    },
+                    function(e) {
+                      console.error('Unable to retrieve link to share ' + e);
+                      attention.close();
+                    }
+                  );
+                }
+              );
+            } else {
+              CallHelper.callUrl(
+                params.token,
+                params.video,
+                function(call, calleeFriendlyName) {
+                  params.identities = [calleeFriendlyName];
+                  _postCall(type, call, params.identities, params.video);
+                },
+                function() {
+                  console.error('Unable to connect');
+                  // Close attention
+                  attention.close();
+                }
+              );
+            }
+            break;
+        }
+
         var attentionLoadedDate = new Date();
         window.addEventListener(
           'message',
@@ -112,26 +172,27 @@
                   attention.close();
                   attention = null;
                   // Create CALL object
-                  var params = messageFromCallScreen.params;
+                  var callscreenParams = messageFromCallScreen.params;
+
 
 
                   // Create object to store
                   var callObject = {
                     date: attentionLoadedDate,
-                    identities: identities || [],
+                    identities: params.identities || [],
                     video: params.video || null,
                     type: type,
-                    connected: params.connected,
-                    duration: params.duration,
-                    url: call.callUrl || null,
-                    urlToken: call.callToken || null,
+                    connected: callscreenParams.connected,
+                    duration: callscreenParams.duration,
+                    url: callscreenParams.call.callUrl || null,
+                    urlToken: callscreenParams.call.callToken || null,
                     contactId: null,
                     contactPrimaryInfo: null,
                     contactPhoto: null
                   };
 
                   ContactsHelper.find({
-                    identities: identities
+                    identities: params.identities
                   }, function(result) {
                     CallLog.addCall(callObject, result);
                   }, function() {
@@ -150,9 +211,23 @@
   }
 
   var CallScreenManager = {
-    launch: function(type, call, identities, isVideoCall) {
-      // TODO Depending on the type show one or another
-      _launchAttention(type, call, identities, isVideoCall);
+    launch: function(type, params, contact) {
+      if (type !== 'incoming') {
+        _launchAttention(type, params);
+        return;
+      }
+
+      ClientRequestHelper.getCalls(
+        params.version,
+        function onsuccess(callsArray) {
+          var call = callsArray.calls[0];
+          params.identities = [call.callerId];
+          _launchAttention(type, params, call);
+        },
+        function onerror(e) {
+          debug && console.log('Error: ClientRequestHelper.getCalls ' + e);
+        }
+      );
     },
     close: function() {
       if (attention) {

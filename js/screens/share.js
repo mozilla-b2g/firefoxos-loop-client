@@ -177,17 +177,31 @@
     
 
   var Share = {
-    show: function s_show(urlObject, contact) {
-      if (!contact) {
-        console.log('ERROR: Contact is undefined in SHARE').
-        return;
-      }
+    show: function s_show(urlObject, identities, callback) {
       _init();
-      _contact = contact;
       _urlObject = urlObject;
       _url = urlObject.callUrl;
-      _render(contact, _url);
-      _sharePanel.classList.add('show');
+      ContactsHelper.find(
+        {
+          identities: identities
+        },
+        function onContact(result) {
+          _contact = result.contacts[0];
+          _render(_contact, _url);
+          
+          _sharePanel.addEventListener('transitionend', function shown() {
+            _sharePanel.removeEventListener('transitionend', shown);
+            if (typeof callback === 'function') {
+              callback();
+            }
+          });
+          _sharePanel.classList.add('show');
+          
+        },
+        function() {
+          
+        }
+      );
     },
     hide: function s_hide() {
       _sharePanel.classList.remove('show');

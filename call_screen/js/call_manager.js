@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
 
-  var _call = {};
+  var _call = null;
   var _session;
   var _publisher;
   var _subscriber;
@@ -58,7 +58,7 @@
         // remote stream is still available. In order to have a better UX, we
         // show a "Connecting"-like message in the screen that will be removed
         // once the remote media is successfully aquired.
-        CallScreenUI.update('connecting');
+        CallScreenUI.setCallStatus('connecting');
         break;
       case 'error':
       case 'terminated':
@@ -70,20 +70,14 @@
   }
 
   var CallManager = {
-    init: function() {
-      // Get params from URL
-      var query = window.location.search.slice(1);
-      var urlParams = query.split('&');
-      for (var i=0; i < urlParams.length; i++) {
-        var keyValue = urlParams[i].split('=');
-        _call[keyValue[0]] = decodeURIComponent(keyValue[1]);
+    init: function(params) {
+      if (_call) {
+        return;
       }
-
-      var identities = _call.identities;
-      var layout = _call.layout;
-      var video = _call.isVideoCall;
-
-      _callee = _call.layout === 'incoming' ? true : false;
+      AudioCompetingHelper.init();
+      _call = params.call;
+      _isVideoCall = params.video;
+      _callee = params.type === 'incoming' ? true : false;
       // TODO: Send busy as reason in case we are in another webrtc call.
       _reason = _callee ?  'reject' : 'cancel';
       _callProgressHelper = new CallProgressHelper(_call.callId,
@@ -93,11 +87,12 @@
         _handleCallProgress(_callProgressHelper);
       };
 
-      return {
-        identities: identities,
-        layout: layout,
-        video: video
-      };
+      if (params.type === 'outgoing') {
+        CallManager.join(params.video);
+        CallScreenUI.setCallStatus('calling');
+      } else {
+        CallScreenUIMinified.updateIdentityInfo(params.identities);
+      }
     },
 
     toggleVideo: function(isVideoOn) {
@@ -131,16 +126,15 @@
     },
 
     join: function(isVideoCall) {
-      // Cache original status of the call
-      _isVideoCall = isVideoCall;
-
+      
+      _isVideoCall = isVideoCall || _isVideoCall;
       AudioCompetingHelper.clearListeners();
       AudioCompetingHelper.addListener('mozinterruptbegin', _setCallOnHold);
       AudioCompetingHelper.compete();
 
       Countdown.reset();
 
-      _publishVideo = _subscribeToVideo = isVideoCall;
+      _publishVideo = _subscribeToVideo = _isVideoCall;
 
       // Choose default camera
       var cameraConstraint =
@@ -200,8 +194,7 @@
             );
           _subscriber.on({
             loaded: function() {
-              Countdown.start();
-              CallScreenUI.update('connected');
+              CallScreenUI.setCallStatus('connected');
             }
           });
           _publishersInSession += 1;
@@ -301,6 +294,7 @@
           id: 'call_screen',
           message: 'hangout',
           params: {
+            call: _call,
             duration: duration,
             connected: connected,
             video: _isVideoCall

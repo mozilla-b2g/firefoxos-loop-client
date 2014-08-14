@@ -671,7 +671,6 @@ body[data-feedback='true'] #feedback {
   position: absolute;
   z-index: 0;
   top: 0;
-  opacity: 0;
   left: 0;
   width: 100% !important;
   height: 100% !important;
@@ -680,7 +679,7 @@ body[data-feedback='true'] #feedback {
   background-position: 50%;
   background-repeat: no-repeat;
   background-blend-mode: luminosity;
-  transition: opacity 1s ease;
+  /*filter: url(images/blur.svg#blur) !important;*/
 }
 
 #fullscreen-mask {

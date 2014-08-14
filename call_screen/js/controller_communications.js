@@ -34,6 +34,23 @@
                   message: 'pong'
                 };
                 break;
+              case 'call':
+                LazyLoader.load(
+                  [
+                    '../libs/tokbox/v2.2.6/js/TB.js',
+                    '../libs/opentok.js',
+                    '../js/helpers/audio_competing_helper.js',
+                    '../js/helpers/call_progress_helper.js',
+                    'js/countdown.js',
+                    'js/ringer.js',
+                    'js/call_manager.js',
+                    'js/call_screen_ui.js'
+                  ],
+                  function onCallScreen() {
+                    CallManager.init(messageFromController.params);
+                  }
+                );
+                break;
             }
             ControllerCommunications.send(answer);
           } catch(e) {}
@@ -47,3 +64,5 @@
 
   exports.ControllerCommunications = ControllerCommunications;
 }(this));
+
+ControllerCommunications.init();
