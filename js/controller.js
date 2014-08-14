@@ -25,10 +25,8 @@
     Settings.reset();
     setTimeout(function() {
       LoadingOverlay.hide();
-    }, 2000);
-    // TODO This timeout is just for improving user experience. Check
-    // with UX.
-
+      Settings.hide();
+    }, 500);
   }
 
   function _onloginerror(event) {

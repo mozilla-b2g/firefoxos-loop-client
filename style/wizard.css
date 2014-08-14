@@ -1,21 +1,8 @@
-
-/*
- * Wizard is based on 3 well differentiated sections:
- *  [1] Tutorial > "wizard-tutorial-section"
- *  [3] Authenticate > "wizard-authenticate-section"
- *  [2] gUM > "wizard-gum-section"
- */
-
-/*
- * Each section is using the full height & width
- */
-
 .wizard-section {
   height: 100%;
   width: 100%;
   position: absolute;
   display: none;
-  background: #E5E5E5;
 }
 
 /*
@@ -23,7 +10,27 @@
  */
 
 .wizard-section.current {
-  display: block;
+  display: flex;
+}
+
+.wizard-section header {
+  font-size: 2rem;
+  font-weight: 300;
+  font-style: italic;
+  text-align: center;
+  color: #fff;
+  margin-top: 9%;
+  opacity: 1;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.wizard-section header p:nth-child(2) {
+  font-size: 2.7rem;
+  line-height: 3.3rem;
+}
+
+#wizard-tutorial-section header.hide {
+  opacity: 0;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * *
@@ -41,8 +48,6 @@
     in advance how many steps we have. The structure is
     based on an UL > LI. Every step is a LI
   */
-  height: 100%;
-  background: white;
 }
 
 #wizard-tutorial-slideshow.swipe {
@@ -58,63 +63,415 @@
   display: inline-block;
   float: left;
   position: relative;
-
   text-align: center;
-  /*
-    TODO Apply new images per step when ready
-  */
-  background-image: url(images/tutorial_image_wf.png);
-  background-size: 16rem 23rem;
-  background-repeat: no-repeat;
-  background-position: center 5rem;
 }
 
-.wizard-tutorial-step div {
-  width: 100%;
-  height: 4.7rem;
-  overflow: hidden;
-  position: absolute;
-  bottom: 11rem;
-
-  padding: 0 4rem;
-  box-sizing: border-box;
-
+.wizard-tutorial-step p {
+  color: #99f5f5;
+  font-size: 1.6rem;
   font-weight: 300;
-  font-size: 2rem;
-  line-height: 2.3rem;
+  font-style: italic;
+  padding: 1rem 1.5rem;
+}
+
+.wizard-tutorial-step footer {
+  color: #fff;
+  font-size: 1.7rem;
+  font-style: italic;
+  position: absolute;
+  right: 0;
+  bottom: 4rem;
+  left: 0;
+}
+
+.layer-0 { z-index: 0; }
+.layer-1 { z-index: 1; }
+.layer-2 { z-index: 2; }
+.layer-3 { z-index: 3; }
+.layer-4 { z-index: 4; }
+.layer-5 { z-index: 5; }
+
+#wizard-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 130%;
+  width: 100%;
+  z-index: -1;
+  background-color: #00adad;
+}
+
+#wizard-elements div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: transparent center calc(50% - 8.3rem) no-repeat;
+  background-size: 100% auto;
+}
+
+#wizard-elements #wizard-face-1 {
+  background-image: url(images/wizard/face1.png);
+  transform: translateX(-50%);
+  transition: transform 0.4s ease-in-out;
+}
+
+#wizard-elements #wizard-face-2 {
+  background-image: url(images/wizard/face2.png);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease-in-out;
+}
+
+#wizard-elements #wizard-circle {
+  background-image: url(images/wizard/circle.png);
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+#wizard-elements #wizard-desktop {
+  background-image: url(images/wizard/desktop.png);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease-in-out;
+}
+
+#wizard-elements #wizard-mobile {
+  background-image: url(images/wizard/mobile.png);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease-in-out;
+}
+
+#wizard-elements #wizard-tablet {
+  background-image: url(images/wizard/tablet.png);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease-in-out;
+}
+
+#wizard-backgrounds li {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: center calc(50% + 5.2rem) no-repeat;
+  background-size: 100% auto;
+  transform: translateY(0);
+}
+
+#wizard-backgrounds #wizard-world {
+  background-image: url(images/wizard/worldcircle.png);
+  transition: transform 0.4s ease-in-out;
+}
+
+#wizard-backgrounds #wizard-map {
+  background-image: url(images/wizard/worldmap.png);
+  opacity: 0;
+  transition: all 0.4s ease-in-out;
+}
+
+#wizard-elements #wizard-dottedline {
+  background-image: url(images/wizard/dottedline.png);
+  background-position: center calc(50% - 8rem);
+  opacity: 0;
+}
+
+#wizard-elements .pins-container {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+#wizard-elements #wizard-main-pins {
+  transform: translateY(-20rem);
+}
+
+#wizard-elements #wizard-pins {
+  transform: translateY(-10rem);
+}
+
+#wizard-elements .pins-container li {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background: url(images/wizard/pin.png) no-repeat;
+  background-size: 100% auto;
+}
+
+#wizard-elements .pins-container li span {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-repeat: no-repeat;
+  background-size: 100% auto;
+}
+
+#wizard-elements .pins-container li.left span {
+  background-image: url(images/wizard/bubble_s_left.png);
+  opacity: 0.5;
+  opacity: 0;
+}
+
+#wizard-elements .pins-container li.right span {
+  background-image: url(images/wizard/bubble_s_right.png);
+  opacity: 1;
+  opacity: 0;
+}
+
+#wizard-elements .pins-container li.left.large span {
+  background-image: url(images/wizard/bubbleleft.png);
+}
+
+#wizard-elements .pins-container li.right.large span {
+  background-image: url(images/wizard/bubbleright.png);
+}
+
+#wizard-elements #wizard-main-pins #pin-1 {
+  top: calc(50% - 16.5rem);
+  left: 18.5rem;
+}
+
+#wizard-elements #wizard-main-pins #pin-2 {
+  top: calc(50% + 2.1rem);
+  left: 4.6rem;
+}
+
+#wizard-elements #wizard-pins #pin-3 {
+  top: calc(50% - 19.7rem);
+  left: 2.6rem;
+}
+
+#wizard-elements #wizard-pins #pin-4 {
+  top: calc(50% - 18.6rem);
+  left: 7.6rem;
+}
+
+#wizard-elements #wizard-pins #pin-5 {
+  top: calc(50% - 14.6rem);
+  left: -3rem;
+}
+
+#wizard-elements #wizard-pins #pin-6 {
+  top: calc(50% - 10.6rem);
+  left: .3rem;
+}
+
+#wizard-elements #wizard-pins #pin-7 {
+  top: calc(50% - 9.2rem);
+  left: -3rem;
+}
+
+#wizard-elements #wizard-pins #pin-8 {
+  top: calc(50% - 2.6rem);
+  left: 3rem;
+}
+
+#wizard-elements #wizard-pins #pin-9 {
+  top: calc(50% + 2.6rem);
+  left: 10.6rem;
+}
+
+#wizard-elements #wizard-pins #pin-10 {
+  top: calc(50% - 11.5rem);
+  left: 17.7rem;
+}
+
+#wizard-elements #wizard-pins #pin-11 {
+  top: calc(50% - 13.5rem);
+  left: 24rem;
+}
+
+#wizard-elements #wizard-pins #pin-12 {
+  top: calc(50% - 4.5rem);
+  left: 24.3rem;
+}
+
+#wizard-elements #wizard-pins #pin-13 {
+  top: calc(50% - 7.5rem);
+  left: 23.2rem;
+}
+
+#wizard-elements #wizard-pins #pin-14 {
+  top: calc(50% - 4.5rem);
+  left: 18.2rem;
 }
 
 /*
- * Button for skipping the Tutorial
+ * Animations from 0 to 1
  */
 
-#skip-tutorial-button {
-  display: none;
-  width: calc(100% - 4rem);
-  height: 5rem;
-  position: absolute;
-  z-index: 10;
-  bottom: 4rem;
-  left: 2rem;
-  border-radius: 1rem;
-  border: .3rem solid white;
-  box-sizing: border-box;
-
-  font-size: 2.2rem;
-  color: white;
-
-  background: #ccc;
-  
-  opacity: 0;
-  transition: opacity ease .3s;
-  pointer-events: none;
+[data-step="0"] #wizard-elements #wizard-face-1 {
+  transform: translateX(0);
 }
 
-#skip-tutorial-button.visible {
-  transition: opacity ease .6s;
+[data-step="0"] #wizard-elements #wizard-face-2 {
+  transform: translateX(0);
+}
+
+[data-step="0"] #wizard-elements #wizard-mobile {
+  transform: translate(-9.4rem,-2rem);
+}
+
+[data-step="1"] #wizard-elements #wizard-mobile {
+  transform: translate(0,0);
+}
+
+[data-step="0"] #wizard-elements #wizard-circle {
   opacity: 1;
-  pointer-events: auto;
 }
+
+[data-step="0"] #wizard-elements #wizard-desktop,
+[data-step="0"] #wizard-elements #wizard-tablet {
+  transform: translateX(100%);
+}
+
+[data-step="1"] #wizard-elements #wizard-desktop {
+  transform: translateX(-4.2rem);
+}
+
+[data-step="1"] #wizard-elements #wizard-tablet {
+  transform: translateX(-10.8rem);
+}
+
+/*
+ * Animations from 1 to 2
+ */
+
+[data-step="2"] #wizard-elements #wizard-mobile,
+[data-step="2"] #wizard-elements #wizard-desktop,
+[data-step="2"] #wizard-elements #wizard-tablet {
+  transform: translateX(-100%);
+}
+
+[data-step="2"] #wizard-backgrounds #wizard-world {
+  transform: translateY(-10rem);
+}
+
+[data-step="2"] #wizard-backgrounds #wizard-map {
+  transform: translateY(-10rem);
+  opacity: 1;
+}
+
+[data-step="2"] #wizard-elements .move #wizard-dottedline {
+  opacity: 1;
+  transition: opacity 0.4s ease-in-out 0.6s;
+}
+
+[data-step="2"] #wizard-elements .pins-container.move {
+  transform: translateY(0) !important;
+  opacity: 1;
+  transition: all 0.4s ease-in-out;
+}
+
+[data-step="2"] #wizard-elements .pins-container.animate li.left span {
+  opacity: 0.6;
+  animation: bubbleleft 1.5s infinite;
+}
+
+[data-step="2"] #wizard-elements .pins-container.animate li.right span {
+  opacity: 1;
+  animation: bubblerigth 1.5s infinite;
+}
+
+[data-step="2"] #wizard-elements .pins-container.animate li.left.large span {
+  animation: bubbleleft 1.3s infinite;
+}
+
+[data-step="2"] #wizard-elements .pins-container.animate li.right.large span {
+  animation: bubblerigth 1.3s infinite;
+}
+
+/*
+ * keyframes
+ */
+
+@keyframes bubbleleft {
+  0, 10%, 100% { opacity: 0.6; }
+  50%, 70% { opacity: 1; }
+}
+
+@keyframes bubblerigth {
+  0, 90%, 100% { opacity: 1; }
+  30%, 50% { opacity: 0.6; }
+}
+
+
+/*
+ * Wizard login
+ */
+
+#wizard-login {
+  display: flex;
+  background-color: rgba(0, 173, 173, 0.6);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+#wizard-login.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+#wizard-login .gaia-footer {
+  background: none;
+  border: none;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  transform: translateY(20rem);
+  transition: all 0.4s ease-in;
+}
+
+#wizard-login.show .gaia-footer {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#wizard-login .gaia-footer button {
+  margin: 1rem 0 0 0;
+  background-color: #fff;
+}
+
+#wizard-login .gaia-footer button:active {
+  background-color: #B2F2FF;
+}
+
+/* .login: Used when FTU has already happened */
+.login #wizard-elements #wizard-main-pins,
+.login #wizard-elements #wizard-pins {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.login #wizard-elements .pins-container li.left span {
+  opacity: 0.9;
+}
+
+.login #wizard-elements .pins-container li.right span {
+  opacity: 0.6;
+}
+
+.login #wizard-elements > div,
+.login #wizard-tutorial-slideshow,
+.login #wizard-tutorial-section header {
+  display: none;
+}
+
+.link {
+  color: blue;
+  cursor: pointer;
+}
+
+/*
+ * Progress indicator
+ */
 
 .tutorial-progress-indicator {
   display: none;
@@ -132,13 +489,12 @@
   display: inline-block;
   background: white;
   border-radius: 50%;
-  margin: 1rem .25rem;
-  border: .1rem solid #ccc;
+  margin: 1rem 0.3rem;
+  opacity: 0.6;
 }
 
 .tutorial-progress-indicator-step.active {
-  background: #ccc;
-  border: .1rem solid #ccc;
+  opacity: 1;
 }
 
 .wizard-section.current #skip-tutorial-button {
@@ -149,210 +505,187 @@
   display: block;
 }
 
-.link {
-  color: blue;
-  cursor: pointer;
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * *
- * [2] gUM > "wizard-gum-section"
- * * * * * * * * * * * * * * * * * * * * * * * * *
- */
-#wizard-gum-section {
-  position: absolute;
-  background: white;
-}
-
-.gum-explanation {
-  padding: 1rem 2rem 0 2rem;
-  /*background: red;*/
-  font-size: 2.8rem;
-  line-height: 2.8rem;
-  /*font-weight: 300;*/
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  margin-top: 1rem;
-  text-align: center;
-}
-
-.explanation-emphasis{
-  line-height: 2rem;
-  font-size: 1.9rem;
-  text-align: center;
-  color: #4EADE6;
-}
-
-.calllog-snapshot {
-  height: 36rem;
-  width: 100%;
-  background: url(images/calllog_snapshot.png);
-  background-repeat: no-repeat;
-  background-size: 28rem auto;
-  background-position: center 0;
-  position: absolute;
-  bottom: 0;
-}
-
-.calllog-action-tap-mocked {
-  position: absolute;
-  height: 5rem;
-  width: 28rem;
-  top: 17rem;
-  right: calc(50% - 14rem);
-  z-index: 30;
-  background: #4EADE6;
-  opacity: .2;
-}
-
-.calllog-hand-indicator {
-  pointer-events: none;
-  position: absolute;
-  height: 6rem;
-  width: 6rem;
-  top: 19rem;
-  right: calc(50% - 6rem);
-  background: url(images/hand.png);
-  background-repeat: no-repeat;
-  background-size: 100%;
-  background-position: center;
-  z-index: 30;
-}
-
-@-webkit-keyframes tap-indicator-animation {
-  0%   { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-@-moz-keyframes tap-indicator-animation {
-  0%   { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-@keyframes tap-indicator-animation {
-  0%   { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-}
-
-.calllog-tap-indicator {
-  pointer-events: none;
-  border-radius: 1.25rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  position: absolute;
-  top: 18.5rem;
-  right: calc(50% - 3.5rem);
-  background: #4EADE6;
-  z-index: 10;
-  -webkit-animation: tap-indicator-animation 4s infinite; /* Safari 4+ */
-  -moz-animation:    tap-indicator-animation 4s infinite; /* Fx 5+ */
-  animation:         tap-indicator-animation 4s infinite; /* IE 10+ */
-}
-
-video {
-  background: white;
-  display: none;
-  position: absolute;
-  height: 100%;
-  top: 0;
-  z-index: 50;
-}
-
-.call-mock{
-  display: none;
-  background: url(images/call_screen_mock_wf.png);
-  background-size: 100% 100%;
-  z-index: 60;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0px;
-}
-
-video.show {
-  display: block;
-}
-
-.call-mock.show {
-  display: block;
-}
-/* * * * * * * * * * * * * * * * * * * * * * * * *
- * [3] Authenticate > "wizard-authenticate-section"
- * * * * * * * * * * * * * * * * * * * * * * * * *
- */
-
-#wizard-authenticate-section {
-  background: white;
-  background-image: url(images/tutorial_image_wf.png);
-  background-size: 28rem 20rem;
-  background-repeat: no-repeat;
-  background-position: center 10%;
-}
-
-#wizart-authenticate-explanation {
-  text-align: center;
-  width: 100%;
-  padding: 1rem 2rem;
-  /*background: red;*/
-  font-weight: 300;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  position: absolute;
-  bottom: 15rem;
-  font-size: 2rem;
-  line-height: 2.3rem;
-}
-
-.wizard-button {
-  height: 5rem;
-  font-size: 2.2rem;
-  width: calc(100% - 4rem);
-  border-radius: 1rem;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  border: 0;
-  background: #ccc;
-  color: white;
-}
-
-.wizard-button:disabled {
-  background: #ccc;
-
-}
-
-#authenticate-fxa-button {
-  position: absolute;
-  bottom: 2rem;
-  left: 2rem;
-}
-
-#authenticate-msisdn-button {
-  position: absolute;
-  bottom: 8rem;
-  left: 2rem;
-}
-
-
 
 /*
-  MEDIA QUERIES FOR FIRE E/FLAME
-*/
+ * MEDIA QUERIES FOR device-pixel-ratio
+ */
 
-@media all and (min--moz-device-pixel-ratio: 1.5) {
-  .wizard-tutorial-step {
-    background-size: 20rem 28rem;
-    background-position: center 7rem;
+@media (min--moz-device-pixel-ratio: 1.5) {
+
+  #wizard-elements #wizard-face-1 {
+    background-image: url(images/wizard/face1@1.5x.png);
   }
 
-  .wizard-tutorial-step div {
-    bottom: 13rem;
+  #wizard-elements #wizard-face-2 {
+    background-image: url(images/wizard/face2@1.5x.png);
   }
 
-  #skip-tutorial-button {
-    bottom: 6rem;
+  #wizard-elements #wizard-circle {
+    background-image: url(images/wizard/circle@1.5x.png);
   }
 
-  #wizard-authenticate-section {
-    background-size: 60% auto;
+  #wizard-elements #wizard-desktop {
+    background-image: url(images/wizard/desktop@1.5x.png);
   }
+
+  #wizard-elements #wizard-mobile {
+    background-image: url(images/wizard/mobile@1.5x.png);
+  }
+
+  #wizard-elements #wizard-tablet {
+    background-image: url(images/wizard/tablet@1.5x.png);
+  }
+
+  #wizard-backgrounds #wizard-world {
+    background-image: url(images/wizard/worldcircle@1.5x.png);
+  }
+
+  #wizard-backgrounds #wizard-map {
+    background-image: url(images/wizard/worldmap@1.5x.png);
+  }
+
+  #wizard-elements #wizard-dottedline {
+    background-image: url(images/wizard/dottedline@1.5x.png);
+  }
+
+  #wizard-elements .pins-container li {
+    background-image: url(images/wizard/pin@1.5x.png);
+  }
+
+  #wizard-elements .pins-container li.left span {
+    background-image: url(images/wizard/bubble_s_left@1.5x.png);
+  }
+
+  #wizard-elements .pins-container li.right span {
+    background-image: url(images/wizard/bubble_s_right@1.5x.png);
+  }
+
+  #wizard-elements .pins-container li.left.large span {
+    background-image: url(images/wizard/bubbleleft@1.5x.png);
+  }
+
+  #wizard-elements .pins-container li.right.large span {
+    background-image: url(images/wizard/bubbleright@1.5x.png);
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+
+  #wizard-elements #wizard-face-1 {
+    background-image: url(images/wizard/face1@2x.png);
+  }
+
+  #wizard-elements #wizard-face-2 {
+    background-image: url(images/wizard/face2@2x.png);
+  }
+
+  #wizard-elements #wizard-circle {
+    background-image: url(images/wizard/circle@2x.png);
+  }
+
+  #wizard-elements #wizard-desktop {
+    background-image: url(images/wizard/desktop@2x.png);
+  }
+
+  #wizard-elements #wizard-mobile {
+    background-image: url(images/wizard/mobile@2x.png);
+  }
+
+  #wizard-elements #wizard-tablet {
+    background-image: url(images/wizard/tablet@2x.png);
+  }
+
+  #wizard-backgrounds #wizard-world {
+    background-image: url(images/wizard/worldcircle@2x.png);
+  }
+
+  #wizard-backgrounds #wizard-map {
+    background-image: url(images/wizard/worldmap@2x.png);
+  }
+
+  #wizard-elements #wizard-dottedline {
+    background-image: url(images/wizard/dottedline@2x.png);
+  }
+
+  #wizard-elements .pins-container li {
+    background-image: url(images/wizard/pin@2x.png);
+  }
+
+  #wizard-elements .pins-container li.left span {
+    background-image: url(images/wizard/bubble_s_left@2x.png);
+  }
+
+  #wizard-elements .pins-container li.right span {
+    background-image: url(images/wizard/bubble_s_right@2x.png);
+  }
+
+  #wizard-elements .pins-container li.left.large span {
+    background-image: url(images/wizard/bubbleleft@2x.png);
+  }
+
+  #wizard-elements .pins-container li.right.large span {
+    background-image: url(images/wizard/bubbleright@2x.png);
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+
+  #wizard-elements #wizard-face-1 {
+    background-image: url(images/wizard/face1@2.25x.png);
+  }
+
+  #wizard-elements #wizard-face-2 {
+    background-image: url(images/wizard/face2@2.25x.png);
+  }
+
+  #wizard-elements #wizard-circle {
+    background-image: url(images/wizard/circle@2.25x.png);
+  }
+
+  #wizard-elements #wizard-desktop {
+    background-image: url(images/wizard/desktop@2.25x.png);
+  }
+
+  #wizard-elements #wizard-mobile {
+    background-image: url(images/wizard/mobile@2.25x.png);
+  }
+
+  #wizard-elements #wizard-tablet {
+    background-image: url(images/wizard/tablet@2.25x.png);
+  }
+
+  #wizard-backgrounds #wizard-world {
+    background-image: url(images/wizard/worldcircle@2.25x.png);
+  }
+
+  #wizard-backgrounds #wizard-map {
+    background-image: url(images/wizard/worldmap@2.25x.png);
+  }
+
+  #wizard-elements #wizard-dottedline {
+    background-image: url(images/wizard/dottedline@2.25x.png);
+  }
+
+  #wizard-elements .pins-container li {
+    background-image: url(images/wizard/pin@2.25x.png);
+  }
+
+  #wizard-elements .pins-container li.left span {
+    background-image: url(images/wizard/bubble_s_left@2.25x.png);
+  }
+
+  #wizard-elements .pins-container li.right span {
+    background-image: url(images/wizard/bubble_s_right@2.25x.png);
+  }
+
+  #wizard-elements .pins-container li.left.large span {
+    background-image: url(images/wizard/bubbleleft@2.25x.png);
+  }
+
+  #wizard-elements .pins-container li.right.large span {
+    background-image: url(images/wizard/bubbleright@2.25x.png);
+  }
+
 }

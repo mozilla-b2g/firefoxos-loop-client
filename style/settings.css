@@ -1,6 +1,6 @@
 .settings {
   z-index: 100;
-  -webkit-transform: translateY(100%);
+  transition: all ease .4s;
   transform: translateY(100%);
 }
 
@@ -9,7 +9,6 @@
 }
 
 .settings.show {
-  -webkit-transform: translateY(0);
   transform: translateY(0);
 }
 
