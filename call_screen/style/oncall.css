@@ -305,19 +305,19 @@ body[data-settings='true'] #call-settings {
 }
 
 #local-video {
-  background: #27c8c2 !important;
+  background: #474747;
 }
 
-#local-video:after {
-  content: 'Hello!';
+#local-video progress{
+  display: block !important;
   position: absolute;
-  text-align: center;
-  top: calc(50% - 1.75rem);
-  left: -.3rem;
-  height: 2.3rem;
-  width: 100%;
-  font-size: 2.2rem;
-  color: white;
+  left: 2.5rem;
+  top: 2.25rem;
+}
+
+.fake-local-video {
+  z-index: 15 !important;
+  transform: rotateY(180deg);
 }
 
 /*
@@ -647,7 +647,7 @@ body[data-feedback='true'] #feedback {
   z-index: 10;
 }
 
-#local-video .OT_video-container video{
+#local-video video{
   display: block !important;
   position: absolute !important;
   width: 100% !important;
