@@ -29,8 +29,10 @@
   line-height: 3.3rem;
 }
 
-#wizard-tutorial-section header.hide {
+#wizard-panel.overlay #wizard-tutorial-section header,
+#wizard-panel.overlay #wizard-tutorial-progress {
   opacity: 0;
+  transition: opacity 0.4s ease-in-out;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * *
@@ -434,6 +436,23 @@
   transform: translateY(0);
 }
 
+#wizard-login .gaia-footer p {
+  text-align: center;
+  color: #fff;
+  font-size: 1.3rem;
+  line-height: 1.7rem;
+  margin: 0;
+}
+
+#wizard-login .gaia-footer p a {
+  color: #fff;
+  outline: none;
+}
+
+#wizard-login .gaia-footer p a:active {
+  color: #333;
+}
+
 #wizard-login .gaia-footer button {
   margin: 1rem 0 0 0;
   background-color: #fff;
@@ -460,6 +479,7 @@
 
 .login #wizard-elements > div,
 .login #wizard-tutorial-slideshow,
+.login #wizard-tutorial-progress,
 .login #wizard-tutorial-section header {
   display: none;
 }

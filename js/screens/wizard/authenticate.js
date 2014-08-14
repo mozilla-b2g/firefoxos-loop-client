@@ -1,8 +1,7 @@
 (function(exports) {
   'use strict';
 
-  var _fxaButton;
-  var _mobileIdButton;
+  var _fxaButton, _mobileIdButton, _wizardLogin;
 
   function _onButtonClick(id) {
     if (!navigator.onLine) {
@@ -31,8 +30,32 @@
         _mobileIdButton = document.getElementById('authenticate-msisdn-button');
       }
 
+      if (!_wizardLogin) {
+        _wizardLogin = document.getElementById('wizard-login');
+      }
+
       _fxaButton.addEventListener('click', _onFxaButtonClick);
       _mobileIdButton.addEventListener('click', _onMobileIdButtonClick);
+
+      // Add web view handler
+      var links = _wizardLogin.querySelectorAll('[data-webview]');
+      for (var i = 0, l = links.length; i < l; i++) {
+        var title = links[i].dataset.title;
+        var url = links[i].dataset.url;
+
+        if (!url || !title) {
+          return;
+        }
+
+        links[i].addEventListener(
+          'click',
+          function launchWebview(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            WebviewOverlay.show(title, url);
+          }
+        );
+      }
     }
   };
 
