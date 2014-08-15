@@ -216,9 +216,8 @@
       OrientationHandler.on('orientation', function(event) {
         document.body.dataset.rotation = event;
       });
-      */
-
       OrientationHandler.start();
+      */
     },
     setCallStatus: function(state) {
       switch(state) {
