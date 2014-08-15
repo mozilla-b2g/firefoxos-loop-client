@@ -10,7 +10,6 @@
   var _connectionTimeout;
   var _callProgressHelper = null;
   var _callee;
-  var _reason;
   var _speakerManager;
   var _onhold = function noop() {};
   var _onpeeronhold = function noop() {};
@@ -98,8 +97,6 @@
       _call = params.call;
       _isVideoCall = params.video;
       _callee = params.type === 'incoming' ? true : false;
-      // TODO: Send busy as reason in case we are in another webrtc call.
-      _reason = _callee ?  'reject' : 'cancel';
       _callProgressHelper = new CallProgressHelper(_call.callId,
                                                    _call.progressURL,
                                                    _call.websocketToken);
@@ -318,10 +315,6 @@
     },
 
     stop: function() {
-      if (_callProgressHelper && ((_callProgressHelper.state !== 'connected') ||
-          (_callProgressHelper.state !== 'closed'))) {
-        _callProgressHelper.terminate(_reason);
-      }
       AudioCompetingHelper.leaveCompetition();
       try {
         _session.disconnect();
