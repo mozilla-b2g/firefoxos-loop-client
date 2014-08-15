@@ -4,12 +4,17 @@
 
 (function(exports) {
   var debug = true;
+
+  // Global flag to indicate that we are in a call and so we will be rejecting
+  // any incoming call with the 'busy' state and forbiding any outgoing call
+  // until we support multi-party calls.
+  var _inCall = false;
+
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
     }
   }
-
 
   function _onAttentionLoaded(attention, callback) {
     if (typeof callback !== 'function') {
@@ -25,12 +30,17 @@
     function _onloaded() {
       // Update flag
       isAttentionLoaded = true;
+      _inCall = true;
       // Execute CB
       callback();
     }
 
     attention.onload = function() {
       _onloaded();
+    };
+
+    attention.onunload = function() {
+      _inCall = false;
     };
 
     // Workaround while the bug is being fixed
@@ -106,7 +116,7 @@
           }), '*');
         }
 
-        // Now it's time to send ot the attention the info regarding the
+        // Now it's time to send to the attention the info regarding the
         // call object
         switch(type) {
           case 'incoming':
@@ -173,9 +183,6 @@
                   attention = null;
                   // Create CALL object
                   var callscreenParams = messageFromCallScreen.params;
-
-
-
                   // Create object to store
                   var callObject = {
                     date: attentionLoadedDate,
@@ -200,19 +207,32 @@
                   });
                   break;
               }
-            } catch(e) {
-              console.error('ERROR: Message received from CallScreen not valid '
-                            + e.message || e);
-            }
+            } catch(e) {}
           }
         )
       }
     );
   }
 
+  function _rejectCall(call) {
+    LazyLoader.load([
+      '../js/helpers/call_progress_helper.js',
+    ], function() {
+      var callProgressHelper = new CallProgressHelper(call.callId,
+                                                      call.progressURL,
+                                                      call.websocketToken);
+      callProgressHelper.terminate('busy');
+    });
+  }
+
   var CallScreenManager = {
-    launch: function(type, params, contact) {
+    launch: function(type, params) {
       if (type !== 'incoming') {
+        // If we are already on a call, we shouldn't allow calling another user
+        // until we have a proper multi-party feature in place.
+        if (_inCall) {
+          return;
+        }
         _launchAttention(type, params);
         return;
       }
@@ -221,11 +241,22 @@
         params.version,
         function onsuccess(callsArray) {
           var call = callsArray.calls[0];
+
+          // If we are already in a call (outgoing or incoming) we can't
+          // automatically attend the new incoming call without hanging up the
+          // on in progress. In the future we might want to allow the user to
+          // accept or reject it manually, but for now we simply reject it
+          // with the busy state without launching the attention screen.
+          if (_inCall) {
+            _rejectCall(call);
+            return;
+          }
+
           params.identities = [call.callerId];
           _launchAttention(type, params, call);
         },
         function onerror(e) {
-          debug && console.log('Error: ClientRequestHelper.getCalls ' + e);
+          debug && console.error('Error: ClientRequestHelper.getCalls ' + e);
         }
       );
     },
