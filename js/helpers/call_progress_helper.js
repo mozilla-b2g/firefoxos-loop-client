@@ -8,6 +8,8 @@
 'use strict';
 
 (function(exports) {
+  var debug = true;
+
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
@@ -15,8 +17,26 @@
   }
 
   /**
-   * The CallProgressHelper object helps the loop client logic to implement the
-   * client side part of the call progress protocol implemented by the server.
+   * Several Loop use cases necessitate the ability to communicate information
+   * about the state of a call during its setup phase from the server to the
+   * clients, as well as a means to convey call setup control information from
+   * the clients to the server. These use cases include:
+   *
+   *   Caller informed when remote party is alerting.
+   *   Caller informed when call setup fails.
+   *   Caller informed when remote party answers call.
+   *   Called user informed when call is canceled.
+   *   Called user informed when call is answered/rejected on another device.
+   *
+   * To facilitate these operations in a timely fashion, the client will
+   * establish a WebSockets connection to the resource indicated in the
+   * "progressURL" when it receives it. The client never closes this
+   * connection; that is the responsibility of the server. If the server sees
+   * the client close the connection, it assumes that the client has failed,
+   * and informs the other party of such call failure.
+   *
+   * CallProgressHelper abstracts the communication through the WebSocket
+   * channel.
    */
   function CallProgressHelper(callId, progressURL, token) {
     this._state = 'unknown';
@@ -26,26 +46,43 @@
     this._onstatechange = null;
     this._onerror = null;
 
+    this._messageQueue;
+
     var that = this;
     this._ws.onmessage = function onWSMessage(evt) {
       var message = JSON.parse(evt.data);
-      if (message.messageType === 'progress') {
-        that._state = message.state;
-        _callback(that._onstatechange, [message]);
-      }
-      if (message.messageType === 'error') {
-        that._state = message.state = 'error';
-        _callback(that._onerror, [message]);
+
+      debug && console.log("onmessage " + JSON.stringify(message));
+
+      switch (message.messageType) {
+        case 'hello':
+          that._ready = true;
+          that._onready();
+          break;
+        case 'progress':
+          that._state = message.state;
+          _callback(that._onstatechange, [message]);
+          break;
+        case 'error':
+          that._state = message.state = 'error';
+          _callback(that._onerror, [message]);
+          break;
+        default:
+          console.warn('Unhandled WS message ' + message.messageType);
       }
     };
+
     this._ws.onopen = function onOpenWS(evt) {
+      debug && console.log("WebSocket opened");
       that._ws.send(JSON.stringify({
         messageType: 'hello',
         auth: that._token,
         callId: that._callId
       }));
     };
+
     this._ws.onclose = function onCloseWS(evt) {
+      debug && console.log("WebSocket closed");
       if (that._state !== 'connected') {
         var message = {};
         that._state = message.state = 'terminated';
@@ -55,6 +92,7 @@
       }
       that._state = 'closed';
     };
+
     this._ws.onerror = function onErrorWS(evt) {
       var message = {};
       that._state = message.state = 'terminated';
@@ -76,25 +114,46 @@
       this._onerror = onerror;
     },
 
+    _onready: function cph_onready() {
+      if (!this._messageQueue) {
+        return;
+      }
+      while (this._messageQueue.length) {
+        this._send(this._messageQueue.pop());
+      }
+    },
+
+    _send: function cph_send(message) {
+      debug && console.log("Sending message " + JSON.stringify(message));
+      if (!this._ready) {
+        if (!this._messageQueue) {
+          this._messageQueue = [];
+        }
+        this._messageQueue.push(message);
+        return;
+      }
+      this._ws.send(message);
+    },
+
     accept: function cph_accept() {
-     this._ws.send(JSON.stringify({
-          messageType: 'action',
-          event: 'accept'
+     this._send(JSON.stringify({
+        messageType: 'action',
+        event: 'accept'
       }));
     },
 
     mediaUp: function cph_mediaUp() {
-     this._ws.send(JSON.stringify({
-          messageType: 'action',
-          event: 'media-up'
+     this._send(JSON.stringify({
+        messageType: 'action',
+        event: 'media-up'
       }));
     },
 
     terminate: function cph_terminate(reason) {
-     this._ws.send(JSON.stringify({
-          messageType: 'action',
-          event: 'terminate',
-          reason: reason
+      this._send(JSON.stringify({
+        messageType: 'action',
+        event: 'terminate',
+        reason: reason
       }));
     },
 
