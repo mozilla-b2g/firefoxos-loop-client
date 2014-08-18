@@ -6,6 +6,8 @@
   var _isMicEnabled = true;
 
   var _feedbackClose;
+
+  var _; // l10n
   
   var _hangoutButton, _answerAudioButton, _answerVideoButton,
       _settingsButton, _settingsButtonVideo, _settingsButtonMute,
@@ -44,6 +46,8 @@
         return;
       }
       
+      _ = navigator.mozL10n.get;
+
       _initialized = true;
 
       // Choose default camera
@@ -222,10 +226,10 @@
     setCallStatus: function(state) {
       switch(state) {
         case 'calling':
-          _callStatusInfo.textContent = 'Connecting...';
+          _callStatusInfo.textContent = _('connecting');
           break;
         case 'connecting':
-          _callStatusInfo.textContent = 'Connecting...';
+          _callStatusInfo.textContent = _('connecting');
           document.body.dataset.callStatus = 'connected';
           break;
         case 'connected':
@@ -237,7 +241,7 @@
           break;
         case 'hold':
           document.body.dataset.callStatus = 'hold';
-          _callStatusInfo.textContent = '(on Hold)';
+          _callStatusInfo.textContent = _('onHold');
           break;
       }
     },

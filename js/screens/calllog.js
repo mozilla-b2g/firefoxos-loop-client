@@ -9,6 +9,8 @@
   var _renderingUrls = false;
   var _invalidatingCache = false;
 
+  var _; // l10n get
+
   // Variables needed to track infinite scrolling
   const CHUNK_SIZE = 10;
   const ONSCROLL_CHUNK_SIZE = 50;
@@ -48,6 +50,7 @@
       items.push(
         {
           name: 'Revoke',
+          l10nId: 'revoke',
           method: function(element) {
             _revokeUrl(element, element.dataset.urlToken, new Date(+element.id));
           },
@@ -60,6 +63,7 @@
     items.push(
       {
         name: 'Delete',
+        l10nId: 'delete',
         method: function(element) {
           var tmp = element.querySelector('[data-revoked]');
           var isRevoked = tmp.dataset.revoked === 'true';
@@ -73,20 +77,20 @@
             return;
           }
           var options = new OptionMenu({
-            // TODO Change with l10n string when ready
-            section: 'Are you sure you want to remove this URL?' +
-                     'You will not be able to revoke it in the future.',
+            section: _('deleteConfirmation'),
             type: 'confirm',
             items: [
               {
                 name: 'Delete',
+                l10nId: 'delete',
                 method: function() {
                   deleteElement();
                 },
                 params: []
               },
               {
-                name: 'Cancel'
+                name: 'Cancel',
+                l10nId: 'cancel'
               }
             ]
           });
@@ -125,6 +129,7 @@
       items.push(
         {
           name: 'Create a new contact',
+          l10nId: 'createContact',
           method: function(params) {
             new MozActivity({
               name: 'new',
@@ -140,6 +145,7 @@
       items.push(
         {
           name: 'Add to a contact',
+          l10nId: 'addToContact',
           method: function(params) {
             new MozActivity({
               name: 'update',
@@ -159,6 +165,7 @@
       items.push(
         {
           name: 'Revoke',
+          l10nId: 'revoke',
           method: function(element) {
             Controller.getUrlByToken(
               element.dataset.urlToken,
@@ -180,6 +187,7 @@
     items.push(
       {
         name: 'Delete',
+        l10nId: 'delete',
         method: function(elementId) {
           _deleteCalls([new Date(+elementId)]);
         },
@@ -192,6 +200,7 @@
       items.push(
         {
           name: 'Call',
+          l10nId: 'call',
           method: function(identities) {
             Controller.callIdentities(identities, null, Settings.isVideoDefault);
           },
@@ -232,7 +241,7 @@
               value = _getExpiration(+dataset.timestamp, dataset.revoked === 'true');
               break;
           }
-          elementsToUpdate[i].textContent = value || 'Unknown';
+          elementsToUpdate[i].textContent = value || _('unknown');
         }
       }
 
@@ -583,7 +592,7 @@
     ActionLogDB.deleteUrls(
       function(error) {
         console.error('Error when deleting calls from DB ' +
-                      error.name || error);
+                      error.name || error || 'Unknown');
       },
       ids
     );
@@ -597,7 +606,7 @@
       function onRevoked() {
         var revokeElement = element.querySelector('[data-revoked]');
         revokeElement.dataset.revoked = true;
-        revokeElement.textContent = 'Revoked';
+        revokeElement.textContent = _('revoked');
       }
     )
 
@@ -773,7 +782,7 @@
       if (!match.length) {
         if (aElement.dataset.contactId == aContact.id) {
           aElement.dataset.contactId = null;
-          primaryInfo.textContent = aElement.dataset.identities || 'Unknown';
+          primaryInfo.textContent = aElement.dataset.identities || _('unknown');
         }
         return;
       }
@@ -785,9 +794,9 @@
       primaryInfo.textContent = aContact.name ? aContact.name[0] :
                                 aContact.email ? aContact.email[0].value :
                                 aContact.tel ? aContact.tel[0].value :
-                                'Unknown';
+                                _('unknown');
     } else {
-      primaryInfo.textContent = aElement.dataset.identities || 'Unknown';
+      primaryInfo.textContent = aElement.dataset.identities || _('unknown');
     }
   }
 
@@ -869,6 +878,7 @@
         return;
       }
 
+      _ = navigator.mozL10n.get;
       ActionLogDB.init();
 
       callsSection = document.getElementById('calls-section');

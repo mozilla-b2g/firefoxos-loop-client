@@ -77,12 +77,12 @@
   <body role="application" class="animate" data-layout="wizard">
     <section id="loading-overlay" class="panel" role="region" data-type="dialog">
       <p><progress class="light"></progress></p>
-      <p id="loading-overlay-message">Connecting with the server</p>
+      <p id="loading-overlay-message"></p>
     </section>
     <section id="webview-overlay" class="panel" role="region" data-type="dialog">
       <header>
-        <button id="webview-close"><span class="icon icon-close">close</span></button>
-        <h1 id="webview-overlay-title">Title</h1>
+        <button id="webview-close"><span class="icon icon-close"></span></button>
+        <h1 id="webview-overlay-title"></h1>
       </header>
       <iframe id="webview-iframe" src=""></iframe>
     </section>
@@ -99,19 +99,19 @@
       -->
       <section id="wizard-tutorial-section"  class="wizard-section vbox current">
         <header id="wizard-tutorial-header">
-          <p>Welcome to</p>
-          <P>Firefox Hello</p>
+          <p data-l10n-id="welcome"></p>
+          <p data-l10n-id="serviceName"></p>
         </header>
         <ul id="wizard-tutorial-slideshow" class="fit">
           <li class="wizard-tutorial-step">
-            <p>Hello! is the easiest way to keep in touch with people all over the world.</p>
-            <footer>Talk face to face and see each other!</footer>
+            <p data-l10n-id="tagline"></p>
+            <footer data-l10n-id="face2face"></footer>
           </li>
           <li class="wizard-tutorial-step">
-            <footer>Talk to anyone with a browser.</footer>
+            <footer data-l10n-id="anyoneWithBrowser"></footer>
           </li>
           <li class="wizard-tutorial-step">
-            <footer>Anywhere in the world!</footer>
+            <footer data-l10n-id="anywhereInTheWorld"></footer>
           </li>
         </ul>
         <ul id="wizard-tutorial-progress" class="tutorial-progress-indicator">
@@ -150,20 +150,18 @@
       </section>
       <section id="wizard-login" class="wizard-section vbox">
         <header>
-          <p>Start using</p>
-          <P>Firefox Hello</p>
-          <p>Today!</p>
+          <p data-l10n-id="startUsing"></p>
+          <p data-l10n-id="serviceName"></p>
+          <p data-l10n-id="todayWizard"></p>
         </header>
         <footer class="gaia-footer vbox">
           <p>
-            By proceeding you agree with the<br/>
-            <a data-url="http://www.mozilla.com" data-title="ToS" data-webview="true">Terms of Service</a>
+            <span data-l10n-id="byProceeding"><span><br/>
+            <a data-url="http://www.mozilla.com" data-title="ToS" data-webview="true" data-l10n-id="termsOfService"></a>
           </p>
-          <button id="authenticate-msisdn-button" class="wizard-button">
-            Use Phone Number
+          <button id="authenticate-msisdn-button" class="wizard-button" data-l10n-id="usePhone">
           </button>
-          <button id="authenticate-fxa-button" class="wizard-button">
-            Use Firefox Accounts
+          <button id="authenticate-fxa-button" class="wizard-button" data-l10n-id="useFxA">
           </button>
         </footer>
       </section>
@@ -173,25 +171,23 @@
         <menu type="toolbar">
           <a id="open-settings-button"><span class="icon icon-settings"></span></a>
         </menu>
-        <h1>Loop</h1>
+        <h1 data-l10n-id="serviceName"></h1>
       </header>
       <section id="calllog-container" class="vbox fit">
         <nav>
           <ul role="tablist" class="bb-tablist" data-type="filter">
             <li role="presentation">
-              <a id="calls-section-filter" role="tab" aria-selected="true">Calls</a>
+              <a id="calls-section-filter" role="tab" aria-selected="true" data-l10n-id="callsTab"></a>
             </li>
             <li role="presentation">
-              <a id="urls-section-filter" role="tab" aria-selected="false">Shared links</a>
+              <a id="urls-section-filter" role="tab" aria-selected="false" data-l10n-id="linksTab"></a>
             </li>
           </ul>
         </nav>
         <div class="calllog-sections-container hbox fit">
           <div id="calls-section" class="calllog-section gaia-list active sticky">
             <div class="section-empty">
-              <p class="section-empty-label">
-                No calls recorded.<br>
-                Start communicating now
+              <p class="section-empty-label" data-l10n-id="emptyCalls">
               </p>
             </div>
             <div id="calls-section-entries" class="section-entries vbox middle">
@@ -199,9 +195,7 @@
           </div>
           <div id="urls-section" class="calllog-section gaia-list sticky">
             <div class="section-empty">
-              <p class="section-empty-label">
-                No links shared.<br>
-                Start communicating now
+              <p class="section-empty-label" data-l10n-id="emptyLinks">
               </p>
             </div>
             <div id="urls-section-entries" class="section-entries">
@@ -219,18 +213,17 @@
     </section>
     <section id="share-panel" class="panel share skin-comms" role="region">
       <header>
-        <button id="share-close-button"><span class="icon icon-close">close</span></button>
-        <h1>Share link</h1>
+        <button id="share-close-button"><span class="icon icon-close"></span></button>
+        <h1 data-l10n-id="shareTitle"></h1>
       </header>
       <section class="share-contact-info">
         <div class="share-contact-photo"></div>
         <div class="share-contact-details">
-          <p id="contact-name-to-share" class="share-contact-details-primary">asdas</p>
-          <p class="share-contact-details-secondary">Not a Firefox Hello user</p>
+          <p id="contact-name-to-share" class="share-contact-details-primary"></p>
+          <p class="share-contact-details-secondary" data-l10n-id="notAUser"></p>
         </div>
       </section>
-      <section class="share-explanation">
-        No problem! Just share the link below and they can call you back from any modern browser.
+      <section class="share-explanation" data-l10n-id="noProblem">
       </section>
       <section class="share-link">
         <span class="share-link-label"></span>
@@ -238,29 +231,28 @@
         </span>
       </section>
       <section class="share-options" data-type="list">
-        <p class="share-options-title">
-          Share link via:
+        <p class="share-options-title" data-l10n-id="shareVia">
         </p>
         <ul>
           <li id="share-by-sms">
             <aside class="pack-end">
             </aside>
             <a>
-              <p>Messages</p>
+              <p data-l10n-id="message"></p>
             </a>
           </li>
           <li id="share-by-email">
             <aside class="pack-end">
             </aside>
             <a>
-              <p>Email</p>
+              <p data-l10n-id="email"></p>
             </a>
           </li>
           <li id="share-by-others">
             <aside class="pack-end">
             </aside>
             <a>
-              <p>Other</p>
+              <p data-l10n-id="other">Other</p>
             </a>
           </li>
         </ul>
@@ -269,36 +261,36 @@
     <section id="settings-panel" class="panel settings vbox skin-organic" role="region">
       <header>
         <menu type="toolbar">
-          <button id="settings-close-button">Done</button>
+          <button id="settings-close-button" data-l10n-id="done"></button>
         </menu>
-        <h1>Settings</h1>
+        <h1 data-l10n-id="settingsTitle"></h1>
       </header>
       <section class="gaia-list fit scroll">
         <ul>
           <li class="vbox">
-            <p>Default call mode</p>
+            <p data-l10n-id="defaultCallMode"></p>
             <span class="button icon icon-dialog">
               <select id="video-default-setting">
-                <option value="true">Video</option>
-                <option value="false">Audio</option>
+                <option value="true" data-l10n-id="video"></option>
+                <option value="false" data-l10n-id="audio"></option>
               </select>
             </span>
           </li>
           <li>
-            <button id="settings-clean-calls-button">Clean all Calls</button>
+            <button id="settings-clean-calls-button" data-l10n-id="cleanAllCalls"></button>
           </li>
           <li>
-            <button id="settings-clean-urls-button">Clean Shared links</button>
+            <button id="settings-clean-urls-button" data-l10n-id="cleanAllLinks"></button>
           </li>
           <li class="vbox">
-            <p>Version</p>
-            <p id="settings-commit-hash-tag">Unknown</p>
+            <p data-l10n-id="version"></p>
+            <p id="settings-commit-hash-tag"></p>
           </li>
         </ul>
       </section>
       <footer class="gaia-footer vbox">
         <p id="settings-logout-identity"></p>
-        <button id="settings-logout-button">Logout</button>
+        <button id="settings-logout-button" data-l10n-id="logOut"></button>
       </footer>
     </section>
 

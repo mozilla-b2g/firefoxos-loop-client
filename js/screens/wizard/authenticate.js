@@ -6,7 +6,7 @@
   function _onButtonClick(id) {
     if (!navigator.onLine) {
       // TODO: localize
-      alert('Please check your Internet connection.');
+      alert(navigator.mozL10n.get('noConnection'));
       return;
     }
     Controller.authenticate(id);
