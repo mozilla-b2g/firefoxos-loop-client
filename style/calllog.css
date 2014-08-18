@@ -93,12 +93,18 @@ section[role="region"] > header:first-child .icon-settings {
   background-position: 0 0;
 }
 
+
 gaia-toolbar .icon-user {
-  background: url(images/Ico_Contacttoolbar_40x80.png) center 0 no-repeat;
-  background-size: 4rem auto;
+  height: 4rem;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: url(images/Ico_Contacttoolbar_40x80.png) no-repeat;
+  background-position: center 0rem;
 }
 
 gaia-toolbar .icon-user:active {
+  background-color: #b2f2ff;
   background-position: center -4rem;
 }
 
@@ -151,7 +157,14 @@ gaia-toolbar .icon-user:active {
   }
 
   gaia-toolbar .icon-user {
-    background-image: url(images/Ico_Contacttoolbar_40x80@1.5x.png);
+    background: url(images/Ico_Contacttoolbar_40x80@1.5x.png) no-repeat;
+    background-size: 4rem 8rem;
+    background-position: center 0rem;
+  }
+
+  gaia-toolbar .icon-user:active {
+    background-color: #b2f2ff;
+    background-position: center -4rem;
   }
 
   #urls-section.empty .section-empty {
@@ -174,7 +187,14 @@ gaia-toolbar .icon-user:active {
   }
 
   gaia-toolbar .icon-user {
-    background-image: url(images/Ico_Contacttoolbar_40x80@2x.png);
+    background: url(images/Ico_Contacttoolbar_40x80@2x.png) no-repeat;
+    background-position: center 0rem;
+    background-size: 4rem 8rem;
+  }
+
+  gaia-toolbar .icon-user:active {
+    background-color: #b2f2ff;
+    background-position: center -4rem;
   }
 
   #urls-section.empty .section-empty {
@@ -198,7 +218,14 @@ gaia-toolbar .icon-user:active {
   }
 
   gaia-toolbar .icon-user {
-    background-image: url(images/Ico_Contacttoolbar_40x80@2.25x.png);
+    background: url(images/Ico_Contacttoolbar_40x80@2.25x.png) no-repeat;
+    background-position: center 0rem;
+    background-size: 4rem 8rem;
+  }
+
+  gaia-toolbar .icon-user:active {
+    background-color: #b2f2ff;
+    background-position: center -4rem;
   }
 
   #urls-section.empty .section-empty {
