@@ -13,6 +13,7 @@
 .share.show {
   -webkit-transform: translateY(0);
   transform: translateY(0);
+  transition: transform 0.2s ease;
 }
 
 .share-options-title {

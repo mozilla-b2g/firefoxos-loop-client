@@ -132,9 +132,15 @@
       }
     },
     show: function s_show() {
+      if (!_settingsPanel) {
+        return;
+      }
       _settingsPanel.classList.add('show');
     },
     hide: function s_hide() {
+      if (!_settingsPanel) {
+        return;
+      }
       _settingsPanel.classList.remove('show');
     }
   };
