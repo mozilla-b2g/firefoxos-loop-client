@@ -128,7 +128,7 @@
       );
 
       if (_commitHashTag && Version.id) {
-        _commitHashTag.textContent = Version.id;
+        _commitHashTag.textContent = Version.id || 'Unknown';
       }
     },
     show: function s_show() {
