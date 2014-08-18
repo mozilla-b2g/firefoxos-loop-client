@@ -50,6 +50,8 @@
 
       _initialized = true;
 
+      TonePlayerHelper.init('telephony');
+
       // Choose default camera
       var cameraConstraint = navigator.mozCameras.getListOfCameras().length > 1 ?
         {facingMode: 'user', require:['facingMode']} : true;
@@ -87,6 +89,7 @@
         'mousedown',
         function hangOutClick(e) {
           Ringer.stop();
+          TonePlayerHelper.stop();
           Countdown.stop();
           CallManager.stop();
         }
@@ -226,9 +229,11 @@
     setCallStatus: function(state) {
       switch(state) {
         case 'calling':
+          TonePlayerHelper.playDialing();
           _callStatusInfo.textContent = _('connecting');
           break;
         case 'connecting':
+          TonePlayerHelper.stop();
           _callStatusInfo.textContent = _('connecting');
           document.body.dataset.callStatus = 'connected';
           break;
