@@ -316,7 +316,12 @@
       CallScreenUI.setCallStatus('hold');
     },
     removeFakeVideo: function() {
-      _localVideo.removeChild(_fakeLocalVideo);
+      try {
+        _localVideo && _fakeLocalVideo && _localVideo.removeChild(_fakeLocalVideo);
+      } catch(e) {
+        console.log('Fake video was removed before');
+      }
+      
       _fakeLocalVideo = null;
     }
   };
