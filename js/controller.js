@@ -53,8 +53,12 @@
     }
   }
 
+  var _;
   var Controller = {
     init: function () {
+
+      _ = navigator.mozL10n.get;
+
       window.addEventListener('onauthentication', _onauthentication);
       window.addEventListener('onlogin', _onlogin);
       window.addEventListener('onlogout', _onlogout);
@@ -67,7 +71,7 @@
     },
 
     authenticate: function(id) {
-      LoadingOverlay.show('Authenticating...');
+      LoadingOverlay.show(_('authenticating'));
       AccountHelper.authenticate(id);
     },
 
@@ -102,14 +106,14 @@
 
     callContact: function(contact, isVideoCall) {
       if (!AccountHelper.logged) {
-        alert('You need to be logged in before making a call with Loop');
+        alert(_('notLoggedIn'));
         return;
       }
 
       if (!contact ||
           (!contact.email &&
            !contact.tel)) {
-        alert('The pick activity result is invalid.');
+        alert(_('pickActivityFail'));
         return;
       }
 
@@ -127,7 +131,7 @@
       }
 
       if (identities.length === 0) {
-        alert('The pick activity result is invalid.');
+        alert(_('pickActivityFail'));
       }
 
       Controller.callIdentities(identities, contact, isVideoCall);
@@ -135,12 +139,12 @@
 
     callUrl: function(token, isVideoCall) {
       if (!AccountHelper.logged) {
-        alert('You need to be logged in before making a call with Loop');
+        alert(_('notLoggedIn'));
         return;
       }
 
       if (!token) {
-        alert('Invalid call URL');
+        alert(_('invalidURL'));
         return;
       }
 
@@ -173,7 +177,7 @@
         data: {
           type: 'websms/sms',
           number: id,
-          body: 'Lets join the call with Loop! ' + url
+          body: _('shareMessage') + ' ' + url
         }
       });
       activity.onsuccess = onsuccess;
@@ -183,8 +187,8 @@
     sendUrlByEmail: function (id, url) {
       debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
       var a = document.createElement('a');
-      var params = 'mailto:' + id + '?subject=Loop' +
-        '&body=Lets join the call with Loop! ' + url;
+      var params = 'mailto:' + id + '?subject=Firefox Hello' +
+        '&body= '+ _('shareMessage') + ' ' + url;
 
       a.href = params;
       a.classList.add('hide');

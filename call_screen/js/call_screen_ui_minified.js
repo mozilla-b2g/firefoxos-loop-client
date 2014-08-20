@@ -8,8 +8,12 @@
 
   var _title, _callStatusInfo, _remoteVideo, _remoteImage;
 
+  var _; // l10n get
+
   var CallScreenUIMinified = {
     init: function() {
+
+      _ = navigator.mozL10n.get;
       // Cache just the basic elements. The rest will be added by
       // lazy loading.
       _title = document.getElementById('contact-name-details');
@@ -43,9 +47,9 @@
         );
       } else {
         if (callParams.token) {
-          _callStatusInfo.textContent = 'Retrieving info...';
+          _callStatusInfo.textContent = _('retrieving');
         } else {
-          _callStatusInfo.textContent = 'Calling...';
+          _callStatusInfo.textContent = _('calling');
           var identities = callParams.identities.split(',');
           CallScreenUIMinified.updateIdentityInfo(identities);
         }

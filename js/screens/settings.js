@@ -8,6 +8,7 @@
   var _isVideoDefault = true;
   const VIDEO_SETTING = 'video-default';
 
+  var _;
   var Settings = {
     get isVideoDefault() {
       return _isVideoDefault;
@@ -20,12 +21,18 @@
       _isVideoDefault = true;
     },
     init: function s_init(identity) {
-      document.getElementById('settings-logout-identity').textContent =
-        'Logged as ' + identity;
-
+      document.getElementById('settings-logout-identity').innerHTML =
+        navigator.mozL10n.get(
+          'loggedInAs',
+          {
+            username: identity || navigator.mozL10n.get('unknown')
+          }
+        );
+      
       if (_settingsPanel) {
         return;
       }
+      _ = navigator.mozL10n.get;
       _settingsPanel = document.getElementById('settings-panel');
       _closeSettingsButton = document.getElementById('settings-close-button');
       _logoutSettingsButton = document.getElementById('settings-logout-button');
@@ -63,11 +70,12 @@
         function() {
           var options = new OptionMenu({
             // TODO Change with l10n string when ready
-            section: 'Are you sure you want to clean your call log?',
+            section: _('deleteAllConfirmation'),
             type: 'confirm',
             items: [
               {
                 name: 'Delete',
+                l10nId: 'delete',
                 method: function() {
                   CallLog.cleanCalls();
                   Settings.hide();
@@ -75,7 +83,8 @@
                 params: []
               },
               {
-                name: 'Cancel'
+                name: 'Cancel',
+                l10nId: 'cancel'
               }
             ]
           });
@@ -91,6 +100,7 @@
             items: [
               {
                 name: 'Clean just revoked URLs',
+                l10nId: 'cleanJustRevoked',
                 method: function() {
                   CallLog.cleanRevokedUrls();
                   Settings.hide();
@@ -99,6 +109,7 @@
               },
               {
                 name: 'Clean all',
+                l10nId: 'cleanAll',
                 method: function() {
                   CallLog.cleanUrls();
                   Settings.hide();
@@ -106,7 +117,8 @@
                 params: []
               },
               {
-                name: 'Cancel'
+                name: 'Cancel',
+                l10nId: 'cancel'
               }
             ]
           });
@@ -122,13 +134,13 @@
       _logoutSettingsButton.addEventListener(
         'click',
         function onLogout() {
-          LoadingOverlay.show('Logging out...');
+          LoadingOverlay.show(_('loggingOut'));
           Controller.logout();
         }.bind(this)
       );
 
       if (_commitHashTag && Version.id) {
-        _commitHashTag.textContent = Version.id || 'Unknown';
+        _commitHashTag.textContent = Version.id || _('unknown');
       }
     },
     show: function s_show() {

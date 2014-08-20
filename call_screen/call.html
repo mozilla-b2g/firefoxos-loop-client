@@ -6,9 +6,10 @@
     <link href="style/oncall.css" rel="stylesheet" type="text/css"> 
     
     <script defer src="../libs/lazy_loader.js"></script>
+    <script defer src="../libs/l10n.js"></script>
     <script defer src="js/controller_communications.js"></script>
     <script defer src="js/call_screen_ui_minified.js"></script>
-   	<title>LoopCall</title>
+   	<title>Call</title>
   </head>
   <body role="application" class="no-transition" data-local-video="on" data-remote-video="off" data-call-status="outgoing" data-settings="false" data-feedback="false" data-rotation="0">
 
@@ -44,53 +45,51 @@
       </button>
       <button id="call-settings-video" class="action-button setting-button">
       </button>
-      <button id="resume-button" class="action-button">
-        Resume
+      <button id="resume-button" class="action-button" data-l10n-id="resume">
       </button>
       <section id="feedback" class="vbox">
         <div class="feedback-questions hbox fit" data-question="1">
           <div class="feedback-question vbox">
-            <div class="fq-title vbox fit two middle">
-              How do you feel about Firefox Hello?
+            <div class="fq-title vbox fit two middle" data-l10n-id="feeling">
             </div>
             <div class="fq-buttons hbox fit three">
               <button id="answer-sad" class="fq-button-sad fq-button hbox fit bottom">
-                <span>Sad</span>
+                <span data-l10n-id="sad"></span>
               </button>
               <button id="answer-happy" class="fq-button-happy fq-button hbox fit bottom">
-                <span>Happy</span>
+                <span data-l10n-id="happy"></span>
               </button>
             </div>
           </div>
           <div class="feedback-question vbox">
             <div class="fq-title vbox fit two middle">
-              <span>Sad?</span>
-              <span>What makes you sad?</span>
+              <span data-l10n-id="sadQuestion"></span>
+              <span data-l10n-id="whySad"></span>
             </div>
             <div class="fq-options gaia-list vbox fit five">
               <ul>
                 <li>
                   <label class="pack-checkbox reverse">
                     <input type="checkbox" value="bad_audio">
-                    <span>Bad audio</span>
+                    <span data-l10n-id="badAudio"></span>
                   </label>
                 </li>
                 <li>
                   <label class="pack-checkbox reverse">
                     <input type="checkbox" value="bad_video">
-                    <span>Bad video</span>
+                    <span data-l10n-id="badVideo"></span>
                   </label>
                 </li>
                 <li>
                   <label class="pack-checkbox reverse">
                     <input type="checkbox" value="got_disconnected">
-                    <span>Got disconnected</span>
+                    <span data-l10n-id="disconnected"></span>
                   </label
                 </li>
                 <li>
                   <label class="pack-checkbox reverse">
                     <input type="checkbox" value="hate_interface">
-                    <span>I hate the interface</span>
+                    <span data-l10n-id="badInterface"></span>
                   </label>
                 </li>
               </ul>
@@ -98,13 +97,12 @@
           </div>
         </div>
         <footer class="gaia-footer">
-          <button id="skip-feedback-button">Skip</button>
-          <button id="rate-feedback-button">Rate</button>
+          <button id="skip-feedback-button" data-l10n-id="skip"></button>
+          <button id="rate-feedback-button" data-l10n-id="rate"></button>
         </footer>
       </section>
     </div>
-    <footer id="call-bar">
-      Loop: call in progress
+    <footer id="call-bar" data-l10n-id="callBar">
     </footer>
   </body>
 </html>

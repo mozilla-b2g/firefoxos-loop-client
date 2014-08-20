@@ -51,7 +51,7 @@
       if (diff <= 0) {
         return null;
       }
-      return Math.round(diff/86400000) + ' days left';
+      return Math.round(diff/86400000) + ' ' + navigator.mozL10n.get('daysLeft');
     },
     getHeaderDate: function ut_giveHeaderDate(time) {
       var _ = navigator.mozL10n.get;
