@@ -21,8 +21,8 @@ html, body {
  */
 
 * {
-  -moz-user-select: none;
-  user-select: none;
+  -moz-user-select: none !important;
+  user-select: none !important;
 }
 
 h1, h2, h3 {
@@ -35,224 +35,184 @@ h1, h2, h3 {
 
 .action-button {
   position: absolute;
-  height: 5rem;
-  width: 5rem;
+  height: 5.4rem;
+  width: 5.4rem;
   z-index: 10;
   position: absolute;
-  border-radius: 2.5rem;
+  border-radius: 2.8rem;
   border: none;
   margin: 0;
-  transition: transform .5s ease, opacity .2s ease;
-  opacity: 1;
+  background-clip: padding-box !important;
 }
 
-/* Buttons hit state */
-
-.action-button-hit {
-  background: white;
-  position: absolute;
-  height: 5rem;
-  width: 5rem;
-  position: absolute;
-  border-radius: 3rem;
-  border: none;
-  opacity: 0;
-  border: 0;
-  bottom: 3rem;
+.action-button span {
+  background-image: url(images/CallSprite.png);
+  background-repeat: no-repeat;
+  width: 4rem;
+  height: 4rem;
+  display: block;
 }
 
-body[data-local-video='on'] .action-button-hit {
-  right: 3rem;
-}
+/*
+ * Specific buttons for the incoming call layout. Some of them are shown
+ * as well in other states of the call.
+ */
 
-body[data-local-video='off'] .action-button-hit {
-  right: 9rem;
-}
-
-
-.call-settings.action-button-hit,
-.answer.action-button-hit {
-  opacity: 1;
-}
-
-body[data-local-video='off'] .hang-out.action-button-hit {
-  opacity: 1;
-  background: #d74345 !important;
-  left: 9rem;
-  bottom: 3rem;
-}
-
-.hang-out.action-button-hit {
-  opacity: 1;
-  background: #d74345 !important;
-  left: 3rem;
-  bottom: 3rem;
-}
-
-.hang-out.enabled {
-  transition: transform .4s ease, width  .4s ease, height .4s ease, opacity .4s ease;
-  border-radius: 3.5rem;
-  transform: translate(-1rem, 1rem) !important;
-  width: 7rem;
-  height: 7rem;
-  opacity: 0 !important;
-}
-
-
-.answer-video.action-button-hit {
-  opacity: 1;
-  bottom: 12rem !important;
-  right: calc(50% - 2.5rem) !important;
-}
-
-.call-settings-video.action-button-hit {
-  opacity: 1;
-  bottom: 9rem;
-}
-
-.call-settings-mute.action-button-hit {
-  opacity: 1;
-  bottom: 15rem;
-}
-
-.call-settings-speaker.action-button-hit {
-  opacity: 1;
-  bottom: 21rem;
-}
-
-
-.action-button-hit.enabled {
-  background: #00acac;
-  transition: transform .7s ease, width  .7s ease, height .7s ease, opacity .7s ease;
-  border-radius: 3.5rem;
-  transform: translate(1rem, 1rem);
-  width: 7rem;
-  height: 7rem;
-  opacity: 0 !important;
-}
-
-#hang-out {
+#hang-up {
   bottom: 4rem;
-
   left: 3rem;
   z-index: 10;
   background: #d74345;
-  background-image: url(images/ico_hangup.png);
-  background-size: auto 5rem;
-  background-size: 60%;
-  background-repeat: no-repeat;
-  background-position: center;
 }
+
+#hang-up span {
+  background-position: 0rem -16rem;
+}
+
+#hang-up:active {
+  transform: translate(-0.8rem, 0.8rem);
+  height: 7rem;
+  width: 7rem;
+  border-radius: 3.5rem;
+  border: .8rem solid rgba(215, 67, 69, 0.5);
+}
+
 
 #answer {
   bottom: 4rem;
   right: 3rem;
-
   background: #00acac;
-  background-image: url(images/ico_pickup.png);
-  background-repeat: no-repeat;
-  background-position: center;
+}
 
-  border: none;
-  z-index: 200;
+#answer span {
+  background-position: 0rem -20rem;
 }
 
 #answer-video {
   right: calc(50% - 2.5rem);
   bottom: 13rem;
-
   background: #00acac;
-  background-image: url(images/ico_pickupvideo.png);
-  background-repeat: no-repeat;
-  background-position: center;
-
-  border: none;
 }
 
-#call-settings, #resume-button {
-  bottom: 4rem;
-  right: 3rem;
+#answer-video span {
+  background-position: 0rem 0rem;
+}
 
+#answer:active,
+#answer-video:active{
+  transform: translate(0.8rem, 0.8rem);
+  height: 7rem;
+  width: 7rem;
+  border-radius: 3.5rem;
+  border: .8rem solid rgba(0, 172, 172, 0.5);
+}
+
+/*
+ * Buttons when the call is connected/connecting related
+ * with the Settings of the call
+ */
+
+.setting-button {
   background: rgba(255, 255, 255, 0.7);
-  background-image: url(images/ico_openmenu.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 100;
-  border: none;
 }
 
-body[data-settings='true'] #call-settings {
-  background-image: url(images/ico_closemenu.png);
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-#resume-button {
+.setting-button:active {
   background: #00acac;
-  z-index: 200;
-  width: 19rem;
-  color: white;
+  transform: translate(0.8rem, 0.8rem);
+  height: 7rem;
+  width: 7rem;
+  border-radius: 3.5rem;
+  border: .8rem solid rgba(0, 172, 172, 0.5);
+}
+
+.setting-disabled,
+.setting-enabled {
+  background: #00acac;
 }
 
 #call-settings-video {
   bottom: 4rem;
   right: 3rem;
-
-  background: rgba(255, 255, 255, 0.7);
-  background-image: url(images/ico_facemute.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 50;
-  border: none;
 }
 
-#call-settings-video.disabled {
-  background: #00acac;
-  background-image: url(images/ico_facemute_.png);
-  background-repeat: no-repeat;
-  background-position: center;
+#call-settings-video span {
+  background-position: -4rem -4rem;
+}
+
+#call-settings-video.setting-disabled span{
+  background-position: 0rem -4rem;
+}
+
+#call-settings-video:active span {
+  background-position: -4rem -4rem;
+}
+
+#call-settings-video.setting-disabled:active span{
+  background-position: 0rem -4rem;
 }
 
 #call-settings-mute {
-  bottom: 4rem;
+  bottom: 10.2rem;
   right: 3rem;
-
-  background: rgba(255, 255, 255, 0.7);
-  background-image: url(images/ico_mute.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 50;
-  border: none;
 }
 
-#call-settings-mute.disabled {
-  background: #00acac;
-  background-image: url(images/ico_mute_.png);
-  background-repeat: no-repeat;
-  background-position: center;
+#call-settings-mute span {
+  background-position: -4rem -8rem;
+}
+
+#call-settings-mute:active span {
+  background-position: 0rem -8rem;
+}
+
+#call-settings-mute.setting-disabled span{
+  background-position: 0rem -8rem;
+}
+
+#call-settings-mute:active span {
+  background-position: -4rem -8rem;
+}
+
+#call-settings-mute.setting-disabled:active span{
+  background-position: 0rem -8rem;
 }
 
 #call-settings-speaker {
+  bottom: 16.4rem;
+  right: 3rem;
+}
+
+#call-settings-speaker span {
+  background-position: -4rem -12rem;
+}
+
+#call-settings-speaker:active span {
+  background-position: 0rem -12rem;
+}
+
+#call-settings-speaker.setting-enabled span{
+  background-position: 0rem -12rem;
+}
+
+#call-settings-speaker:active span {
+  background-position: -4rem -12rem;
+}
+
+#call-settings-speaker.setting-disabled:active span{
+  background-position: 0rem -12rem;
+}
+
+#resume-button {
   bottom: 4rem;
   right: 3rem;
-
-  background: rgba(255, 255, 255, 0.7);
-  background-image: url(images/ico_speaker.png);
-  background-repeat: no-repeat;
-  background-position: center;
-  z-index: 50;
-  border: none;
-}
-
-#call-settings-speaker.enabled {
   background: #00acac;
-  background-image: url(images/ico_speaker_.png);
-  background-repeat: no-repeat;
-  background-position: center;
+  width: 19rem;
+  color: white;
 }
 
-
-
+#resume-button:active {
+  background: white;
+  color: #00acac;
+}
 
 /*
  * Remote buble. We show a picture of the contact we are calling to.
@@ -261,21 +221,31 @@ body[data-settings='true'] #call-settings {
 
 .remote-bubble {
   position: absolute;
-  top: 9rem;
+  top: 8rem;
   left: calc(50% - 7.5rem);
   width: 15rem;
   height: 15rem;
-  background: #474747;
-  color: #27c8c2;
-  background-position: 0 0;
-  transition: opacity .5s ease;
+  background-color: #474747;
   background-size: 15rem 15rem;
   background-repeat: no-repeat;
+  color: #27c8c2;
   opacity: 1;
   z-index: 10;
   font-weight: 300;
   mask: url("images/big_mask.svg#logo_mask");
  }
+
+.remote-bubble-shadow {
+  position: absolute;
+  top: 8rem;
+  left: calc(50% - 7.5rem);
+  width: 15rem;
+  height: 15rem;
+  background-image: url(images/big_shadow@1x.png);
+  background-size: 15rem 15rem;
+  background-repeat: no-repeat;
+  z-index: 5;
+}
 
 .remote-bubble > div {
   position: absolute;
@@ -297,11 +267,22 @@ body[data-settings='true'] #call-settings {
   bottom: 2rem !important;
   left: calc(50% - 4rem) !important;
   z-index: 10;
-
-  opacity: 1;
-  transition: all .7s ease;
-
+  
   mask: url("images/small_mask.svg#logo_mask") !important;
+}
+
+.local-bubble-shadow {
+  height: 8rem;
+  width: 8rem;
+
+  position: absolute;
+  bottom: 2rem;
+  left: calc(50% - 4rem);
+  z-index: 10;
+  background-image: url(images/small_shadow@1x.png);
+  background-size: 8rem 8rem;
+  background-repeat: no-repeat;
+  z-index: 5;
 }
 
 #local-video {
@@ -340,7 +321,6 @@ body[data-settings='true'] #call-settings {
   white-space: nowrap;
   text-overflow: ellipsis;
   z-index: 10;
-  transition: transform .4s ease;
 }
 
 #counter {
@@ -357,8 +337,7 @@ body[data-settings='true'] #call-settings {
   white-space: nowrap;
   text-overflow: ellipsis;
   text-align: center;
-  transition: transform .4s ease;
-  transform: translateY(25rem);
+  transform: translateY(23rem);
   z-index: 10;
   -moz-font-feature-settings: 'tnum';
   font-feature-settings: 'tnum';
@@ -384,8 +363,7 @@ body[data-call-status='hold'] #counter {
   text-overflow: ellipsis;
   text-align: center;
   z-index: 10;
-  transition: transform .4s ease;
-  transform: translateY(25rem);
+  transform: translateY(24rem);
 }
 
 body[data-call-status='outgoing'] #call-status-info,
@@ -395,7 +373,11 @@ body[data-call-status='hold'] #call-status-info {
 }
 
 body[data-call-status='hold'] #call-status-info{
-  transform: translateY(28rem);
+  transform: translateY(27rem);
+}
+
+body[data-call-status='connecting'] #resume-button {
+  display: none;
 }
 
 /*
@@ -411,8 +393,6 @@ body[data-call-status='hold'] #call-status-info{
 /*
  * Status bar of the call screen
  */
-
-
 
 #call-bar {
   text-align: center;
@@ -439,68 +419,12 @@ body.status-bar #call-bar {
  * Call types
  */
 
-body[data-local-video='off'] .local-bubble{
-  opacity: 0;
-}
-
-body[data-local-video='off'] #hang-out {
-  transform: translateX(6rem);
-}
-
-body[data-local-video='off'] #call-settings {
-  transform: translateX(-6rem);
-}
-
-body[data-settings='true'][data-local-video="on"] #call-settings-video{
-  transform: translate(0rem, -6rem);
-}
-
-body[data-settings='true'][data-local-video="on"] #call-settings-mute{
-  transform: translate(0rem, -12rem);
-}
-
-body[data-settings='true'][data-local-video="on"] #call-settings-speaker{
-  transform: translate(0rem, -18rem);
-}
-
-body[data-settings='false'][data-local-video="on"] #call-settings-video{
-  transform: translate(0rem, 0rem);
-}
-
-body[data-settings='false'][data-local-video="on"] #call-settings-mute{
-  transform: translate(0rem, 0rem);
-}
-
-body[data-settings='false'][data-local-video="on"] #call-settings-speaker{
-  transform: translate(0rem, 0rem);
-}
-
-body[data-settings='true'][data-local-video='off'] #call-settings-video{
-  transform: translate(-6rem, -6rem);
-}
-
-body[data-settings='true'][data-local-video='off'] #call-settings-mute{
-  transform: translate(-6rem, -12rem);
-}
-
-body[data-settings='true'][data-local-video='off'] #call-settings-speaker{
-  transform: translate(-6rem, -18rem);
-}
-
-body[data-settings='false'][data-local-video='off'] #call-settings-video{
-  transform: translate(-6rem, 0rem);
-}
-
-body[data-settings='false'][data-local-video='off'] #call-settings-mute{
-  transform: translate(-6rem, 0rem);
-}
-
-body[data-settings='false'][data-local-video='off'] #call-settings-speaker{
-  transform: translate(-6rem, 0rem);
-}
-
 body[data-local-video="on"] .local-bubble{
-  opacity: 1;
+  display: block;
+}
+
+body[data-local-video="off"] .local-bubble{
+  display: none;
 }
 
 /*
@@ -552,7 +476,7 @@ body[data-local-video="on"] .local-bubble{
   position: relative;
 }
 
-.fq-buttons .fq-button span {
+.fq-buttons .fq-button .fq-text {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -561,17 +485,36 @@ body[data-local-video="on"] .local-bubble{
 
 .fq-buttons .fq-button:active {
   background-color: transparent;
-  background-blend-mode: hard-light;
 }
 
+
+.fq-button-sad,
 .fq-button-happy {
-  background: url(images/feedback_happy.png) center top no-repeat;
-  background-size: 12.7rem auto;
+  background-color: transparent;
 }
 
-.fq-button-sad {
-  background: url(images/feedback_sad.png) center top no-repeat;
-  background-size: 12.7rem auto;
+.feedback-icon {
+  position: absolute;
+  background-image: url(images/CallSprite.png);
+  width: 12.7rem;
+  top: 0;
+  left: calc(50% - 6.35rem);
+}
+
+.fq-button-sad .feedback-icon{
+  background-position: 0 24rem;
+  height: 11.7rem;
+}
+
+
+.fq-button-happy .feedback-icon{
+  background-position: 0 -43.8rem;
+  height: 11.9rem;
+}
+
+.fq-buttons .fq-button:active .feedback-icon{
+  background-blend-mode: hard-light;
+  background-color: #00ACAC;
 }
 
 .feedback-questions[data-question='2'] {
@@ -663,8 +606,6 @@ body[data-feedback='true'] #feedback {
   width: 100% !important;
   height: 100% !important;
   background: #424242 !important;
-  opacity: 0;
-  transition: opacity 1s ease;
 }
 
 #fullscreen-image {
@@ -679,7 +620,6 @@ body[data-feedback='true'] #feedback {
   background-position: 50%;
   background-repeat: no-repeat;
   background-blend-mode: luminosity;
-  /*filter: url(images/blur.svg#blur) !important;*/
 }
 
 #fullscreen-mask {
@@ -761,207 +701,28 @@ body[data-call-status='hold'] #local-video  {
 }
 
 body[data-call-status='connected'][data-remote-video="on"] #counter {
-  transform: translateY(8rem);
+  transform: translateY(7rem);
 }
 
-body[data-call-status='connected'][data-remote-video="on"] .remote-bubble {
-  opacity: 0;
-}
-
-body[data-call-status='connected'][data-remote-video="off"] .remote-bubble {
-  opacity: 1;
+body[data-call-status='connected'][data-remote-video="on"] .remote-bubble,
+body[data-call-status='connected'][data-remote-video="on"] .remote-bubble-shadow {
+  display: none;
 }
 
 body[data-remote-video="off"] #fullscreen-video {
-  opacity: 0;
+  display: none;
 }
 
 body[data-remote-video="on"] #fullscreen-video {
-  opacity: 1;
+  display: block;
 }
 
 body[data-remote-video="off"] #fullscreen-image {
-  opacity: 1;
+  display: block;
 }
 
 body[data-remote-video="on"] #fullscreen-image {
-  opacity: 0;
-}
-
-/*
-  ROTATION capabilities
-*/
-
-body[data-rotation='270'] #call-settings,
-body[data-rotation='270'] #call-settings-speaker ,
-body[data-rotation='270'] #call-settings-video,
-body[data-rotation='270'] #call-settings-mute,
-body[data-rotation='270'] #answer,
-body[data-rotation='270'] #answer-video,
-body[data-rotation='270'] #hang-out,
-body[data-rotation='270'] #local-video,
-body[data-rotation='270'] #remote-video{
-  transform: rotate(90deg);
-}
-
-body[data-rotation='270'] #local-video .OT_video-container video{
-  transform: rotate(90deg) !important;
-}
-
-body[data-rotation='270'][data-remote-video="off"] #counter {
-  transform: translate(-10rem, 15rem) rotate(90deg);
-}
-body[data-rotation='270'][data-remote-video="off"] #contact-name-details {
-  transform: translate(10rem, 10rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-remote-video="on"] #counter {
-  transform: translate(-1rem, 5rem) rotate(90deg);
-}
-body[data-rotation='270'][data-remote-video="on"] #contact-name-details {
-  transform: translate(2rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-local-video='off'] #hang-out {
-  transform: translateX(6rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-local-video='off'] #call-settings {
-  transform: translateX(-6rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='true'][data-local-video="on"] #call-settings-video{
-  transform: translate(0rem, -6rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='true'][data-local-video="on"] #call-settings-mute{
-  transform: translate(0rem, -12rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='true'][data-local-video="on"] #call-settings-speaker{
-  transform: translate(0rem, -18rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='false'][data-local-video="on"] #call-settings-video{
-  transform: translate(0rem, 0rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='false'][data-local-video="on"] #call-settings-mute{
-  transform: translate(0rem, 0rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='false'][data-local-video="on"] #call-settings-speaker{
-  transform: translate(0rem, 0rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='true'][data-local-video='off'] #call-settings-video{
-  transform: translate(-6rem, -6rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='true'][data-local-video='off'] #call-settings-mute{
-  transform: translate(-6rem, -12rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='true'][data-local-video='off'] #call-settings-speaker{
-  transform: translate(-6rem, -18rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='false'][data-local-video='off'] #call-settings-video{
-  transform: translate(-6rem, 0rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='false'][data-local-video='off'] #call-settings-mute{
-  transform: translate(-6rem, 0rem) rotate(90deg);
-}
-
-body[data-rotation='270'][data-settings='false'][data-local-video='off'] #call-settings-speaker{
-  transform: translate(-6rem, 0rem) rotate(90deg);
-}
-
-
-body[data-rotation='90'] #call-settings,
-body[data-rotation='90'] #call-settings-speaker ,
-body[data-rotation='90'] #call-settings-video,
-body[data-rotation='90'] #call-settings-mute,
-body[data-rotation='90'] #answer,
-body[data-rotation='90'] #answer-video,
-body[data-rotation='90'] #hang-out,
-body[data-rotation='90'] #remote-video,
-body[data-rotation='90'] #local-video {
-  transform: rotate(-90deg);
-}
-body[data-rotation='90'] #local-video .OT_video-container video{
-  transform: rotate(-90deg) !important;
-}
-
-body[data-rotation='90'][data-remote-video="off"] #counter {
-  transform: translate(10rem,15rem) rotate(-90deg)
-}
-body[data-rotation='90'][data-remote-video="off"] #contact-name-details {
-  transform: translate(-10rem,10rem) rotate(-90deg)
-}
-
-body[data-rotation='90'][data-remote-video="on"] #counter {
-  transform: translate(2rem, 5rem) rotate(-90deg);
-}
-body[data-rotation='90'][data-remote-video="on"] #contact-name-details {
-  transform: translate(-1rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-local-video='off'] #hang-out {
-  transform: translateX(6rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-local-video='off'] #call-settings {
-  transform: translateX(-6rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='true'][data-local-video="on"] #call-settings-video{
-  transform: translate(0rem, -6rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='true'][data-local-video="on"] #call-settings-mute{
-  transform: translate(0rem, -12rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='true'][data-local-video="on"] #call-settings-speaker{
-  transform: translate(0rem, -18rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='false'][data-local-video="on"] #call-settings-video{
-  transform: translate(0rem, 0rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='false'][data-local-video="on"] #call-settings-mute{
-  transform: translate(0rem, 0rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='false'][data-local-video="on"] #call-settings-speaker{
-  transform: translate(0rem, 0rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='true'][data-local-video='off'] #call-settings-video{
-  transform: translate(-6rem, -6rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='true'][data-local-video='off'] #call-settings-mute{
-  transform: translate(-6rem, -12rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='true'][data-local-video='off'] #call-settings-speaker{
-  transform: translate(-6rem, -18rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='false'][data-local-video='off'] #call-settings-video{
-  transform: translate(-6rem, 0rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='false'][data-local-video='off'] #call-settings-mute{
-  transform: translate(-6rem, 0rem) rotate(-90deg);
-}
-
-body[data-rotation='90'][data-settings='false'][data-local-video='off'] #call-settings-speaker{
-  transform: translate(-6rem, 0rem) rotate(-90deg);
+  display: none;
 }
 
 /*
@@ -970,48 +731,63 @@ body[data-rotation='90'][data-settings='false'][data-local-video='off'] #call-se
 
 @media (min--moz-device-pixel-ratio: 1.5) {
 
-  .fq-button-happy {
-    background-image: url(images/feedback_happy@1.5x.png);
-  }
-
-  .fq-button-sad {
-    background-image: url(images/feedback_sad@1.5x.png);
-  }
-
   #feedback label.pack-checkbox input:checked ~ span:after {
     background-image: url(images/ico_check@1.5x.png);
   }
 
+  .remote-bubble-shadow {
+    background-image: url(images/big_shadow@1.5x.png);
+  }
+
+  .local-bubble-shadow {
+    background-image: url(images/small_shadow@1.5x.png);
+  }
+
+  .action-button span,
+  .feedback-icon {
+    background-size: 12.8rem;
+    background-image: url(images/CallSprite@1.5x.png);
+  }
 }
 
 @media (min--moz-device-pixel-ratio: 2) {
-
-  .fq-button-happy {
-    background-image: url(images/feedback_happy@2x.png);
-  }
-
-  .fq-button-sad {
-    background-image: url(images/feedback_sad@2x.png);
-  }
 
   #feedback label.pack-checkbox input:checked ~ span:after {
     background-image: url(images/ico_check@2x.png);
   }
 
+  .remote-bubble-shadow {
+    background-image: url(images/big_shadow@2x.png);
+  }
+
+  .local-bubble-shadow {
+    background-image: url(images/small_shadow@2x.png);
+  }
+
+  .action-button span,
+  .feedback-icon {
+    background-size: 12.8rem;
+    background-image: url(images/CallSprite@2x.png);
+  }
 }
 
 @media (min--moz-device-pixel-ratio: 2.25) {
-
-  .fq-button-happy {
-    background-image: url(ico_images/feedback_happy@2.25x.png);
-  }
-
-  .fq-button-sad {
-    background-image: url(ico_images/feedback_sad@2.25x.png);
-  }
 
   #feedback label.pack-checkbox input:checked ~ span:after {
     background-image: url(images/ico_check@2.25x.png);
   }
 
+  .remote-bubble-shadow {
+    background-image: url(images/big_shadow@2.25x.png);
+  }
+
+  .local-bubble-shadow {
+    background-image: url(images/small_shadow@2.25x.png);
+  }
+
+  .action-button span,
+  .feedback-icon {
+    background-size: 12.8rem;
+    background-image: url(images/CallSprite@2.25x.png);
+  }
 }

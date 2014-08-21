@@ -8,35 +8,11 @@
   var _feedbackClose;
 
   var _; // l10n
-  
-  var _hangoutButton, _answerAudioButton, _answerVideoButton,
-      _settingsButton, _settingsButtonVideo, _settingsButtonMute,
+
+  var _hangupButton, _answerAudioButton, _answerVideoButton,
+      _settingsButtonVideo, _settingsButtonMute,
       _settingsButtonSpeaker, _resumeButton, _callStatusInfo,
       _fakeLocalVideo, _localVideo;
-
-  function _toggleSettings(callback) {
-    document.body.classList.remove('no-transition');
-    _settingsButtonSpeaker.addEventListener(
-      'transitionend',
-      function onTransitionEnd() {
-        _settingsButtonSpeaker.removeEventListener('transitionend', onTransitionEnd);
-
-        if (document.body.dataset.settings !== 'true') {
-          document.body.classList.add('no-transition');
-        }
-
-        if (typeof callback === 'function') {
-          callback();
-        }
-      }
-    );
-
-    if (document.body.dataset.settings !== 'true') {
-      document.body.dataset.settings = true;
-    } else {
-      document.body.dataset.settings = false;
-    }
-  }
 
   var _initialized = false;
 
@@ -45,26 +21,29 @@
       if (_initialized) {
         return;
       }
-      
+
       _ = navigator.mozL10n.get;
 
       _initialized = true;
 
+
       TonePlayerHelper.init('telephony');
 
+      isVideoCall && CallScreenUI.updateLocalVideo(isVideoCall);
+
+
       // Choose default camera
-      var cameraConstraint = navigator.mozCameras.getListOfCameras().length > 1 ?
+      var cameraConstraint = navigator.mozCameras && navigator.mozCameras.getListOfCameras().length > 1 ?
         {facingMode: 'user', require:['facingMode']} : true;
 
       // Cache the rest of elements
-      _callStatusInfo = document.getElementById('call-status-info');
       _localVideo = document.getElementById('local-video');
 
       // Ask for the Stream
       navigator.mozGetUserMedia(
         {
           video: cameraConstraint,
-          audio: false
+          audio: true
         },
         function onStreamReady(stream) {
           var progress = _localVideo.querySelector('progress');
@@ -84,8 +63,8 @@
       // Hangout button. We need to stop the ringer
       // and the countdown. Session should be disconnected
       // as well.
-      _hangoutButton = document.getElementById('hang-out');
-      _hangoutButton.addEventListener(
+      _hangupButton = document.getElementById('hang-up');
+      _hangupButton.addEventListener(
         'mousedown',
         function hangOutClick(e) {
           Ringer.stop();
@@ -106,6 +85,7 @@
         CallScreenUI.setCallStatus('connecting');
         CallManager.join(isVideo);
         CallScreenUI.updateLocalVideo(isVideo);
+        isVideo && _settingsButtonSpeaker.classList.add('setting-enabled');
       }
 
       _answerAudioButton.addEventListener(
@@ -126,33 +106,27 @@
       _settingsButtonSpeaker = document.getElementById('call-settings-speaker');
       _settingsButtonVideo = document.getElementById('call-settings-video');
       _settingsButtonMute = document.getElementById('call-settings-mute');
-      _settingsButton = document.getElementById('call-settings');
       
-      _settingsButton.addEventListener(
-        'mousedown',
-        function onSettingsClick(e) {
-           _toggleSettings();
-        }
-      );
-
       _settingsButtonVideo.addEventListener(
         'mousedown',
         function onSettingsClick(e) {
           _isVideoEnabled = !_isVideoEnabled;
-          _settingsButtonVideo.classList.toggle('disabled');
+          // Change the status of the video
+          _settingsButtonVideo.classList.toggle('setting-disabled');
           CallScreenUI.updateLocalVideo(
             _isVideoEnabled,
             function onUIUpdated() {
               CallManager.toggleVideo(_isVideoEnabled);
             }
           );
+          CallManager.toggleVideo(_isVideoEnabled);
         }
       );
 
       _settingsButtonMute.addEventListener(
         'mousedown',
         function onSettingsClick(e) {
-          _settingsButtonMute.classList.toggle('disabled');
+          _settingsButtonMute.classList.toggle('setting-disabled');
           _isMicEnabled = !_isMicEnabled;
           CallManager.toggleMic(_isMicEnabled);
         }
@@ -161,7 +135,7 @@
       _settingsButtonSpeaker.addEventListener(
         'mousedown',
         function onSettingsClick(e) {
-          _settingsButtonSpeaker.classList.toggle('enabled');
+          _settingsButtonSpeaker.classList.toggle('setting-enabled');
           _isSpeakerEnabled = !_isSpeakerEnabled;
           CallManager.toggleSpeaker(_isSpeakerEnabled);
         }
@@ -182,7 +156,7 @@
       if (isVideoCall || isVideoCall === 'true') {
         _isVideoEnabled = true;
         _isSpeakerEnabled = true;
-        _settingsButtonSpeaker.classList.add('enabled');
+        _settingsButtonSpeaker.classList.add('setting-enabled');
       }
 
       Countdown.init();
@@ -217,20 +191,32 @@
         }
       };
 
-      /*
-      // Canceling orientation handling by now until fixing
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=1053699
-      OrientationHandler.on('orientation', function(event) {
-        document.body.dataset.rotation = event;
-      });
-      OrientationHandler.start();
-      */
+      
+      // // Canceling orientation by now. This will be part of the
+      // // nice to have features.
+      // LazyLoader.load(
+      //   [
+      //     '../libs/orientation_vendor.js'
+      //   ],
+      //   function() {
+      //     OrientationHandler.on('orientation', function(event) {
+      //       document.body.dataset.rotation = event;
+      //     });
+      //     OrientationHandler.start();
+      //   }
+      // );
+      
     },
     setCallStatus: function(state) {
+      if (!_callStatusInfo) {
+        _callStatusInfo = document.getElementById('call-status-info');
+      }
       switch(state) {
         case 'calling':
           TonePlayerHelper.playDialing();
-          _callStatusInfo.textContent = _('connecting');
+          _callStatusInfo.textContent = _('calling');
+          document.body.dataset.callStatus = 'outgoing';
+
           break;
         case 'connecting':
           TonePlayerHelper.stop();
@@ -259,18 +245,6 @@
       document.body.dataset.remoteVideo = 'off';
     },
     updateLocalVideo: function(videoStatus, callback) {
-      // As there is a translation of the buttons when video is off/on
-      // we need to track when the animation is over.
-      _hangoutButton.addEventListener(
-        'transitionend',
-        function onHangoutTranslated() {
-          _hangoutButton.removeEventListener('transitionend', onHangoutTranslated);
-          if (typeof callback === 'function') {
-            callback();
-          }
-        }
-      );
-
       if (videoStatus == true) {
         document.body.dataset.localVideo = 'on';
         return;
@@ -326,7 +300,6 @@
       } catch(e) {
         console.log('Fake video was removed before');
       }
-      
       _fakeLocalVideo = null;
     }
   };

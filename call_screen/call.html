@@ -9,21 +9,26 @@
 
     <link rel="resource" type="application/l10n" href="../locales/locales.ini">
     <link rel="resource" type="application/l10n" href="../locales/date.ini">
-    
+
     <script defer src="../libs/lazy_loader.js"></script>
     <script defer src="../libs/l10n.js"></script>
+
     <script defer src="js/controller_communications.js"></script>
     <script defer src="js/call_screen_ui_minified.js"></script>
    	<title>Call</title>
   </head>
-  <body role="application" class="no-transition" data-local-video="on" data-remote-video="off" data-call-status="outgoing" data-settings="false" data-feedback="false" data-rotation="0">
+  <body role="application" data-local-video="on" data-remote-video="off" data-call-status="outgoing" data-settings="true" data-feedback="false" data-rotation="0">
 
     <div class="panel">
       <h1 id="contact-name-details"></h1>
       <h2 id="counter"></h2>
       <h3 id="call-status-info"></h3>
+      <div class="local-bubble-shadow">
+      </div>
       <div id="local-video" class="local-bubble connecting">
         <progress></progress>
+      </div>
+      <div class="remote-bubble-shadow">
       </div>
       <div id="remote-video" class="remote-bubble">
         <div>Fx<b>Hello!</b></div>
@@ -36,19 +41,23 @@
       </section>
       <button id="action-button-hit" class="action-button-hit">
       </button>
-      <button id="hang-out" class="action-button">
+      <button id="hang-up" class="action-button">
+        <span></span>
       </button>
       <button id="answer" class="action-button">
+        <span></span>
       </button>
       <button id="answer-video" class="action-button">
-      </button>
-      <button id="call-settings" class="action-button">
+        <span></span>
       </button>
       <button id="call-settings-mute" class="action-button setting-button">
+        <span></span>
       </button>
       <button id="call-settings-speaker" class="action-button setting-button">
+        <span></span>
       </button>
       <button id="call-settings-video" class="action-button setting-button">
+        <span></span>
       </button>
       <button id="resume-button" class="action-button" data-l10n-id="resume">
       </button>
@@ -59,10 +68,12 @@
             </div>
             <div class="fq-buttons hbox fit three">
               <button id="answer-sad" class="fq-button-sad fq-button hbox fit bottom">
-                <span data-l10n-id="sad"></span>
+                <span class="feedback-icon"></span>
+                <span class="fq-text" data-l10n-id="sad"></span>
               </button>
               <button id="answer-happy" class="fq-button-happy fq-button hbox fit bottom">
-                <span data-l10n-id="happy"></span>
+                <span class="feedback-icon"></span>
+                <span class="fq-text" data-l10n-id="happy"></span>
               </button>
             </div>
           </div>
