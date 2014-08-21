@@ -1,11 +1,13 @@
 (function(exports) {
   'use strict';
 
+  var TONE = '../resources/media/ringtones/ringtone.mp3';
+
   var _ringtone;
 
   function _init() {
     _ringtone = new Audio();
-    _ringtone.src = '../resources/media/ringtones/ringer_classic_wallphone.ogg';
+    _ringtone.src = TONE;
     _ringtone.mozAudioChannelType = 'ringer';
     _ringtone.loop = true;
   }

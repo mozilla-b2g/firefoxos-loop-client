@@ -41,6 +41,7 @@
                     '../libs/opentok.js',
                     '../js/helpers/audio_competing_helper.js',
                     '../js/helpers/call_progress_helper.js',
+                    '../js/helpers/tone_player_helper.js',
                     'js/countdown.js',
                     'js/ringer.js',
                     'js/call_manager.js',
