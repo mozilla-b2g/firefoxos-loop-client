@@ -1,6 +1,6 @@
 {
-  "name": "Loop",
-  "description": "The Mozilla Loop (WebRTC) client",
+  "name": "Firefox Hello",
+  "description": "Firefox Hello",
   "launch_path": "/index.html",
   "type": "privileged",
   "developer": {
@@ -41,7 +41,12 @@
       "returnValue": true
     }
   },
-  "default_locale": "en",
+  "default_locale": "en-US",
+  "icons": {
+    "84": "/style/images/icons/Icon_Hello@1.png",
+    "126": "/style/images/icons/Icon_Hello@1.5.png",
+    "189": "/style/images/icons/Icon_Hello@2.png"
+  },
   "orientation": "portrait",
   "origin": "app://loop.services.mozilla.com"
 }
