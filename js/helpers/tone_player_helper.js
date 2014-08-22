@@ -65,7 +65,7 @@
 
     releaseResources: function tph_releaseResources() {
       if ((_channel === 'telephony') && _audioElement) {
-	      _audioElement.mozAudioChannelType = 'normal';
+        _audioElement.mozAudioChannelType = 'normal';
       }
       _audioElement = null;
     }

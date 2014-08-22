@@ -344,7 +344,8 @@ h1, h2, h3 {
 }
 
 body[data-call-status='connected'] #counter,
-body[data-call-status='hold'] #counter {
+body[data-call-status='hold'] #counter,
+body[data-call-status='remotehold'] #counter {
   display: block;
 }
 
@@ -368,11 +369,13 @@ body[data-call-status='hold'] #counter {
 
 body[data-call-status='outgoing'] #call-status-info,
 body[data-call-status='connecting'] #call-status-info,
-body[data-call-status='hold'] #call-status-info {
+body[data-call-status='hold'] #call-status-info,
+body[data-call-status='remotehold'] #call-status-info {
   display: block;
 }
 
-body[data-call-status='hold'] #call-status-info{
+body[data-call-status='hold'] #call-status-info,
+body[data-call-status='remotehold'] #call-status-info{
   transform: translateY(27rem);
 }
 
@@ -696,7 +699,20 @@ body[data-call-status='hold'] #call-settings-video,
 body[data-call-status='hold'] #call-settings-mute,
 body[data-call-status='hold'] #answer,
 body[data-call-status='hold'] #answer-video,
-body[data-call-status='hold'] #local-video  {
+body[data-call-status='hold'] #local-video,
+body[data-call-status='hold'] .local-bubble-shadow {
+  display: none;
+}
+
+body[data-call-status='remotehold'] #call-settings,
+body[data-call-status='remotehold'] #call-settings-speaker ,
+body[data-call-status='remotehold'] #call-settings-video,
+body[data-call-status='remotehold'] #call-settings-mute,
+body[data-call-status='remotehold'] #answer,
+body[data-call-status='remotehold'] #answer-video,
+body[data-call-status='remotehold'] #local-video,
+body[data-call-status='remotehold'] #resume-button,
+body[data-call-status='remotehold'] .local-bubble-shadow {
   display: none;
 }
 

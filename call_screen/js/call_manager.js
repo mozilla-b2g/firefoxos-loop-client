@@ -13,16 +13,35 @@
   var _reason;
   var _speakerManager;
   var _onhold = function noop() {};
+  var _onpeeronhold = function noop() {};
+  var _onpeerresume = function noop() {};
   var _publishAudio = true;
   var _publishVideo = true;
   var _subscribeToAudio = true;
   var _subscribeToVideo = true;
   var _isVideoCall = false;
+  var _peersConnection = null;
+
+  /**
+   * Send the signal given as the parameter to the remote party.
+   *
+   * @param {Object} data The object containing the signal to send.
+   */
+  function _sendSignaling(data) {
+    if (data && _session && _peersConnection) {
+      _session.signal(
+        {
+          to: _peersConnection,
+          data: JSON.stringify(data)
+        }
+      );
+    }
+  }
 
   /**
    * Set the current call on hold.
    */
-  function _setCallOnHold() {
+  function _hold() {
     if (_publisher) {
       _publisher.publishAudio(false);
       _publisher.publishVideo(false);
@@ -32,6 +51,7 @@
       _subscriber.subscribeToVideo(false);
     }
     _onhold();
+    _sendSignaling({messageType: 'progress', state: 'held'});
     AudioCompetingHelper.leaveCompetition();
   }
 
@@ -126,10 +146,10 @@
     },
 
     join: function(isVideoCall) {
-      
+
       _isVideoCall = isVideoCall || _isVideoCall;
       AudioCompetingHelper.clearListeners();
-      AudioCompetingHelper.addListener('mozinterruptbegin', _setCallOnHold);
+      AudioCompetingHelper.addListener('mozinterruptbegin', _hold);
       AudioCompetingHelper.compete();
 
       Countdown.reset();
@@ -179,6 +199,8 @@
         },
         // Fired when a peer publishes the media stream.
         streamCreated: function(event) {
+          // As we don't have multi party calls yet there will be only one peer.
+          _peersConnection = event.stream.connection;
           _subscriber =
             _session.subscribe(
               event.stream,
@@ -207,10 +229,27 @@
         },
         // Fired when a peer stops publishing the media stream.
         streamDestroyed: function(event) {
+          // As we don't have multi party calls yet there will be only one peer.
+          _peersConnection = null;
           _publishersInSession -= 1;
+        },
+        // Fired when a signal is received.
+        signal: function(event) {
+          var message = JSON.parse(event.data);
+          if (message.messageType !== 'progress') {
+            return;
+          };
+          switch (message.state) {
+            case 'held':
+              _onpeeronhold();
+              break;
+            case 'resumed':
+              _onpeerresume();
+              break;
+          }
         }
       });
-      
+
       // Connect asap in order to publish the video
       _session.connect(_call.sessionToken, function(e) {
         if (e) {
@@ -237,7 +276,7 @@
             if (!container) {
               return;
             }
-            
+
             container.querySelector('video').addEventListener('canplay', function() {
               CallScreenUI.removeFakeVideo();
             });
@@ -256,6 +295,14 @@
       _onhold = onhold;
     },
 
+    set onpeeronhold(onpeeronhold) {
+      _onpeeronhold = onpeeronhold;
+    },
+
+    set onpeerresume(onpeerresume) {
+      _onpeerresume = onpeerresume;
+    },
+
     resume: function() {
       if (_publisher) {
         _publisher.publishAudio(_publishAudio);
@@ -265,7 +312,8 @@
         _subscriber.subscribeToAudio(_subscribeToAudio);
         _subscriber.subscribeToVideo(_subscribeToVideo);
       }
-      AudioCompetingHelper.addListener('mozinterruptbegin', _setCallOnHold);
+      _sendSignaling({messageType: 'progress', state: 'resumed'});
+      AudioCompetingHelper.addListener('mozinterruptbegin', _hold);
       AudioCompetingHelper.compete();
     },
 
