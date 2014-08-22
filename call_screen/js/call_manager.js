@@ -184,6 +184,7 @@
               event.stream,
               'fullscreen-video',
               {
+                audioVolume: 100,
                 style:{
                   nameDisplayMode: 'off',
                   buttonDisplayMode: 'off',
