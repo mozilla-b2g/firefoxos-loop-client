@@ -3,9 +3,13 @@
 
   var debug = true;
 
+  function _hideSplash() {
+    setTimeout(SplashScreen.hide, 1000);
+  }
+
   function _onauthentication(event) {
     Wizard.init(event.detail.firstRun);
-    SplashScreen.hide();
+    _hideSplash();
     window.removeEventListener('onauthentication', _onauthentication);
   }
 
@@ -15,13 +19,13 @@
       return;
     }
     CallLog.init(event.detail.identity);
-    SplashScreen.hide();
+    _hideSplash();
     LoadingOverlay.hide();
   }
 
   function _onlogout() {
     Wizard.init(false);
-    SplashScreen.hide();
+    _hideSplash();
     Settings.reset();
     setTimeout(function() {
       LoadingOverlay.hide();
@@ -31,7 +35,7 @@
 
   function _onloginerror(event) {
     Wizard.init(false /* isFirstUse */);
-    SplashScreen.hide();
+    _hideSplash();
     LoadingOverlay.hide();
     // TODO Add error message
   }
