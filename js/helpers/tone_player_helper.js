@@ -8,6 +8,8 @@
   var _audioElement = null;
   var _channel = null;
 
+  var BUSY_TONE_TIMEOUT = 5000;
+
   var DIAL_TONE = '../../resources/media/tones/dial.mp3';
   var BUSY_TONE = '../../resources/media/tones/busy.mp3';
   var HOLD_TONE = '../../resources/media/tones/hold.mp3';
@@ -48,7 +50,15 @@
     },
 
     playBusy: function tph_playBusy() {
-      _playTone(BUSY_TONE);
+      return new Promise(function(resolve, reject) {
+        var timeout = window.setTimeout(resolve, BUSY_TONE_TIMEOUT);
+        _audioElement.addEventListener('ended', function onplaybackcompleted() {
+          _audioElement.removeEventListener(onplaybackcompleted);
+          window.clearTimeout(timeout);
+          resolve();
+        });
+        _playTone(BUSY_TONE);
+      });
     },
 
     playHold: function tph_playHold() {

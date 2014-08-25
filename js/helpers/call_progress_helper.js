@@ -40,6 +40,7 @@
    */
   function CallProgressHelper(callId, progressURL, token) {
     this._state = 'unknown';
+    this._reason = 'unknown';
     this._callId = callId;
     this._token = token;
     this._ws = new WebSocket(progressURL);
@@ -61,6 +62,7 @@
           break;
         case 'progress':
           that._state = message.state;
+          that._reason = message.reason;
           _callback(that._onstatechange, [message]);
           break;
         case 'error':
@@ -104,6 +106,10 @@
   CallProgressHelper.prototype = {
     get state() {
       return this._state;
+    },
+
+    get reason() {
+      return this._reason;
     },
 
     set onstatechange(onstatechange) {
