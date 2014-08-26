@@ -316,7 +316,7 @@
       _onpeerbusy = onpeerbusy;
     },
 
-    stop: function() {
+    stop: function(error) {
       if (_callProgressHelper &&
          (_callProgressHelper.state === 'terminated') &&
           _callProgressHelper.reason) {
@@ -331,7 +331,7 @@
             break;
         }
       }
-      AudioCompetingHelper.leaveCompetition();
+
       try {
         _session.disconnect();
       } catch(e) {
@@ -347,16 +347,22 @@
       }
 
       function onCallEnded() {
+        var params = {
+          call: _call,
+          duration: duration,
+          connected: connected,
+          video: _isVideoCall
+        };
+
+        if (error) {
+          params.error = error;
+        }
+
         // Send result to the Controller
         var hangoutMessage = {
           id: 'call_screen',
           message: 'hangout',
-          params: {
-            call: _call,
-            duration: duration,
-            connected: connected,
-            video: _isVideoCall
-          }
+          params: params
         };
         ControllerCommunications.send(hangoutMessage);
       }
@@ -375,6 +381,11 @@
       _call = {};
       _callProgressHelper && _callProgressHelper.finish();
       _callProgressHelper = null;
+
+      if (!AudioCompetingHelper) {
+        return;
+      }
+      AudioCompetingHelper.leaveCompetition();
       AudioCompetingHelper.destroy();
     }
   };
