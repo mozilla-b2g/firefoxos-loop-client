@@ -87,7 +87,7 @@
     var attentionParams = 'layout=' + type;
     if (params) {
       Object.keys(params).forEach(function(key) {
-        attentionParams += '&' + key + '=' + encodeURIComponent(params[key])
+        attentionParams += '&' + key + '=' + encodeURIComponent(params[key]);
       });
     }
 
@@ -181,8 +181,10 @@
                   // Clean attention params
                   attention.close();
                   attention = null;
+
                   // Create CALL object
                   var callscreenParams = messageFromCallScreen.params;
+
                   // Create object to store
                   var callObject = {
                     date: attentionLoadedDate,
@@ -209,14 +211,14 @@
               }
             } catch(e) {}
           }
-        )
+        );
       }
     );
   }
 
   function _rejectCall(call) {
     LazyLoader.load([
-      '../js/helpers/call_progress_helper.js',
+      '../js/helpers/call_progress_helper.js'
     ], function() {
       var callProgressHelper = new CallProgressHelper(call.callId,
                                                       call.progressURL,

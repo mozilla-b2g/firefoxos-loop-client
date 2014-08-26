@@ -14,6 +14,7 @@
   var _onhold = function noop() {};
   var _onpeeronhold = function noop() {};
   var _onpeerresume = function noop() {};
+  var _onpeerbusy = function noop() {};
   var _publishAudio = true;
   var _publishVideo = true;
   var _subscribeToAudio = true;
@@ -314,7 +315,25 @@
       AudioCompetingHelper.compete();
     },
 
+    set onpeerbusy(onpeerbusy) {
+      _onpeerbusy = onpeerbusy;
+    },
+
     stop: function() {
+      if (_callProgressHelper &&
+         (_callProgressHelper.state === 'terminated') &&
+          _callProgressHelper.reason) {
+        // There might be several termination reasons such as busy, reject, etc.
+        // We will handle them as different cases.
+        switch (_callProgressHelper.reason) {
+          case 'busy':
+            _onpeerbusy();
+            _callProgressHelper = null;
+            return;
+          default:
+            break;
+        }
+      }
       AudioCompetingHelper.leaveCompetition();
       try {
         _session.disconnect();

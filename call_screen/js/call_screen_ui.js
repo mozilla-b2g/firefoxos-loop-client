@@ -185,7 +185,10 @@
       // held call.
       CallManager.onpeerresume = this.notifyCallResume;
 
-      
+      // Set the callback function to be called on peer busy.
+      CallManager.onpeerbusy = this.notifyPeerBusy;
+
+
       // Use status bar in the call screen
       window.onresize = function() {
         if (_feedbackClose && typeof _feedbackClose === 'function') {
@@ -245,6 +248,11 @@
         case 'remotehold':
           document.body.dataset.callStatus = 'remotehold';
           _callStatusInfo.textContent = _('onHold');
+          break;
+        case 'busy':
+          // Show the state for the time being.
+          // Bug 1054417 - [Loop] Implement 'busy' call screen
+          _callStatusInfo.textContent = _('busy');
           break;
       }
     },
@@ -321,6 +329,14 @@
     notifyCallResume: function() {
       TonePlayerHelper.stop();
       CallScreenUI.setCallStatus('connected');
+    },
+    notifyPeerBusy: function() {
+      CallScreenUI.setCallStatus('busy');
+      TonePlayerHelper.playBusy().then(function onplaybackcompleted() {
+        TonePlayerHelper.stop();
+        TonePlayerHelper.releaseResources();
+        CallManager.stop();
+      });
     }
   };
 
