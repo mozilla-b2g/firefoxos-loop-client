@@ -228,9 +228,15 @@
   }
 
   var CallScreenManager = {
-    launch: function(type, params, contact) {
+    launch: function(type, params) {
       if (type !== 'incoming') {
-        // TODO bug 1053338 if busy, reject call.
+        // If we are already on a call, we shouldn't allow calling another user
+        // until we have a proper multi-party feature in place.
+        // Bug 1058628 - Do not allow make a call while there is another one in
+        // place
+        if (_inCall) {
+          return;
+        }
         _launchAttention(type, params);
         return;
       }
