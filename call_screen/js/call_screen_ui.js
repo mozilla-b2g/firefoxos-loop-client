@@ -218,6 +218,9 @@
       // );
       
     },
+    isStatusBarShown: function() {
+      return document.body.classList.contains('status-bar');
+    },
     setCallStatus: function(state) {
       if (!_callStatusInfo) {
         _callStatusInfo = document.getElementById('call-status-info');

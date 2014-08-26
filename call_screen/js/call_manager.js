@@ -362,7 +362,11 @@
       }
 
       if (connected) {
-        CallScreenUI.showFeedback(onCallEnded);
+        if (CallScreenUI.isStatusBarShown()) {
+          onCallEnded();
+        } else {
+          CallScreenUI.showFeedback(onCallEnded);
+        }
       } else {
         onCallEnded();
       }
