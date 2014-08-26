@@ -104,9 +104,9 @@
       _callProgressHelper.onerror = function onError(evt) {
         _handleCallProgress(_callProgressHelper);
       };
-
+      
       if (params.type === 'outgoing') {
-        CallManager.join(params.video);
+        CallManager.join(params.video, params.frontCamera);
         CallScreenUI.setCallStatus('calling');
       } else {
         CallScreenUIMinified.updateIdentityInfo(params.identities);
@@ -143,7 +143,7 @@
       _publishAudio = isMicOn;
     },
 
-    join: function(isVideoCall) {
+    join: function(isVideoCall, frontCamera) {
 
       _isVideoCall = isVideoCall || _isVideoCall;
       AudioCompetingHelper.clearListeners();
@@ -154,12 +154,9 @@
 
       _publishVideo = _subscribeToVideo = _isVideoCall;
 
-      // Choose default camera
-      var cameraConstraint =
-        navigator.mozCameras.getListOfCameras().length > 1 ?
-          {facingMode: 'user', require:['facingMode']} : true;
+      var mode = (frontCamera && frontCamera != 'false') ? 'user':'environment';
+      var cameraConstraint = {facingMode: mode, require: ['facingMode']};
       var constraints = {
-        // TODO Ask for facing mode if possible
         video: cameraConstraint,
         audio: true
       };

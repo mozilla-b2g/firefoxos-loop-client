@@ -3,10 +3,13 @@
 
   var _settingsPanel, _closeSettingsButton, _logoutSettingsButton,
       _cleanCallsButton, _cleanUrlsButton, _videoDefaultSettings,
-      _commitHashTag;
+      _commitHashTag, _cameraDefaultSettings;
 
   var _isVideoDefault = true;
+  var _isFrontCameraDefault = true;
+  var _isSingleCamera = false;
   const VIDEO_SETTING = 'video-default';
+  const CAMERA_SETTING = 'camera-default';
 
   var _;
   var Settings = {
@@ -18,7 +21,13 @@
         VIDEO_SETTING,
         true
       );
+      asyncStorage.setItem(
+        CAMERA_SETTING,
+        true
+      );
       _isVideoDefault = true;
+      _isFrontCameraDefault = true;
+      _isSingleCamera = false;
     },
     init: function s_init(identity) {
       document.getElementById('settings-logout-identity').innerHTML =
@@ -39,6 +48,7 @@
       _cleanCallsButton = document.getElementById('settings-clean-calls-button');
       _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
       _videoDefaultSettings = document.getElementById('video-default-setting');
+      _cameraDefaultSettings = document.getElementById('camera-default-setting');
       _commitHashTag = document.getElementById('settings-commit-hash-tag');
 
       asyncStorage.getItem(
@@ -142,6 +152,35 @@
       if (_commitHashTag && Version.id) {
         _commitHashTag.textContent = Version.id || _('unknown');
       }
+
+      if (!navigator.mozCameras && navigator.mozCameras.getListOfCameras().length < 2) {
+        _isSingleCamera = true;
+        _cameraDefaultSettings.parentNode.parentNode.style.display = 'none';
+      } else {
+        asyncStorage.getItem(
+          CAMERA_SETTING,
+          function onSettingRetrieved(isFrontCamera) {
+            if (isFrontCamera === null) {
+              Settings.reset();
+            } else {
+              _isFrontCameraDefault = isFrontCamera;
+            }
+            _cameraDefaultSettings.value = _isFrontCameraDefault;
+            _cameraDefaultSettings.addEventListener(
+              'change',
+              function() {
+                _isFrontCameraDefault = _cameraDefaultSettings.options[
+                  _cameraDefaultSettings.selectedIndex
+                ].value;
+                asyncStorage.setItem(
+                  CAMERA_SETTING,
+                  _isFrontCameraDefault
+                );
+              }
+            );
+          }
+        );
+      }
     },
     show: function s_show() {
       if (!_settingsPanel) {
@@ -154,6 +193,9 @@
         return;
       }
       _settingsPanel.classList.remove('show');
+    },
+    get isFrontalCamera() {
+      return _isSingleCamera ? false : _isFrontCameraDefault;
     }
   };
 

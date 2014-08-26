@@ -51,7 +51,8 @@
       CallScreenManager.launch(
         'incoming',
         {
-          version: version
+          version: version,
+          frontCamera: Settings.isFrontalCamera
         }
       );
     }
@@ -103,7 +104,8 @@
         {
           identities: identities,
           video: isVideoCall,
-          contact: contact
+          contact: contact,
+          frontCamera: Settings.isFrontalCamera
         }
       );
     },
@@ -156,7 +158,8 @@
         'outgoing',
         {
           token: token,
-          video: isVideoCall
+          video: isVideoCall,
+          frontCamera: Settings.isFrontalCamera
         }
       );
     },

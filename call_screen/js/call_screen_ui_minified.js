@@ -66,7 +66,10 @@
           'js/call_screen_ui.js'
         ],
         function onCallScreen() {
-          CallScreenUI.init(callParams.video && callParams.video === 'true');
+          CallScreenUI.init(
+            callParams.video && callParams.video === 'true',
+            callParams.frontCamera && callParams.frontCamera === 'true'
+          );
         }
       );
     },
