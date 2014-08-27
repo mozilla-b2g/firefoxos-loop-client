@@ -138,6 +138,7 @@
 
       if (identities.length === 0) {
         alert(_('pickActivityFail'));
+        return;
       }
 
       Controller.callIdentities(identities, contact, isVideoCall);
