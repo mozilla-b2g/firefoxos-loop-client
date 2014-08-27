@@ -103,7 +103,7 @@
       attention,
       function onLoaded() {
         // Function to post data from the server
-        function _postCall(type, call, identities, video) {
+        function _postCall(type, call, identities, frontCamera, video) {
           attention.postMessage(JSON.stringify({
             id: 'controller',
             message: 'call',
@@ -111,7 +111,8 @@
               type: type,
               call: call,
               identities: identities,
-              video: video || null
+              video: video || null,
+              frontCamera: frontCamera || false
             }
           }), '*');
         }
@@ -121,7 +122,7 @@
         switch(type) {
           case 'incoming':
             // Call was retrieved previously in order to accelerate the UI
-            _postCall(type, incomingCall, params.identities);
+            _postCall(type, incomingCall, params.identities, params.frontCamera);
             break;
           case 'outgoing':
             if (!params.token) {
@@ -129,7 +130,7 @@
                 params.identities,
                 params.video,
                 function onLoopIdentity(call) {
-                  _postCall(type, call, params.identities, params.video);
+                  _postCall(type, call, params.identities, params.frontCamera, params.video);
                 },
                 function onFallback() {
                   // Get URL to share and show prompt

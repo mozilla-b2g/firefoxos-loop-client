@@ -17,7 +17,7 @@
   var _initialized = false;
 
   var CallScreenUI = {
-    init: function(isVideoCall) {
+    init: function(isVideoCall, frontCamera) {
       if (_initialized) {
         return;
       }
@@ -31,9 +31,8 @@
       isVideoCall && CallScreenUI.updateLocalVideo(isVideoCall);
 
 
-      // Choose default camera
-      var cameraConstraint = navigator.mozCameras && navigator.mozCameras.getListOfCameras().length > 1 ?
-        {facingMode: 'user', require:['facingMode']} : true;
+      var mode = frontCamera ? 'user':'environment';
+      var cameraConstraint = {facingMode: mode, require: ['facingMode']};
 
       // Cache the rest of elements
       _localVideo = document.getElementById('local-video');
@@ -50,6 +49,7 @@
           // Show your own stream as part of the GUM wizard
           _fakeLocalVideo = document.createElement('video');
           _fakeLocalVideo.className = 'fake-local-video';
+          _fakeLocalVideo.muted = true;
           _fakeLocalVideo.mozSrcObject = stream;
           _localVideo.appendChild(_fakeLocalVideo);
           _fakeLocalVideo.play();
@@ -83,7 +83,7 @@
         _isVideoEnabled = isVideo;
         Ringer.stop();
         CallScreenUI.setCallStatus('connecting');
-        CallManager.join(isVideo);
+        CallManager.join(isVideo, frontCamera);
         CallScreenUI.updateLocalVideo(isVideo);
         isVideo && _settingsButtonSpeaker.classList.add('setting-enabled');
       }
