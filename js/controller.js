@@ -37,7 +37,6 @@
     Wizard.init(false /* isFirstUse */);
     _hideSplash();
     LoadingOverlay.hide();
-    // TODO Add error message
   }
 
   /**
