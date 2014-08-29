@@ -112,7 +112,7 @@
       _settingsButtonSpeaker = document.getElementById('call-settings-speaker');
       _settingsButtonVideo = document.getElementById('call-settings-video');
       _settingsButtonMute = document.getElementById('call-settings-mute');
-      
+
       _settingsButtonVideo.addEventListener(
         'mousedown',
         function onSettingsClick(e) {
@@ -146,7 +146,7 @@
           CallManager.toggleSpeaker(_isSpeakerEnabled);
         }
       );
-      
+
 
       _resumeButton = document.getElementById('resume-button');
       // Resume button. On click resume the call.
@@ -182,7 +182,7 @@
       // Set the callback function to be called once the call is held in the
       // call manager helper.
       CallManager.onhold = this.toggleHold;
-     
+
       // Set the callback function to be called once the peer has set its call
       // on hold.
       CallManager.onpeeronhold = this.notifyCallHeld;
@@ -194,6 +194,12 @@
       // Set the callback function to be called on peer busy.
       CallManager.onpeerbusy = this.notifyPeerBusy;
 
+      // Set the callback function to be called on peer rejecting the call.
+      CallManager.onpeerreject = this.notifyPeerReject;
+
+      // Set the callback function to be called either on peer cancelling
+      // or terminating (timeout) the call.
+      CallManager.onpeercancel = this.notifyPeerCancel;
 
       // Use status bar in the call screen
       window.onresize = function() {
@@ -208,7 +214,7 @@
         }
       };
 
-      
+
       // // Canceling orientation by now. This will be part of the
       // // nice to have features.
       // LazyLoader.load(
@@ -222,7 +228,7 @@
       //     OrientationHandler.start();
       //   }
       // );
-      
+
     },
     isStatusBarShown: function() {
       return document.body.classList.contains('status-bar');
@@ -263,9 +269,12 @@
           // Bug 1054417 - [Loop] Implement 'busy' call screen
           _callStatusInfo.textContent = _('busy');
           break;
+        case 'reject':
+          _callStatusInfo.textContent = _('declined');
+          break;
       }
     },
-    
+
     updateRemoteVideo: function(videoStatus) {
       if (videoStatus == true) {
         document.body.dataset.remoteVideo = 'on';
@@ -342,10 +351,24 @@
     notifyPeerBusy: function() {
       CallScreenUI.setCallStatus('busy');
       TonePlayerHelper.playBusy().then(function onplaybackcompleted() {
+        TonePlayerhelper.stop();
+        TonePlayerHelper.releaseResources();
+        CallManager.stop();
+      });
+    },
+    notifyPeerReject: function() {
+      CallScreenUI.setCallStatus('reject');
+      TonePlayerHelper.playBusy().then(function onplaybackcompleted() {
         TonePlayerHelper.stop();
         TonePlayerHelper.releaseResources();
         CallManager.stop();
       });
+    },
+    notifyPeerCancel: function() {
+      Ringer.stop();
+      TonePlayerHelper.stop();
+      TonePlayerHelper.releaseResources();
+      CallManager.stop();
     }
   };
 

@@ -15,6 +15,8 @@
   var _onpeeronhold = function noop() {};
   var _onpeerresume = function noop() {};
   var _onpeerbusy = function noop() {};
+  var _onpeerreject = function noop() {};
+  var _onpeercancel = function noop() {};
   var _publishAudio = true;
   var _publishVideo = true;
   var _subscribeToAudio = true;
@@ -89,6 +91,61 @@
     }
   }
 
+  /**
+   * Helper function. Handles call progress protocol state changes when
+   * terminating the call.
+   */
+  function _handleCallTermination(error) {
+    switch (_callProgressHelper.state) {
+      case 'unknown':
+      case 'init':
+      case 'alerting':
+        if (_callee) {
+          _callProgressHelper.terminate('reject', function() {
+            _callProgressHelper = null;
+            CallManager.stop(error);
+          });
+        } else {
+          _callProgressHelper.terminate('cancel', function() {
+            _callProgressHelper = null;
+            CallManager.stop(error);
+          });
+        }
+        break;
+      case 'terminated':
+        var reason = _callProgressHelper.reason;
+
+        _callProgressHelper.finish();
+        _callProgressHelper = null;
+
+        if (!reason) {
+          CallManager.stop(error);
+          return;
+        }
+        switch (reason) {
+          case 'busy':
+            _onpeerbusy();
+            break;
+          case 'reject':
+            _onpeerreject();
+            break;
+          case 'cancel':
+          case 'timeout':
+            _onpeercancel();
+            break;
+          default:
+            CallManager.stop(error);
+            break;
+        }
+        break;
+      default:
+        _callProgressHelper.finish();
+        _callProgressHelper = null;
+        CallManager.stop(error);
+        break;
+    }
+  }
+
   var CallManager = {
     init: function(params) {
       if (_call) {
@@ -104,7 +161,7 @@
       _callProgressHelper.onerror = function onError(evt) {
         _handleCallProgress(_callProgressHelper);
       };
-      
+
       if (params.type === 'outgoing') {
         CallManager.join(params.video, params.frontCamera);
         CallScreenUI.setCallStatus('calling');
@@ -316,20 +373,18 @@
       _onpeerbusy = onpeerbusy;
     },
 
+    set onpeerreject(onpeerreject) {
+      _onpeerreject = onpeerreject;
+    },
+
+    set onpeercancel(onpeercancel) {
+      _onpeercancel = onpeercancel;
+    },
+
     stop: function(error) {
-      if (_callProgressHelper &&
-         (_callProgressHelper.state === 'terminated') &&
-          _callProgressHelper.reason) {
-        // There might be several termination reasons such as busy, reject, etc.
-        // We will handle them as different cases.
-        switch (_callProgressHelper.reason) {
-          case 'busy':
-            _onpeerbusy();
-            _callProgressHelper = null;
-            return;
-          default:
-            break;
-        }
+      if (_callProgressHelper) {
+        _handleCallTermination(error);
+        return;
       }
 
       try {
@@ -379,8 +434,6 @@
 
       // Clean the call
       _call = {};
-      _callProgressHelper && _callProgressHelper.finish();
-      _callProgressHelper = null;
 
       if (!AudioCompetingHelper) {
         return;

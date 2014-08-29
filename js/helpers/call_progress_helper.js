@@ -57,6 +57,7 @@
 
       switch (message.messageType) {
         case 'hello':
+          that._state = message.state;
           that._ready = true;
           that._onready();
           break;
@@ -81,6 +82,7 @@
         auth: that._token,
         callId: that._callId
       }));
+      debug && console.log("Hello message sent");
     };
 
     this._ws.onclose = function onCloseWS(evt) {
@@ -130,7 +132,6 @@
     },
 
     _send: function cph_send(message) {
-      debug && console.log("Sending message " + JSON.stringify(message));
       if (!this._ready) {
         if (!this._messageQueue) {
           this._messageQueue = [];
@@ -138,6 +139,11 @@
         this._messageQueue.push(message);
         return;
       }
+      if (typeof message.cb === 'function') {
+        message.cb();
+        delete message.cb;
+      }
+      debug && console.log("Sending message " + JSON.stringify(message));
       this._ws.send(JSON.stringify(message));
     },
 
@@ -155,11 +161,12 @@
       });
     },
 
-    terminate: function cph_terminate(reason) {
+    terminate: function cph_terminate(reason, cb) {
       this._send({
         messageType: 'action',
         event: 'terminate',
-        reason: reason
+        reason: reason,
+        cb: cb
       });
     },
 
