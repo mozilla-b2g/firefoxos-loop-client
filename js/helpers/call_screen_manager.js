@@ -104,6 +104,9 @@
       function onLoaded() {
         // Function to post data from the server
         function _postCall(type, call, identities, frontCamera, video) {
+          if (!attention) {
+            return;
+          }
           attention.postMessage(JSON.stringify({
             id: 'controller',
             message: 'call',
@@ -186,6 +189,12 @@
                   // Create CALL object
                   var callscreenParams = messageFromCallScreen.params;
 
+                  // If there is any error, as gUM permission, let's show to the
+                  // user asap.
+                  if (callscreenParams.error) {
+                    Controller.showError(callscreenParams.error.reason);
+                  }
+                  
                   // Create object to store
                   var callObject = {
                     date: attentionLoadedDate,
@@ -208,6 +217,7 @@
                   }, function() {
                     CallLog.addCall(callObject);
                   });
+                  
                   break;
               }
             } catch(e) {}

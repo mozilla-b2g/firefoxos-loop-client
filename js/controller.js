@@ -247,6 +247,15 @@
 
     logout: function() {
       AccountHelper.logout();
+    },
+
+    showError: function(reason) {
+      switch(reason) {
+        case 'gum':
+          alert(_('cameraPermission'));
+          break;
+
+      }
     }
   };
 

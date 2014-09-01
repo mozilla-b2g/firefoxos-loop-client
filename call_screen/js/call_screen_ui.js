@@ -16,6 +16,15 @@
 
   var _initialized = false;
 
+
+  function _hangUp(error) {
+    TonePlayerHelper.stop();
+    TonePlayerHelper.releaseResources();
+    Ringer.stop();
+    Countdown.stop();
+    CallManager.stop(error);
+  }
+
   var CallScreenUI = {
     init: function(isVideoCall, frontCamera) {
       if (_initialized) {
@@ -55,6 +64,9 @@
           _fakeLocalVideo.play();
         },
         function(err) {
+          _hangUp({
+            reason: 'gum'
+          });
           console.log("An error occured! " + err);
         }
       );
@@ -65,13 +77,7 @@
       _hangupButton = document.getElementById('hang-up');
       _hangupButton.addEventListener(
         'mousedown',
-        function hangOutClick(e) {
-          TonePlayerHelper.stop();
-          TonePlayerHelper.releaseResources();
-          Ringer.stop();
-          Countdown.stop();
-          CallManager.stop();
-        }
+        _hangUp
       );
 
       _answerAudioButton = document.getElementById('answer');
