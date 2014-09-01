@@ -43,6 +43,7 @@
    * https://github.com/hueniverse/hawk#replay-protection
    */
   function _updateClockOffset(dateString) {
+    debug && console.log('We need to fix the timestamp in the request. Server date: ' + dateString);
     try {
       var serverDateMsec = Date.parse(dateString);
       _localtimeOffsetMsec = serverDateMsec - hawk.utils.now();
@@ -62,10 +63,12 @@
     if (options.credentials) {
       switch (options.credentials.type) {
         case 'BrowserID':
+          debug && console.log('Request using BrowserID')
           authorization =
             options.credentials.type + ' ' + options.credentials.value;
           break;
         default:
+          debug && console.log('Request using HAWK')
           var hawkHeader = hawk.client.header(options.url, options.method, {
             credentials: options.credentials.value,
             localtimeOffsetMsec: _localtimeOffsetMsec
@@ -87,9 +90,9 @@
           return;
         }
         // Getting a second 401 means that our credentials are incorrect and
-        // so we need new ones. In this case, we just logout and bail out so
-        // the user can request new credentials by login again in Loop.
-        AccountHelper.logout();
+        // so we need new ones.
+        debug && console.log('ERROR 401: ' + JSON.stringify(req.response));
+        alert(navigator.mozL10n.get('genericServerError'));
         _callback(onerror);
         return;
       }

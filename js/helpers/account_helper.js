@@ -154,25 +154,29 @@
     _isLogged = false;
     _isIdCheckNeeded = false;
 
-    _dispatchEvent('onloginerror', { error: error });
+    _dispatchEvent('onloginerror', { error: error || 'Unknown' });
   }
 
+  var _isWatchCalled = false;
   function _watchFxA(checkIdChange) {
     _isIdCheckNeeded = !!checkIdChange;
 
+    if (_isWatchCalled) {
+      return;
+    }
+
+    _isWatchCalled = true;
     var callbacks = {
       wantIssuer: 'firefox-accounts',
-      onready: function() {},
+      onready: function() {
+        debug && console.log('FxA: Ready');
+      },
       onlogin: _onlogin,
       onlogout: _onlogout,
       onerror: _onloginerror
     };
 
-    try {
-      navigator.mozId && navigator.mozId.watch(callbacks);
-    } catch(e) {
-      console.warn(e);
-    }
+    navigator.mozId && navigator.mozId.watch(callbacks);
   }
 
   var AccountHelper = {
@@ -251,7 +255,16 @@
       switch (id) {
         case 'fxa':
           _watchFxA();
-          navigator.mozId && navigator.mozId.request();
+          navigator.mozId && navigator.mozId.request(
+            {
+              oncancel: function() {
+                if (_isIdFlowRunning) {
+                  _onloginerror();
+                }
+                debug && console.log('User killed FxA Dialog.');
+              }
+            }
+          );
           break;
         case 'msisdn':
           navigator.getMobileIdAssertion({
@@ -276,6 +289,7 @@
      *                           error object is passed as parameter.
      */
     signUp: function signUp(credentials, onsuccess, onerror) {
+      debug && console.log('AccountHelper: signUp');
       if (!_onnotification) {
         _callback(onerror);
         return;
@@ -321,6 +335,7 @@
      *                                  receives a simple push notification.
      */
     signIn: function signIn(onsuccess, onerror) {
+      debug && console.log('AccountHelper: signIn');
       if (!_onnotification) {
         _callback(onerror);
         return;
@@ -358,6 +373,16 @@
      * Log the user out. It clears the app account.
      */
     logout: function logout() {
+      // If there is no previous user logged but we receive a logout we need to go
+      // directly to the 'authentication' screen
+      if (!_cachedAccount && !_isIdCheckNeeded) {
+        _dispatchEvent('onauthentication', {
+            firstRun: false
+          });
+        return;
+      }
+
+      debug && console.log('AccountHelper: logout');
       // TODO Check if we need to clean the call log
       // https://bugzilla.mozilla.org/show_bug.cgi?id=1006563
       // Dispatch onlogout
