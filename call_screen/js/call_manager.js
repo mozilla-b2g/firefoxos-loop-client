@@ -151,9 +151,11 @@
       if (_call) {
         return;
       }
+      _speakerManager = new window.MozSpeakerManager();
+
       AudioCompetingHelper.init();
       _call = params.call;
-      _isVideoCall = params.video;
+      _isVideoCall = params.video && params.video != 'false';
       _callee = params.type === 'incoming' ? true : false;
       _callProgressHelper = new CallProgressHelper(_call.callId,
                                                    _call.progressURL,
@@ -163,7 +165,7 @@
       };
 
       if (params.type === 'outgoing') {
-        CallManager.join(params.video, params.frontCamera);
+        CallManager.join(_isVideoCall, params.frontCamera);
         CallScreenUI.setCallStatus('calling');
       } else {
         CallScreenUIMinified.updateIdentityInfo(params.identities);
@@ -176,18 +178,11 @@
         return;
       }
 
-      if (!_speakerManager) {
-        _speakerManager = new window.MozSpeakerManager();
-      }
       _publisher.publishVideo(isVideoOn);
       _publishVideo = isVideoOn;
     },
 
     toggleSpeaker: function(isSpeakerOn) {
-      if (!_subscriber) {
-        console.error('No subscriber in this call');
-        return;
-      }
       _speakerManager.forcespeaker = isSpeakerOn;
     },
 
@@ -277,7 +272,6 @@
           CallScreenUI.updateRemoteVideo(event.stream.hasVideo);
           // Toggle local video
           CallManager.toggleVideo(isVideoCall);
-          CallManager.toggleSpeaker(isVideoCall);
         },
         // Fired when a peer stops publishing the media stream.
         streamDestroyed: function(event) {
