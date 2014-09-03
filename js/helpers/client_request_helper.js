@@ -271,12 +271,31 @@
         return;
       }
 
+      // In order to allow the server to normalize the given identity as an
+      // MSISDN, we need to also provide the current MCC.
+      var mcc;
+      var conn = navigator.mozMobileConnections;
+      if (conn && conn[0]) {
+        // TODO: So far we will only provide the MCC of the first SIM if
+        //       available, but we'll need to provide the entire list after
+        //       bug 1062324 is fixed.
+        var network = conn[0].lastKnownHomeNetwork || conn[0].lastKnownNetwork;
+        var mccParts = (network || '-').split('-');
+        if (mccParts.length >= 1) {
+          // mccParts contains at least mcc and mnc. Recent implementations
+          // includes the SPN as a third parameter, but we don't really care
+          // about it.
+          mcc = mccParts[0];
+        }
+      }
+
       _request({
         method: 'POST',
         url: SERVER_URL + '/calls/',
         body: {
           calleeId: calleeId,
-          callType: isVideoCall ? 'audio-video' : 'audio'
+          callType: isVideoCall ? 'audio-video' : 'audio',
+          mcc: mcc
         },
         credentials: _hawkCredentials
       }, onsuccess, onerror);
