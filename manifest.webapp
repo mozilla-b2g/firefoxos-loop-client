@@ -19,7 +19,8 @@
     "speaker-control": {},
     "moz-firefox-accounts": {},
     "systemXHR":{},
-    "video-capture": {}
+    "video-capture": {},
+    "mobilenetwork": {}
   },
   "messages": [
      { "push": "/index.html" }
