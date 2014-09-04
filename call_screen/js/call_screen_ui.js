@@ -12,15 +12,19 @@
   var _hangupButton, _answerAudioButton, _answerVideoButton,
       _settingsButtonVideo, _settingsButtonMute,
       _settingsButtonSpeaker, _resumeButton, _callStatusInfo,
-      _fakeLocalVideo, _localVideo;
+      _fakeLocalVideo, _localVideo, _feedback;
 
   var _initialized = false;
-
 
   function _hangUp(error) {
     Ringer.stop();
     Countdown.stop();
     CallScreenUI.notifyCallEnded(error);
+  }
+
+  function Feedback(happy, description) {
+    this.happy = happy;
+    this.description = description;
   }
 
   var CallScreenUI = {
@@ -149,7 +153,7 @@
           }
         );
       }
-      
+
       _resumeButton = document.getElementById('resume-button');
       // Resume button. On click resume the call.
       _resumeButton.addEventListener(
@@ -315,6 +319,9 @@
     },
     showFeedback: function(callback) {
       _feedbackClose = callback;
+      if (!_feedback) {
+        _feedback = document.getElementById('feedback');
+      }
       document.getElementById('skip-feedback-button').addEventListener(
         'click',
         function onSkip() {
@@ -326,27 +333,34 @@
 
       document.getElementById('rate-feedback-button').addEventListener(
         'click',
-        function onSkip() {
+        function onRate() {
           if (typeof callback === 'function') {
-            // TODO Collect info and send to Controller
-            callback();
+            var description = [];
+            var checked = _feedback.querySelectorAll(':checked');
+            if (checked) {
+              for (var i = 0, l = checked.length; i < l; i++) {
+                description.push(checked[i].value);
+              }
+            }
+
+            callback(new Feedback(false /* happy */, description));
           }
         }
       );
 
       document.getElementById('answer-happy').addEventListener(
         'click',
-        function onSkip() {
+        function onAnswerHappy() {
           if (typeof callback === 'function') {
-            callback();
+            callback(new Feedback(true /* happy */));
           }
         }
       );
 
       document.getElementById('answer-sad').addEventListener(
         'click',
-        function onSkip() {
-          document.getElementById('feedback').classList.add('two-options');
+        function onAnswerSad() {
+          _feedback.classList.add('two-options');
           document.querySelector('[data-question]').dataset.question = 2;
         }
       );
