@@ -252,18 +252,46 @@
         return;
       }
 
+      // In the case of an incoming call, we need to retrieve call params
+      // for doing some checks before launching the attention.
       ClientRequestHelper.getCalls(
         params.version,
-        function onsuccess(callsArray) {
-          var call = callsArray.calls[0];
+        function onsuccess(callsInfo) {
+          debug && console.log('Version ' + params.version);
+          debug && console.log('Calls from server ' + JSON.stringify(callsInfo));
+
+          var callsToReject = [];
+          var call;
+
+          // In the case of an incoming call we will double check if the state
+          // is not set, what it means that the call was never answered
+          // and it's within the first 10 seconds. After the first 10 seconds,
+          // this call object will not be available.
+          for (var i = 0; i < callsInfo.calls.length; i++) {
+            // If it's a new incoming call, there is no state. In the case
+            // of having one call working at the moment, we need to reject
+            // the new ones
+            if (!callsInfo.calls[i].state) {
+              if (_inCall || !!call) {
+                callsToReject.push(callsInfo.calls[i]);
+                continue;
+              }
+              call = callsInfo.calls[i];
+            }
+          }
 
           // If we are already in a call (outgoing or incoming) we can't
           // automatically attend the new incoming call without hanging up the
           // on in progress. In the future we might want to allow the user to
           // accept or reject it manually, but for now we simply reject it
           // with the busy state without launching the attention screen.
-          if (_inCall) {
-            _rejectCall(call);
+          // Reject the incoming extra calls, if any.
+          for (var i = 0, l = callsToReject.length; i < l; i++) {
+            _rejectCall(callsToReject[i]);
+          }
+
+          // If we have a valid incoming call, let's launch the attention screen.
+          if (!call || _inCall) {
             return;
           }
 

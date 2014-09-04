@@ -46,15 +46,13 @@
    * @param {Numeric} notificationId Simple push notification id (version).
    */
   function _onnotification(version) {
-    navigator.mozApps.getSelf().onsuccess = function (event) {
-      CallScreenManager.launch(
-        'incoming',
-        {
-          version: version,
-          frontCamera: Settings.isFrontalCamera
-        }
-      );
-    }
+    CallScreenManager.launch(
+      'incoming',
+      {
+        version: version,
+        frontCamera: Settings.isFrontalCamera
+      }
+    );
   }
 
   var _;
