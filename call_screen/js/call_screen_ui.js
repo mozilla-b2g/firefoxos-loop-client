@@ -37,9 +37,6 @@
 
       TonePlayerHelper.init('telephony');
 
-      isVideoCall && CallScreenUI.updateLocalVideo(isVideoCall);
-
-
       var mode = frontCamera ? 'user':'environment';
       var cameraConstraint = {facingMode: mode, require: ['facingMode']};
 
@@ -91,7 +88,13 @@
         CallScreenUI.setCallStatus('connecting');
         CallManager.join(isVideo, frontCamera);
         CallScreenUI.updateLocalVideo(isVideo);
-        isVideo && _settingsButtonSpeaker.classList.add('setting-enabled');
+        if (isVideo) {
+          _settingsButtonSpeaker.classList.add('setting-enabled');
+          _settingsButtonVideo.classList.remove('setting-disabled');
+        } else {
+          _settingsButtonSpeaker.classList.remove('setting-enabled');
+          _settingsButtonVideo.classList.add('setting-disabled');
+        }
       }
 
       _answerAudioButton.addEventListener(
@@ -138,16 +141,17 @@
         }
       );
 
-      _settingsButtonSpeaker.addEventListener(
-        'mousedown',
-        function onSettingsClick(e) {
-          _settingsButtonSpeaker.classList.toggle('setting-enabled');
-          _isSpeakerEnabled = !_isSpeakerEnabled;
-          CallManager.toggleSpeaker(_isSpeakerEnabled);
-        }
-      );
-
-
+      function _enableSpeakerButton() {
+        _settingsButtonSpeaker.addEventListener(
+          'mousedown',
+          function onSettingsClick(e) {
+            _settingsButtonSpeaker.classList.toggle('setting-enabled');
+            _isSpeakerEnabled = !_isSpeakerEnabled;
+            CallManager.toggleSpeaker(_isSpeakerEnabled);
+          }
+        );
+      }
+      
       _resumeButton = document.getElementById('resume-button');
       // Resume button. On click resume the call.
       _resumeButton.addEventListener(
@@ -159,10 +163,19 @@
       );
 
       // Update UI taking into account if the call is a video call or not
-      if (isVideoCall || isVideoCall === 'true') {
-        _isVideoEnabled = true;
-        _isSpeakerEnabled = true;
-        _settingsButtonSpeaker.classList.add('setting-enabled');
+      _isVideoEnabled = _isSpeakerEnabled = isVideoCall && isVideoCall != 'false';
+      if (document.body.dataset.callStatus === 'outgoing') {
+        TonePlayerHelper.playDialing(_isSpeakerEnabled, _enableSpeakerButton);
+        CallScreenUI.updateLocalVideo(_isVideoEnabled);
+        if (_isVideoEnabled) {
+          _settingsButtonSpeaker.classList.add('setting-enabled');
+          _settingsButtonVideo.classList.remove('setting-disabled');
+        } else {
+          _settingsButtonSpeaker.classList.remove('setting-enabled');
+          _settingsButtonVideo.classList.add('setting-disabled');
+        }
+      } else {
+        _enableSpeakerButton()
       }
 
       Countdown.init();
@@ -239,10 +252,8 @@
       }
       switch(state) {
         case 'calling':
-          TonePlayerHelper.playDialing();
           _callStatusInfo.textContent = _('calling');
           document.body.dataset.callStatus = 'outgoing';
-
           break;
         case 'connecting':
           TonePlayerHelper.stop();
