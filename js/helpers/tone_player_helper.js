@@ -5,8 +5,10 @@
 'use strict';
 
 (function(exports) {
+  var debug = true;
   var _audioElement = null;
   var _channel = null;
+  var _speakerManager = null;
 
   var BUSY_TONE_TIMEOUT = 5000;
 
@@ -14,14 +16,30 @@
   var BUSY_TONE = '../../resources/media/tones/busy.mp3';
   var HOLD_TONE = '../../resources/media/tones/hold.mp3';
 
-  function _playTone(src) {
+  function _playTone(src, isSpeaker, cb) {
+    debug && console.log('Playing tone with channel ' + _audioElement.mozAudioChannelType);
     _audioElement.src = src;
     _audioElement.loop = true;
+    _audioElement.addEventListener(
+      'playing',
+      function tonePlaying() {
+        _audioElement.removeEventListener('playing', tonePlaying);
+        debug && console.log('Speaker will change from  ' + _speakerManager.forcespeaker +
+          ' to ' + isSpeaker);
+        _speakerManager.forcespeaker = isSpeaker;
+        if (typeof cb === 'function') {
+          cb();
+        }
+      }
+    );
     _audioElement.play();
   };
 
   var TonePlayerHelper = {
     init: function tph_init(channel) {
+      if (!_speakerManager) {
+        _speakerManager = new window.MozSpeakerManager();
+      }
       this.setChannel(channel);
     },
 
@@ -42,11 +60,12 @@
       if (_audioElement || !_channel) {
         return;
       }
-      _audioElement = new Audio(_channel);
+      _audioElement = new Audio();
+      _audioElement.mozAudioChannelType = _channel;
     },
 
-    playDialing: function tph_playDialing() {
-      _playTone(DIAL_TONE);
+    playDialing: function tph_playDialing(isSpeaker, cb) {
+      _playTone(DIAL_TONE, isSpeaker, cb);
     },
 
     playBusy: function tph_playBusy() {
