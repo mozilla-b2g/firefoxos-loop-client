@@ -20,7 +20,8 @@
     "moz-firefox-accounts": {},
     "systemXHR":{},
     "video-capture": {},
-    "mobilenetwork": {}
+    "mobilenetwork": {},
+    "device-storage:sdcard": { "access": "readwrite" }
   },
   "messages": [
      { "push": "/index.html" }

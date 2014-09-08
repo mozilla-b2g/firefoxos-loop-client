@@ -1,6 +1,9 @@
 (function(exports) {
   'use strict';
 
+  var _perfDebug = Config.performanceLog.enabled;
+  var _perfBranch = 'CallScreen';
+
   var _isVideoEnabled = false;
   var _isSpeakerEnabled = true;
   var _isMicEnabled = true;
@@ -33,6 +36,8 @@
         return;
       }
 
+      _perfDebug && PerfLog.log(_perfBranch, 'CallScreenUI.init');
+
       _ = navigator.mozL10n.get;
 
       _initialized = true;
@@ -46,12 +51,15 @@
       _localVideo = document.getElementById('local-video');
 
       // Ask for the Stream
+      _perfDebug && PerfLog.log(_perfBranch, 'Requesting fake video via gUM');
       navigator.mozGetUserMedia(
         {
           video: cameraConstraint,
           audio: true
         },
         function onStreamReady(stream) {
+          _perfDebug && PerfLog.log(_perfBranch,
+                        'Showing fake video');
           var progress = _localVideo.querySelector('progress');
           progress && _localVideo.removeChild(progress);
           // Show your own stream as part of the GUM wizard
@@ -61,6 +69,13 @@
           _fakeLocalVideo.mozSrcObject = stream;
           _localVideo.appendChild(_fakeLocalVideo);
           _fakeLocalVideo.play();
+          if (_perfDebug) {
+            var onfakevideoplaying = function onfakevideoplaying() {
+              _fakeLocalVideo.removeEventListener('playing', onfakevideoplaying);
+              PerfLog.log(_perfBranch, 'Fake video playing');
+            };
+            _fakeLocalVideo.addEventListener('playing', onfakevideoplaying);
+          }
         },
         function(err) {
           _hangUp({
@@ -258,6 +273,9 @@
       if (!_callStatusInfo) {
         _callStatusInfo = document.getElementById('call-status-info');
       }
+
+      _perfDebug && PerfLog.log(_perfBranch, 'CallScreenUI.setCallStatus ' + state);
+
       switch(state) {
         case 'calling':
           TonePlayerHelper.stop();
@@ -271,6 +289,8 @@
           document.body.dataset.callStatus = 'connected';
           break;
         case 'connected':
+          _perfDebug && PerfLog.log(_perfBranch, 'Countdown start counting');
+          _perfDebug && PerfLog.milestone(_perfBranch, 'Countdown');
           Countdown.start();
           document.body.dataset.callStatus = 'connected';
           break;
@@ -371,6 +391,7 @@
       CallScreenUI.setCallStatus('hold');
     },
     removeFakeVideo: function() {
+      _perfDebug && PerfLog.log(_perfBranch, 'removeFakeVideo');
       try {
         _localVideo && _fakeLocalVideo && _localVideo.removeChild(_fakeLocalVideo);
       } catch(e) {

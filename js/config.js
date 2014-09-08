@@ -4,5 +4,9 @@ Config = {
   //   Stage: 'https://loop.stage.mozaws.net'
   //   Prod: 'https://loop.services.mozilla.com'
   server_url: 'https://loop.services.mozilla.com',
-  input_mozilla_url: 'https://input.allizom.org/api/v1/feedback/'
+  input_mozilla_url: 'https://input.allizom.org/api/v1/feedback/',
+  performanceLog: {
+    enabled: true,
+    persistent: true
+  }
 };
