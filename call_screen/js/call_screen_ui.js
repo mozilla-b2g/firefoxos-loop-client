@@ -175,7 +175,7 @@
           _settingsButtonVideo.classList.add('setting-disabled');
         }
       } else {
-        _enableSpeakerButton()
+        _enableSpeakerButton();
       }
 
       Countdown.init();
@@ -252,6 +252,8 @@
       }
       switch(state) {
         case 'calling':
+          TonePlayerHelper.stop();
+          TonePlayerHelper.playRingback(_isSpeakerEnabled);
           _callStatusInfo.textContent = _('calling');
           document.body.dataset.callStatus = 'outgoing';
           break;

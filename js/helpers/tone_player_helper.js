@@ -13,6 +13,7 @@
   var BUSY_TONE_TIMEOUT = 5000;
 
   var DIAL_TONE = '../../resources/media/tones/dial.mp3';
+  var RINGBACK_TONE = '../../resources/media/tones/ringback.mp3';
   var BUSY_TONE = '../../resources/media/tones/busy.mp3';
   var HOLD_TONE = '../../resources/media/tones/hold.mp3';
 
@@ -66,6 +67,11 @@
 
     playDialing: function tph_playDialing(isSpeaker, cb) {
       _playTone(DIAL_TONE, isSpeaker, cb);
+    },
+
+    playRingback: function tph_playRingback(isSpeaker, cb) {
+      console.log('playRingback: function tph_playRingback(isSpeaker, cb)');
+      _playTone(RINGBACK_TONE, isSpeaker, cb);
     },
 
     playBusy: function tph_playBusy() {
