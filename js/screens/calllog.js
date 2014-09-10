@@ -478,6 +478,8 @@
     callElement.id = call.date.getTime();
     callElement.dataset.timestampIndex = call.date.getTime();
     callElement.dataset.contactId = call.contactId;
+    callElement.dataset.isVideo =
+      call.video && call.video != 'false' ? true : false;
     callElement.dataset.identities = call.identities;
     if (call.urlToken) {
       callElement.dataset.urlToken = call.urlToken;
@@ -490,7 +492,7 @@
     if (call.type === 'incoming' && !call.connected) {
       icon = 'missed';
     } else {
-      icon = call.type + '-' + (call.video ? 'video':'audio')
+      icon = call.type + '-' + (call.video && call.video != 'false' ? 'video':'audio')
     }
 
     if (!call.url) {
@@ -950,8 +952,9 @@
           if (callElement.tagName !== 'LI') {
             return;
           }
+
           var identities = callElement.dataset.identities.split(',');
-          Controller.callIdentities(identities, null, Settings.isVideoDefault);
+          Controller.callIdentities(identities, null, callElement.dataset.isVideo);
         }
       )
 

@@ -226,8 +226,8 @@
                               'Unable to retrieve link to share ' + e
                             );
                             _closeAttentionScreen();
-			  }
-			);
+                          }
+                        );
                         break;
                       default:
                         _closeAttentionScreen();
@@ -241,7 +241,7 @@
                   var callObject = {
                     date: attentionLoadedDate,
                     identities: params.identities || [],
-                    video: params.video || null,
+                    video: params.video || callscreenParams.video || false,
                     type: type,
                     connected: callscreenParams.connected,
                     duration: callscreenParams.duration,
