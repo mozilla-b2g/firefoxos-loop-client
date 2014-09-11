@@ -18,11 +18,9 @@
 
 
   function _hangUp(error) {
-    TonePlayerHelper.stop();
-    TonePlayerHelper.releaseResources();
     Ringer.stop();
     Countdown.stop();
-    CallManager.stop(error);
+    CallScreenUI.notifyCallEnded(error);
   }
 
   var CallScreenUI = {
@@ -217,6 +215,9 @@
       // Set the callback function to be called on peer unavailable.
       CallManager.onpeerunavailable = this.notifyPeerUnavailable;
 
+      // Set the callback function to be called on peer ending the call.
+      CallManager.onpeerended = this.notifyCallEnded;
+
       // Use status bar in the call screen
       window.onresize = function() {
         if (_feedbackClose && typeof _feedbackClose === 'function') {
@@ -269,9 +270,6 @@
           Countdown.start();
           document.body.dataset.callStatus = 'connected';
           break;
-        case 'disconnected':
-          // TODO Styles not defined yet.
-          break;
         case 'hold':
           document.body.dataset.callStatus = 'hold';
           _callStatusInfo.textContent = _('onHold');
@@ -283,14 +281,20 @@
         case 'busy':
           // Show the state for the time being.
           // Bug 1054417 - [Loop] Implement 'busy' call screen
+          _hangupButton.removeEventListener('mousedown', _hangUp);
           _callStatusInfo.textContent = _('busy');
           break;
         case 'reject':
+          _hangupButton.removeEventListener('mousedown', _hangUp);
           _callStatusInfo.textContent = _('declined');
           break;
         case 'unavailable':
           _hangupButton.removeEventListener('mousedown', _hangUp);
           _callStatusInfo.textContent = _('unavailable');
+          break;
+        case 'ended':
+          _callStatusInfo.textContent = _('ended');
+          document.body.dataset.callStatus = 'ended';
           break;
       }
     },
@@ -381,29 +385,43 @@
     notifyPeerReject: function() {
       TonePlayerHelper.stop();
       CallScreenUI.setCallStatus('reject');
+      CallManager.terminate();
       TonePlayerHelper.playBusy(_isSpeakerEnabled).then(
         function onplaybackcompleted() {
           TonePlayerHelper.stop();
           TonePlayerHelper.releaseResources();
-          CallManager.stop();
+          CallManager.leaveCall();
       });
     },
     notifyPeerCancel: function() {
       Ringer.stop();
       TonePlayerHelper.stop();
       TonePlayerHelper.releaseResources();
-      CallManager.stop();
+      CallManager.terminate();
+      CallManager.leaveCall();
     },
     notifyPeerUnavailable: function() {
       TonePlayerHelper.stop();
       CallScreenUI.setCallStatus('unavailable');
+      CallManager.terminate();
       TonePlayerHelper.playFailed(_isSpeakerEnabled).then(
         function onplaybackcompleted() {
           TonePlayerHelper.stop();
           TonePlayerHelper.releaseResources();
-          CallManager.stop({
+          CallManager.leaveCall({
             reason: 'unavailable'
           });
+      });
+    },
+    notifyCallEnded: function(error) {
+      TonePlayerHelper.stop();
+      CallScreenUI.setCallStatus('ended');
+      CallManager.terminate();
+      TonePlayerHelper.playEnded(_isSpeakerEnabled).then(
+        function onplaybackcompleted() {
+          TonePlayerHelper.stop();
+          TonePlayerHelper.releaseResources();
+          CallManager.leaveCall(error);
       });
     }
   };
