@@ -10,17 +10,17 @@
   var _channel = null;
   var _speakerManager = null;
 
-  var BUSY_TONE_TIMEOUT = 5000;
+  var TONE_TIMEOUT = 5000;
 
   var DIAL_TONE = '../../resources/media/tones/dial.mp3';
   var RINGBACK_TONE = '../../resources/media/tones/ringback.mp3';
   var BUSY_TONE = '../../resources/media/tones/busy.mp3';
   var HOLD_TONE = '../../resources/media/tones/hold.mp3';
+  var FAILED_TONE = '../../resources/media/tones/failed.mp3';
 
   function _playTone(src, isSpeaker, cb) {
     debug && console.log('Playing tone with channel ' + _audioElement.mozAudioChannelType);
     _audioElement.src = src;
-    _audioElement.loop = true;
     _audioElement.addEventListener(
       'playing',
       function tonePlaying() {
@@ -66,28 +66,44 @@
     },
 
     playDialing: function tph_playDialing(isSpeaker, cb) {
+      _audioElement.loop = true;
       _playTone(DIAL_TONE, isSpeaker, cb);
     },
 
-    playRingback: function tph_playRingback(isSpeaker, cb) {
-      console.log('playRingback: function tph_playRingback(isSpeaker, cb)');
-      _playTone(RINGBACK_TONE, isSpeaker, cb);
+    playRingback: function tph_playRingback(isSpeaker) {
+      _audioElement.loop = true;
+      _playTone(RINGBACK_TONE, isSpeaker);
     },
 
-    playBusy: function tph_playBusy() {
+    playBusy: function tph_playBusy(isSpeaker) {
+      _audioElement.loop = false;
       return new Promise(function(resolve, reject) {
-        var timeout = window.setTimeout(resolve, BUSY_TONE_TIMEOUT);
+        var timeout = window.setTimeout(resolve, TONE_TIMEOUT);
         _audioElement.addEventListener('ended', function onplaybackcompleted() {
-          _audioElement.removeEventListener(onplaybackcompleted);
+          _audioElement.removeEventListener('ended', onplaybackcompleted);
           window.clearTimeout(timeout);
           resolve();
         });
-        _playTone(BUSY_TONE);
+        _playTone(BUSY_TONE, isSpeaker);
       });
     },
 
     playHold: function tph_playHold() {
+      _audioElement.loop = true;
       _playTone(HOLD_TONE);
+    },
+
+    playFailed: function tph_playFailed(isSpeaker) {
+      _audioElement.loop = false;
+      return new Promise(function(resolve, reject) {
+        var timeout = window.setTimeout(resolve, TONE_TIMEOUT);
+        _audioElement.addEventListener('ended', function onplaybackcompleted() {
+          _audioElement.removeEventListener('ended', onplaybackcompleted);
+          window.clearTimeout(timeout);
+          resolve();
+        });
+        _playTone(FAILED_TONE, isSpeaker);
+      });
     },
 
     stop: function tph_stop() {

@@ -10,6 +10,7 @@
   var _connectionTimeout;
   var _callProgressHelper = null;
   var _callee;
+  var _isCalleeUnavailable = true;
   var _speakerManager;
   var _onhold = function noop() {};
   var _onpeeronhold = function noop() {};
@@ -17,6 +18,7 @@
   var _onpeerbusy = function noop() {};
   var _onpeerreject = function noop() {};
   var _onpeercancel = function noop() {};
+  var _onpeerunavailable = function noop() {};
   var _publishAudio = true;
   var _publishVideo = true;
   var _subscribeToAudio = true;
@@ -67,6 +69,10 @@
     switch(state) {
       case 'alerting':
         if (!_callee) {
+          // If we are the caller party and the alerting state is reached it
+          // means the callee party will be alerted as well so the callee party
+          // is available.
+          _isCalleeUnavailable = false;
           return;
         }
         callProgressHelper.accept();
@@ -131,7 +137,11 @@
             break;
           case 'cancel':
           case 'timeout':
-            _onpeercancel();
+            if (!_callee && _isCalleeUnavailable) {
+              _onpeerunavailable();
+            } else {
+              _onpeercancel();
+            }
             break;
           default:
             CallManager.stop(error);
@@ -375,6 +385,10 @@
 
     set onpeercancel(onpeercancel) {
       _onpeercancel = onpeercancel;
+    },
+
+    set onpeerunavailable(onpeerunavailable) {
+      _onpeerunavailable = onpeerunavailable;
     },
 
     stop: function(error) {

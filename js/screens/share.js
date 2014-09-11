@@ -3,8 +3,10 @@
 
   var _sharePanel, _closeButton, _shareOthers, _shareSMS,
       _shareEmail, _contactName, _urlshown, _shareInfo,
-      _shareInfoPhoto;
+      _shareInfoPhoto, _sharingReason;
   var _contact, _url, _urlObject;
+
+  var _; // l10n
 
   function _generateUrlObject() {
     var phones = _contact.tel || [];
@@ -29,7 +31,7 @@
       contactId: _contact.id,
       contactPrimaryInfo: _contact.name[0],
       contactPhoto: null
-    }
+    };
   }
 
   function _newSMS(id) {
@@ -87,12 +89,16 @@
     if (_sharePanel) {
       return;
     }
+
+    _ = navigator.mozL10n.get;
+
     _sharePanel = document.getElementById('share-panel');
     _closeButton = document.getElementById('share-close-button');
     _shareOthers = document.getElementById('share-by-others');
     _shareSMS = document.getElementById('share-by-sms');
     _shareEmail = document.getElementById('share-by-email');
     _contactName = document.getElementById('contact-name-to-share');
+    _sharingReason = document.getElementById('sharing-reason');
     _urlshown = document.getElementById('link-to-share');
     _shareInfo = document.querySelector('.share-contact-info');
     _shareInfoPhoto = document.querySelector('.share-contact-photo');
@@ -145,7 +151,7 @@
     );
   }
 
-  function _render(contact, url) {
+  function _render(contact, url, sharingReason) {
     if (!contact.tel || !contact.tel.length) {
       _shareSMS.style.display = 'none';
     } else {
@@ -159,6 +165,7 @@
     }
 
     _contactName.textContent = contact.name[0];
+    _sharingReason.textContent = _(sharingReason);
     _urlshown.textContent = url;
 
     ContactsHelper.find({
@@ -177,7 +184,7 @@
     
 
   var Share = {
-    show: function s_show(urlObject, identities, callback) {
+    show: function s_show(urlObject, identities, sharingReason, callback) {
       _init();
       _urlObject = urlObject;
       _url = urlObject.callUrl;
@@ -187,7 +194,7 @@
         },
         function onContact(result) {
           _contact = result.contacts[0];
-          _render(_contact, _url);
+          _render(_contact, _url, sharingReason);
           
           _sharePanel.addEventListener('transitionend', function shown() {
             _sharePanel.removeEventListener('transitionend', shown);

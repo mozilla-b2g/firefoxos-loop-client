@@ -82,6 +82,15 @@
   }
 
   var attention;
+
+  function _closeAttentionScreen() {
+    if (!attention) {
+      return;
+    }
+    attention.close();
+    attention = null;
+  }
+
   function _launchAttention(type, params, incomingCall, contact) {
     // Retrieve the params and pass them as part of the URL
     var attentionParams = 'layout=' + type;
@@ -139,13 +148,24 @@
                   // Get URL to share and show prompt
                   CallHelper.generateCallUrl(params.identities[0],
                     function onCallUrlSuccess(result) {
-                      Share.show(result, params.identities, function onShareShown() {
-                        attention.close();
+                      var speaker = params.video && params.video === true;
+                      Share.show(
+                        result,
+                        params.identities,
+                        'notAUser',
+                        function onShareScreen() {
+                          _closeAttentionScreen();
+                          TonePlayerHelper.init('telephony');
+                          TonePlayerHelper.playFailed(speaker).then(
+                            function onplaybackcompleted() {
+                              TonePlayerHelper.stop();
+                              TonePlayerHelper.releaseResources();
+                          });
                       });
                     },
                     function(e) {
                       console.error('Unable to retrieve link to share ' + e);
-                      attention.close();
+                      _closeAttentionScreen();
                     }
                   );
                 }
@@ -160,8 +180,7 @@
                 },
                 function() {
                   console.error('Unable to connect');
-                  // Close attention
-                  attention.close();
+                  _closeAttentionScreen();
                 }
               );
             }
@@ -182,17 +201,40 @@
                 case 'hangout':
                   // Stop listener
                   window.removeEventListener('message', onHandShakingEvent);
-                  // Clean attention params
-                  attention.close();
-                  attention = null;
 
                   // Create CALL object
                   var callscreenParams = messageFromCallScreen.params;
 
-                  // If there is any error, as gUM permission, let's show to the
-                  // user asap.
-                  if (callscreenParams.error) {
-                    Controller.showError(callscreenParams.error.reason);
+                  if (callscreenParams.error && callscreenParams.error.reason) {
+                    switch (callscreenParams.error.reason) {
+                      case 'gum':
+                        // If there is any error, as gUM permission, let's show
+                        // to the user asap.
+                        Controller.showError(callscreenParams.error.reason);
+                        _closeAttentionScreen();
+                        break;
+                      case 'unavailable':
+                        // Get URL to share and show prompt
+                        CallHelper.generateCallUrl(params.identities[0],
+                          function onCallUrlSuccess(result) {
+                            Share.show(
+                              result, params.identities, 'unavailable', _closeAttentionScreen
+                            );
+                          },
+                          function(e) {
+                            console.error(
+                              'Unable to retrieve link to share ' + e
+                            );
+                            _closeAttentionScreen();
+			  }
+			);
+                        break;
+                      default:
+                        _closeAttentionScreen();
+                        break;
+                    }
+                  } else {
+                    _closeAttentionScreen();
                   }
                   
                   // Create object to store
@@ -304,10 +346,7 @@
       );
     },
     close: function() {
-      if (attention) {
-        attention.close();
-        attention = null;
-      }
+      _closeAttentionScreen();
     }
   };
 

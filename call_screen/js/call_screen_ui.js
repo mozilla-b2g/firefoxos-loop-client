@@ -214,6 +214,9 @@
       // or terminating (timeout) the call.
       CallManager.onpeercancel = this.notifyPeerCancel;
 
+      // Set the callback function to be called on peer unavailable.
+      CallManager.onpeerunavailable = this.notifyPeerUnavailable;
+
       // Use status bar in the call screen
       window.onresize = function() {
         if (_feedbackClose && typeof _feedbackClose === 'function') {
@@ -284,6 +287,10 @@
           break;
         case 'reject':
           _callStatusInfo.textContent = _('declined');
+          break;
+        case 'unavailable':
+          _hangupButton.removeEventListener('mousedown', _hangUp);
+          _callStatusInfo.textContent = _('unavailable');
           break;
       }
     },
@@ -362,19 +369,23 @@
       CallScreenUI.setCallStatus('connected');
     },
     notifyPeerBusy: function() {
+      TonePlayerHelper.stop();
       CallScreenUI.setCallStatus('busy');
-      TonePlayerHelper.playBusy().then(function onplaybackcompleted() {
-        TonePlayerhelper.stop();
-        TonePlayerHelper.releaseResources();
-        CallManager.stop();
+      TonePlayerHelper.playBusy(_isSpeakerEnabled).then(
+        function onplaybackcompleted() {
+          TonePlayerHelper.stop();
+          TonePlayerHelper.releaseResources();
+          CallManager.stop();
       });
     },
     notifyPeerReject: function() {
+      TonePlayerHelper.stop();
       CallScreenUI.setCallStatus('reject');
-      TonePlayerHelper.playBusy().then(function onplaybackcompleted() {
-        TonePlayerHelper.stop();
-        TonePlayerHelper.releaseResources();
-        CallManager.stop();
+      TonePlayerHelper.playBusy(_isSpeakerEnabled).then(
+        function onplaybackcompleted() {
+          TonePlayerHelper.stop();
+          TonePlayerHelper.releaseResources();
+          CallManager.stop();
       });
     },
     notifyPeerCancel: function() {
@@ -382,6 +393,18 @@
       TonePlayerHelper.stop();
       TonePlayerHelper.releaseResources();
       CallManager.stop();
+    },
+    notifyPeerUnavailable: function() {
+      TonePlayerHelper.stop();
+      CallScreenUI.setCallStatus('unavailable');
+      TonePlayerHelper.playFailed(_isSpeakerEnabled).then(
+        function onplaybackcompleted() {
+          TonePlayerHelper.stop();
+          TonePlayerHelper.releaseResources();
+          CallManager.stop({
+            reason: 'unavailable'
+          });
+      });
     }
   };
 
