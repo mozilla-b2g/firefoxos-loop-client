@@ -17,6 +17,7 @@
   var BUSY_TONE = '../../resources/media/tones/busy.mp3';
   var HOLD_TONE = '../../resources/media/tones/hold.mp3';
   var FAILED_TONE = '../../resources/media/tones/failed.mp3';
+  var ENDED_TONE = '../../resources/media/tones/ended.mp3';
 
   function _playTone(src, isSpeaker, cb) {
     debug && console.log('Playing tone with channel ' + _audioElement.mozAudioChannelType);
@@ -103,6 +104,19 @@
           resolve();
         });
         _playTone(FAILED_TONE, isSpeaker);
+      });
+    },
+
+    playEnded: function tph_playEnded(isSpeaker) {
+      _audioElement.loop = false;
+      return new Promise(function(resolve, reject) {
+        var timeout = window.setTimeout(resolve, TONE_TIMEOUT);
+        _audioElement.addEventListener('ended', function onplaybackcompleted() {
+          _audioElement.removeEventListener('ended', onplaybackcompleted);
+          window.clearTimeout(timeout);
+          resolve();
+        });
+        _playTone(ENDED_TONE, isSpeaker);
       });
     },
 

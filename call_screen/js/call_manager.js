@@ -19,6 +19,7 @@
   var _onpeerreject = function noop() {};
   var _onpeercancel = function noop() {};
   var _onpeerunavailable = function noop() {};
+  var _onpeerended = function noop() {};
   var _publishAudio = true;
   var _publishVideo = true;
   var _subscribeToAudio = true;
@@ -90,7 +91,7 @@
         break;
       case 'error':
       case 'terminated':
-        CallManager.stop();
+        CallManager.terminate();
         break;
       default:
         break;
@@ -101,7 +102,7 @@
    * Helper function. Handles call progress protocol state changes when
    * terminating the call.
    */
-  function _handleCallTermination(error) {
+  function _handleCallTermination() {
     switch (_callProgressHelper.state) {
       case 'unknown':
       case 'init':
@@ -109,12 +110,10 @@
         if (_callee) {
           _callProgressHelper.terminate('reject', function() {
             _callProgressHelper = null;
-            CallManager.stop(error);
           });
         } else {
           _callProgressHelper.terminate('cancel', function() {
             _callProgressHelper = null;
-            CallManager.stop(error);
           });
         }
         break;
@@ -125,7 +124,6 @@
         _callProgressHelper = null;
 
         if (!reason) {
-          CallManager.stop(error);
           return;
         }
         switch (reason) {
@@ -144,14 +142,12 @@
             }
             break;
           default:
-            CallManager.stop(error);
             break;
         }
         break;
       default:
         _callProgressHelper.finish();
         _callProgressHelper = null;
-        CallManager.stop(error);
         break;
     }
   }
@@ -252,7 +248,7 @@
           _peersInSession -= 1;
           if (_peersInSession === 1) {
             // We are alone in the session now so lets disconnect.
-            that.stop();
+            _onpeerended();
           }
         },
         // Fired when a peer publishes the media stream.
@@ -391,10 +387,13 @@
       _onpeerunavailable = onpeerunavailable;
     },
 
-    stop: function(error) {
+    set onpeerended(onpeerended) {
+      _onpeerended = onpeerended;
+    },
+
+    terminate: function() {
       if (_callProgressHelper) {
-        _handleCallTermination(error);
-        return;
+        _handleCallTermination();
       }
 
       try {
@@ -402,7 +401,9 @@
       } catch(e) {
         console.log('Session is not available to disconnect ' + e);
       }
+    },
 
+    leaveCall: function(error) {
       // Stop the countdown
       var duration = Countdown.stop();
       var connected = false;

@@ -370,7 +370,8 @@ body[data-call-status='remotehold'] #counter {
 body[data-call-status='outgoing'] #call-status-info,
 body[data-call-status='connecting'] #call-status-info,
 body[data-call-status='hold'] #call-status-info,
-body[data-call-status='remotehold'] #call-status-info {
+body[data-call-status='remotehold'] #call-status-info,
+body[data-call-status='ended'] #call-status-info {
   display: block;
 }
 
@@ -713,6 +714,19 @@ body[data-call-status='remotehold'] #answer-video,
 body[data-call-status='remotehold'] #local-video,
 body[data-call-status='remotehold'] #resume-button,
 body[data-call-status='remotehold'] .local-bubble-shadow {
+  display: none;
+}
+
+body[data-call-status='ended'] #call-settings,
+body[data-call-status='ended'] #call-settings-speaker ,
+body[data-call-status='ended'] #call-settings-video,
+body[data-call-status='ended'] #call-settings-mute,
+body[data-call-status='ended'] #answer,
+body[data-call-status='ended'] #answer-video,
+body[data-call-status='ended'] #local-video,
+body[data-call-status='ended'] #resume-button,
+body[data-call-status='ended'] #hang-up,
+body[data-call-status='ended'] .local-bubble-shadow {
   display: none;
 }
 
