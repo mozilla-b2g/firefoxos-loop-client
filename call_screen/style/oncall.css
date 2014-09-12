@@ -249,7 +249,7 @@ h1, h2, h3 {
   z-index: 10;
   font-weight: 300;
   mask: url("images/big_mask.svg#logo_mask");
- }
+}
 
 .remote-bubble-shadow {
   position: absolute;
@@ -276,15 +276,16 @@ h1, h2, h3 {
 }
 
 .local-bubble {
-  height: 8rem !important;
-  width: 8rem !important;
+  height: 7.5rem !important;
+  width: 7.5rem !important;
 
   position: absolute !important;
-  bottom: 2rem !important;
-  left: calc(50% - 4rem) !important;
+  bottom: 2.5rem !important;
+  left: calc(50% - 3.75rem) !important;
   z-index: 10;
   
-  mask: url("images/small_mask.svg#logo_mask") !important;
+  border-radius: 3.75rem !important;
+  overflow: hidden !important;
 }
 
 .local-bubble-shadow {
@@ -649,7 +650,6 @@ body[data-feedback='true'] #feedback {
   left: 0;
   position: absolute;
 }
-
 
 #fullscreen-video .OT_video-container {
   display: block !important;
