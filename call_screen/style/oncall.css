@@ -248,8 +248,8 @@ h1, h2, h3 {
   opacity: 1;
   z-index: 10;
   font-weight: 300;
-  mask: url("images/big_mask.svg#logo_mask");
- }
+  border-radius: 7.5rem;
+}
 
 .remote-bubble-shadow {
   position: absolute;
@@ -284,7 +284,7 @@ h1, h2, h3 {
   left: calc(50% - 4rem) !important;
   z-index: 10;
   
-  mask: url("images/small_mask.svg#logo_mask") !important;
+  border-radius: 4rem;
 }
 
 .local-bubble-shadow {
