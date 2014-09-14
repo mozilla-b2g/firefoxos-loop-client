@@ -220,7 +220,7 @@
         audio: true
       };
       Opentok.setConstraints(constraints);
-
+      OT.setLogLevel(OT.DEBUG);
       _session = TB.initSession(_call.apiKey, _call.sessionId);
 
       var that = this;

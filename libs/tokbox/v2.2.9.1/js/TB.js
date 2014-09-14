@@ -1,20 +1,20 @@
 /**
- * @license  OpenTok JavaScript Library v2.2.6
+ * @license  OpenTok JavaScript Library v2.2.9.1
  * http://www.tokbox.com/
  *
  * Copyright (c) 2014 TokBox, Inc.
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * Date: June 24 11:09:07 2014
+ * Date: September 08 10:17:05 2014
  */
 
 (function(window) {
   if (!window.OT) window.OT = {};
 
   OT.properties = {
-    version: 'v2.2.6',         // The current version (eg. v2.0.4) (This is replaced by gradle)
-    build: 'd326ad1',    // The current build hash (This is replaced by gradle)
+    version: 'v2.2.9.1',         // The current version (eg. v2.0.4) (This is replaced by gradle)
+    build: '72b534e',    // The current build hash (This is replaced by gradle)
 
     // Whether or not to turn on debug logging by default
     debug: 'false',
@@ -24,7 +24,7 @@
     // The URL of the CDN when runnint on top of running FxOS
     cdnURL: '/libs',
     // The URL to use for logging
-    loggingURL: 'https://hlg.tokbox.com/prod',
+    loggingURL: 'http://hlg.tokbox.com/prod',
     // The anvil API URL
     apiURL: 'http://anvil.opentok.com',
 
@@ -37,25 +37,27 @@
     supportSSL: 'true',
     // The CDN to use if we're using SSL when runnint on top of running FxOS
     cdnURLSSL: '/libs',
+    // The URL to use for logging
+    loggingURLSSL: 'https://hlg.tokbox.com/prod',
     // The anvil API URL to use if we're using SSL
     apiURLSSL: 'https://anvil.opentok.com',
 
     minimumVersion: {
-      firefox: parseFloat('26'),
-      chrome: parseFloat('32')
+      firefox: parseFloat('29'),
+      chrome: parseFloat('34')
     }
   };
 
 })(window);
 /**
- * @license  Common JS Helpers on OpenTok 0.2.0 1f056b9 master
+ * @license  Common JS Helpers on OpenTok 0.2.0 3fa583f master
  * http://www.tokbox.com/
  *
  * Copyright (c) 2014 TokBox, Inc.
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * Date: May 19 04:04:43 2014
+ * Date: August 08 12:31:42 2014
  *
  */
 
@@ -68,10 +70,6 @@
 // @example Getting a DOM element by it's id
 //  var element = OTHelpers('domId');
 //
-// @example Testing for web socket support
-//  if (OT.supportsWebSockets()) {
-//      // do some stuff with websockets
-//  }
 //
 
 /*jshint browser:true, smarttabs:true*/
@@ -86,6 +84,9 @@
   var previousOTHelpers = window.OTHelpers;
 
   window.OTHelpers = OTHelpers;
+
+  // A guard to detect when IE has performed cleans on unload
+  window.___othelpers = true;
 
   OTHelpers.keys = Object.keys || function(object) {
     var keys = [], hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -293,10 +294,6 @@
 // Handy do nothing function
   OTHelpers.noop = function() {};
 
-// Returns true if the client supports WebSockets, false otherwise.
-  OTHelpers.supportsWebSockets = function() {
-    return 'WebSocket' in window;
-  };
 
 // Returns the number of millisceonds since the the UNIX epoch, this is functionally
 // equivalent to executing new Date().getTime().
@@ -762,7 +759,7 @@
   var _rng = whatwgRNG || mathRNG;
 
   // Buffer class to use
-  var BufferClass = typeof(Buffer) == 'function' ? Buffer : Array;
+  var BufferClass = typeof(Buffer) === 'function' ? Buffer : Array;
 
   // Maps for number <-> hex string conversion
   var _byteToHex = [];
@@ -811,8 +808,8 @@
     // Deprecated - 'format' argument, as supported in v1.2
     var i = buf && offset || 0;
 
-    if (typeof(options) == 'string') {
-      buf = options == 'binary' ? new BufferClass(16) : null;
+    if (typeof(options) === 'string') {
+      buf = options === 'binary' ? new BufferClass(16) : null;
       options = null;
     }
     options = options || {};
@@ -853,7 +850,7 @@
 
 (function(window, OTHelpers, undefined) {
 
-OTHelpers.useLogHelpers = function(on){
+  OTHelpers.useLogHelpers = function(on){
 
     // Log levels for OTLog.setLogLevel
     on.DEBUG    = 5;
@@ -868,9 +865,9 @@ OTHelpers.useLogHelpers = function(on){
         _canApplyConsole = true;
 
     try {
-        Function.prototype.bind.call(window.console.log, window.console);
+      Function.prototype.bind.call(window.console.log, window.console);
     } catch (err) {
-        _canApplyConsole = false;
+      _canApplyConsole = false;
     }
 
     // Some objects can't be logged in the console, mostly these are certain
@@ -879,9 +876,9 @@ OTHelpers.useLogHelpers = function(on){
     var makeLogArgumentsSafe = function(args) { return args; };
 
     if (OTHelpers.browser() === 'IE') {
-        makeLogArgumentsSafe = function(args) {
-            return [toDebugString(Array.prototype.slice.apply(args))];
-        };
+      makeLogArgumentsSafe = function(args) {
+        return [toDebugString(Array.prototype.slice.apply(args))];
+      };
     }
 
     // Generates a logging method for a particular method and log level.
@@ -893,41 +890,41 @@ OTHelpers.useLogHelpers = function(on){
     // * attempt to deal with weird IE hosted logging methods as best we can.
     //
     function generateLoggingMethod(method, level, fallback) {
-        return function() {
-            if (on.shouldLog(level)) {
-                var cons = window.console,
-                    args = makeLogArgumentsSafe(arguments);
+      return function() {
+        if (on.shouldLog(level)) {
+          var cons = window.console,
+              args = makeLogArgumentsSafe(arguments);
 
-                // In IE, window.console may not exist if the developer tools aren't open
-                // This also means that cons and cons[method] can appear at any moment
-                // hence why we retest this every time.
-                if (cons && cons[method]) {
-                    // the desired console method isn't a real object, which means
-                    // that we can't use apply on it. We force it to be a real object
-                    // using Function.bind, assuming that's available.
-                    if (cons[method].apply || _canApplyConsole) {
-                        if (!cons[method].apply) {
-                            cons[method] = Function.prototype.bind.call(cons[method], cons);
-                        }
+          // In IE, window.console may not exist if the developer tools aren't open
+          // This also means that cons and cons[method] can appear at any moment
+          // hence why we retest this every time.
+          if (cons && cons[method]) {
+            // the desired console method isn't a real object, which means
+            // that we can't use apply on it. We force it to be a real object
+            // using Function.bind, assuming that's available.
+            if (cons[method].apply || _canApplyConsole) {
+              if (!cons[method].apply) {
+                cons[method] = Function.prototype.bind.call(cons[method], cons);
+              }
 
-                        cons[method].apply(cons, args);
-                    }
-                    else {
-                        // This isn't the same result as the above, but it's better
-                        // than nothing.
-                        cons[method](args);
-                    }
-                }
-                else if (fallback) {
-                    fallback.apply(on, args);
-
-                    // Skip appendToLogs, we delegate entirely to the fallback
-                    return;
-                }
-
-                appendToLogs(method, makeLogArgumentsSafe(arguments));
+              cons[method].apply(cons, args);
             }
-        };
+            else {
+              // This isn't the same result as the above, but it's better
+              // than nothing.
+              cons[method](args);
+            }
+          }
+          else if (fallback) {
+            fallback.apply(on, args);
+
+            // Skip appendToLogs, we delegate entirely to the fallback
+            return;
+          }
+
+          appendToLogs(method, makeLogArgumentsSafe(arguments));
+        }
+      };
     }
 
     on.log = generateLoggingMethod('log', on.LOG);
@@ -940,92 +937,213 @@ OTHelpers.useLogHelpers = function(on){
 
 
     on.setLogLevel = function(level) {
-        _logLevel = typeof(level) === 'number' ? level : 0;
-        on.debug("TB.setLogLevel(" + _logLevel + ")");
-        return _logLevel;
+      _logLevel = typeof(level) === 'number' ? level : 0;
+      on.debug('TB.setLogLevel(' + _logLevel + ')');
+      return _logLevel;
     };
 
     on.getLogs = function() {
-        return _logs;
+      return _logs;
     };
 
     // Determine if the level is visible given the current logLevel.
     on.shouldLog = function(level) {
-        return _logLevel >= level;
+      return _logLevel >= level;
     };
 
     // Format the current time nicely for logging. Returns the current
     // local time.
     function formatDateStamp() {
-        var now = new Date();
-        return now.toLocaleTimeString() + now.getMilliseconds();
+      var now = new Date();
+      return now.toLocaleTimeString() + now.getMilliseconds();
     }
 
     function toJson(object) {
-        try {
-            return JSON.stringify(object);
-        } catch(e) {
-            return object.toString();
-        }
+      try {
+        return JSON.stringify(object);
+      } catch(e) {
+        return object.toString();
+      }
     }
 
     function toDebugString(object) {
-        var components = [];
+      var components = [];
 
-        if (typeof(object) === 'undefined') {
-            // noop
+      if (typeof(object) === 'undefined') {
+        // noop
+      }
+      else if (object === null) {
+        components.push('NULL');
+      }
+      else if (OTHelpers.isArray(object)) {
+        for (var i=0; i<object.length; ++i) {
+          components.push(toJson(object[i]));
         }
-        else if (object === null) {
-            components.push('NULL');
-        }
-        else if (OTHelpers.isArray(object)) {
-            for (var i=0; i<object.length; ++i) {
-                components.push(toJson(object[i]));
-            }
-        }
-        else if (OTHelpers.isObject(object)) {
-            for (var key in object) {
-                var stringValue;
+      }
+      else if (OTHelpers.isObject(object)) {
+        for (var key in object) {
+          var stringValue;
 
-                if (!OTHelpers.isFunction(object[key])) {
-                    stringValue = toJson(object[key]);
-                }
-                else if (object.hasOwnProperty(key)) {
-                    stringValue = 'function ' + key + '()';
-                }
+          if (!OTHelpers.isFunction(object[key])) {
+            stringValue = toJson(object[key]);
+          }
+          else if (object.hasOwnProperty(key)) {
+            stringValue = 'function ' + key + '()';
+          }
 
-                components.push(key + ': ' + stringValue);
-            }
+          components.push(key + ': ' + stringValue);
         }
-        else if (OTHelpers.isFunction(object)) {
-            try {
-                components.push(object.toString());
-            } catch(e) {
-                components.push('function()');
-            }
+      }
+      else if (OTHelpers.isFunction(object)) {
+        try {
+          components.push(object.toString());
+        } catch(e) {
+          components.push('function()');
         }
-        else  {
-            components.push(object.toString());
-        }
+      }
+      else  {
+        components.push(object.toString());
+      }
 
-        return components.join(", ");
+      return components.join(', ');
     }
 
     // Append +args+ to logs, along with the current log level and the a date stamp.
     function appendToLogs(level, args) {
-        if (!args) return;
+      if (!args) return;
 
-        var message = toDebugString(args);
-        if (message.length <= 2) return;
+      var message = toDebugString(args);
+      if (message.length <= 2) return;
 
-        _logs.push(
-            [level, formatDateStamp(), message]
-        );
+      _logs.push(
+        [level, formatDateStamp(), message]
+      );
     }
-};
+  };
 
-OTHelpers.useLogHelpers(OTHelpers);
-OTHelpers.setLogLevel(OTHelpers.ERROR);
+  OTHelpers.useLogHelpers(OTHelpers);
+  OTHelpers.setLogLevel(OTHelpers.ERROR);
+
+})(window, window.OTHelpers);
+
+/*jshint browser:true, smarttabs:true*/
+
+// tb_require('../helpers.js')
+
+// DOM helpers
+(function(window, OTHelpers, undefined) {
+
+  // Helper function for adding event listeners to dom elements.
+  // WARNING: This doesn't preserve event types, your handler could
+  // be getting all kinds of different parameters depending on the browser.
+  // You also may have different scopes depending on the browser and bubbling
+  // and cancelable are not supported.
+  OTHelpers.on = function(element, eventName,  handler) {
+    if (element.addEventListener) {
+      element.addEventListener(eventName, handler, false);
+    } else if (element.attachEvent) {
+      element.attachEvent('on' + eventName, handler);
+    } else {
+      var oldHandler = element['on'+eventName];
+      element['on'+eventName] = function() {
+        handler.apply(this, arguments);
+        if (oldHandler) oldHandler.apply(this, arguments);
+      };
+    }
+    return element;
+  };
+
+  // Helper function for removing event listeners from dom elements.
+  OTHelpers.off = function(element, eventName, handler) {
+    if (element.removeEventListener) {
+      element.removeEventListener (eventName, handler,false);
+    }
+    else if (element.detachEvent) {
+      element.detachEvent('on' + eventName, handler);
+    }
+  };
+
+})(window, window.OTHelpers);
+
+/*jshint browser:true, smarttabs:true*/
+
+// tb_require('../helpers.js')
+// tb_require('./dom_events.js')
+
+(function(window, OTHelpers, undefined) {
+
+  var _domReady = typeof(document) === 'undefined' ||
+                    document.readyState === 'complete' ||
+                   (document.readyState === 'interactive' && document.body),
+
+      _loadCallbacks = [],
+      _unloadCallbacks = [],
+      _domUnloaded = false,
+
+      onDomReady = function() {
+        _domReady = true;
+
+        // This is making an assumption about there being only one "window"
+        // that we care about.
+        OTHelpers.on(window, 'unload', onDomUnload);
+
+        OTHelpers.forEach(_loadCallbacks, function(listener) {
+          listener[0].call(listener[1]);
+        });
+
+        _loadCallbacks = [];
+      },
+
+      onDomUnload = function() {
+        _domUnloaded = true;
+
+        OTHelpers.forEach(_unloadCallbacks, function(listener) {
+          listener[0].call(listener[1]);
+        });
+
+        _unloadCallbacks = [];
+      };
+
+
+  OTHelpers.onDOMLoad = function(cb, context) {
+    if (OTHelpers.isReady()) {
+      cb.call(context);
+      return;
+    }
+
+    _loadCallbacks.push([cb, context]);
+  };
+
+  OTHelpers.onDOMUnload = function(cb, context) {
+    if (this.isDOMUnloaded()) {
+      cb.call(context);
+      return;
+    }
+
+    _unloadCallbacks.push([cb, context]);
+  };
+
+  OTHelpers.isReady = function() {
+    return !_domUnloaded && _domReady;
+  };
+
+  OTHelpers.isDOMUnloaded = function() {
+    return _domUnloaded;
+  };
+
+
+  if (_domReady) {
+    onDomReady();
+  } else if(typeof(document) !== 'undefined') {
+    if (document.addEventListener) {
+      document.addEventListener('DOMContentLoaded', onDomReady, false);
+    } else if (document.attachEvent) {
+      // This is so onLoad works in IE, primarily so we can show the upgrade to Chrome popup
+      document.attachEvent('onreadystatechange', function() {
+        if (document.readyState === 'complete') onDomReady();
+      });
+    }
+  }
 
 })(window, window.OTHelpers);
 
@@ -1035,46 +1153,203 @@ OTHelpers.setLogLevel(OTHelpers.ERROR);
 
 (function(window, OTHelpers, undefined) {
 
-OTHelpers.castToBoolean = function(value, defaultValue) {
+  OTHelpers.castToBoolean = function(value, defaultValue) {
     if (value === undefined) return defaultValue;
     return value === 'true' || value === true;
-};
+  };
 
-OTHelpers.roundFloat = function(value, places) {
+  OTHelpers.roundFloat = function(value, places) {
     return Number(value.toFixed(places));
-};
+  };
 
 })(window, window.OTHelpers);
+/*jshint browser:true, smarttabs:true*/
+
+// tb_require('../helpers.js')
+
+(function(window, OTHelpers, undefined) {
+
+  var capabilities = {};
+
+  // Registers a new capability type and a function that will indicate
+  // whether this client has that capability.
+  //
+  //   OTHelpers.registerCapability('bundle', function() {
+  //     return OTHelpers.hasCapabilities('webrtc') &&
+  //                (OTHelpers.browser() === 'Chrome' || TBPlugin.isInstalled());
+  //   });
+  //
+  OTHelpers.registerCapability = function(name, callback) {
+    var _name = name.toLowerCase();
+
+    if (capabilities.hasOwnProperty(_name)) {
+      OTHelpers.error('Attempted to register', name, 'capability more than once');
+      return;
+    }
+
+    if (!OTHelpers.isFunction(callback)) {
+      OTHelpers.error('Attempted to register', name,
+                              'capability with a callback that isn\' a function');
+      return;
+    }
+
+    memoriseCapabilityTest(_name, callback);
+  };
+
+
+  // Wrap up a capability test in a function that memorises the
+  // result.
+  var memoriseCapabilityTest = function (name, callback) {
+    capabilities[name] = function() {
+      var result = callback();
+      capabilities[name] = function() {
+        return result;
+      };
+
+      return result;
+    };
+  };
+
+  var testCapability = function (name) {
+    return capabilities[name]();
+  };
+
+
+  // Returns true if all of the capability names passed in
+  // exist and are met.
+  //
+  //  OTHelpers.hasCapabilities('bundle', 'rtcpMux')
+  //
+  OTHelpers.hasCapabilities = function(/* capability1, capability2, ..., capabilityN  */) {
+    var capNames = Array.prototype.slice.call(arguments),
+        name;
+
+    for (var i=0; i<capNames.length; ++i) {
+      name = capNames[i].toLowerCase();
+
+      if (!capabilities.hasOwnProperty(name)) {
+        OTHelpers.error('hasCapabilities was called with an unknown capability: ' + name);
+        return false;
+      }
+      else if (testCapability(name) === false) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+})(window, window.OTHelpers);
+
+/*jshint browser:true, smarttabs:true*/
+
+// tb_require('../helpers.js')
+// tb_require('./capabilities.js')
+
+(function(window, OTHelpers, undefined) {
+
+  // Indicates if the client supports WebSockets.
+  OTHelpers.registerCapability('websockets', function() {
+    return 'WebSocket' in window;
+  });
+
+})(window, window.OTHelpers);
+
 /*jshint browser:true, smarttabs:true*/
 
 // tb_require('../helpers.js')
 // tb_require('../vendor/uuid.js')
+// tb_require('./dom_events.js')
 
 (function(window, OTHelpers, undefined) {
 
-  var timeouts = [],
-      messageName = 'OTHelpers.' + OTHelpers.uuid.v4() + '.zero-timeout';
+  var _callAsync;
 
-  var handleMessage = function(event) {
-    if (event.data === messageName) {
-      if(OTHelpers.isFunction(event.stopPropagation)) {
-        event.stopPropagation();
-      }
-      event.cancelBubble = true;
-      if (timeouts.length > 0) {
-        var args = timeouts.shift(),
-            fn = args.shift();
-
-        fn.apply(null, args);
-      }
+  // Is true if window.postMessage is supported.
+  // This is not quite as simple as just looking for
+  // window.postMessage as some older versions of IE
+  // have a broken implementation of it.
+  //
+  var supportsPostMessage = (function () {
+    if (window.postMessage) {
+      // Check to see if postMessage fires synchronously,
+      // if it does, then the implementation of postMessage
+      // is broken.
+      var postMessageIsAsynchronous = true;
+      var oldOnMessage = window.onmessage;
+      window.onmessage = function() {
+        postMessageIsAsynchronous = false;
+      };
+      window.postMessage('', '*');
+      window.onmessage = oldOnMessage;
+      return postMessageIsAsynchronous;
     }
-  };
+  })();
 
-  if(window.addEventListener) {
-    window.addEventListener('message', handleMessage, true);
-  } else if(window.attachEvent) {
-    window.attachEvent('onmessage', handleMessage);
+  if (supportsPostMessage) {
+    var timeouts = [],
+        messageName = 'OTHelpers.' + OTHelpers.uuid.v4() + '.zero-timeout';
+
+    var removeMessageHandler = function() {
+      timeouts = [];
+
+      if(window.removeEventListener) {
+        window.removeEventListener('message', handleMessage);
+      } else if(window.detachEvent) {
+        window.detachEvent('onmessage', handleMessage);
+      }
+    };
+
+    var handleMessage = function(event) {
+      if (event.source === window &&
+          event.data === messageName) {
+
+        if(OTHelpers.isFunction(event.stopPropagation)) {
+          event.stopPropagation();
+        }
+        event.cancelBubble = true;
+
+        if (!window.___othelpers) {
+          removeMessageHandler();
+          return;
+        }
+
+        if (timeouts.length > 0) {
+          var args = timeouts.shift(),
+              fn = args.shift();
+
+          fn.apply(null, args);
+        }
+      }
+    };
+
+    // Ensure that we don't receive messages after unload
+    // Yes, this seems to really happen in IE sometimes, usually
+    // when iFrames are involved.
+    OTHelpers.on(window, 'unload', removeMessageHandler);
+
+    if(window.addEventListener) {
+      window.addEventListener('message', handleMessage, true);
+    } else if(window.attachEvent) {
+      window.attachEvent('onmessage', handleMessage);
+    }
+
+    _callAsync = function (/* fn, [arg1, arg2, ..., argN] */) {
+      timeouts.push(Array.prototype.slice.call(arguments));
+      window.postMessage(messageName, '*');
+    };
   }
+  else {
+    _callAsync = function (/* fn, [arg1, arg2, ..., argN] */) {
+      var args = Array.prototype.slice.call(arguments),
+          fn = args.shift();
+
+      setTimeout(function() {
+        fn.apply(null, args);
+      }, 0);
+    };
+  }
+
 
   // Calls the function +fn+ asynchronously with the current execution.
   // This is most commonly used to execute something straight after
@@ -1088,10 +1363,10 @@ OTHelpers.roundFloat = function(value, places) {
   // unlike setTimeout which could execute anywhere from 2ms to several thousand
   // depending on the browser/context.
   //
-  OTHelpers.callAsync = function (/* fn, [arg1, arg2, ..., argN] */) {
-    timeouts.push(Array.prototype.slice.call(arguments));
-    window.postMessage(messageName, '*');
-  };
+  // It does this using window.postMessage, although if postMessage won't
+  // work it will fallback to setTimeout.
+  //
+  OTHelpers.callAsync = _callAsync;
 
 
   // Wraps +handler+ in a function that will execute it asynchronously
@@ -1244,6 +1519,10 @@ OTHelpers.roundFloat = function(value, places) {
       OTHelpers.forEach(eventNames, function(name) {
         if (!_events[name]) _events[name] = [];
         _events[name].push(listener);
+        var addedListener = name + ':added';
+        if (_events[addedListener]) {
+          executeListeners(addedListener, [_events[name].length]);
+        }
       });
     }, self);
 
@@ -1257,6 +1536,10 @@ OTHelpers.roundFloat = function(value, places) {
         if (_events[name]) {
           _events[name] = OTHelpers.filter(_events[name], filterHandlerAndContext);
           if (_events[name].length === 0) delete _events[name];
+          var removedListener = name + ':removed';
+          if (_events[ removedListener]) {
+            executeListeners(removedListener, [_events[name] ? _events[name].length : 0]);
+          }
         }
       }, self));
 
@@ -1663,8 +1946,6 @@ OTHelpers.roundFloat = function(value, places) {
 
 
 
-
-
     return self;
   };
 
@@ -1702,29 +1983,32 @@ OTHelpers.roundFloat = function(value, places) {
 // DOM helpers
 (function(window, OTHelpers, undefined) {
 
-OTHelpers.isElementNode = function(node) {
-    return node && typeof node === 'object' && node.nodeType == 1;
-};
+  OTHelpers.isElementNode = function(node) {
+    return node && typeof node === 'object' && node.nodeType === 1;
+  };
 
-// Returns true if the client supports element.classList
-OTHelpers.supportsClassList = function() {
-    var hasSupport = typeof(document !== "undefined") && ("classList" in document.createElement("a"));
+  // Returns true if the client supports element.classList
+  OTHelpers.supportsClassList = function() {
+    var hasSupport = (typeof document !== 'undefined') &&
+            ('classList' in document.createElement('a'));
+
     OTHelpers.supportsClassList = function() { return hasSupport; };
 
     return hasSupport;
-};
+  };
 
-OTHelpers.removeElement = function(element) {
+  OTHelpers.removeElement = function(element) {
     if (element && element.parentNode) {
-        element.parentNode.removeChild(element);
+      element.parentNode.removeChild(element);
     }
-};
+  };
 
-OTHelpers.removeElementById = function(elementId) {
+  OTHelpers.removeElementById = function(elementId) {
+    /*jshint newcap:false */
     this.removeElement(OTHelpers(elementId));
-};
+  };
 
-OTHelpers.removeElementsByType = function(parentElem, type) {
+  OTHelpers.removeElementsByType = function(parentElem, type) {
     if (!parentElem) return;
 
     var elements = parentElem.getElementsByTagName(type);
@@ -1735,256 +2019,238 @@ OTHelpers.removeElementsByType = function(parentElem, type) {
     // element" as the collection length and the elements indices will be modified
     // with each iteration.
     while (elements.length) {
-        parentElem.removeChild(elements[0]);
+      parentElem.removeChild(elements[0]);
     }
-};
+  };
 
-OTHelpers.emptyElement = function(element) {
+  OTHelpers.emptyElement = function(element) {
     while (element.firstChild) {
-        element.removeChild(element.firstChild);
+      element.removeChild(element.firstChild);
     }
     return element;
-};
+  };
 
-OTHelpers.createElement = function(nodeName, attributes, children, doc) {
+  OTHelpers.createElement = function(nodeName, attributes, children, doc) {
     var element = (doc || document).createElement(nodeName);
 
     if (attributes) {
-        for (var name in attributes) {
-            if (typeof(attributes[name]) === 'object') {
-                if (!element[name]) element[name] = {};
+      for (var name in attributes) {
+        if (typeof(attributes[name]) === 'object') {
+          if (!element[name]) element[name] = {};
 
-                var subAttrs = attributes[name];
-                for (var n in subAttrs) {
-                    element[name][n] = subAttrs[n];
-                }
-            }
-            else if (name === 'className') {
-                element.className = attributes[name];
-            }
-            else {
-                element.setAttribute(name, attributes[name]);
-            }
+          var subAttrs = attributes[name];
+          for (var n in subAttrs) {
+            element[name][n] = subAttrs[n];
+          }
         }
+        else if (name === 'className') {
+          element.className = attributes[name];
+        }
+        else {
+          element.setAttribute(name, attributes[name]);
+        }
+      }
     }
 
     var setChildren = function(child) {
-        if(typeof child === 'string') {
-            element.innerHTML = element.innerHTML + child;
-        } else {
-            element.appendChild(child);
-        }
+      if(typeof child === 'string') {
+        element.innerHTML = element.innerHTML + child;
+      } else {
+        element.appendChild(child);
+      }
     };
 
     if(OTHelpers.isArray(children)) {
-        OTHelpers.forEach(children, setChildren);
+      OTHelpers.forEach(children, setChildren);
     } else if(children) {
-        setChildren(children);
+      setChildren(children);
     }
 
     return element;
-};
+  };
 
-OTHelpers.createButton = function(innerHTML, attributes, events) {
+  OTHelpers.createButton = function(innerHTML, attributes, events) {
     var button = OTHelpers.createElement('button', attributes, innerHTML);
 
     if (events) {
-        for (var name in events) {
-            if (events.hasOwnProperty(name)) {
-                OTHelpers.on(button, name, events[name]);
-            }
+      for (var name in events) {
+        if (events.hasOwnProperty(name)) {
+          OTHelpers.on(button, name, events[name]);
         }
+      }
 
-        button._boundEvents = events;
+      button._boundEvents = events;
     }
 
     return button;
-};
+  };
 
-// Helper function for adding event listeners to dom elements.
-// WARNING: This doesn't preserve event types, your handler could be getting all kinds of different
-// parameters depending on the browser. You also may have different scopes depending on the browser
-// and bubbling and cancelable are not supported.
-OTHelpers.on = function(element, eventName,  handler) {
-    if (element.addEventListener) {
-        element.addEventListener(eventName, handler, false);
-    } else if (element.attachEvent) {
-        element.attachEvent("on" + eventName, handler);
-    } else {
-        var oldHandler = element["on"+eventName];
-        element["on"+eventName] = function() {
-          handler.apply(this, arguments);
-          if (oldHandler) oldHandler.apply(this, arguments);
-        };
+
+  // Detects when an element is not part of the document flow because
+  // it or one of it's ancesters has display:none.
+  OTHelpers.isDisplayNone = function(element) {
+    if ( (element.offsetWidth === 0 || element.offsetHeight === 0) &&
+                OTHelpers.css(element, 'display') === 'none') return true;
+
+    if (element.parentNode && element.parentNode.style) {
+      return OTHelpers.isDisplayNone(element.parentNode);
     }
-    return element;
-};
 
-// Helper function for removing event listeners from dom elements.
-OTHelpers.off = function(element, eventName, handler) {
-    if (element.removeEventListener) {
-        element.removeEventListener (eventName, handler,false);
-    }
-    else if (element.detachEvent) {
-        element.detachEvent("on" + eventName, handler);
-    }
-};
-
-
-// Detects when an element is not part of the document flow because it or one of it's ancesters has display:none.
-OTHelpers.isDisplayNone = function(element) {
-    if ( (element.offsetWidth === 0 || element.offsetHeight === 0) && OTHelpers.css(element, 'display') === 'none') return true;
-    if (element.parentNode && element.parentNode.style) return OTHelpers.isDisplayNone(element.parentNode);
     return false;
-};
+  };
 
-OTHelpers.findElementWithDisplayNone = function(element) {
-    if ( (element.offsetWidth === 0 || element.offsetHeight === 0) && OTHelpers.css(element, 'display') === 'none') return element;
-    if (element.parentNode && element.parentNode.style) return OTHelpers.findElementWithDisplayNone(element.parentNode);
+  OTHelpers.findElementWithDisplayNone = function(element) {
+    if ( (element.offsetWidth === 0 || element.offsetHeight === 0) &&
+              OTHelpers.css(element, 'display') === 'none') return element;
+
+    if (element.parentNode && element.parentNode.style) {
+      return OTHelpers.findElementWithDisplayNone(element.parentNode);
+    }
+
     return null;
-};
+  };
 
-function objectHasProperties(obj) {
+  function objectHasProperties(obj) {
     for (var key in obj) {
-        if (obj.hasOwnProperty(key)) return true;
+      if (obj.hasOwnProperty(key)) return true;
     }
     return false;
-}
+  }
 
 
-// Allows an +onChange+ callback to be triggered when specific style properties
-// of +element+ are notified. The callback accepts a single parameter, which is
-// a hash where the keys are the style property that changed and the values are
-// an array containing the old and new values ([oldValue, newValue]).
-//
-// Width and Height changes while the element is display: none will not be
-// fired until such time as the element becomes visible again.
-//
-// This function returns the MutationObserver itself. Once you no longer wish
-// to observe the element you should call disconnect on the observer.
-//
-// Observing changes:
-//  // observe changings to the width and height of object
-//  dimensionsObserver = OTHelpers.observeStyleChanges(object, ['width', 'height'], function(changeSet) {
-//      OT.debug("The new width and height are " + changeSet.width[1] + ',' + changeSet.height[1]);
-//  });
-//
-// Cleaning up
-//  // stop observing changes
-//  dimensionsObserver.disconnect();
-//  dimensionsObserver = null;
-//
-OTHelpers.observeStyleChanges = function(element, stylesToObserve, onChange) {
+  // Allows an +onChange+ callback to be triggered when specific style properties
+  // of +element+ are notified. The callback accepts a single parameter, which is
+  // a hash where the keys are the style property that changed and the values are
+  // an array containing the old and new values ([oldValue, newValue]).
+  //
+  // Width and Height changes while the element is display: none will not be
+  // fired until such time as the element becomes visible again.
+  //
+  // This function returns the MutationObserver itself. Once you no longer wish
+  // to observe the element you should call disconnect on the observer.
+  //
+  // Observing changes:
+  //  // observe changings to the width and height of object
+  //  dimensionsObserver = OTHelpers.observeStyleChanges(object,
+  //                                                    ['width', 'height'], function(changeSet) {
+  //      OT.debug("The new width and height are " +
+  //                      changeSet.width[1] + ',' + changeSet.height[1]);
+  //  });
+  //
+  // Cleaning up
+  //  // stop observing changes
+  //  dimensionsObserver.disconnect();
+  //  dimensionsObserver = null;
+  //
+  OTHelpers.observeStyleChanges = function(element, stylesToObserve, onChange) {
     var oldStyles = {};
 
     var getStyle = function getStyle(style) {
-            switch (style) {
-            case 'width':
-                return OTHelpers.width(element);
+      switch (style) {
+      case 'width':
+        return OTHelpers.width(element);
 
-            case 'height':
-                return OTHelpers.height(element);
+      case 'height':
+        return OTHelpers.height(element);
 
-            default:
-                return OTHelpers.css(element);
-            }
-        };
+      default:
+        return OTHelpers.css(element);
+      }
+    };
 
     // get the inital values
     OTHelpers.forEach(stylesToObserve, function(style) {
-        oldStyles[style] = getStyle(style);
+      oldStyles[style] = getStyle(style);
     });
 
     var observer = new MutationObserver(function(mutations) {
-        var changeSet = {};
+      var changeSet = {};
 
-        OTHelpers.forEach(mutations, function(mutation) {
-            if (mutation.attributeName !== 'style') return;
+      OTHelpers.forEach(mutations, function(mutation) {
+        if (mutation.attributeName !== 'style') return;
 
-            var isHidden = OTHelpers.isDisplayNone(element);
+        var isHidden = OTHelpers.isDisplayNone(element);
 
-            OTHelpers.forEach(stylesToObserve, function(style) {
-                if(isHidden && (style == 'width' || style == 'height')) return;
+        OTHelpers.forEach(stylesToObserve, function(style) {
+          if(isHidden && (style === 'width' || style === 'height')) return;
 
-                var newValue = getStyle(style);
+          var newValue = getStyle(style);
 
-                if (newValue !== oldStyles[style]) {
-                    // OT.debug("CHANGED " + style + ": " + oldStyles[style] + " -> " + newValue);
-
-                    changeSet[style] = [oldStyles[style], newValue];
-                    oldStyles[style] = newValue;
-                }
-            });
+          if (newValue !== oldStyles[style]) {
+            changeSet[style] = [oldStyles[style], newValue];
+            oldStyles[style] = newValue;
+          }
         });
+      });
 
-        if (objectHasProperties(changeSet)) {
-            // Do this after so as to help avoid infinite loops of mutations.
-            OTHelpers.callAsync(function() {
-                onChange.call(null, changeSet);
-            });
-        }
+      if (objectHasProperties(changeSet)) {
+        // Do this after so as to help avoid infinite loops of mutations.
+        OTHelpers.callAsync(function() {
+          onChange.call(null, changeSet);
+        });
+      }
     });
 
     observer.observe(element, {
-        attributes:true,
-        attributeFilter: ['style'],
-        childList:false,
-        characterData:false,
-        subtree:false
+      attributes:true,
+      attributeFilter: ['style'],
+      childList:false,
+      characterData:false,
+      subtree:false
     });
 
     return observer;
-};
+  };
 
 
-// trigger the +onChange+ callback whenever
-// 1. +element+ is removed
-// 2. or an immediate child of +element+ is removed.
-//
-// This function returns the MutationObserver itself. Once you no longer wish
-// to observe the element you should call disconnect on the observer.
-//
-// Observing changes:
-//  // observe changings to the width and height of object
-//  nodeObserver = OTHelpers.observeNodeOrChildNodeRemoval(object, function(removedNodes) {
-//      OT.debug("Some child nodes were removed");
-//      OTHelpers.forEach(removedNodes, function(node) {
-//          OT.debug(node);
-//      });
-//  });
-//
-// Cleaning up
-//  // stop observing changes
-//  nodeObserver.disconnect();
-//  nodeObserver = null;
-//
-OTHelpers.observeNodeOrChildNodeRemoval = function(element, onChange) {
+  // trigger the +onChange+ callback whenever
+  // 1. +element+ is removed
+  // 2. or an immediate child of +element+ is removed.
+  //
+  // This function returns the MutationObserver itself. Once you no longer wish
+  // to observe the element you should call disconnect on the observer.
+  //
+  // Observing changes:
+  //  // observe changings to the width and height of object
+  //  nodeObserver = OTHelpers.observeNodeOrChildNodeRemoval(object, function(removedNodes) {
+  //      OT.debug("Some child nodes were removed");
+  //      OTHelpers.forEach(removedNodes, function(node) {
+  //          OT.debug(node);
+  //      });
+  //  });
+  //
+  // Cleaning up
+  //  // stop observing changes
+  //  nodeObserver.disconnect();
+  //  nodeObserver = null;
+  //
+  OTHelpers.observeNodeOrChildNodeRemoval = function(element, onChange) {
     var observer = new MutationObserver(function(mutations) {
-        var removedNodes = [];
+      var removedNodes = [];
 
-        OTHelpers.forEach(mutations, function(mutation) {
-            if (mutation.removedNodes.length) {
-                removedNodes = removedNodes.concat(Array.prototype.slice.call(mutation.removedNodes));
-            }
-        });
-
-        if (removedNodes.length) {
-            // Do this after so as to help avoid infinite loops of mutations.
-            OTHelpers.callAsync(function() {
-                onChange(removedNodes);
-            });
+      OTHelpers.forEach(mutations, function(mutation) {
+        if (mutation.removedNodes.length) {
+          removedNodes = removedNodes.concat(Array.prototype.slice.call(mutation.removedNodes));
         }
+      });
+
+      if (removedNodes.length) {
+        // Do this after so as to help avoid infinite loops of mutations.
+        OTHelpers.callAsync(function() {
+          onChange(removedNodes);
+        });
+      }
     });
 
     observer.observe(element, {
-        attributes:false,
-        childList:true,
-        characterData:false,
-        subtree:true
+      attributes:false,
+      childList:true,
+      characterData:false,
+      subtree:true
     });
 
     return observer;
-};
+  };
 
 })(window, window.OTHelpers);
 
@@ -2036,10 +2302,29 @@ OTHelpers.observeNodeOrChildNodeRemoval = function(element, onChange) {
     domElement.scrolling = 'no';
     domElement.setAttribute('scrolling', 'no');
 
+    // This is necessary for IE, as it will not inherit it's doctype from
+    // the parent frame.
+    var frameContent = '<!DOCTYPE html><html><head>' +
+                      '<meta http-equiv="x-ua-compatible" content="IE=Edge">' +
+                      '<meta http-equiv="Content-type" content="text/html; charset=utf-8">' +
+                      '<title></title></head><body></body></html>';
+
     var wrappedCallback = function() {
       var doc = domElement.contentDocument || domElement.contentWindow.document;
-      doc.body.style.backgroundColor = 'transparent';
-      doc.body.style.border = 'none';
+
+      if (OTHelpers.browserVersion().iframeNeedsLoad) {
+        doc.body.style.backgroundColor = 'transparent';
+        doc.body.style.border = 'none';
+
+        if (OTHelpers.browser() !== 'IE') {
+          // Skip this for IE as we use the bookmarklet workaround
+          // for THAT browser.
+          doc.open();
+          doc.write(frameContent);
+          doc.close();
+        }
+      }
+
       callback(
         domElement.contentWindow,
         doc
@@ -2049,6 +2334,16 @@ OTHelpers.observeNodeOrChildNodeRemoval = function(element, onChange) {
     document.body.appendChild(domElement);
 
     if(OTHelpers.browserVersion().iframeNeedsLoad) {
+      if (OTHelpers.browser() === 'IE') {
+        // This works around some issues with IE and document.write.
+        // Basically this works by slightly abusing the bookmarklet/scriptlet
+        // functionality that all browsers support.
+        domElement.contentWindow.contents = frameContent;
+        /*jshint scripturl:true*/
+        domElement.src = 'javascript:window["contents"]';
+        /*jshint scripturl:false*/
+      }
+
       OTHelpers.on(domElement, 'load', wrappedCallback);
     } else {
       setTimeout(wrappedCallback);
@@ -2180,141 +2475,141 @@ OTHelpers.observeNodeOrChildNodeRemoval = function(element, onChange) {
 
 (function(window, OTHelpers, undefined) {
 
-OTHelpers.addClass = function(element, value) {
+  OTHelpers.addClass = function(element, value) {
     // Only bother targeting Element nodes, ignore Text Nodes, CDATA, etc
     if (element.nodeType !== 1) {
-        return;
+      return;
     }
 
     var classNames = OTHelpers.trim(value).split(/\s+/),
         i, l;
 
     if (OTHelpers.supportsClassList()) {
-        for (i=0, l=classNames.length; i<l; ++i) {
-            element.classList.add(classNames[i]);
-        }
+      for (i=0, l=classNames.length; i<l; ++i) {
+        element.classList.add(classNames[i]);
+      }
 
-        return;
+      return;
     }
 
     // Here's our fallback to browsers that don't support element.classList
 
     if (!element.className && classNames.length === 1) {
-        element.className = value;
+      element.className = value;
     }
     else {
-        var setClass = " " + element.className + " ";
+      var setClass = ' ' + element.className + ' ';
 
-        for (i=0, l=classNames.length; i<l; ++i) {
-            if ( !~setClass.indexOf( " " + classNames[i] + " ")) {
-                setClass += classNames[i] + " ";
-            }
+      for (i=0, l=classNames.length; i<l; ++i) {
+        if ( !~setClass.indexOf( ' ' + classNames[i] + ' ')) {
+          setClass += classNames[i] + ' ';
         }
+      }
 
-        element.className = OTHelpers.trim(setClass);
+      element.className = OTHelpers.trim(setClass);
     }
 
     return this;
-};
+  };
 
-OTHelpers.removeClass = function(element, value) {
+  OTHelpers.removeClass = function(element, value) {
     if (!value) return;
 
     // Only bother targeting Element nodes, ignore Text Nodes, CDATA, etc
     if (element.nodeType !== 1) {
-        return;
+      return;
     }
 
     var newClasses = OTHelpers.trim(value).split(/\s+/),
         i, l;
 
     if (OTHelpers.supportsClassList()) {
-        for (i=0, l=newClasses.length; i<l; ++i) {
-            element.classList.remove(newClasses[i]);
-        }
+      for (i=0, l=newClasses.length; i<l; ++i) {
+        element.classList.remove(newClasses[i]);
+      }
 
-        return;
+      return;
     }
 
-    var className = (" " + element.className + " ").replace(/[\s+]/, ' ');
+    var className = (' ' + element.className + ' ').replace(/[\s+]/, ' ');
 
     for (i=0,l=newClasses.length; i<l; ++i) {
-        className = className.replace(' ' + newClasses[i] + ' ', ' ');
+      className = className.replace(' ' + newClasses[i] + ' ', ' ');
     }
 
     element.className = OTHelpers.trim(className);
 
     return this;
-};
+  };
 
 
-/**
- * Methods to calculate element widths and heights.
- */
+  /**
+   * Methods to calculate element widths and heights.
+   */
 
-var _width = function(element) {
+  var _width = function(element) {
         if (element.offsetWidth > 0) {
-            return element.offsetWidth + 'px';
+          return element.offsetWidth + 'px';
         }
 
         return OTHelpers.css(element, 'width');
-    },
+      },
 
-    _height = function(element) {
+      _height = function(element) {
         if (element.offsetHeight > 0) {
-            return element.offsetHeight + 'px';
+          return element.offsetHeight + 'px';
         }
 
         return OTHelpers.css(element, 'height');
-    };
+      };
 
-OTHelpers.width = function(element, newWidth) {
+  OTHelpers.width = function(element, newWidth) {
     if (newWidth) {
-        OTHelpers.css(element, 'width', newWidth);
-        return this;
+      OTHelpers.css(element, 'width', newWidth);
+      return this;
     }
     else {
-        if (OTHelpers.isDisplayNone(element)) {
-            // We can't get the width, probably since the element is hidden.
-            return OTHelpers.makeVisibleAndYield(element, function() {
-                return _width(element);
-            });
-        }
-        else {
-            return _width(element);
-        }
+      if (OTHelpers.isDisplayNone(element)) {
+        // We can't get the width, probably since the element is hidden.
+        return OTHelpers.makeVisibleAndYield(element, function() {
+          return _width(element);
+        });
+      }
+      else {
+        return _width(element);
+      }
     }
-};
+  };
 
-OTHelpers.height = function(element, newHeight) {
+  OTHelpers.height = function(element, newHeight) {
     if (newHeight) {
-        OTHelpers.css(element, 'height', newHeight);
-        return this;
+      OTHelpers.css(element, 'height', newHeight);
+      return this;
     }
     else {
-        if (OTHelpers.isDisplayNone(element)) {
-            // We can't get the height, probably since the element is hidden.
-            return OTHelpers.makeVisibleAndYield(element, function() {
-                return _height(element);
-            });
-        }
-        else {
-            return _height(element);
-        }
+      if (OTHelpers.isDisplayNone(element)) {
+        // We can't get the height, probably since the element is hidden.
+        return OTHelpers.makeVisibleAndYield(element, function() {
+          return _height(element);
+        });
+      }
+      else {
+        return _height(element);
+      }
     }
-};
+  };
 
-// Centers +element+ within the window. You can pass through the width and height
-// if you know it, if you don't they will be calculated for you.
-OTHelpers.centerElement = function(element, width, height) {
+  // Centers +element+ within the window. You can pass through the width and height
+  // if you know it, if you don't they will be calculated for you.
+  OTHelpers.centerElement = function(element, width, height) {
     if (!width) width = parseInt(OTHelpers.width(element), 10);
     if (!height) height = parseInt(OTHelpers.height(element), 10);
 
-    var marginLeft = -0.5 * width + "px";
-    var marginTop = -0.5 * height + "px";
-    OTHelpers.css(element, "margin", marginTop + " 0 0 " + marginLeft);
-    OTHelpers.addClass(element, "OT_centered");
-};
+    var marginLeft = -0.5 * width + 'px';
+    var marginTop = -0.5 * height + 'px';
+    OTHelpers.css(element, 'margin', marginTop + ' 0 0 ' + marginLeft);
+    OTHelpers.addClass(element, 'OT_centered');
+  };
 
 })(window, window.OTHelpers);
 
@@ -2332,27 +2627,27 @@ OTHelpers.centerElement = function(element, width, height) {
       defaultDisplays = {};
 
   var defaultDisplayValueForElement = function(element) {
-      if (defaultDisplays[element.ownerDocument] &&
-        defaultDisplays[element.ownerDocument][element.nodeName]) {
-        return defaultDisplays[element.ownerDocument][element.nodeName];
-      }
+    if (defaultDisplays[element.ownerDocument] &&
+      defaultDisplays[element.ownerDocument][element.nodeName]) {
+      return defaultDisplays[element.ownerDocument][element.nodeName];
+    }
 
-      if (!defaultDisplays[element.ownerDocument]) defaultDisplays[element.ownerDocument] = {};
+    if (!defaultDisplays[element.ownerDocument]) defaultDisplays[element.ownerDocument] = {};
 
-      // We need to know what display value to use for this node. The easiest way
-      // is to actually create a node and read it out.
-      var testNode = element.ownerDocument.createElement(element.nodeName),
-          defaultDisplay;
+    // We need to know what display value to use for this node. The easiest way
+    // is to actually create a node and read it out.
+    var testNode = element.ownerDocument.createElement(element.nodeName),
+        defaultDisplay;
 
-      element.ownerDocument.body.appendChild(testNode);
-      defaultDisplay = defaultDisplays[element.ownerDocument][element.nodeName] =
-        OTHelpers.css(testNode, 'display');
+    element.ownerDocument.body.appendChild(testNode);
+    defaultDisplay = defaultDisplays[element.ownerDocument][element.nodeName] =
+      OTHelpers.css(testNode, 'display');
 
-      OTHelpers.removeElement(testNode);
-      testNode = null;
+    OTHelpers.removeElement(testNode);
+    testNode = null;
 
-      return defaultDisplay;
-    };
+    return defaultDisplay;
+  };
 
   var isHidden = function(element) {
     var computedStyle = OTHelpers.getComputedStyle(element);
@@ -2392,7 +2687,9 @@ OTHelpers.centerElement = function(element, width, height) {
       var style = element.style;
 
       for (var cssName in nameOrHash) {
-        style[cssName] = nameOrHash[cssName];
+        if (nameOrHash.hasOwnProperty(cssName)) {
+          style[cssName] = nameOrHash[cssName];
+        }
       }
 
       return this;
@@ -2449,7 +2746,7 @@ OTHelpers.centerElement = function(element, width, height) {
     return ret;
   };
 
-// Make +element+ visible while executing +callback+.
+  // Make +element+ visible while executing +callback+.
   OTHelpers.makeVisibleAndYield = function(element, callback) {
     // find whether it's the element or an ancester that's display none and
     // then apply to whichever it is
@@ -2464,6 +2761,37 @@ OTHelpers.centerElement = function(element, width, height) {
 
 })(window, window.OTHelpers);
 
+// AJAX helpers
+
+/*jshint browser:true, smarttabs:true*/
+
+// tb_require('../helpers.js')
+
+(function(window, OTHelpers, undefined) {
+
+  var requestAnimationFrame = window.requestAnimationFrame ||
+                              window.mozRequestAnimationFrame ||
+                              window.webkitRequestAnimationFrame ||
+                              window.msRequestAnimationFrame;
+
+  if (requestAnimationFrame) {
+    requestAnimationFrame = OTHelpers.bind(requestAnimationFrame, window);
+  }
+  else {
+    var lastTime = 0;
+    var startTime = OTHelpers.now();
+
+    requestAnimationFrame = function(callback){
+      var currTime = OTHelpers.now();
+      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+      var id = window.setTimeout(function() { callback(currTime - startTime); }, timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+  }
+
+  OTHelpers.requestAnimationFrame = requestAnimationFrame;
+})(window, window.OTHelpers);
 // AJAX helpers
 
 /*jshint browser:true, smarttabs:true*/
@@ -2585,7 +2913,7 @@ OTHelpers.centerElement = function(element, width, height) {
     // interpreting the responses HTTP status, which XmlHttpRequest seems to ignore
     // by default.
     if(callback) {
-      request.addEventListener('load', function(event) {
+      OTHelpers.on(request, 'load', function(event) {
         var status = event.target.status;
 
         // We need to detect things that XMLHttpRequest considers a success,
@@ -2595,9 +2923,9 @@ OTHelpers.centerElement = function(element, width, height) {
         } else {
           callback(event);
         }
-      }, false);
+      });
 
-      request.addEventListener('error', callback, false);
+      OTHelpers.on(request, 'error', callback);
     }
 
     request.open(options.method, url, true);
@@ -2631,237 +2959,6 @@ OTHelpers.centerElement = function(element, width, height) {
   };
 
 })(window, window.OTHelpers);
-!(function() {
-
-  OT.Dialogs = {};
-
-  var addCss = function(document, url, callback) {
-    var head = document.head || document.getElementsByTagName('head')[0];
-    var cssTag = OT.$.createElement('link', {
-      type: 'text/css',
-      media: 'screen',
-      rel: 'stylesheet',
-      href: url
-    });
-    head.appendChild(cssTag);
-    OT.$.on(cssTag, 'error', function(error) {
-      OT.error('Could not load CSS for dialog', url, error && error.message || error);
-    });
-    OT.$.on(cssTag, 'load', callback);
-  };
-
-  var addDialogCSS = function(document, urls, callback) {
-    var allURLs = [
-      '//fonts.googleapis.com/css?family=Didact+Gothic',
-      OT.properties.cssURL
-    ].concat(urls);
-    var remainingStylesheets = allURLs.length;
-    OT.$.forEach(allURLs, function(stylesheetUrl) {
-      addCss(document, stylesheetUrl, function() {
-        if(--remainingStylesheets <= 0) {
-          callback();
-        }
-      });
-    });
-
-  };
-
-  var templateElement = function(classes, children, tagName) {
-    var el = OT.$.createElement(tagName || 'div', { 'class': classes }, children, this);
-    el.on = OT.$.bind(OT.$.on, OT.$, el);
-    return el;
-  };
-
-  OT.Dialogs.AllowDeny = {};
-  OT.Dialogs.AllowDeny.Chrome = {};
-  OT.Dialogs.AllowDeny.Firefox = {};
-
-  OT.Dialogs.AllowDeny.Chrome.initialPrompt = function() {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = templateElement.bind(document),
-          close, root;
-
-      close = el('OT_closeButton', '&times;')
-        .on('click', function() {
-          modal.close();
-        });
-
-      root = el('OT_root OT_dialog OT_dialog-allow-deny-chrome-first', [
-        close,
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', 'Allow camera and mic access'),
-          el('OT_dialog-messages-minor', 'Click the Allow button in the upper-right corner ' +
-            'of your browser to enable real-time communication.'),
-          el('OT_dialog-allow-highlight-chrome')
-        ])
-      ]);
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-  OT.Dialogs.AllowDeny.Chrome.previouslyDenied = function(website) {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = templateElement.bind(document),
-          close,
-          root;
-
-      close = el('OT_closeButton', '&times;')
-        .on('click', function() {
-          modal.close();
-        });
-
-      root = el('OT_root OT_dialog OT_dialog-allow-deny-chrome-pre-denied', [
-        close,
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', 'Allow camera and mic access'),
-          el('OT_dialog-messages-minor', [
-            'To interact with this app, follow these 3 steps:',
-            el('OT_dialog-3steps', [
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '1'),
-                'Find this icon in the URL bar and click it',
-                el('OT_dialog-allow-camera-icon')
-              ]),
-              el('OT_dialog-3steps-seperator'),
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '2'),
-                'Select "Ask if ' + website + ' wants to access your camera and mic" ' +
-                  'and then click Done.'
-              ]),
-              el('OT_dialog-3steps-seperator'),
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '3'),
-                'Refresh your browser.'
-              ])
-            ])
-          ])
-        ])
-      ]);
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-  OT.Dialogs.AllowDeny.Chrome.deniedNow = function() {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = templateElement.bind(document),
-          root;
-
-      root = el('OT_root OT_dialog-blackout',
-        el('OT_dialog OT_dialog-allow-deny-chrome-now-denied', [
-          el('OT_dialog-messages', [
-            el('OT_dialog-messages-main ',
-              el('OT_dialog-allow-camera-icon')
-            ),
-            el('OT_dialog-messages-minor',
-              'Find & click this icon to allow camera and mic access.'
-            )
-          ])
-        ])
-      );
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-  OT.Dialogs.AllowDeny.Firefox.maybeDenied = function() {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = templateElement.bind(document),
-          close,
-          root;
-
-      close = el('OT_closeButton', '&times;')
-        .on('click', function() {
-          modal.close();
-        });
-
-      root = el('OT_root OT_dialog OT_dialog-allow-deny-firefox-maybe-denied', [
-        close,
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', 'Please allow camera & mic access'),
-          el('OT_dialog-messages-minor', [
-            'To interact with this app, follow these 3 steps:',
-            el('OT_dialog-3steps', [
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '1'),
-                'Reload the page, or click the camera icon ' +
-                  'in the browser URL bar.'
-              ]),
-              el('OT_dialog-3steps-seperator'),
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '2'),
-                'In the menu, select your camera & mic.'
-              ]),
-              el('OT_dialog-3steps-seperator'),
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '3'),
-                'Click "Share Selected Devices."'
-              ])
-            ])
-          ])
-        ])
-      ]);
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-
-  OT.Dialogs.AllowDeny.Firefox.denied = function() {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = templateElement.bind(document),
-          btn = templateElement.bind(document, 'OT_dialog-button OT_dialog-button-large'),
-          root,
-          refreshButton;
-
-      refreshButton = btn('Reload')
-        .on('click', function() {
-          modal.trigger('refresh');
-        });
-
-      root = el('OT_root OT_dialog-blackout',
-        el('OT_dialog OT_dialog-allow-deny-firefox-denied', [
-          el('OT_dialog-messages', [
-            el('OT_dialog-messages-minor',
-              'Access to camera and microphone has been denied. ' +
-              'Click the button to reload page.'
-            )
-          ]),
-          el('OT_dialog-single-button', refreshButton)
-        ])
-      );
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-})();
 !(function(window) {
 
   /* global OTHelpers */
@@ -2922,7 +3019,14 @@ OTHelpers.centerElement = function(element, width, height) {
     return retVal;
   };
 
-  OT.setLogLevel(OT.properties.debug ? OT.DEBUG : OT.ERROR);
+  var debugTrue = OT.properties.debug === 'true' || OT.properties.debug === true;
+  OT.setLogLevel(debugTrue ? OT.DEBUG : OT.ERROR);
+
+  OT.$.userAgent = function() {
+    var userAgent = navigator.userAgent;
+    if (TBPlugin.isInstalled()) userAgent += '; TBPlugin ' + TBPlugin.version();
+    return userAgent;
+  };
 
   /**
   * Sets the API log level.
@@ -2997,6 +3101,528 @@ OTHelpers.centerElement = function(element, width, height) {
   */
 
 })(window);
+!(function() {
+
+  var addCss = function(document, url, callback) {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    var cssTag = OT.$.createElement('link', {
+      type: 'text/css',
+      media: 'screen',
+      rel: 'stylesheet',
+      href: url
+    });
+    head.appendChild(cssTag);
+    OT.$.on(cssTag, 'error', function(error) {
+      OT.error('Could not load CSS for dialog', url, error && error.message || error);
+    });
+    OT.$.on(cssTag, 'load', callback);
+  };
+
+  var addDialogCSS = function(document, urls, callback) {
+    var allURLs = [
+      '//fonts.googleapis.com/css?family=Didact+Gothic',
+      OT.properties.cssURL
+    ].concat(urls);
+    var remainingStylesheets = allURLs.length;
+    OT.$.forEach(allURLs, function(stylesheetUrl) {
+      addCss(document, stylesheetUrl, function() {
+        if(--remainingStylesheets <= 0) {
+          callback();
+        }
+      });
+    });
+
+  };
+
+  var templateElement = function(classes, children, tagName) {
+    var el = OT.$.createElement(tagName || 'div', { 'class': classes }, children, this);
+    el.on = OT.$.bind(OT.$.on, OT.$, el);
+    el.off = OT.$.bind(OT.$.off, OT.$, el);
+    return el;
+  };
+
+  var checkBoxElement = function (classes, nameAndId, onChange) {
+    var checkbox = templateElement.call(this, '', null, 'input').on('change', onChange);
+
+    if (OT.$.browser() === 'IE' && OT.$.browserVersion().version <= 8) {
+      // Fix for IE8 not triggering the change event
+      checkbox.on('click', function() {
+        checkbox.blur();
+        checkbox.focus();
+      });
+    }
+
+    checkbox.setAttribute('name', nameAndId);
+    checkbox.setAttribute('id', nameAndId);
+    checkbox.setAttribute('type', 'checkbox');
+
+    return checkbox;
+  };
+
+  var linkElement = function(children, href, classes) {
+    var link = templateElement.call(this, classes || '', children, 'a');
+    link.setAttribute('href', href);
+    return link;
+  };
+
+  OT.Dialogs = {};
+
+  OT.Dialogs.AllowDeny = {
+    Chrome: {},
+    Firefox: {}
+  };
+
+  OT.Dialogs.AllowDeny.Chrome.initialPrompt = function() {
+    var modal = new OT.$.Modal(function(window, document) {
+
+      var el = OT.$.bind(templateElement, document),
+          close, root;
+
+      close = el('OT_closeButton', '&times;')
+        .on('click', function() {
+          modal.trigger('closeButtonClicked');
+          modal.close();
+        });
+
+      root = el('OT_root OT_dialog OT_dialog-allow-deny-chrome-first', [
+        close,
+        el('OT_dialog-messages', [
+          el('OT_dialog-messages-main', 'Allow camera and mic access'),
+          el('OT_dialog-messages-minor', 'Click the Allow button in the upper-right corner ' +
+            'of your browser to enable real-time communication.'),
+          el('OT_dialog-allow-highlight-chrome')
+        ])
+      ]);
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+      });
+
+    });
+    return modal;
+  };
+
+  OT.Dialogs.AllowDeny.Chrome.previouslyDenied = function(website) {
+    var modal = new OT.$.Modal(function(window, document) {
+
+      var el = OT.$.bind(templateElement, document),
+          close,
+          root;
+
+      close = el('OT_closeButton', '&times;')
+        .on('click', function() {
+          modal.trigger('closeButtonClicked');
+          modal.close();
+        });
+
+      root = el('OT_root OT_dialog OT_dialog-allow-deny-chrome-pre-denied', [
+        close,
+        el('OT_dialog-messages', [
+          el('OT_dialog-messages-main', 'Allow camera and mic access'),
+          el('OT_dialog-messages-minor', [
+            'To interact with this app, follow these 3 steps:',
+            el('OT_dialog-3steps', [
+              el('OT_dialog-3steps-step', [
+                el('OT_dialog-3steps-step-num', '1'),
+                'Find this icon in the URL bar and click it',
+                el('OT_dialog-allow-camera-icon')
+              ]),
+              el('OT_dialog-3steps-seperator'),
+              el('OT_dialog-3steps-step', [
+                el('OT_dialog-3steps-step-num', '2'),
+                'Select "Ask if ' + website + ' wants to access your camera and mic" ' +
+                  'and then click Done.'
+              ]),
+              el('OT_dialog-3steps-seperator'),
+              el('OT_dialog-3steps-step', [
+                el('OT_dialog-3steps-step-num', '3'),
+                'Refresh your browser.'
+              ])
+            ])
+          ])
+        ])
+      ]);
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+      });
+
+    });
+    return modal;
+  };
+
+  OT.Dialogs.AllowDeny.Chrome.deniedNow = function() {
+    var modal = new OT.$.Modal(function(window, document) {
+
+      var el = OT.$.bind(templateElement, document),
+          root;
+
+      root = el('OT_root OT_dialog-blackout',
+        el('OT_dialog OT_dialog-allow-deny-chrome-now-denied', [
+          el('OT_dialog-messages', [
+            el('OT_dialog-messages-main ',
+              el('OT_dialog-allow-camera-icon')
+            ),
+            el('OT_dialog-messages-minor',
+              'Find & click this icon to allow camera and mic access.'
+            )
+          ])
+        ])
+      );
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+      });
+
+    });
+    return modal;
+  };
+
+  OT.Dialogs.AllowDeny.Firefox.maybeDenied = function() {
+    var modal = new OT.$.Modal(function(window, document) {
+
+      var el = OT.$.bind(templateElement, document),
+          close,
+          root;
+
+      close = el('OT_closeButton', '&times;')
+        .on('click', function() {
+          modal.trigger('closeButtonClicked');
+          modal.close();
+        });
+
+      root = el('OT_root OT_dialog OT_dialog-allow-deny-firefox-maybe-denied', [
+        close,
+        el('OT_dialog-messages', [
+          el('OT_dialog-messages-main', 'Please allow camera & mic access'),
+          el('OT_dialog-messages-minor', [
+            'To interact with this app, follow these 3 steps:',
+            el('OT_dialog-3steps', [
+              el('OT_dialog-3steps-step', [
+                el('OT_dialog-3steps-step-num', '1'),
+                'Reload the page, or click the camera icon ' +
+                  'in the browser URL bar.'
+              ]),
+              el('OT_dialog-3steps-seperator'),
+              el('OT_dialog-3steps-step', [
+                el('OT_dialog-3steps-step-num', '2'),
+                'In the menu, select your camera & mic.'
+              ]),
+              el('OT_dialog-3steps-seperator'),
+              el('OT_dialog-3steps-step', [
+                el('OT_dialog-3steps-step-num', '3'),
+                'Click "Share Selected Devices."'
+              ])
+            ])
+          ])
+        ])
+      ]);
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+      });
+
+    });
+    return modal;
+  };
+
+  OT.Dialogs.AllowDeny.Firefox.denied = function() {
+    var modal = new OT.$.Modal(function(window, document) {
+
+      var el = OT.$.bind(templateElement, document),
+          btn = OT.$.bind(templateElement, document, 'OT_dialog-button OT_dialog-button-large'),
+          root,
+          refreshButton;
+
+      refreshButton = btn('Reload')
+        .on('click', function() {
+          modal.trigger('refresh');
+        });
+
+      root = el('OT_root OT_dialog-blackout',
+        el('OT_dialog OT_dialog-allow-deny-firefox-denied', [
+          el('OT_dialog-messages', [
+            el('OT_dialog-messages-minor',
+              'Access to camera and microphone has been denied. ' +
+              'Click the button to reload page.'
+            )
+          ]),
+          el('OT_dialog-single-button', refreshButton)
+        ])
+      );
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+      });
+
+    });
+
+    return modal;
+  };
+
+  OT.Dialogs.Plugin = {};
+
+  OT.Dialogs.Plugin.promptToInstall = function() {
+    var modal = new OT.$.Modal(function(window, document) {
+
+      var el = OT.$.bind(templateElement, document),
+          btn = function(children, size) {
+            var classes = 'OT_dialog-button ' +
+                          (size ? 'OT_dialog-button-' + size : 'OT_dialog-button-large'),
+                b = el(classes, children);
+
+            b.enable = function() {
+              OT.$.removeClass(this, 'OT_dialog-button-disabled');
+              return this;
+            };
+
+            b.disable = function() {
+              OT.$.addClass(this, 'OT_dialog-button-disabled');
+              return this;
+            };
+
+            return b;
+          },
+          downloadButton = btn('Download plugin'),
+          cancelButton = btn('cancel', 'small'),
+          refreshButton = btn('Refresh browser'),
+          acceptEULA,
+          checkbox,
+          close,
+          root;
+
+      function onDownload() {
+        modal.trigger('download');
+        setTimeout(function() {
+          root.querySelector('.OT_dialog-messages-main').innerHTML =
+                                              'Plugin installation successful';
+          var sections = root.querySelectorAll('.OT_dialog-single-button-wide');
+          OT.$.addClass(sections[0], 'OT_dialog-hidden');
+          OT.$.removeClass(sections[1], 'OT_dialog-hidden');
+        }, 3000);
+      }
+
+      function onRefresh() {
+        modal.trigger('refresh');
+      }
+
+      function onToggleEULA() {
+        if (checkbox.checked) {
+          enableButtons();
+        }
+        else {
+          disableButtons();
+        }
+      }
+
+      function enableButtons() {
+        downloadButton.enable();
+        downloadButton.on('click', onDownload);
+
+        refreshButton.enable();
+        refreshButton.on('click', onRefresh);
+      }
+
+      function disableButtons() {
+        downloadButton.disable();
+        downloadButton.off('click', onDownload);
+
+        refreshButton.disable();
+        refreshButton.off('click', onRefresh);
+      }
+
+      downloadButton.disable();
+      refreshButton.disable();
+
+      cancelButton.on('click', function() {
+        modal.trigger('cancelButtonClicked');
+        modal.close();
+      });
+
+      close = el('OT_closeButton', '&times;')
+        .on('click', function() {
+          modal.trigger('closeButtonClicked');
+          modal.close();
+        });
+
+      acceptEULA = linkElement.call(document,
+                                    'end-user license agreement',
+                                    'http://tokbox.com/support/ie-eula');
+
+      checkbox = checkBoxElement.call(document, null, 'acceptEULA', onToggleEULA);
+
+      root = el('OT_root OT_dialog OT_dialog-plugin-prompt', [
+        close,
+        el('OT_dialog-messages', [
+          el('OT_dialog-messages-main', 'This app requires real-time communication')
+        ]),
+        el('OT_dialog-single-button-wide', [
+          el('OT_dialog-single-button-with-title', [
+            el('OT_dialog-button-title', [
+              checkbox,
+              (function() {
+                var x = el('', 'accept', 'label');
+                x.setAttribute('for', checkbox.id);
+                x.style.margin = '0 5px';
+                return x;
+              })(),
+              acceptEULA
+            ]),
+            downloadButton,
+            cancelButton
+          ])
+        ]),
+        el('OT_dialog-single-button-wide OT_dialog-hidden', [
+          el('OT_dialog-single-button-with-title', [
+            el('OT_dialog-button-title', [
+              'You can now enjoy webRTC enabled video via Internet Explorer.'
+            ]),
+            refreshButton
+          ])
+        ])
+      ]);
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+      });
+
+    });
+    return modal;
+  };
+
+  OT.Dialogs.Plugin.promptToReinstall = function() {
+    var modal = new OT.$.Modal(function(window, document) {
+
+      var el = OT.$.bind(templateElement, document),
+          close,
+          okayButton,
+          root;
+
+      close = el('OT_closeButton', '&times;');
+      okayButton = el('OT_dialog-button', 'Okay');
+
+      OT.$.on(okayButton, 'click', function() {
+        modal.trigger('okay');
+      });
+
+      OT.$.on(close, 'click', function() {
+        modal.trigger('closeButtonClicked');
+        modal.close();
+      });
+
+      root = el('OT_ROOT OT_dialog OT_dialog-plugin-reinstall', [
+        close,
+        el('OT_dialog-messages', [
+          el('OT_dialog-messages-main', 'Reinstall Opentok Plugin'),
+          el('OT_dialog-messages-minor', 'Uh oh! Try reinstalling the OpenTok plugin again to ' +
+            'enable real-time video communication for Internet Explorer.')
+        ]),
+        el('OT_dialog-single-button', okayButton)
+      ]);
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+      });
+
+    });
+
+    return modal;
+  };
+
+  OT.Dialogs.Plugin.updateInProgress = function() {
+
+    var progressBar,
+        progressText,
+        progressValue = 0;
+
+    var modal = new OT.$.Modal(function(window, document) {
+
+      var el = OT.$.bind(templateElement, document),
+          root;
+
+      progressText = el('OT_dialog-plugin-upgrade-percentage', '0%', 'strong');
+
+      progressBar = el('OT_dialog-progress-bar-fill');
+
+      root = el('OT_ROOT OT_dialog OT_dialog-plugin-upgrading', [
+        el('OT_dialog-messages', [
+          el('OT_dialog-messages-main', [
+            'One moment please... ',
+            progressText
+          ]),
+          el('OT_dialog-progress-bar', progressBar),
+          el('OT_dialog-messages-minor', 'Please wait while the OpenTok plugin is updated')
+        ])
+      ]);
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+        if(progressValue != null) {
+          modal.setUpdateProgress(progressValue);
+        }
+      });
+    });
+
+    modal.setUpdateProgress = function(newProgress) {
+      if(progressBar && progressText) {
+        if(newProgress > 99) {
+          OT.$.css(progressBar, 'width', '');
+          progressText.innerHTML = '100%';
+        } else if(newProgress < 1) {
+          OT.$.css(progressBar, 'width', '0%');
+          progressText.innerHTML = '0%';
+        } else {
+          OT.$.css(progressBar, 'width', newProgress + '%');
+          progressText.innerHTML = newProgress + '%';
+        }
+      } else {
+        progressValue = newProgress;
+      }
+    };
+
+    return modal;
+  };
+
+  OT.Dialogs.Plugin.updateComplete = function(error) {
+    var modal = new OT.$.Modal(function(window, document) {
+      var el = OT.$.bind(templateElement, document),
+          reloadButton,
+          root;
+
+      reloadButton = el('OT_dialog-button', 'Reload').on('click', function() {
+        modal.trigger('reload');
+      });
+
+      var msgs;
+
+      if(error) {
+        msgs = ['Update Failed.', error + '' || 'NO ERROR'];
+      } else {
+        msgs = ['Update Complete.',
+          'The OpenTok plugin has been succesfully updated. ' +
+          'Please reload your browser.'];
+      }
+
+      root = el('OT_root OT_dialog OT_dialog-plugin-upgraded', [
+        el('OT_dialog-messages', [
+          el('OT_dialog-messages-main', msgs[0]),
+          el('OT_dialog-messages-minor', msgs[1])
+        ]),
+        el('OT_dialog-single-button', reloadButton)
+      ]);
+
+      addDialogCSS(document, [], function() {
+        document.body.appendChild(root);
+      });
+
+    });
+
+    return modal;
+
+  };
+
+
+})();
 !(function(window) {
 
   // IMPORTANT This file should be included straight after helpers.js
@@ -3007,6 +3633,11 @@ OTHelpers.centerElement = function(element, width, height) {
       'properties file.');
   }
 
+  OT.useSSL = function () {
+    return OT.properties.supportSSL && (window.location.protocol.indexOf('https') >= 0 ||
+          window.location.protocol.indexOf('chrome-extension') >= 0);
+  };
+
   // Consumes and overwrites OT.properties. Makes it better and stronger!
   OT.properties = function(properties) {
     var props = OT.$.clone(properties);
@@ -3014,27 +3645,34 @@ OTHelpers.centerElement = function(element, width, height) {
     props.debug = properties.debug === 'true' || properties.debug === true;
     props.supportSSL = properties.supportSSL === 'true' || properties.supportSSL === true;
 
-    if (props.supportSSL && (window.location.protocol.indexOf('https') >= 0 ||
-      window.location.protocol.indexOf('chrome-extension') >= 0)) {
-      props.assetURL = props.cdnURLSSL + '/tokbox/' + props.version;
-    } else {
-      props.assetURL = props.cdnURL + '/tokbox/' + props.version;
-    }
-
-    props.configURL = props.assetURL + '/js/dynamic_config.min.js';
-    props.cssURL = props.assetURL + '/css/ot.min.css';
-
     if (window.OTProperties) {
       // Allow window.OTProperties to override cdnURL, configURL, assetURL and cssURL
       if (window.OTProperties.cdnURL) props.cdnURL = window.OTProperties.cdnURL;
+      if (window.OTProperties.cdnURLSSL) props.cdnURLSSL = window.OTProperties.cdnURLSSL;
       if (window.OTProperties.configURL) props.configURL = window.OTProperties.configURL;
       if (window.OTProperties.assetURL) props.assetURL = window.OTProperties.assetURL;
       if (window.OTProperties.cssURL) props.cssURL = window.OTProperties.cssURL;
     }
 
+    if (!props.assetURL) {
+      if (OT.useSSL()) {
+        props.assetURL = props.cdnURLSSL + '/webrtc/' + props.version;
+      } else {
+        props.assetURL = props.cdnURL + '/webrtc/' + props.version;
+      }
+    }
+
+    var isIE89 = OT.$.browser() === 'IE' && OT.$.browserVersion().version <= 9;
+    if (!(isIE89 && window.location.protocol.indexOf('https') < 0)) {
+      props.apiURL = props.apiURLSSL;
+      props.loggingURL = props.loggingURLSSL;
+    }
+
+    if (!props.configURL) props.configURL = props.assetURL + '/js/dynamic_config.min.js';
+    if (!props.cssURL) props.cssURL = props.assetURL + '/css/ot.css';
+
     return props;
   }(OT.properties);
-
 })(window);
 !(function() {
 
@@ -3112,7 +3750,7 @@ OTHelpers.centerElement = function(element, width, height) {
           _script = document.createElement( 'script' );
           _script.async = 'async';
           _script.src = configUrl;
-          _script.onload = _script.onreadystatechange = _onLoad.bind(this);
+          _script.onload = _script.onreadystatechange = OT.$.bind(_onLoad, this);
           _head.appendChild(_script);
         },1);
 
@@ -3172,6 +3810,1491 @@ OTHelpers.centerElement = function(element, width, height) {
   })();
 
 })(window);
+/**
+ * @license  TB Plugin 0.4.0.8 72b534e HEAD
+ * http://www.tokbox.com/
+ *
+ * Copyright (c) 2014 TokBox, Inc.
+ * Released under the MIT license
+ * http://opensource.org/licenses/MIT
+ *
+ * Date: September 08 10:17:49 2014
+ *
+ */
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: false,
+          trailing: true, browser: true, smarttabs:true */
+/* global scope:true, OT:true */
+/* exported TBPlugin */
+
+/* jshint ignore:start */
+(function(scope) {
+/* jshint ignore:end */
+
+// If we've already be setup, bail
+if (scope.TBPlugin !== void 0) return;
+
+// TB must exist first, otherwise we can't do anything
+if (scope.OT === void 0) return;
+
+// Establish the environment that we're running in
+var env = OT.$.browserVersion(),
+    isSupported = env.browser === 'IE' && env.version >= 8,
+    pluginReady = false;
+
+var TBPlugin = {
+  isSupported: function () { return isSupported; },
+  isReady: function() { return pluginReady; }
+};
+
+
+scope.TBPlugin = TBPlugin;
+
+// We only support IE, version 10 or above right now
+if (!TBPlugin.isSupported()) {
+  TBPlugin.isInstalled = function isInstalled () { return false; };
+  return;
+}
+
+// tb_require('./header.js')
+
+/* exported shim */
+
+// Shims for various missing things from JS
+// Applied only after init is called to prevent unnecessary polution
+var shim = function shim () {
+  if (!Function.prototype.bind) {
+    Function.prototype.bind = function (oThis) {
+      if (typeof this !== 'function') {
+        // closest thing possible to the ECMAScript 5 internal IsCallable function
+        throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
+      }
+
+      var aArgs = Array.prototype.slice.call(arguments, 1),
+          fToBind = this,
+          FNOP = function () {},
+          fBound = function () {
+            return fToBind.apply(this instanceof FNOP && oThis ?
+                          this : oThis, aArgs.concat(Array.prototype.slice.call(arguments)));
+          };
+
+      FNOP.prototype = this.prototype;
+      fBound.prototype = new FNOP();
+
+      return fBound;
+    };
+  }
+
+  if(!Array.isArray) {
+    Array.isArray = function (vArg) {
+      return Object.prototype.toString.call(vArg) === '[object Array]';
+    };
+  }
+
+  if (!Array.prototype.indexOf) {
+    Array.prototype.indexOf = function (searchElement, fromIndex) {
+      var i,
+          pivot = (fromIndex) ? fromIndex : 0,
+          length;
+
+      if (!this) {
+        throw new TypeError();
+      }
+
+      length = this.length;
+
+      if (length === 0 || pivot >= length) {
+        return -1;
+      }
+
+      if (pivot < 0) {
+        pivot = length - Math.abs(pivot);
+      }
+
+      for (i = pivot; i < length; i++) {
+        if (this[i] === searchElement) {
+          return i;
+        }
+      }
+      return -1;
+    };
+  }
+
+  if (!Array.prototype.map)
+  {
+    Array.prototype.map = function(fun /*, thisArg */)
+    {
+      'use strict';
+
+      if (this === void 0 || this === null)
+        throw new TypeError();
+
+      var t = Object(this);
+      var len = t.length >>> 0;
+      if (typeof fun !== 'function') {
+        throw new TypeError();
+      }
+
+      var res = new Array(len);
+      var thisArg = arguments.length >= 2 ? arguments[1] : void 0;
+      for (var i = 0; i < len; i++)
+      {
+        // NOTE: Absolute correctness would demand Object.defineProperty
+        //       be used.  But this method is fairly new, and failure is
+        //       possible only if Object.prototype or Array.prototype
+        //       has a property |i| (very unlikely), so use a less-correct
+        //       but more portable alternative.
+        if (i in t)
+          res[i] = fun.call(thisArg, t[i], i, t);
+      }
+
+      return res;
+    };
+  }
+};
+// tb_require('./header.js')
+// tb_require('./shims.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true, TBPlugin:true, pluginInfo:true, debug:true, scope:true,
+          _document:true */
+/* exported createMediaCaptureController:true, createPeerController:true,
+            injectObject:true, plugins:true, mediaCaptureObject:true,
+            removeAllObjects:true, curryCallAsync:true */
+
+var objectTimeouts = {},
+    mediaCaptureObject,
+    plugins = {};
+
+var curryCallAsync = function curryCallAsync (fn) {
+  return function() {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift(fn);
+    OT.$.callAsync.apply(OT.$, args);
+  };
+};
+
+var generatePluginUuid = function generatePluginUuid () {
+  return OT.$.uuid().replace(/\-+/g, '');
+};
+
+
+var clearObjectLoadTimeout = function clearObjectLoadTimeout (callbackId) {
+  if (!callbackId) return;
+
+  if (objectTimeouts[callbackId]) {
+    clearTimeout(objectTimeouts[callbackId]);
+    delete objectTimeouts[callbackId];
+  }
+
+  if (scope[callbackId]) {
+    try {
+      delete scope[callbackId];
+    } catch (err) {
+      scope[callbackId] = void 0;
+    }
+  }
+};
+
+var removeObjectFromDom = function removeObjectFromDom (object) {
+  clearObjectLoadTimeout(object.getAttribute('tb_callbackId'));
+
+  if (mediaCaptureObject && mediaCaptureObject.id === object.id) {
+    mediaCaptureObject = null;
+  }
+  else if (plugins.hasOwnProperty(object.id)) {
+    delete plugins[object.id];
+  }
+
+  object.parentNode.removeChild(object);
+};
+
+// @todo bind destroy to unload, may need to coordinate with TB
+// jshint -W098
+var removeAllObjects = function removeAllObjects () {
+  if (mediaCaptureObject) mediaCaptureObject.destroy();
+
+  for (var id in plugins) {
+    if (plugins.hasOwnProperty(id)) {
+      plugins[id].destroy();
+    }
+  }
+};
+
+// Reference counted wrapper for a plugin object
+var PluginObject = function PluginObject (plugin) {
+  var _plugin = plugin,
+      _liveObjects = [];
+
+  this._ = _plugin;
+
+  this.addRef = function(ref) {
+    _liveObjects.push(ref);
+    return this;
+  };
+
+  this.removeRef = function(ref) {
+    if (_liveObjects.length === 0) return;
+
+    var index = _liveObjects.indexOf(ref);
+    if (index !== -1) {
+      _liveObjects.splice(index, 1);
+    }
+
+    if (_liveObjects.length === 0) {
+      this.destroy();
+    }
+
+    return this;
+  };
+
+  this.isValid = function() {
+    return _plugin.valid;
+  };
+
+  // Event Handling Mechanisms
+
+  var eventHandlers = {};
+
+  var onCustomEvent = OT.$.bind(curryCallAsync(function onCustomEvent() {
+    var args = Array.prototype.slice.call(arguments),
+        name = args.shift();
+
+    if (!eventHandlers.hasOwnProperty(name) && eventHandlers[name].length) {
+      return;
+    }
+
+    OT.$.forEach(eventHandlers[name], function(handler) {
+      handler[0].apply(handler[1], args);
+    });
+  }), this);
+
+
+  this.on = function (name, callback, context) {
+    if (!eventHandlers.hasOwnProperty(name)) {
+      eventHandlers[name] = [];
+    }
+
+    eventHandlers[name].push([callback, context]);
+    return this;
+  };
+
+  this.off = function (name, callback, context) {
+    if (!eventHandlers.hasOwnProperty(name) ||
+        eventHandlers[name].length === 0) {
+      return;
+    }
+
+    OT.$.filter(eventHandlers[name], function(listener) {
+      return listener[0] === callback &&
+              listener[1] === context;
+    });
+
+    return this;
+  };
+
+  this.once = function (name, callback, context) {
+    var fn = function () {
+      this.off(name, fn, this);
+      return callback.apply(context, arguments);
+    };
+
+    this.on(name, fn, this);
+    return this;
+  };
+
+
+  this.onReady = function(readyCallback) {
+    if (_plugin.on) {
+      // If the plugin supports custom events we'll use them
+      _plugin.on(-1, {customEvent: curryCallAsync(onCustomEvent, this)});
+    }
+
+    // Only the main plugin has an initialise method
+    if (_plugin.initialise) {
+      this.on('ready', OT.$.bind(curryCallAsync(readyCallback), this));
+      _plugin.initialise();
+    }
+    else {
+      readyCallback.call(null);
+    }
+  };
+
+  this.destroy = function() {
+    while (_liveObjects.length) {
+      _liveObjects.shift().destroy();
+    }
+
+    removeObjectFromDom(_plugin);
+    _plugin = null;
+  };
+
+  this.setStream = function(stream, completion) {
+    if (completion) {
+      if (stream.hasVideo()) {
+        // FIX ME renderingStarted currently doesn't first
+        // this.once('renderingStarted', completion);
+        var verifyStream = function() {
+          if (_plugin.videoWidth > 0) {
+            // This fires a little too soon.
+            setTimeout(completion, 200);
+          }
+          else {
+            setTimeout(verifyStream, 500);
+          }
+        };
+
+        setTimeout(verifyStream, 500);
+      }
+      else {
+        // TODO Investigate whether there is a good way to detect
+        // when the audio is ready. Does it even matter?
+        completion();
+      }
+    }
+    _plugin.setStream(stream);
+  };
+};
+
+// Stops and cleans up after the plugin object load timeout.
+var injectObject = function injectObject (mimeType, isVisible, params, completion) {
+  var callbackId = 'TBPlugin_loaded_' + generatePluginUuid();
+  params.onload = callbackId;
+  params.userAgent = window.navigator.userAgent.toLowerCase();
+
+  scope[callbackId] = function() {
+    clearObjectLoadTimeout(callbackId);
+
+    o.setAttribute('id', 'tb_plugin_' + o.uuid);
+    o.removeAttribute('tb_callbackId');
+
+    pluginRefCounted.uuid = o.uuid;
+    pluginRefCounted.id = o.id;
+
+    pluginRefCounted.onReady(function(err) {
+      if (err) {
+        OT.error('Error while starting up plugin ' + o.uuid + ': ' + err);
+        return;
+      }
+
+      debug('Plugin ' + o.id + ' is loaded');
+
+      if (completion && OT.$.isFunction(completion)) {
+        completion.call(TBPlugin, null, pluginRefCounted);
+      }
+    });
+  };
+
+  var tmpContainer = document.createElement('div'),
+      objBits = [],
+      extraAttributes = ['width="0" height="0"'],
+      pluginRefCounted,
+      o;
+
+  if (isVisible !== true) {
+    extraAttributes.push('visibility="hidden"');
+  }
+
+  objBits.push('<object type="' + mimeType + '" ' + extraAttributes.join(' ') + '>');
+
+  for (var name in params) {
+    if (params.hasOwnProperty(name)) {
+      objBits.push('<param name="' + name + '" value="' + params[name] + '" />');
+    }
+  }
+
+  objBits.push('</object>');
+  tmpContainer.innerHTML = objBits.join('');
+
+  _document.body.appendChild(tmpContainer);
+
+  function firstElementChild(element) {
+    if(element.firstElementChild) {
+      return element.firstElementChild;
+    }
+    for(var i = 0, len = element.childNodes.length; i < len; ++i) {
+      if(element.childNodes[i].nodeType === 1) {
+        return element.childNodes[i];
+      }
+    }
+    return null;
+  }
+
+  o = firstElementChild(tmpContainer);
+  o.setAttribute('tb_callbackId', callbackId);
+
+  pluginRefCounted = new PluginObject(o);
+
+  _document.body.appendChild(o);
+  _document.body.removeChild(tmpContainer);
+
+  objectTimeouts[callbackId] = setTimeout(function() {
+    clearObjectLoadTimeout(callbackId);
+
+    completion.call(TBPlugin, 'The object with the mimeType of ' +
+                                mimeType + ' timed out while loading.');
+
+    _document.body.removeChild(o);
+  }, 3000);
+
+  return pluginRefCounted;
+};
+
+
+// Creates the Media Capture controller. This exposes selectSources and is
+// used in the private API.
+//
+// Only one Media Capture controller can exist at once, calling this method
+// more than once will raise an exception.
+//
+var createMediaCaptureController = function createMediaCaptureController (completion) {
+  if (mediaCaptureObject) {
+    throw new Error('TBPlugin.createMediaCaptureController called multiple times!');
+  }
+
+  mediaCaptureObject = injectObject(pluginInfo.mimeType, false, {windowless: false}, completion);
+
+  mediaCaptureObject.selectSources = function() {
+    return this._.selectSources.apply(this._, arguments);
+  };
+
+  return mediaCaptureObject;
+};
+
+// Create an instance of the publisher/subscriber/peerconnection object.
+// Many of these can exist at once, but the +id+ of each must be unique
+// within a single instance of scope (window or window-like thing).
+//
+var createPeerController = function createPeerController (completion) {
+  var o = injectObject(pluginInfo.mimeType, true, {windowless: true}, function(err, plugin) {
+    if (err) {
+      completion.call(TBPlugin, err);
+      return;
+    }
+
+    plugins[plugin.id] = plugin;
+    completion.call(TBPlugin, null, plugin);
+  });
+
+  return o;
+};
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true, debug:true */
+/* exported VideoContainer */
+
+var VideoContainer = function VideoContainer (plugin, stream) {
+  this.domElement = plugin._;
+  this.parentElement = plugin._.parentNode;
+
+  plugin.addRef(this);
+
+  this.appendTo = function (parentDomElement) {
+    if (parentDomElement && plugin._.parentNode !== parentDomElement) {
+      debug('VideoContainer appendTo', parentDomElement);
+      parentDomElement.appendChild(plugin._);
+      this.parentElement = parentDomElement;
+    }
+  };
+
+  this.show = function (completion) {
+    debug('VideoContainer show');
+    plugin._.removeAttribute('width');
+    plugin._.removeAttribute('height');
+    plugin.setStream(stream, completion);
+    OT.$.show(plugin._);
+  };
+
+  this.setWidth = function (width) {
+    debug('VideoContainer setWidth to ' + width);
+    plugin._.setAttribute('width', width);
+  };
+
+  this.setHeight = function (height) {
+    debug('VideoContainer setHeight to ' + height);
+    plugin._.setAttribute('height', height);
+  };
+
+  this.setVolume = function (value) {
+    // TODO
+    debug('VideoContainer setVolume not implemented: called with ' + value);
+  };
+
+  this.getVolume = function () {
+    // TODO
+    debug('VideoContainer getVolume not implemented');
+    return 0.5;
+  };
+
+  this.getImgData = function () {
+    return plugin._.getImgData('image/png');
+  };
+
+  this.getVideoWidth = function () {
+    return plugin._.videoWidth;
+  };
+
+  this.getVideoHeight = function () {
+    return plugin._.videoHeight;
+  };
+
+  this.destroy = function () {
+    plugin._.setStream(null);
+    plugin.removeRef(this);
+  };
+};
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true, TBPlugin:true, pluginInfo:true, ActiveXObject:true,
+          injectObject:true, curryCallAsync:true */
+
+/* exported AutoUpdater:true */
+var AutoUpdater;
+
+(function() {
+
+  var autoUpdaterController,
+      updaterMimeType,        // <- cached version, use getInstallerMimeType instead
+      installedVersion = -1;  // <- cached version, use getInstallerMimeType instead
+
+
+  var versionGreaterThan = function versionGreaterThan (version1,version2) {
+    if (version1 === version2) return false;
+
+    var v1 = version1.split('.'),
+        v2 = version2.split('.');
+
+    v1 = parseFloat(parseInt(v1.shift(), 10) + '.' +
+                      v1.map(function(vcomp) { return parseInt(vcomp, 10); }).join(''));
+
+    v2 = parseFloat(parseInt(v2.shift(), 10) + '.' +
+                      v2.map(function(vcomp) { return parseInt(vcomp, 10); }).join(''));
+
+
+    return v1 > v2;
+  };
+
+
+  // Work out the full mimeType (including the currently installed version)
+  // of the installer.
+  var findMimeTypeAndVersion = function findMimeTypeAndVersion () {
+
+    if (updaterMimeType !== void 0) {
+      return updaterMimeType;
+    }
+
+    var activeXControlId = 'TokBox.otiePluginInstaller',
+        unversionedMimeType = 'application/x-otieplugininstaller',
+        plugin = navigator.plugins[activeXControlId];
+
+    installedVersion = -1;
+
+
+    if (plugin) {
+      // Look through the supported mime-types for the version
+      // There should only be one mime-type in our use case, and
+      // if there's more than one they should all have the same
+      // version.
+      var numMimeTypes = plugin.length,
+          extractVersion = new RegExp(unversionedMimeType.replace('-', '\\-') +
+                                                            ',version=([0-9]+)', 'i'),
+          mimeType,
+          bits;
+
+      for (var i=0; i<numMimeTypes; ++i) {
+        mimeType = plugin[i];
+
+        // Look through the supported mimeTypes and find
+        // the newest one.
+        if (mimeType && mimeType.enabledPlugin &&
+            (mimeType.enabledPlugin.name === plugin.name) &&
+            mimeType.type.indexOf(unversionedMimeType) !== -1) {
+
+          bits = extractVersion.exec(mimeType.type);
+
+          if (bits !== null && versionGreaterThan(bits[1], installedVersion)) {
+            installedVersion = bits[1];
+          }
+        }
+      }
+    }
+    else {
+      // This may mean that the installer plugin is not installed.
+      // Although it could also mean that we're on IE 9 and below,
+      // which does not support navigator.plugins. Fallback to
+      // using 'ActiveXObject' instead.
+      try {
+        plugin = new ActiveXObject(activeXControlId);
+        installedVersion = plugin.getMasterVersion();
+      } catch(e) {
+      }
+    }
+
+    updaterMimeType = installedVersion !== -1 ?
+                              unversionedMimeType + ',version=' + installedVersion :
+                              null;
+  };
+
+  var getInstallerMimeType = function getInstallerMimeType () {
+    if (updaterMimeType === void 0) {
+      findMimeTypeAndVersion();
+    }
+
+    return updaterMimeType;
+  };
+
+  var getInstalledVersion = function getInstalledVersion () {
+    if (installedVersion === void 0) {
+      findMimeTypeAndVersion();
+    }
+
+    return installedVersion;
+  };
+
+  // Version 0.4.0.4 autoupdate was broken. We want to prompt
+  // for install on 0.4.0.4 or earlier. We're also including
+  // earlier versions just in case...
+  var hasBrokenUpdater = function () {
+    var _broken = !versionGreaterThan(getInstalledVersion(), '0.4.0.4');
+
+    hasBrokenUpdater = function() { return _broken; };
+    return _broken;
+  };
+
+
+  AutoUpdater = function (plugin) {
+
+    // Returns true if the version of the plugin installed on this computer
+    // does not match the one expected by this version of TBPlugin.
+    this.isOutOfDate = function () {
+      return versionGreaterThan(pluginInfo.version, getInstalledVersion());
+    };
+
+    this.autoUpdate = function () {
+      var modal = OT.Dialogs.Plugin.updateInProgress(),
+          analytics = new OT.Analytics(),
+        payload = {
+          ieVersion: OT.$.browserVersion().version,
+          pluginOldVersion: TBPlugin.installedVersion(),
+          pluginNewVersion: TBPlugin.version()
+        };
+
+      var success = curryCallAsync(function() {
+            analytics.logEvent({
+              action: 'OTPluginAutoUpdate',
+              variation: 'Success',
+              partnerId: OT.APIKEY,
+              payload: JSON.stringify(payload)
+            });
+
+            plugin.destroy();
+
+            modal.close();
+            OT.Dialogs.Plugin.updateComplete().on({
+              reload: function() {
+                window.location.reload();
+              }
+            });
+          }),
+
+          error = curryCallAsync(function(errorCode, errorMessage, systemErrorCode) {
+            payload.errorCode = errorCode;
+            payload.systemErrorCode = systemErrorCode;
+
+            analytics.logEvent({
+              action: 'OTPluginAutoUpdate',
+              variation: 'Failure',
+              partnerId: OT.APIKEY,
+              payload: JSON.stringify(payload)
+            });
+
+            plugin.destroy();
+
+            modal.close();
+            var updateMessage = errorMessage + ' (' + errorCode +
+                                      '). Please restart your browser and try again.';
+
+            modal = OT.Dialogs.Plugin.updateComplete(updateMessage).on({
+              'reload': function() {
+                modal.close();
+              }
+            });
+
+            OT.error('autoUpdate failed: ' + errorMessage + ' (' + errorCode +
+                                      '). Please restart your browser and try again.');
+            // TODO log client event
+          }),
+
+          progress = curryCallAsync(function(progress) {
+            modal.setUpdateProgress(progress.toFixed());
+            // modalBody.innerHTML = 'Updating...' + progress.toFixed() + '%';
+          });
+
+      plugin._.updatePlugin(TBPlugin.pathToInstaller(), success, error, progress);
+    };
+
+    this.destroy = function() {
+      plugin.destroy();
+    };
+  };
+
+  AutoUpdater.get = function (completion) {
+    if (autoUpdaterController) {
+      completion.call(null, void 0, autoUpdaterController);
+      return;
+    }
+
+    if (!this.isinstalled()) {
+      completion.call(null, 'Plugin was not installed');
+      return;
+    }
+
+    injectObject(getInstallerMimeType(), false, {windowless: false}, function(err, plugin) {
+      if (plugin) autoUpdaterController = new AutoUpdater(plugin);
+      completion.call(null, err, autoUpdaterController);
+    });
+  };
+
+  AutoUpdater.isinstalled = function () {
+    return getInstallerMimeType() !== null && !hasBrokenUpdater();
+  };
+
+  AutoUpdater.installedVersion = function () {
+    return getInstalledVersion();
+  };
+
+})();
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+// tb_require('./video_container.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true, VideoContainer:true */
+/* exported MediaStream */
+
+var MediaStreamTrack = function MediaStreamTrack (mediaStreamId, options, plugin) {
+  this.id = options.id;
+  this.kind = options.kind;
+  this.label = options.label;
+  this.enabled = OT.$.castToBoolean(options.enabled);
+  this.streamId = mediaStreamId;
+
+  this.setEnabled = function (enabled) {
+    this.enabled = OT.$.castToBoolean(enabled);
+
+    if (this.enabled) {
+      plugin._.enableMediaStreamTrack(mediaStreamId, this.id);
+    }
+    else {
+      plugin._.disableMediaStreamTrack(mediaStreamId, this.id);
+    }
+  };
+};
+
+var MediaStream = function MediaStream (options, plugin) {
+  var audioTracks = [],
+      videoTracks = [];
+
+  this.id = options.id;
+  plugin.addRef(this);
+
+  // TODO
+  // this.ended =
+  // this.onended =
+
+  if (options.videoTracks) {
+    options.videoTracks.map(function(track) {
+      videoTracks.push( new MediaStreamTrack(options.id, track, plugin) );
+    });
+  }
+
+  if (options.audioTracks) {
+    options.audioTracks.map(function(track) {
+      audioTracks.push( new MediaStreamTrack(options.id, track, plugin) );
+    });
+  }
+
+  var hasTracksOfType = function (type) {
+    var tracks = type === 'video' ? videoTracks : audioTracks;
+
+    return OT.$.some(tracks, function(track) {
+      return track.enabled;
+    });
+  };
+
+  this.getVideoTracks = function () { return videoTracks; };
+  this.getAudioTracks = function () { return audioTracks; };
+
+  this.getTrackById = function (id) {
+    videoTracks.concat(audioTracks).forEach(function(track) {
+      if (track.id === id) return track;
+    });
+
+    return null;
+  };
+
+  this.hasVideo = function () {
+    return hasTracksOfType('video');
+  };
+
+  this.hasAudio = function () {
+    return hasTracksOfType('audio');
+  };
+
+  this.addTrack = function (/* MediaStreamTrack */) {
+    // TODO
+  };
+
+  this.removeTrack = function (/* MediaStreamTrack */) {
+    // TODO
+  };
+
+  this.stop = function() {
+    plugin._.stopMediaStream(this.id);
+    plugin.removeRef(this);
+  };
+
+  this.destroy = function() {
+    this.stop();
+  };
+
+  // Private MediaStream API
+  this._ = {
+    plugin: plugin,
+
+    // Get a VideoContainer to render the stream in.
+    render: OT.$.bind(function() {
+      return new VideoContainer(plugin, this);
+    }, this)
+  };
+};
+
+
+MediaStream.fromJson = function (json, plugin) {
+  if (!json) return null;
+  return new MediaStream( JSON.parse(json), plugin );
+};
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+
+/* global OT:true */
+/* exported PluginRumorSocket */
+
+var PluginRumorSocket = function(plugin, server) {
+  var connected = false,
+      rumorID;
+
+  try {
+    rumorID = plugin._.RumorInit(server, '');
+  }
+  catch(e) {
+    OT.error('Error creating the Rumor Socket: ', e.message);
+  }
+
+  if(!rumorID) {
+    throw new Error('Could not initialise plugin rumor connection');
+  }
+
+  var socket = {
+    open: function() {
+      connected = true;
+      plugin._.RumorOpen(rumorID);
+    },
+
+    close: function(code, reason) {
+      if (!connected) return;
+      connected = false;
+
+      plugin._.RumorClose(rumorID, code, reason);
+      plugin.removeRef(this);
+    },
+
+    destroy: function() {
+      this.close();
+    },
+
+    send: function(msg) {
+      plugin._.RumorSend(rumorID, msg.type, msg.toAddress,
+        JSON.parse(JSON.stringify(msg.headers)), msg.data);
+    },
+
+    onOpen: function(callback) {
+      plugin._.SetOnRumorOpen(rumorID, callback);
+    },
+
+    onClose: function(callback) {
+      plugin._.SetOnRumorClose(rumorID, callback);
+    },
+
+    onError: function(callback) {
+      plugin._.SetOnRumorError(rumorID, callback);
+    },
+
+    onMessage: function(callback) {
+      plugin._.SetOnRumorMessage(rumorID, callback);
+    }
+  };
+
+  plugin.addRef(socket);
+  return socket;
+
+};
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+// tb_require('./video_container.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true */
+/* exported MediaConstraints */
+
+var MediaConstraints = function(userConstraints) {
+  var constraints = OT.$.clone(userConstraints);
+
+  this.hasVideo = constraints.video !== void 0 && constraints.video !== false;
+  this.hasAudio = constraints.audio !== void 0 && constraints.audio !== false;
+
+  if (constraints.video === true) constraints.video = {};
+  if (constraints.audio === true)  constraints.audio = {};
+
+  if (this.hasVideo && !constraints.video.mandatory) {
+    constraints.video.mandatory = {};
+  }
+
+  if (this.hasAudio && !constraints.audio.mandatory) {
+    constraints.audio.mandatory = {};
+  }
+
+  this.screenSharing = this.hasVideo &&
+                ( constraints.video.mandatory.chromeMediaSource === 'screen' ||
+                  constraints.video.mandatory.chromeMediaSource === 'window' );
+
+  this.audio = constraints.audio;
+  this.video = constraints.video;
+
+  this.setVideoSource = function(sourceId) {
+    if (sourceId !== void 0) constraints.video.mandatory.sourceId =  sourceId;
+    else delete constraints.video;
+  };
+
+  this.setAudioSource = function(sourceId) {
+    if (sourceId !== void 0) constraints.audio.mandatory.sourceId =  sourceId;
+    else delete constraints.audio;
+  };
+
+  this.toHash = function() {
+    return constraints;
+  };
+};
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* exported RTCStatsReport */
+
+var RTCStatsReport = function (reports) {
+  this.forEach = function (callback, context) {
+    for (var id in reports) {
+      callback.call(context, reports[id]);
+    }
+  };
+};
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+// tb_require('./stats.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true, TBPlugin:true, MediaStream:true, RTCStatsReport:true */
+/* exported PeerConnection */
+
+// Our RTCPeerConnection shim, it should look like a normal PeerConection
+// from the outside, but it actually delegates to our plugin.
+//
+var PeerConnection = function PeerConnection (iceServers, options, plugin) {
+  var id = OT.$.uuid(),
+      hasLocalDescription = false,
+      hasRemoteDescription = false,
+      candidates = [];
+
+  plugin.addRef(this);
+
+  var onAddIceCandidate = function onAddIceCandidate () {/* success */},
+
+      onAddIceCandidateFailed = function onAddIceCandidateFailed (err) {
+        OT.error('Failed to process candidate');
+        OT.error(err);
+      },
+
+      processPendingCandidates = function processPendingCandidates () {
+        for (var i=0; i<candidates.length; ++i) {
+          plugin._.addIceCandidate(id, candidates[i], onAddIceCandidate, onAddIceCandidateFailed);
+        }
+      },
+
+      callAsync = function callAsync (/* fn, [arg1, arg2, ..., argN] */) {
+        var args = Array.prototype.slice.call(arguments),
+            fn = args.shift();
+
+        setTimeout(function() {
+          return fn.apply(null, args);
+        }, 0);
+      }/*,
+
+      attachEvent = function attachEvent (name, callback) {
+        if (plugin._.attachEvent) {
+          plugin._.attachEvent('on'+name, callback.bind(this));
+        } else {
+          plugin._.addEventListener(name, callback.bind(this), false);
+        }
+      }.bind(this)*/;
+
+  this.createOffer = function (success, error, constraints) {
+    OT.debug('createOffer', constraints);
+    plugin._.createOffer(id, function(type, sdp) {
+      success(new TBPlugin.RTCSessionDescription({
+        type: type,
+        sdp: sdp
+      }));
+    }, error, constraints || {});
+  };
+
+  this.createAnswer = function (success, error, constraints) {
+    OT.debug('createAnswer', constraints);
+    plugin._.createAnswer(id, function(type, sdp) {
+      success(new TBPlugin.RTCSessionDescription({
+        type: type,
+        sdp: sdp
+      }));
+    }, error, constraints || {});
+  };
+
+  this.setLocalDescription = function (description, success, error) {
+    OT.debug('setLocalDescription');
+
+    plugin._.setLocalDescription(id, description, function() {
+      hasLocalDescription = true;
+
+      if (hasRemoteDescription) processPendingCandidates();
+
+      if (success) success.call(null);
+    }, error);
+  };
+
+  this.setRemoteDescription = function (description, success, error) {
+    OT.debug('setRemoteDescription');
+
+    plugin._.setRemoteDescription(id, description, function() {
+      hasRemoteDescription = true;
+
+      if (hasLocalDescription) processPendingCandidates();
+      if (success) success.call(null);
+    }, error);
+  };
+
+  this.addIceCandidate = function (candidate) {
+    OT.debug('addIceCandidate');
+
+    if (hasLocalDescription && hasRemoteDescription) {
+      plugin._.addIceCandidate(id, candidate, onAddIceCandidate, onAddIceCandidateFailed);
+    }
+    else {
+      candidates.push(candidate);
+    }
+  };
+
+  this.addStream = function (stream) {
+    var constraints = {};
+    plugin._.addStream(id, stream, constraints);
+  };
+
+  this.removeStream = function (stream) {
+    plugin._.removeStream(id, stream);
+  };
+
+  this.getRemoteStreams = function () {
+    return plugin._.getRemoteStreams(id).map(function(stream) {
+      return MediaStream.fromJson(stream, plugin);
+    });
+  };
+
+  this.getLocalStreams = function () {
+    return plugin._.getLocalStreams(id).map(function(stream) {
+      return MediaStream.fromJson(stream, plugin);
+    });
+  };
+
+  this.getStreamById = function (streamId) {
+    return MediaStream.fromJson(plugin._.getStreamById(id, streamId), plugin);
+  };
+
+  this.getStats = function (mediaStreamTrack, success, error) {
+    plugin._.getStats(id, mediaStreamTrack || null, function(statsReportJson) {
+      var report = new RTCStatsReport(JSON.parse(statsReportJson));
+      callAsync(success, report);
+    }, error);
+  };
+
+  this.close = function () {
+    plugin._.destroyPeerConnection(id);
+    plugin.removeRef(this);
+  };
+
+  this.destroy = function () {
+    this.close();
+  };
+
+  // I want these to appear to be null, instead of undefined, if no
+  // callbacks are assigned. This more closely matches how the native
+  // objects appear and allows 'if (pc.onsignalingstatechange)' type
+  // feature detection to work.
+  this.onaddstream = null;
+  this.onremovestream = null;
+  this.onicecandidate = null;
+  this.onsignalingstatechange = null;
+  this.oniceconnectionstatechange = null;
+
+  // Both username and credential must exist, otherwise the plugin throws an error
+  OT.$.forEach(iceServers.iceServers, function(iceServer) {
+    if (!iceServer.username) iceServer.username = '';
+    if (!iceServer.credential) iceServer.credential = '';
+  });
+
+  if (!plugin._.initPeerConnection(id, iceServers, options)) {
+    OT.error('Failed to initialise PeerConnection');
+    // TODO: something sensible here
+    return;
+  }
+
+  plugin._.on(id, {
+    addStream: function(streamJson) {
+      setTimeout(function() {
+        if (this.onaddstream && OT.$.isFunction(this.onaddstream)) {
+          var stream = MediaStream.fromJson(streamJson, plugin);
+          callAsync(this.onaddstream, {stream: stream});
+        }
+      }.bind(this), 3000);
+    }.bind(this),
+
+    removeStream: function(streamJson) {
+      if (this.onremovestream && OT.$.isFunction(this.onremovestream)) {
+        var stream = MediaStream.fromJson(streamJson, plugin);
+        callAsync(this.onremovestream, {stream: stream});
+      }
+    }.bind(this),
+
+    iceCandidate: function(candidateSdp, sdpMid, sdpMLineIndex) {
+      if (this.onicecandidate && OT.$.isFunction(this.onicecandidate)) {
+
+        var candidate = new TBPlugin.RTCIceCandidate({
+          candidate: candidateSdp,
+          sdpMid: sdpMid,
+          sdpMLineIndex: sdpMLineIndex
+        });
+
+        callAsync(this.onicecandidate, {candidate: candidate});
+      }
+    }.bind(this),
+
+    signalingStateChange: function(state) {
+      if (this.onsignalingstatechange && OT.$.isFunction(this.onsignalingstatechange)) {
+        callAsync(this.onsignalingstatechange, state);
+      }
+    }.bind(this),
+
+    iceConnectionChange: function(state) {
+      if (this.oniceconnectionstatechange && OT.$.isFunction(this.oniceconnectionstatechange)) {
+        callAsync(this.oniceconnectionstatechange, state);
+      }
+    }.bind(this)
+  });
+};
+
+
+
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+// tb_require('./auto_updater.js')
+// tb_require('./media_constraints.js')
+// tb_require('./peer_connection.js')
+// tb_require('./media_stream.js')
+// tb_require('./video_container.js')
+// tb_require('./rumor.js')
+
+/* jshint globalstrict: true, strict: false, undef: true,
+          unused: true, trailing: true, browser: true, smarttabs:true */
+/* global ActiveXObject, OT, TBPlugin, scope, shim,
+          shimMutationObservers, PeerConnection, VideoContainer,
+          MediaStream, pluginReady:true, mediaCaptureObject, plugins,
+          createMediaCaptureController, createPeerController, removeAllObjects,
+          AutoUpdater, PluginRumorSocket, MediaConstraints */
+
+
+  /// Private Data
+
+var pluginInfo = {
+    mimeType: 'application/x-opentokie,version=0.4.0.8',
+    activeXName: 'TokBox.OpenTokIE.0.4.0.8',
+    version: '0.4.0.8'
+  },
+  _document = scope.document,
+  readyCallbacks = [];
+
+var debug = function (message, object) {
+  if (object) {
+    scope.OT.info('TB Plugin - ' + message + ' => ', object);
+  }
+  else {
+    scope.OT.info('TB Plugin - ' + message);
+  }
+};
+
+
+/// Private API
+
+var isDomReady = function isDomReady () {
+      return (_document.readyState === 'complete' ||
+             (_document.readyState === 'interactive' && _document.body));
+    },
+
+    onDomReady = function onDomReady () {
+      var callCompletionHandlers = function(err) {
+        var callback;
+
+        while ( (callback = readyCallbacks.pop()) && OT.$.isFunction(callback) ) {
+          callback.call(TBPlugin, err);
+        }
+      };
+
+      AutoUpdater.get(function(err, updater) {
+        if (err) {
+          OT.error('Error while loading the AutoUpdater: ' + err);
+          callCompletionHandlers('Error while loading the AutoUpdater: ' + err);
+          return;
+        }
+
+        // If the plugin is out of date then we kick off the
+        // auto update process and then bail out.
+        if (updater.isOutOfDate()) {
+          updater.autoUpdate();
+          return;
+        }
+
+        // Inject the controller object into the page, wait for it to load or timeout...
+        createMediaCaptureController(function(err) {
+          if (!err && (mediaCaptureObject && !mediaCaptureObject.isValid())) {
+            err = 'The TB Plugin failed to load properly';
+          }
+
+          pluginReady = true;
+          callCompletionHandlers(err);
+
+          OT.onUnload(destroy);
+        });
+      });
+    },
+
+    waitForDomReady = function waitForDomReady () {
+      if (isDomReady()) {
+        onDomReady();
+      }
+      else if (_document.addEventListener) {
+        _document.addEventListener('DOMContentLoaded', onDomReady, false);
+      } else if (_document.attachEvent) {
+        _document.attachEvent('onreadystatechange', function() {
+          if (_document.readyState === 'complete') onDomReady();
+        });
+      }
+    },
+
+    // @todo bind destroy to unload, may need to coordinate with TB
+    // jshint -W098
+    destroy = function destroy () {
+      removeAllObjects();
+    };
+
+
+/// Public API
+
+TBPlugin.isInstalled = function isInstalled () {
+  if (!this.isSupported()) return false;
+  return AutoUpdater.isinstalled();
+};
+
+TBPlugin.version = function version () {
+  return pluginInfo.version;
+};
+
+TBPlugin.installedVersion = function installedVersion () {
+  return AutoUpdater.installedVersion();
+};
+
+// Returns a URI to the TBPlugin installer that is paired with
+// this version of TBPlugin.js.
+TBPlugin.pathToInstaller = function pathToInstaller () {
+  return 'https://s3.amazonaws.com/otplugin.tokbox.com/v' +
+                    pluginInfo.version + '/otiePluginMain.msi';
+};
+
+// Trigger +callback+ when the plugin is ready
+//
+// Most of the public API cannot be called until
+// the plugin is ready.
+//
+TBPlugin.ready = function ready (callback) {
+  if (TBPlugin.isReady()) {
+    var err;
+
+    if (!mediaCaptureObject || !mediaCaptureObject.isValid()) {
+      err = 'The TB Plugin failed to load properly';
+    }
+
+    callback.call(TBPlugin, err);
+  }
+  else {
+    readyCallbacks.push(callback);
+  }
+};
+
+// Helper function for TBPlugin.getUserMedia
+var _getUserMedia = function _getUserMedia(mediaConstraints, success, error) {
+  createPeerController(function(err, plugin) {
+    if (err) {
+      error.call(TBPlugin, err);
+      return;
+    }
+
+    plugin._.getUserMedia(mediaConstraints.toHash(), function(streamJson) {
+      success.call(TBPlugin, MediaStream.fromJson(streamJson, plugin));
+    }, error);
+  });
+};
+
+// Equivalent to: window.getUserMedia(constraints, success, error);
+//
+// Except that the constraints won't be identical
+TBPlugin.getUserMedia = function getUserMedia (userConstraints, success, error) {
+  var constraints = new MediaConstraints(userConstraints);
+
+  if (constraints.screenSharing) {
+    _getUserMedia(constraints, success, error);
+  }
+  else {
+    var sources = [];
+    if (constraints.hasVideo) sources.push('video');
+    if (constraints.hasAudio) sources.push('audio');
+
+    mediaCaptureObject.selectSources(sources, function(captureDevices) {
+      for (var key in captureDevices) {
+        if (captureDevices.hasOwnProperty(key)) {
+          OT.debug(key + ' Capture Device: ' + captureDevices[key]);
+        }
+      }
+
+      // Use the sources to acquire the hardware and start rendering
+      constraints.setVideoSource(captureDevices.video);
+      constraints.setAudioSource(captureDevices.audio);
+
+      _getUserMedia(constraints, success, error);
+    }, error);
+  }
+};
+
+TBPlugin.initRumorSocket = function(messagingURL, completion) {
+  TBPlugin.ready(function(error) {
+    if(error) {
+      completion(error);
+    } else {
+      completion(null, new PluginRumorSocket(mediaCaptureObject, messagingURL));
+    }
+  });
+};
+
+
+// Equivalent to: var pc = new window.RTCPeerConnection(iceServers, options);
+//
+// Except that it is async and takes a completion handler
+TBPlugin.initPeerConnection = function initPeerConnection (iceServers,
+                                                           options,
+                                                           localStream,
+                                                           completion) {
+
+  var gotPeerObject = function(err, plugin) {
+    if (err) {
+      completion.call(TBPlugin, err);
+      return;
+    }
+
+    debug('Got PeerConnection for ' + plugin.id);
+    var peerConnection = new PeerConnection(iceServers, options, plugin);
+
+    completion.call(TBPlugin, null, peerConnection);
+  };
+
+  // @fixme this is nasty and brittle. We need some way to use the same Object
+  // for the PeerConnection that was used for the getUserMedia call (in the case
+  // of publishers). We don't really have a way of implicitly associating them though.
+  // Hence, publishers will have to pass through their localStream (if they have one)
+  // and we will look up the original Object and use that. Otherwise we generate
+  // a new one.
+  if (localStream && localStream._.plugin) {
+    gotPeerObject(null, localStream._.plugin);
+  }
+  else {
+    createPeerController(gotPeerObject);
+  }
+};
+
+// A RTCSessionDescription like object exposed for native WebRTC compatability
+TBPlugin.RTCSessionDescription = function RTCSessionDescription (options) {
+  this.type = options.type;
+  this.sdp = options.sdp;
+};
+
+// A RTCIceCandidate like object exposed for native WebRTC compatability
+TBPlugin.RTCIceCandidate = function RTCIceCandidate (options) {
+  this.sdpMid = options.sdpMid;
+  this.sdpMLineIndex = parseInt(options.sdpMLineIndex, 10);
+  this.candidate = options.candidate;
+};
+
+
+// Make this available for now
+TBPlugin.debug = debug;
+
+shim();
+
+waitForDomReady();
+
+// tb_require('./tb_plugin.js')
+/* jshint ignore:start */
+})(this);
+/* jshint ignore:end */
+
 !(function() {
 /*global OT:true */
 
@@ -3186,6 +5309,21 @@ OTHelpers.centerElement = function(element, width, height) {
   // the video element is first created. If the aspect ratio changes at a later point
   // this calculation will become incorrect.
   function fixAspectRatio(element, width, height, desiredAspectRatio, rotated) {
+
+    if (TBPlugin.isInstalled()) {
+      // The plugin will sort out it's own aspect ratio, so we
+      // only need to tell the container to expand to fit it's parent.
+
+      OT.$.css(element, {
+        width: '100%',
+        height: '100%',
+        left: 0,
+        top: 0
+      });
+
+      return;
+    }
+
     if (!width) width = parseInt(OT.$.width(element.parentNode), 10);
     else width = parseInt(width, 10);
 
@@ -3315,7 +5453,8 @@ OTHelpers.centerElement = function(element, width, height) {
         loadingContainer,
         width,
         height,
-        loading = true;
+        loading = true,
+        audioOnly = false;
 
     if (properties) {
       width = properties.width;
@@ -3364,48 +5503,50 @@ OTHelpers.centerElement = function(element, width, height) {
     oldContainerStyles.width = container.offsetWidth;
     oldContainerStyles.height = container.offsetHeight;
 
-    // Observe changes to the width and height and update the aspect ratio
-    dimensionsObserver = OT.$.observeStyleChanges(container, ['width', 'height'],
-      function(changeSet) {
-      var width = changeSet.width ? changeSet.width[1] : container.offsetWidth,
-          height = changeSet.height ? changeSet.height[1] : container.offsetHeight;
-      fixMini(container, width, height);
-      fixAspectRatio(videoContainer, width, height, videoElement ?
-        videoElement.aspectRatio : null);
-    });
-
-
-    // @todo observe if the video container or the video element get removed
-    // if they do we should do some cleanup
-    videoObserver = OT.$.observeNodeOrChildNodeRemoval(container, function(removedNodes) {
-      if (!videoElement) return;
-
-      // This assumes a video element being removed is the main video element. This may
-      // not be the case.
-      var videoRemoved = removedNodes.some(function(node) {
-        return node === videoContainer || node.nodeName === 'VIDEO';
+    if (!TBPlugin.isInstalled()) {
+      // Observe changes to the width and height and update the aspect ratio
+      dimensionsObserver = OT.$.observeStyleChanges(container, ['width', 'height'],
+        function(changeSet) {
+        var width = changeSet.width ? changeSet.width[1] : container.offsetWidth,
+            height = changeSet.height ? changeSet.height[1] : container.offsetHeight;
+        fixMini(container, width, height);
+        fixAspectRatio(videoContainer, width, height, videoElement ?
+          videoElement.aspectRatio() : null);
       });
 
-      if (videoRemoved) {
-        videoElement.destroy();
-        videoElement = null;
-      }
 
-      if (videoContainer) {
-        OT.$.removeElement(videoContainer);
-        videoContainer = null;
-      }
+      // @todo observe if the video container or the video element get removed
+      // if they do we should do some cleanup
+      videoObserver = OT.$.observeNodeOrChildNodeRemoval(container, function(removedNodes) {
+        if (!videoElement) return;
 
-      if (dimensionsObserver) {
-        dimensionsObserver.disconnect();
-        dimensionsObserver = null;
-      }
+        // This assumes a video element being removed is the main video element. This may
+        // not be the case.
+        var videoRemoved = OT.$.some(removedNodes, function(node) {
+          return node === videoContainer || node.nodeName === 'VIDEO';
+        });
 
-      if (videoObserver) {
-        videoObserver.disconnect();
-        videoObserver = null;
-      }
-    });
+        if (videoRemoved) {
+          videoElement.destroy();
+          videoElement = null;
+        }
+
+        if (videoContainer) {
+          OT.$.removeElement(videoContainer);
+          videoContainer = null;
+        }
+
+        if (dimensionsObserver) {
+          dimensionsObserver.disconnect();
+          dimensionsObserver = null;
+        }
+
+        if (videoObserver) {
+          videoObserver.disconnect();
+          videoObserver = null;
+        }
+      });
+    }
 
     this.destroy = function() {
       if (dimensionsObserver) {
@@ -3429,14 +5570,84 @@ OTHelpers.centerElement = function(element, width, height) {
       }
     };
 
-    Object.defineProperties(this, {
+    this.setBackgroundImageURI = function(bgImgURI) {
+      if (bgImgURI.substr(0, 5) !== 'http:' && bgImgURI.substr(0, 6) !== 'https:') {
+        if (bgImgURI.substr(0, 22) !== 'data:image/png;base64,') {
+          bgImgURI = 'data:image/png;base64,' + bgImgURI;
+        }
+      }
+      OT.$.css(posterContainer, 'backgroundImage', 'url(' + bgImgURI + ')');
+      OT.$.css(posterContainer, 'backgroundSize', 'contain');
+      OT.$.css(posterContainer, 'opacity', '1.0');
+    };
 
+    if (properties && properties.style && properties.style.backgroundImageURI) {
+      this.setBackgroundImageURI(properties.style.backgroundImageURI);
+    }
+
+    this.bindVideo = function(webRTCStream, options, completion) {
+      // remove the old video element if it exists
+      // @todo this might not be safe, publishers/subscribers use this as well...
+      if (videoElement) {
+        videoElement.destroy();
+        videoElement = null;
+      }
+
+      var onError = options && options.error ? options.error : void 0;
+      delete options.error;
+
+      var video = new OT.VideoElement({ attributes: options }, onError);
+
+      // Initialize the audio volume
+      if (options.audioVolume) video.setAudioVolume(options.audioVolume);
+
+      // makes the incoming audio streams take priority (will impact only FF OS for now)
+      video.audioChannelType('telephony');
+
+      video.appendTo(videoContainer).bindToStream(webRTCStream, function(err) {
+        if (err) {
+          video.destroy();
+          completion(err);
+          return;
+        }
+
+        videoElement = video;
+
+        videoElement.on({
+          orientationChanged: function(){
+            fixAspectRatio(videoContainer, container.offsetWidth, container.offsetHeight,
+              videoElement.aspectRatio(), videoElement.isRotated());
+          }
+        });
+
+        var fix = function() {
+          fixAspectRatio(videoContainer, container.offsetWidth, container.offsetHeight,
+            videoElement ? videoElement.aspectRatio() : null,
+            videoElement ? videoElement.isRotated() : null);
+        };
+
+        if(isNaN(videoElement.aspectRatio())) {
+          videoElement.on('streamBound', fix);
+        } else {
+          fix();
+        }
+
+        completion(null, video);
+      });
+
+      return video;
+    };
+
+    this.video = function() { return videoElement; };
+
+
+    OT.$.defineProperties(this, {
       showPoster: {
         get: function() {
           return !OT.$.isDisplayNone(posterContainer);
         },
-        set: function(shown) {
-          if(shown) {
+        set: function(newValue) {
+          if(newValue) {
             OT.$.show(posterContainer);
           } else {
             OT.$.hide(posterContainer);
@@ -3466,46 +5677,26 @@ OTHelpers.centerElement = function(element, width, height) {
         }
       },
 
-      video: {
-        get: function() { return videoElement; },
-        set: function(video) {
-          // remove the old video element if it exists
-          // @todo this might not be safe, publishers/subscribers use this as well...
-          if (videoElement) videoElement.destroy();
+      audioOnly: {
+        get: function() { return audioOnly; },
+        set: function(a) {
+          audioOnly = a;
 
-          video.appendTo(videoContainer);
-          videoElement = video;
-
-          videoElement.on({
-            orientationChanged: function(){
-              fixAspectRatio(videoContainer, container.offsetWidth, container.offsetHeight,
-                videoElement.aspectRatio, videoElement.isRotated);
-            }
-          });
-
-          if (videoElement) {
-            var fix = function() {
-              fixAspectRatio(videoContainer, container.offsetWidth, container.offsetHeight,
-                videoElement ? videoElement.aspectRatio : null,
-                videoElement ? videoElement.isRotated : null);
-            };
-            if(isNaN(videoElement.aspectRatio)) {
-              videoElement.on('streamBound', fix);
-            } else {
-              fix();
-            }
+          if (audioOnly) {
+            OT.$.addClass(container, 'OT_audio-only');
+          } else {
+            OT.$.removeClass(container, 'OT_audio-only');
           }
         }
-      },
-
-      domElement: {
-        get: function() { return container; }
       },
 
       domId: {
         get: function() { return container.getAttribute('id'); }
       }
+
     });
+
+    this.domElement = container;
 
     this.addError = function(errorMsg, helpMsg, classNames) {
       container.innerHTML = '<p>' + errorMsg +
@@ -3522,26 +5713,8 @@ OTHelpers.centerElement = function(element, width, height) {
 // Web OT Helpers
 !(function(window) {
 
-  /* global mozRTCPeerConnection */
-
-  var nativeGetUserMedia,
-      vendorToW3CErrors,
-      gumNamesToMessages,
-      mapVendorErrorName,
-      parseErrorEvent,
-      areInvalidConstraints;
-
-  // Handy cross-browser getUserMedia shim. Inspired by some code from Adam Barth
-  nativeGetUserMedia = (function() {
-    if (navigator.getUserMedia) {
-      return navigator.getUserMedia.bind(navigator);
-    } else if (navigator.mozGetUserMedia) {
-      return navigator.mozGetUserMedia.bind(navigator);
-    } else if (navigator.webkitGetUserMedia) {
-      return navigator.webkitGetUserMedia.bind(navigator);
-    }
-  })();
-
+  var NativeRTCPeerConnection = (window.webkitRTCPeerConnection ||
+                                 window.mozRTCPeerConnection);
 
   if (navigator.webkitGetUserMedia) {
     /*global webkitMediaStream, webkitRTCPeerConnection*/
@@ -3603,6 +5776,189 @@ OTHelpers.centerElement = function(element, width, height) {
     // }
   }
 
+  // The setEnabled method on MediaStreamTracks is a TBPlugin
+  // construct. In this particular instance it's easier to bring
+  // all the good browsers down to IE's level than bootstrap it up.
+  if (typeof window.MediaStreamTrack !== 'undefined') {
+    if (!window.MediaStreamTrack.prototype.setEnabled) {
+      window.MediaStreamTrack.prototype.setEnabled = function (enabled) {
+        this.enabled = OT.$.castToBoolean(enabled);
+      };
+    }
+  }
+
+
+  OT.$.createPeerConnection = function (config, options, publishersWebRtcStream, completion) {
+    if (TBPlugin.isInstalled()) {
+      TBPlugin.initPeerConnection(config, options,
+                                  publishersWebRtcStream, completion);
+    }
+    else {
+      var pc;
+
+      try {
+        pc = new NativeRTCPeerConnection(config, options);
+      } catch(e) {
+        completion(e.message);
+        return;
+      }
+
+      completion(null, pc);
+    }
+  };
+
+  // Returns a String representing the supported WebRTC crypto scheme. The possible
+  // values are SDES_SRTP, DTLS_SRTP, and NONE;
+  //
+  // Broadly:
+  // * Firefox only supports DTLS
+  // * Older versions of Chrome (<= 24) only support SDES
+  // * Newer versions of Chrome (>= 25) support DTLS and SDES
+  //
+  OT.$.supportedCryptoScheme = function() {
+    if (!OT.$.hasCapabilities('webrtc')) return 'NONE';
+
+    var chromeVersion = window.navigator.userAgent.toLowerCase().match(/chrome\/([0-9\.]+)/i);
+    return chromeVersion && parseFloat(chromeVersion[1], 10) < 25 ? 'SDES_SRTP' : 'DTLS_SRTP';
+  };
+
+})(window);
+// Web OT Helpers
+!(function(window) {
+
+  /* jshint globalstrict: true, strict: false, undef: true, unused: true,
+            trailing: true, browser: true, smarttabs:true */
+  /* global TBPlugin, OT */
+
+  ///
+  // Capabilities
+  //
+  // Support functions to query browser/client Media capabilities.
+  //
+
+
+  // Indicates whether this client supports the getUserMedia
+  // API.
+  //
+  OT.$.registerCapability('getUserMedia', function() {
+    return !!(navigator.webkitGetUserMedia || navigator.mozGetUserMedia || TBPlugin.isInstalled());
+  });
+
+
+  // TODO Remove all PeerConnection stuff, that belongs to the messaging layer not the Media layer.
+  // Indicates whether this client supports the PeerConnection
+  // API.
+  //
+  // Chrome Issues:
+  // * The explicit prototype.addStream check is because webkitRTCPeerConnection was
+  // partially implemented, but not functional, in Chrome 22.
+  //
+  // Firefox Issues:
+  // * No real support before Firefox 19
+  // * Firefox 19 has issues with generating Offers.
+  // * Firefox 20 doesn't interoperate with Chrome.
+  //
+  OT.$.registerCapability('PeerConnection', function() {
+    var browser = OT.$.browserVersion();
+
+    if (navigator.webkitGetUserMedia) {
+      return typeof(window.webkitRTCPeerConnection) === 'function' &&
+                      !!window.webkitRTCPeerConnection.prototype.addStream;
+
+    } else if (navigator.mozGetUserMedia) {
+      if (typeof(window.mozRTCPeerConnection) === 'function' && browser.version > 20.0) {
+        try {
+          new window.mozRTCPeerConnection();
+          return true;
+        } catch (err) {
+          return false;
+        }
+      }
+    } else {
+      return TBPlugin.isInstalled();
+    }
+  });
+
+
+  // Indicates whether this client supports WebRTC
+  //
+  // This is defined as: getUserMedia + PeerConnection + exceeds min browser version
+  //
+  OT.$.registerCapability('webrtc', function() {
+    var browser = OT.$.browserVersion(),
+        minimumVersions = OT.properties.minimumVersion || {},
+        minimumVersion = minimumVersions[browser.browser.toLowerCase()];
+
+    if(minimumVersion && minimumVersion > browser.version) {
+      OT.debug('Support for', browser.browser, 'is disabled because we require',
+        minimumVersion, 'but this is', browser.version);
+      return false;
+    }
+
+
+    return OT.$.hasCapabilities('getUserMedia', 'PeerConnection');
+  });
+
+
+  // TODO Remove all transport stuff, that belongs to the messaging layer not the Media layer.
+  // Indicates if the browser supports bundle
+  //
+  // Broadly:
+  // * Firefox doesn't support bundle
+  // * Chrome support bundle
+  // * OT Plugin supports bundle
+  //
+  OT.$.registerCapability('bundle', function() {
+    return OT.$.hasCapabilities('webrtc') &&
+              (OT.$.browser() === 'Chrome' || TBPlugin.isInstalled());
+  });
+
+
+  // Indicates if the browser supports rtcp mux
+  //
+  // Broadly:
+  // * Older versions of Firefox (<= 25) don't support rtcp mux
+  // * Older versions of Firefox (>= 26) support rtcp mux (not tested yet)
+  // * Chrome support rtcp mux
+  // * OT Plugin supports rtcp mux
+  //
+  OT.$.registerCapability('RTCPMux', function() {
+    return OT.$.hasCapabilities('webrtc') &&
+                (OT.$.browser() === 'Chrome' || TBPlugin.isInstalled());
+  });
+
+
+
+  // Indicates whether this browser supports the getMediaDevices (getSources) API.
+  //
+  OT.$.registerCapability('getMediaDevices', function() {
+    return OT.$.isFunction(window.MediaStreamTrack) &&
+              OT.$.isFunction(window.MediaStreamTrack.getSources);
+  });
+
+})(window);
+// Web OT Helpers
+!(function() {
+
+  var nativeGetUserMedia,
+      vendorToW3CErrors,
+      gumNamesToMessages,
+      mapVendorErrorName,
+      parseErrorEvent,
+      areInvalidConstraints;
+
+  // Handy cross-browser getUserMedia shim. Inspired by some code from Adam Barth
+  nativeGetUserMedia = (function() {
+    if (navigator.getUserMedia) {
+      return OT.$.bind(navigator.getUserMedia, navigator);
+    } else if (navigator.mozGetUserMedia) {
+      return OT.$.bind(navigator.mozGetUserMedia, navigator);
+    } else if (navigator.webkitGetUserMedia) {
+      return OT.$.bind(navigator.webkitGetUserMedia, navigator);
+    } else if (TBPlugin.isInstalled()) {
+      return OT.$.bind(TBPlugin.getUserMedia, TBPlugin);
+    }
+  })();
 
   // Mozilla error strings and the equivalent W3C names. NOT_SUPPORTED_ERROR does not
   // exist in the spec right now, so we'll include Mozilla's error description.
@@ -3687,109 +6043,6 @@ OTHelpers.centerElement = function(element, width, height) {
     return true;
   };
 
-  // Returns true if the client supports Web RTC, false otherwise.
-  //
-  // Chrome Issues:
-  // * The explicit prototype.addStream check is because webkitRTCPeerConnection was
-  // partially implemented, but not functional, in Chrome 22.
-  //
-  // Firefox Issues:
-  // * No real support before Firefox 19
-  // * Firefox 19 has issues with generating Offers.
-  // * Firefox 20 doesn't interoperate with Chrome.
-  //
-  OT.$.supportsWebRTC = function() {
-    var _supportsWebRTC = false;
-
-    var browser = OT.$.browserVersion(),
-        minimumVersions = OT.properties.minimumVersion || {},
-        minimumVersion = minimumVersions[browser.browser.toLowerCase()];
-
-    if(minimumVersion && minimumVersion > browser.version) {
-      OT.debug('Support for', browser.browser, 'is disabled because we require',
-        minimumVersion, 'but this is', browser.version);
-      _supportsWebRTC = false;
-
-    } else if (navigator.webkitGetUserMedia) {
-      _supportsWebRTC = typeof(webkitRTCPeerConnection) === 'function' &&
-        !!webkitRTCPeerConnection.prototype.addStream;
-
-    } else if (navigator.mozGetUserMedia) {
-      if (typeof(mozRTCPeerConnection) === 'function' && browser.version > 20.0) {
-        try {
-          new mozRTCPeerConnection();
-          _supportsWebRTC = true;
-        } catch (err) {
-          _supportsWebRTC = false;
-        }
-      }
-    }
-
-    OT.$.supportsWebRTC = function() {
-      return _supportsWebRTC;
-    };
-
-    return _supportsWebRTC;
-  };
-
-  // Returns a String representing the supported WebRTC crypto scheme. The possible
-  // values are SDES_SRTP, DTLS_SRTP, and NONE;
-  //
-  // Broadly:
-  // * Firefox only supports DTLS
-  // * Older versions of Chrome (<= 24) only support SDES
-  // * Newer versions of Chrome (>= 25) support DTLS and SDES
-  //
-  OT.$.supportedCryptoScheme = function() {
-    if (!OT.$.supportsWebRTC()) return 'NONE';
-
-    var chromeVersion = window.navigator.userAgent.toLowerCase().match(/chrome\/([0-9\.]+)/i);
-    return chromeVersion && parseFloat(chromeVersion[1], 10) < 25 ? 'SDES_SRTP' : 'DTLS_SRTP';
-  };
-
-  // Returns true if the browser supports bundle
-  //
-  // Broadly:
-  // * Firefox doesn't support bundle
-  // * Chrome support bundle
-  //
-  OT.$.supportsBundle = function() {
-    return OT.$.supportsWebRTC() && OT.$.browser() === 'Chrome';
-  };
-
-  // Returns true if the browser supports rtcp mux
-  //
-  // Broadly:
-  // * Older versions of Firefox (<= 25) don't support rtcp mux
-  // * Older versions of Firefox (>= 26) support rtcp mux (not tested yet)
-  // * Chrome support bundle
-  //
-  OT.$.supportsRtcpMux = function() {
-    return OT.$.supportsWebRTC() && OT.$.browser() === 'Chrome';
-  };
-
-  OT.$.shouldAskForDevices = function(callback) {
-    var memoiseReply = function(audio, video) {
-      OT.$.shouldAskForDevices = function(callback) {
-        setTimeout(callback.bind(null, { video: video, audio: audio }));
-      };
-      OT.$.shouldAskForDevices(callback);
-    };
-    var MST = window.MediaStreamTrack;
-    if(MST != null && OT.$.isFunction(MST.getSources)) {
-      window.MediaStreamTrack.getSources(function(sources) {
-        var hasAudio = sources.some(function(src) {
-          return src.kind === 'audio';
-        });
-        var hasVideo = sources.some(function(src) {
-          return src.kind === 'video';
-        });
-        memoiseReply(hasAudio, hasVideo);
-      });
-    } else {
-      memoiseReply(true, true);
-    }
-  };
 
   // A wrapper for the builtin navigator.getUserMedia. In addition to the usual
   // getUserMedia behaviour, this helper method also accepts a accessDialogOpened
@@ -3821,7 +6074,6 @@ OTHelpers.centerElement = function(element, width, height) {
   //      Called when access is denied to the camera/mic. This will be either because
   //      the user has clicked deny or because a particular origin is permanently denied.
   //
-
   OT.$.getUserMedia = function(constraints, success, failure, accessDialogOpened,
     accessDialogClosed, accessDenied, customGetUserMedia) {
 
@@ -3909,18 +6161,76 @@ OTHelpers.centerElement = function(element, width, height) {
     }
   };
 
-  OT.$.createPeerConnection = function (config, options) {
-    var NativeRTCPeerConnection = (window.webkitRTCPeerConnection || window.mozRTCPeerConnection);
-    return new NativeRTCPeerConnection(config, options);
+})();
+// Web OT Helpers
+!(function(window) {
+
+  /* jshint globalstrict: true, strict: false, undef: true, unused: true,
+            trailing: true, browser: true, smarttabs:true */
+  /* global OT */
+
+  ///
+  // Device Helpers
+  //
+  // Support functions to enumerating and guerying device info
+  //
+
+  var chromeToW3CDeviceKinds = {
+    audio: 'audioInput',
+    video: 'videoInput'
+  };
+
+
+  OT.$.shouldAskForDevices = function(callback) {
+    var MST = window.MediaStreamTrack;
+
+    if(MST != null && OT.$.isFunction(MST.getSources)) {
+      window.MediaStreamTrack.getSources(function(sources) {
+        var hasAudio = sources.some(function(src) {
+          return src.kind === 'audio';
+        });
+
+        var hasVideo = sources.some(function(src) {
+          return src.kind === 'video';
+        });
+
+        callback.call(null, { video: hasVideo, audio: hasAudio });
+      });
+
+    } else {
+      // This environment can't enumerate devices anyway, so we'll memorise this result.
+      OT.$.shouldAskForDevices = function(callback) {
+        setTimeout(OT.$.bind(callback, null, { video: true, audio: true }));
+      };
+
+      OT.$.shouldAskForDevices(callback);
+    }
+  };
+
+
+  OT.$.getMediaDevices = function(callback) {
+    if(OT.$.hasCapabilities('getMediaDevices')) {
+      window.MediaStreamTrack.getSources(function(sources) {
+        var filteredSources = OT.$.filter(sources, function(source) {
+          return chromeToW3CDeviceKinds[source.kind] != null;
+        });
+        callback(void 0, OT.$.map(filteredSources, function(source) {
+          return {
+            deviceId: source.id,
+            label: source.label,
+            kind: chromeToW3CDeviceKinds[source.kind]
+          };
+        }));
+      });
+    } else {
+      callback(new Error('This browser does not support getMediaDevices APIs'));
+    }
   };
 
 })(window);
-!(function(window) {
+(function(window) {
 
-  var _videoErrorCodes = {},
-      VideoOrientationTransforms;
-
-  VideoOrientationTransforms = {
+  var VideoOrientationTransforms = {
     0: 'rotate(0deg)',
     270: 'rotate(90deg)',
     90: 'rotate(-90deg)',
@@ -3934,22 +6244,20 @@ OTHelpers.centerElement = function(element, width, height) {
     ROTATED_UPSIDE_DOWN: 180
   };
 
+  var DefaultAudioVolume = 50;
+
+  var DEGREE_TO_RADIANS = Math.PI * 2 / 360;
+
+  //
+  //
   //   var _videoElement = new OT.VideoElement({
   //     fallbackText: 'blah'
-  //   });
+  //   }, errorHandler);
   //
-  //   _videoElement.on({
-  //     streamBound: function() {...},
-  //     loadError: function() {...},
-  //     error: function() {...}
-  //   });
+  //   _videoElement.bindToStream(webRtcStream, completion);      // => VideoElement
+  //   _videoElement.appendTo(DOMElement)                         // => VideoElement
   //
-  //   _videoElement.bindToStream(webRtcStream);      // => VideoElement
-  //   _videoElement.appendTo(DOMElement)             // => VideoElement
-  //
-  //   _videoElement.stream                           // => Web RTC stream
   //   _videoElement.domElement                       // => DomNode
-  //   _videoElement.parentElement                    // => DomNode
   //
   //   _videoElement.imgData                          // => PNG Data string
   //
@@ -3957,155 +6265,383 @@ OTHelpers.centerElement = function(element, width, height) {
   //
   //   _videoElement.unbindStream();
   //   _videoElement.destroy()                        // => Completely cleans up and
-  //                                                  // removes the video element
+  //                                                        removes the video element
   //
   //
-  OT.VideoElement = function(options) {
-    var _stream,
-        _domElement,
-        _parentElement,
-        _streamBound = false,
-        _videoElementMovedWarning = false,
-        _options,
-        _onVideoError,
-        _onStreamBound,
-        _onStreamBoundError,
-        _playVideoOnPause;
+  OT.VideoElement = function(/* optional */ options/*, optional errorHandler*/) {
+    var _options = OT.$.defaults( options && !OT.$.isFunction(options) ? options : {}, {
+        fallbackText: 'Sorry, Web RTC is not available in your browser'
+      }),
 
-    _options = OT.$.defaults(options || {}, {
-      fallbackText: 'Sorry, Web RTC is not available in your browser'
-    });
+      errorHandler = OT.$.isFunction(arguments[arguments.length-1]) ?
+                                    arguments[arguments.length-1] : void 0,
+
+      orientationHandler = OT.$.bind(function(orientation) {
+        this.trigger('orientationChanged', orientation);
+      }, this),
+
+      _videoElement = TBPlugin.isInstalled() ?
+                            new PluginVideoElement(_options, errorHandler, orientationHandler) :
+                            new NativeDOMVideoElement(_options, errorHandler, orientationHandler),
+      _streamBound = false,
+      _stream,
+      _preInitialisedVolue;
 
     OT.$.eventing(this);
 
-    /// Private API
-    _onVideoError = function(event) {
-      var reason = 'There was an unexpected problem with the Video Stream: ' +
-        videoElementErrorCodeToStr(event.target.error.code);
-      this.trigger('error', null, reason, this, 'VideoElement');
-    }.bind(this);
+    // Public Properties
+    OT.$.defineProperties(this, {
 
-    _onStreamBound = function() {
-      _streamBound = true;
-      _domElement.addEventListener('error', _onVideoError, false);
-      this.trigger('streamBound', this);
-    }.bind(this);
-
-    _onStreamBoundError = function(reason) {
-      this.trigger('loadError', OT.ExceptionCodes.P2P_CONNECTION_FAILED, reason, this,
-        'VideoElement');
-    }.bind(this);
-
-    // The video element pauses itself when it's reparented, this is
-    // unfortunate. This function plays the video again and is triggered
-    // on the pause event.
-    _playVideoOnPause = function() {
-      if(!_videoElementMovedWarning) {
-        OT.warn('Video element paused, auto-resuming. If you intended to do this, use ' +
-          'publishVideo(false) or subscribeToVideo(false) instead.');
-        _videoElementMovedWarning = true;
-      }
-      _domElement.play();
-    };
-
-
-    _domElement = createVideoElement(_options.fallbackText, _options.attributes);
-
-    _domElement.addEventListener('pause', _playVideoOnPause);
-
-    /// Public Properties
-    Object.defineProperties(this, {
-      stream: {
-        get: function() {return _stream; }
-      },
       domElement: {
-        get: function() {return _domElement; }
-      },
-      parentElement: {
-        get: function() {return _parentElement; }
-      },
-      isBoundToStream: {
-        get: function() { return _streamBound; }
-      },
-      poster: {
         get: function() {
-          return _domElement.getAttribute('poster');
+          return _videoElement.domElement();
+        }
+      },
+
+      videoWidth: {
+        get: function() {
+          return _videoElement['video' + (this.isRotated() ? 'Height' : 'Width')]();
+        }
+      },
+
+      videoHeight: {
+        get: function() {
+          return _videoElement['video' + (this.isRotated() ? 'Width' : 'Height')]();
+        }
+      },
+
+      aspectRatio: {
+        get: function() {
+          return (this.videoWidth() + 0.0) / this.videoHeight();
+        }
+      },
+
+      isRotated: {
+        get: function() {
+          return _videoElement.isRotated();
+        }
+      },
+
+      orientation: {
+        get: function() {
+          return _videoElement.orientation();
         },
-        set: function(src) {
-          _domElement.setAttribute('poster', src);
+        set: function(orientation) {
+          _videoElement.orientation(orientation);
+        }
+      },
+
+      audioChannelType: {
+        get: function() {
+          return _videoElement.audioChannelType();
+        },
+        set: function(type) {
+          _videoElement.audioChannelType(type);
         }
       }
     });
 
+    // Public Methods
 
-    /// Public methods
+    this.imgData = function() {
+      return _videoElement.imgData();
+    };
 
-    // Append the Video DOM element to a parent node
     this.appendTo = function(parentDomElement) {
-      _parentElement = parentDomElement;
-      _parentElement.appendChild(_domElement);
+      _videoElement.appendTo(parentDomElement);
+      return this;
+    };
+
+    this.bindToStream = function(webRtcStream, completion) {
+      _streamBound = false;
+      _stream = webRtcStream;
+
+      _videoElement.bindToStream(webRtcStream, OT.$.bind(function(err) {
+        if (err) {
+          completion(err);
+          return;
+        }
+
+        _streamBound = true;
+
+        if (_preInitialisedVolue) {
+          this.setAudioVolume(_preInitialisedVolue);
+          _preInitialisedVolue = null;
+        }
+
+        completion(null);
+      }, this));
 
       return this;
     };
 
-    // Bind a stream to the video element.
-    this.bindToStream = function(webRtcStream) {
-      _streamBound = false;
-      _stream = webRtcStream;
+    this.unbindStream = function() {
+      if (!_stream) return this;
 
-      bindStreamToVideoElement(_domElement, _stream, _onStreamBound, _onStreamBoundError);
+      _stream = null;
+      _videoElement.unbindStream();
+      return this;
+    };
+
+    this.setAudioVolume = function (value) {
+      if (_streamBound) _videoElement.setAudioVolume( OT.$.roundFloat(value / 100, 2) );
+      else _preInitialisedVolue = value;
+
+      return this;
+    };
+
+    this.getAudioVolume = function () {
+      if (_streamBound) return parseInt(_videoElement.getAudioVolume() * 100, 10);
+      else return _preInitialisedVolue || 50;
+    };
+
+
+    this.whenTimeIncrements = function (callback, context) {
+      _videoElement.whenTimeIncrements(callback, context);
+      return this;
+    };
+
+    this.destroy = function () {
+      // unbind all events so they don't fire after the object is dead
+      this.off();
+
+      _videoElement.destroy();
+      return void 0;
+    };
+  };
+
+  var PluginVideoElement = function PluginVideoElement (options,
+                                                        errorHandler,
+                                                        orientationChangedHandler) {
+    var _videoProxy,
+        _parentDomElement;
+
+    canBeOrientatedMixin(this,
+                          function() { return _videoProxy.domElement; },
+                          orientationChangedHandler);
+
+    /// Public methods
+
+    this.domElement = function() {
+      return _videoProxy ? _videoProxy.domElement : void 0;
+    };
+
+    this.videoWidth = function() {
+      return _videoProxy ? _videoProxy.getVideoWidth() : void 0;
+    };
+
+    this.videoHeight = function() {
+      return _videoProxy ? _videoProxy.getVideoHeight() : void 0;
+    };
+
+    this.imgData = function() {
+      return _videoProxy ? _videoProxy.getImgData() : null;
+    };
+
+    // Append the Video DOM element to a parent node
+    this.appendTo = function(parentDomElement) {
+      _parentDomElement = parentDomElement;
+      return this;
+    };
+
+    // Bind a stream to the video element.
+    this.bindToStream = function(webRtcStream, completion) {
+      if (!_parentDomElement) {
+        completion('The VideoElement must attached to a DOM node before a stream can be bound');
+        return;
+      }
+
+      _videoProxy = webRtcStream._.render();
+      _videoProxy.appendTo(_parentDomElement);
+      _videoProxy.show(completion);
 
       return this;
     };
 
     // Unbind the currently bound stream from the video element.
     this.unbindStream = function() {
-      if (!_stream) return this;
+      // TODO: some way to tell TBPlugin to release that stream and controller
 
-      if (_domElement) {
-        if (!navigator.mozGetUserMedia) {
-          // The browser would have released this on unload anyway, but
-          // we're being a good citizen.
-          window.URL.revokeObjectURL(_domElement.src);
-        } else {
-          _domElement.mozSrcObject = null;
-        }
+      if (_videoProxy) {
+        _videoProxy.destroy();
+        _parentDomElement = null;
+        _videoProxy = null;
       }
-
-      _stream = null;
 
       return this;
     };
 
     this.setAudioVolume = function(value) {
-      if (_domElement) _domElement.volume = OT.$.roundFloat(value / 100, 2);
+      if (_videoProxy) _videoProxy.setVolume(value);
     };
 
     this.getAudioVolume = function() {
       // Return the actual volume of the DOM element
-      if (_domElement) return parseInt(_domElement.volume * 100, 10);
-      return 50;
+      if (_videoProxy) return _videoProxy.getVolume();
+      return DefaultAudioVolume;
+    };
+
+    // see https://wiki.mozilla.org/WebAPI/AudioChannels
+    // The audioChannelType is not currently supported in the plugin.
+    this.audioChannelType = function(/* type */) {
+      return 'unknown';
+    };
+
+    this.whenTimeIncrements = function(callback, context) {
+      // exists for compatibility with NativeVideoElement
+      OT.$.callAsync(OT.$.bind(callback, context));
+    };
+
+    this.destroy = function() {
+      this.unbindStream();
+
+      return void 0;
+    };
+  };
+
+
+  var NativeDOMVideoElement = function NativeDOMVideoElement (options,
+                                                              errorHandler,
+                                                              orientationChangedHandler) {
+    var _domElement,
+        _videoElementMovedWarning = false;
+
+
+    /// Private API
+    var _onVideoError = OT.$.bind(function(event) {
+          var reason = 'There was an unexpected problem with the Video Stream: ' +
+                        videoElementErrorCodeToStr(event.target.error.code);
+          errorHandler(reason, this, 'VideoElement');
+        }, this),
+
+        // The video element pauses itself when it's reparented, this is
+        // unfortunate. This function plays the video again and is triggered
+        // on the pause event.
+        _playVideoOnPause = function() {
+          if(!_videoElementMovedWarning) {
+            OT.warn('Video element paused, auto-resuming. If you intended to do this, ' +
+                      'use publishVideo(false) or subscribeToVideo(false) instead.');
+
+            _videoElementMovedWarning = true;
+          }
+
+          _domElement.play();
+        };
+
+
+    _domElement = createNativeVideoElement(options.fallbackText, options.attributes);
+
+    _domElement.addEventListener('pause', _playVideoOnPause);
+
+    canBeOrientatedMixin(this, function() { return _domElement; }, orientationChangedHandler);
+
+    /// Public methods
+
+    this.domElement = function() {
+      return _domElement;
+    };
+
+    this.videoWidth = function() {
+      return _domElement.videoWidth;
+    };
+
+    this.videoHeight = function() {
+      return _domElement.videoHeight;
+    };
+
+    this.imgData = function() {
+      var canvas = OT.$.createElement('canvas', {
+        width: _domElement.videoWidth,
+        height: _domElement.videoHeight,
+        style: { display: 'none' }
+      });
+
+      document.body.appendChild(canvas);
+      try {
+        canvas.getContext('2d').drawImage(_domElement, 0, 0, canvas.width, canvas.height);
+      } catch(err) {
+        OT.warn('Cannot get image data yet');
+        return null;
+      }
+      var imgData = canvas.toDataURL('image/png');
+
+      OT.$.removeElement(canvas);
+
+      return OT.$.trim(imgData.replace('data:image/png;base64,', ''));
+    };
+
+    // Append the Video DOM element to a parent node
+    this.appendTo = function(parentDomElement) {
+      parentDomElement.appendChild(_domElement);
+      return this;
+    };
+
+    // Bind a stream to the video element.
+    this.bindToStream = function(webRtcStream, completion) {
+      bindStreamToNativeVideoElement(_domElement, webRtcStream, function(err) {
+        if (err) {
+          completion(err);
+          return;
+        }
+
+        _domElement.addEventListener('error', _onVideoError, false);
+        completion(null);
+      });
+
+      return this;
+    };
+
+
+    // Unbind the currently bound stream from the video element.
+    this.unbindStream = function() {
+      if (_domElement) {
+        unbindNativeStream(_domElement);
+      }
+
+      return this;
+    };
+
+    this.setAudioVolume = function(value) {
+      if (_domElement) _domElement.volume = value;
+    };
+
+    this.getAudioVolume = function() {
+      // Return the actual volume of the DOM element
+      if (_domElement) return _domElement.volume;
+      return DefaultAudioVolume;
+    };
+
+    // see https://wiki.mozilla.org/WebAPI/AudioChannels
+    // The audioChannelType is currently only available in Firefox. This property returns
+    // "unknown" in other browser. The related HTML tag attribute is "mozaudiochannel"
+    this.audioChannelType = function(type) {
+      if (type !== void 0) {
+        _domElement.mozAudioChannelType = type;
+      }
+
+      if ('mozAudioChannelType' in _domElement) {
+        return _domElement.mozAudioChannelType;
+      } else {
+        return 'unknown';
+      }
     };
 
     this.whenTimeIncrements = function(callback, context) {
       if(_domElement) {
         var lastTime, handler;
-        handler = function() {
+        handler = OT.$.bind(function() {
           if(!lastTime || lastTime >= _domElement.currentTime) {
             lastTime = _domElement.currentTime;
           } else {
             _domElement.removeEventListener('timeupdate', handler, false);
             callback.call(context, this);
           }
-        }.bind(this);
+        }, this);
         _domElement.addEventListener('timeupdate', handler, false);
       }
     };
 
     this.destroy = function() {
-      // unbind all events so they don't fire after the object is dead
-      this.off();
-
       this.unbindStream();
 
       if (_domElement) {
@@ -4117,98 +6653,94 @@ OTHelpers.centerElement = function(element, width, height) {
         _domElement = null;
       }
 
-      _parentElement = null;
-
-      return undefined;
+      return void 0;
     };
   };
 
-  // Checking for window.defineProperty for IE compatibility,
-  // just so we don't throw exceptions when the script is included
-  if (OT.$.canDefineProperty) {
-    // Extracts a snapshot from a video element and returns it's as a PNG Data string.
-    Object.defineProperties(OT.VideoElement.prototype, {
-      imgData: {
-        get: function() {
-          var canvas,
-              imgData;
+/// Private Helper functions
 
-          canvas = OT.$.createElement('canvas', {
-            width: this.domElement.videoWidth,
-            height: this.domElement.videoHeight,
-            style: {
-              display: 'none'
-            }
-          });
+  // A mixin to create the orientation API implementation on +self+
+  // +getDomElementCallback+ is a function that the mixin will call when it wants to
+  // get the native Dom element for +self+.
+  //
+  // +initialOrientation+ sets the initial orientation (shockingly), it's currently unused
+  // so the initial value is actually undefined.
+  //
+  var canBeOrientatedMixin = function canBeOrientatedMixin (self,
+                                                            getDomElementCallback,
+                                                            orientationChangedHandler,
+                                                            initialOrientation) {
+    var _orientation = initialOrientation;
 
-          document.body.appendChild(canvas);
-
-          try {
-            canvas.getContext('2d').drawImage(this.domElement, 0, 0, canvas.width, canvas.height);
-          } catch(err) {
-            OT.warn('Cannot get image data yet');
-            return null;
-          }
-
-          imgData = canvas.toDataURL('image/png');
-
-          OT.$.removeElement(canvas);
-
-          return imgData.replace('data:image/png;base64,', '').trim();
-        }
-      },
-
-      videoWidth: {
-        get: function() {
-          return this.domElement['video' + (this.isRotated ? 'Height' : 'Width')];
-        }
-      },
-
-      videoHeight: {
-        get: function() {
-          return this.domElement['video' + (this.isRotated ? 'Width' : 'Height')];
-        }
-      },
-
-      aspectRatio: {
-        get: function() {
-          return (this.videoWidth + 0.0) / this.videoHeight;
-        }
-      },
-
+    OT.$.defineProperties(self, {
       isRotated: {
         get: function() {
-          return this._orientation && (
-            this._orientation.videoOrientation === 270 ||
-            this._orientation.videoOrientation === 90
-          );
+          return this.orientation() &&
+                    (this.orientation().videoOrientation === 270 ||
+                     this.orientation().videoOrientation === 90);
         }
       },
 
       orientation: {
-        get: function() { return this._orientation; },
+        get: function() { return _orientation; },
         set: function(orientation) {
-          var transform = VideoOrientationTransforms[orientation.videoOrientation] ||
-              VideoOrientationTransforms.ROTATED_NORMAL;
+          _orientation = orientation;
 
-          this._orientation = orientation;
+          var transform = VideoOrientationTransforms[orientation.videoOrientation] ||
+                          VideoOrientationTransforms.ROTATED_NORMAL;
 
           switch(OT.$.browser()) {
             case 'Chrome':
             case 'Safari':
-              this.domElement.style.webkitTransform = transform;
+              getDomElementCallback().style.webkitTransform = transform;
               break;
 
             case 'IE':
-              this.domElement.style.msTransform = transform;
+              if (OT.$.browserVersion().version >= 9) {
+                getDomElementCallback().style.msTransform = transform;
+              }
+              else {
+                // So this basically defines matrix that represents a rotation
+                // of a single vector in a 2d basis.
+                //
+                //    R =  [cos(Theta) -sin(Theta)]
+                //         [sin(Theta)  cos(Theta)]
+                //
+                // Where Theta is the number of radians to rotate by
+                //
+                // Then to rotate the vector v:
+                //    v' = Rv
+                //
+                // We then use IE8 Matrix filter property, which takes
+                // a 2x2 rotation matrix, to rotate our DOM element.
+                //
+                var radians = orientation.videoOrientation * DEGREE_TO_RADIANS,
+                    element = getDomElementCallback(),
+                    costheta = Math.cos(radians),
+                    sintheta = Math.sin(radians);
+
+                // element.filters.item(0).M11 = costheta;
+                // element.filters.item(0).M12 = -sintheta;
+                // element.filters.item(0).M21 = sintheta;
+                // element.filters.item(0).M22 = costheta;
+
+                element.style.filter = 'progid:DXImageTransform.Microsoft.Matrix(' +
+                                          'M11='+costheta+',' +
+                                          'M12='+(-sintheta)+',' +
+                                          'M21='+sintheta+',' +
+                                          'M22='+costheta+',SizingMethod=\'auto expand\')';
+              }
+
+
               break;
 
             default:
               // The standard version, just Firefox, Opera, and IE > 9
-              this.domElement.style.transform = transform;
+              getDomElementCallback().style.transform = transform;
           }
 
-          this.trigger('orientationChanged');
+          orientationChangedHandler(_orientation);
+
         }
       },
 
@@ -4230,17 +6762,12 @@ OTHelpers.centerElement = function(element, width, height) {
         }
       }
     });
-  }
+  };
 
-/// Private Helper functions
-
-  function createVideoElement(fallbackText, attributes) {
+  function createNativeVideoElement(fallbackText, attributes) {
     var videoElement = document.createElement('video');
     videoElement.setAttribute('autoplay', '');
     videoElement.innerHTML = fallbackText;
-
-    // XXX: Route audio through the Telephony channel for FxOS.
-    videoElement.mozAudioChannelType = 'telephony';
 
     if (attributes) {
       if (attributes.muted === true) {
@@ -4261,6 +6788,8 @@ OTHelpers.centerElement = function(element, width, height) {
 
 
   // See http://www.w3.org/TR/2010/WD-html5-20101019/video.html#error-codes
+  var _videoErrorCodes = {};
+
   // Checking for window.MediaError for IE compatibility, just so we don't throw
   // exceptions when the script is included
   if (window.MediaError) {
@@ -4280,7 +6809,7 @@ OTHelpers.centerElement = function(element, width, height) {
     return _videoErrorCodes[parseInt(errorCode, 10)] || 'An unknown error occurred.';
   }
 
-  function bindStreamToVideoElement(videoElement, webRTCStream, onStreamBound, onStreamBoundError) {
+  function bindStreamToNativeVideoElement(videoElement, webRtcStream, completion) {
     var cleanup,
         onLoad,
         onError,
@@ -4288,24 +6817,29 @@ OTHelpers.centerElement = function(element, width, height) {
         timeout;
 
     // Note: onloadedmetadata doesn't fire in Chrome for audio only crbug.com/110938
-    if (navigator.mozGetUserMedia || (
-      webRTCStream.getVideoTracks().length > 0 && webRTCStream.getVideoTracks()[0].enabled)) {
+    // After version 36 it will fire if the video track is disabled.
+    var browser = OT.$.browserVersion(),
+        needsDisabledAudioProtection = browser.browser === 'Chrome' && browser.version < 36;
+
+    if (navigator.mozGetUserMedia || !(needsDisabledAudioProtection &&
+        (webRtcStream.getVideoTracks().length > 0 && webRtcStream.getVideoTracks()[0].enabled))) {
 
       cleanup = function cleanup () {
         clearTimeout(timeout);
         videoElement.removeEventListener('loadedmetadata', onLoad, false);
         videoElement.removeEventListener('error', onError, false);
-        webRTCStream.onended = null;
+        webRtcStream.onended = null;
       };
 
       onLoad = function onLoad () {
         cleanup();
-        onStreamBound();
+        completion(null);
       };
 
       onError = function onError (event) {
         cleanup();
-        onStreamBoundError('There was an unexpected problem with the Video Stream: ' +
+        unbindNativeStream(videoElement);
+        completion('There was an unexpected problem with the Video Stream: ' +
           videoElementErrorCodeToStr(event.target.error.code));
       };
 
@@ -4313,40 +6847,152 @@ OTHelpers.centerElement = function(element, width, height) {
         // The stream ended before we fully bound it. Maybe the other end called
         // stop on it or something else went wrong.
         cleanup();
-        onStreamBoundError('Stream ended while trying to bind it to a video element.');
+        unbindNativeStream(videoElement);
+        completion('Stream ended while trying to bind it to a video element.');
       };
 
       // Timeout if it takes too long
-      timeout = setTimeout(function() {
+      timeout = setTimeout(OT.$.bind(function() {
         if (videoElement.currentTime === 0) {
-          onStreamBoundError('The video stream failed to connect. Please notify the site ' +
+          cleanup();
+          completion('The video stream failed to connect. Please notify the site ' +
             'owner if this continues to happen.');
+        } else if (webRtcStream.ended === true) {
+          // The ended event should have fired by here, but support for it isn't
+          // always so awesome.
+          onStoppedLoading();
         } else {
-          // This should never happen
-          OT.warn('Never got the loadedmetadata event but currentTime > 0');
-          onStreamBound();
-        }
-      }.bind(this), 30000);
 
+          OT.warn('Never got the loadedmetadata event but currentTime > 0');
+          onLoad(null);
+        }
+      }, this), 30000);
 
       videoElement.addEventListener('loadedmetadata', onLoad, false);
       videoElement.addEventListener('error', onError, false);
-      webRTCStream.onended = onStoppedLoading;
+      webRtcStream.onended = onStoppedLoading;
     } else {
-      onStreamBound();
+      OT.$.callAsync(completion, null);
     }
 
     // The official spec way is 'srcObject', we are slowly converging there.
     if (videoElement.srcObject !== void 0) {
-      videoElement.srcObject = webRTCStream;
+      videoElement.srcObject = webRtcStream;
     } else if (videoElement.mozSrcObject !== void 0) {
-      videoElement.mozSrcObject = webRTCStream;
+      videoElement.mozSrcObject = webRtcStream;
     } else {
-      videoElement.src = window.URL.createObjectURL(webRTCStream);
+      videoElement.src = window.URL.createObjectURL(webRtcStream);
     }
 
     videoElement.play();
   }
+
+
+  function unbindNativeStream(videoElement) {
+    if (videoElement.srcObject !== void 0) {
+      videoElement.srcObject = null;
+    } else if (videoElement.mozSrcObject !== void 0) {
+      videoElement.mozSrcObject = null;
+    } else {
+      window.URL.revokeObjectURL(videoElement.src);
+    }
+  }
+
+
+})(window);
+// tb_require('../helpers/helpers.js')
+
+!(function() {
+  /* jshint globalstrict: true, strict: false, undef: true, unused: true,
+            trailing: true, browser: true, smarttabs:true */
+  /* global OT */
+
+  var currentGuidStorage,
+      currentGuid;
+
+  var isInvalidStorage = function isInvalidStorage (storageInterface) {
+    return !(OT.$.isFunction(storageInterface.get) && OT.$.isFunction(storageInterface.set));
+  };
+
+  var getClientGuid = function getClientGuid (completion) {
+    if (currentGuid) {
+      completion(null, currentGuid);
+      return;
+    }
+
+    // It's the first time that getClientGuid has been called
+    // in this page lifetime. Attempt to load any existing Guid
+    // from the storage
+    currentGuidStorage.get(completion);
+  };
+
+  OT.overrideGuidStorage = function (storageInterface) {
+    if (isInvalidStorage(storageInterface)) {
+      throw new Error('The storageInterface argument does not seem to be valid, ' +
+                                        'it must implement get and set methods');
+    }
+
+    if (currentGuidStorage === storageInterface) {
+      return;
+    }
+
+    currentGuidStorage = storageInterface;
+
+    // If a client Guid has already been assigned to this client then
+    // let the new storage know about it so that it's in sync.
+    if (currentGuid) {
+      currentGuidStorage.set(currentGuid, function(error) {
+        if (error) {
+          OT.error('Failed to send initial Guid value (' + currentGuid +
+                                ') to the newly assigned Guid Storage. The error was: ' + error);
+          // @todo error
+        }
+      });
+    }
+  };
+
+  if (!OT._) OT._ = {};
+  OT._.getClientGuid = function (completion) {
+    getClientGuid(function(error, guid) {
+      if (error) {
+        completion(error);
+        return;
+      }
+
+      if (!guid) {
+        // Nothing came back, this client is entirely new.
+        // generate a new Guid and persist it
+        guid = OT.$.uuid();
+        currentGuidStorage.set(guid, function(error) {
+          if (error) {
+            completion(error);
+            return;
+          }
+
+          currentGuid = guid;
+        });
+      }
+      else if (!currentGuid) {
+        currentGuid = guid;
+      }
+
+      completion(null, currentGuid);
+    });
+  };
+
+
+  // Implement our default storage mechanism, which sets/gets a cookie
+  // called 'opentok_client_id'
+  OT.overrideGuidStorage({
+    get: function(completion) {
+      completion(null, OT.$.getCookie('opentok_client_id'));
+    },
+
+    set: function(guid, completion) {
+      OT.$.setCookie('opentok_client_id', guid);
+      completion(null);
+    }
+  });
 
 })(window);
 !(function(window) {
@@ -4366,9 +7012,12 @@ OTHelpers.centerElement = function(element, width, height) {
         // Map of camel-cased keys to underscored
         camelCasedKeys,
 
+        browser = OT.$.browserVersion(),
+
         send = function(data, isQos, callback) {
-          OT.$.post(isQos ? endPointQos : endPoint, {
+          OT.$.post((isQos ? endPointQos : endPoint) + '?_=' + OT.$.uuid.v4(), {
             body: data,
+            xdomainrequest: (browser.browser === 'IE' & browser.version < 10),
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded'
             }
@@ -4392,6 +7041,7 @@ OTHelpers.centerElement = function(element, width, height) {
               send(curr.data, curr.isQos, function(err) {
                 if(err) {
                   OT.debug('Failed to send ClientEvent, moving on to the next item.');
+                  // There was an error, move onto the next item
                 } else {
                   curr.onComplete();
                 }
@@ -4482,7 +7132,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
       payload = this.escapePayload(OT.$.extend(details || {}, {
         message: payload,
-        userAgent: navigator.userAgent
+        userAgent: OT.$.userAgent()
       }));
 
 
@@ -4528,35 +7178,42 @@ OTHelpers.centerElement = function(element, width, height) {
 
       if (!options) options = {};
 
-      // Set a bunch of defaults
-      var data = OT.$.extend({
-        'variation' : '',
-        'guid' : this.getClientGuid(),
-        'widget_id' : '',
-        'session_id': '',
-        'connection_id': '',
-        'stream_id' : '',
-        'partner_id' : partnerId,
-        'source' : window.location.href,
-        'section' : '',
-        'build' : ''
-      }, options),
-
-      onComplete = function(){
-        //  OT.log('logged: ' + '{action: ' + data['action'] + ', variation: ' + data['variation']
-        //  + ', payload_type: ' + data['payload_type'] + ', payload: ' + data['payload'] + '}');
-      };
-
-      // We camel-case our names, but the ClientEvents backend wants them
-      // underscored...
-      for (var key in camelCasedKeys) {
-        if (camelCasedKeys.hasOwnProperty(key) && data[key]) {
-          data[camelCasedKeys[key]] = data[key];
-          delete data[key];
+      OT._.getClientGuid(function(error, guid) {
+        if (error) {
+          // @todo
+          return;
         }
-      }
 
-      post(data, onComplete, false);
+        // Set a bunch of defaults
+        var data = OT.$.extend({
+          'variation' : '',
+          'guid' : guid,
+          'widget_id' : '',
+          'session_id': '',
+          'connection_id': '',
+          'stream_id' : '',
+          'partner_id' : partnerId,
+          'source' : window.location.href,
+          'section' : '',
+          'build' : ''
+        }, options),
+
+        onComplete = function(){
+          //  OT.log('logged: ' + '{action: ' + data['action'] + ', variation: ' + data['variation']
+          //  + ', payload_type: ' + data['payload_type'] + ', payload: ' + data['payload'] + '}');
+        };
+
+        // We camel-case our names, but the ClientEvents backend wants them
+        // underscored...
+        for (var key in camelCasedKeys) {
+          if (camelCasedKeys.hasOwnProperty(key) && data[key]) {
+            data[camelCasedKeys[key]] = data[key];
+            delete data[key];
+          }
+        }
+
+        post(data, onComplete, false);
+      });
     };
 
     // Log a client QOS to the analytics backend.
@@ -4566,34 +7223,43 @@ OTHelpers.centerElement = function(element, width, height) {
 
       if (!options) options = {};
 
-      // Set a bunch of defaults
-      var data = OT.$.extend({
-        'guid' : this.getClientGuid(),
-        'widget_id' : '',
-        'session_id': '',
-        'connection_id': '',
-        'stream_id' : '',
-        'partner_id' : partnerId,
-        'source' : window.location.href,
-        'build' : '',
-        'duration' : 0 //in milliseconds
-      }, options),
-
-      onComplete = function(){
-        // OT.log('logged: ' + '{action: ' + data['action'] + ', variation: ' + data['variation']
-        //  + ', payload_type: ' + data['payload_type'] + ', payload: ' + data['payload'] + '}');
-      };
-
-      // We camel-case our names, but the ClientEvents backend wants them
-      // underscored...
-      for (var key in camelCasedKeys) {
-        if (camelCasedKeys.hasOwnProperty(key) && data[key]) {
-          data[camelCasedKeys[key]] = data[key];
-          delete data[key];
+      OT._.getClientGuid(function(error, guid) {
+        if (error) {
+          // @todo
+          return;
         }
-      }
 
-      post(data, onComplete, true);
+        // Set a bunch of defaults
+        var data = OT.$.extend({
+          'guid' : guid,
+          'widget_id' : '',
+          'session_id': '',
+          'connection_id': '',
+          'stream_id' : '',
+          'partner_id' : partnerId,
+          'source' : window.location.href,
+          'build' : '',
+          'duration' : 0 //in milliseconds
+        }, options),
+
+        onComplete = function(){
+          // OT.log('logged: ' + '{action: ' + data['action'] + ', variation: ' + data['variation']
+          //  + ', payload_type: ' + data['payload_type'] + ', payload: ' + data['payload'] + '}');
+        };
+
+        // We camel-case our names, but the ClientEvents backend wants them
+        // underscored...
+        for (var key in camelCasedKeys) {
+          if (camelCasedKeys.hasOwnProperty(key)) {
+            if(data[key]) {
+              data[camelCasedKeys[key]] = data[key];
+            }
+            delete data[key];
+          }
+        }
+
+        post(data, onComplete, true);
+      });
     };
 
     // Converts +payload+ to two pipe seperated strings. Doesn't currently handle
@@ -4616,24 +7282,28 @@ OTHelpers.centerElement = function(element, width, height) {
         escapedPayload.join('|')
       ];
     };
-
-    // Uses HTML5 local storage to save a client ID.
-    this.getClientGuid = function() {
-      var guid = OT.$.getCookie('opentok_client_id');
-      if (!guid) {
-        guid = OT.$.uuid();
-        OT.$.setCookie('opentok_client_id', guid);
-      }
-      // once we have a guid, memoise this function so if cookies & local storage are disabled
-      // we still hand back the same guid each call within this page at least. OPENTOK-14015
-      this.getClientGuid = function() {
-        return guid;
-      };
-      return guid;
-    };
   };
 
 })(window);
+!(function() {
+
+  OT.$.registerCapability('audioOutputLevelStat', function() {
+    return OT.$.browserVersion().browser === 'Chrome';
+  });
+
+  OT.$.registerCapability('webAudioCapableRemoteStream', function() {
+    return OT.$.browserVersion().browser === 'Firefox';
+  });
+
+  OT.$.registerCapability('getStatsWithSingleParameter', function() {
+    return OT.$.browserVersion().browser === 'Chrome';
+  });
+
+  OT.$.registerCapability('webAudio', function() {
+    return 'AudioContext' in window;
+  });
+
+})();
 !(function(window) {
 
   // This is not obvious, so to prevent end-user frustration we'll let them know
@@ -4650,6 +7320,8 @@ OTHelpers.centerElement = function(element, width, height) {
   if (!window.URL && window.webkitURL) {
     window.URL = window.webkitURL;
   }
+
+  var _analytics = new OT.Analytics();
 
   var // Global parameters used by upgradeSystemRequirements
       _intervalId,
@@ -4735,6 +7407,14 @@ OTHelpers.centerElement = function(element, width, height) {
 * </p>
 * <ul>
 * <li>
+*   <strong>audioSource</strong> (String) &#151; The ID of the audio input device (such as a
+*    microphone) to be used by the publisher. You can obtain a list of available devices, including
+*    audio input devices, by calling the <a href="#getDevices">OT.getDevices()</a> method. Each
+*    device listed by the method has a unique device ID. If you pass in a device ID that does not
+*    match an existing audio input device, the call to <code>OT.initPublisher()</code> fails with an
+*    error (error code 1500, "Unable to Publish") passed to the completion handler function.
+* </li>
+* <li>
 *   <strong>frameRate</strong> (Number) &#151; The desired frame rate, in frames per second,
 *   of the video. Valid values are 30, 15, 7, and 1. The published stream will use the closest
 *   value supported on the publishing client. The frame rate can differ slightly from the value
@@ -4745,9 +7425,11 @@ OTHelpers.centerElement = function(element, width, height) {
 *   will vary based on changing network and system conditions. If the developer does not specify a
 *   frame rate, this property is undefined.
 *   <p>
-*   For OpenTok cloud-enabled sessions, lowering the frame rate or lowering the resolution reduces
-*   the maximum bandwidth the stream can use. However, in peer-to-peer sessions, lowering the frame
-*   rate or resolution may not reduce the stream's bandwidth.
+*   For sessions that use the OpenTok Media Router (sessions with
+*   the <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+*   set to routed, lowering the frame rate or lowering the resolution reduces
+*   the maximum bandwidth the stream can use. However, in sessions with the media mode set to
+*   relayed, lowering the frame rate or resolution may not reduce the stream's bandwidth.
 *   </p>
 *   <p>
 *   You can also restrict the frame rate of a Subscriber's video stream. To restrict the frame rate
@@ -4818,9 +7500,11 @@ OTHelpers.centerElement = function(element, width, height) {
 *   next largest setting supported.
 *   </p>
 *   <p>
-*   For OpenTok cloud-enabled sessions, lowering the frame rate or lowering the resolution reduces
-*   the maximum bandwidth the stream can use. However, in peer-to-peer sessions, lowering the frame
-*   rate or resolution may not reduce the stream's bandwidth.
+*   For sessions that use the OpenTok Media Router (sessions with the
+*   <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+*   set to routed, lowering the frame rate or lowering the resolution reduces the maximum bandwidth
+*   the stream can use. However, in sessions that have the media mode set to relayed, lowering the
+*   frame rate or resolution may not reduce the stream's bandwidth.
 *   </p>
 * </li>
 * <li>
@@ -4828,7 +7512,12 @@ OTHelpers.centerElement = function(element, width, height) {
 *   appearance of user interface controls of the Publisher. The <code>style</code> object includes
 *   the following properties:
 *     <ul>
-*       <li><code>backgroundImageURI</code> (String) &mdash; A URI for an image to display as
+*       <li><code>audioLevelDisplayMode</code> (String) &mdash; How to display the audio level
+*       indicator. Possible values are: <code>"auto"</code> (the indicator is displayed when the
+*       video is disabled), <code>"off"</code> (the indicator is not displayed), and
+*       <code>"on"</code> (the indicator is always displayed).</li>
+*
+*       <li><p><code>backgroundImageURI</code> (String) &mdash; A URI for an image to display as
 *       the background image when a video is not displayed. (A video may not be displayed if
 *       you call <code>publishVideo(false)</code> on the Publisher object). You can pass an http
 *       or https URI to a PNG, JPEG, or non-animated GIF file location. You can also use the
@@ -4838,7 +7527,14 @@ OTHelpers.centerElement = function(element, width, height) {
 *       you could set the property to <code>"data:VBORw0KGgoAA..."</code>, where the portion of the
 *       string after <code>"data:"</code> is the result of a call to
 *       <code>Publisher.getImgData()</code>. If the URL or the image data is invalid, the property
-*       is ignored (the attempt to set the image fails silently).</li>
+*       is ignored (the attempt to set the image fails silently).
+*       <p>
+*       Note that in Internet Explorer 8 (using the OpenTok Plugin for Internet Explorer),
+*       you cannot set the <code>backgroundImageURI</code> style to a string larger than 32&nbsp;kB.
+*       This is due to an IE 8 limitation on the size of URI strings. Due to this limitation,
+*       you cannot set the <code>backgroundImageURI</code> style to a string obtained with the
+*       <code>getImgData()</code> method.
+*       </p></li>
 *
 *       <li><code>buttonDisplayMode</code> (String) &mdash; How to display the microphone controls
 *       Possible values are: <code>"auto"</code> (controls are displayed when the stream is first
@@ -4850,6 +7546,14 @@ OTHelpers.centerElement = function(element, width, height) {
 *       displayed and when the user mouses over the display), <code>"off"</code> (the name is not
 *       displayed), and <code>"on"</code> (the name is always displayed).</li>
 *   </ul>
+* </li>
+* <li>
+*   <strong>videoSource</strong> (String) &#151; The ID of the video input device (such as a
+*    camera) to be used by the publisher. You can obtain a list of available devices, including
+*    video input devices, by calling the <a href="#getDevices">OT.getDevices()</a> method. Each
+*    device listed by the method has a unique device ID. If you pass in a device ID that does not
+*    match an existing video input device, the call to <code>OT.initPublisher()</code> fails with an
+*    error (error code 1500, "Unable to Publish") passed to the completion handler function.
 * </li>
 * <li>
 *   <strong>width</strong> (Number) &#151; The desired width, in pixels, of the
@@ -4890,8 +7594,9 @@ OTHelpers.centerElement = function(element, width, height) {
   OT.initPublisher = function(targetElement, properties, completionHandler) {
     OT.debug('OT.initPublisher('+targetElement+')');
 
-    if(targetElement != null && !(
-      (typeof targetElement === 'object' && targetElement.nodeType === Node.ELEMENT_NODE) ||
+    // To support legacy (apikey, targetElement, properties) users
+    // we check to see if targetElement is actually an apikey. Which we ignore.
+    if(targetElement != null && !(OT.$.isElementNode(targetElement) ||
       (typeof targetElement === 'string' && document.getElementById(targetElement))) &&
       typeof targetElement !== 'function') {
       targetElement = properties;
@@ -4943,6 +7648,48 @@ OTHelpers.centerElement = function(element, width, height) {
     return publisher;
   };
 
+  /**
+  * Enumerates the audio input devices (such as microphones) and video input devices
+  * (cameras) available to the browser.
+  * <p>
+  * The array of devices is passed in as the <code>devices</code> parameter of
+  * the <code>callback</code> function passed into the method.
+  *
+  * @param callback {Function} The callback function invoked when the list of devices
+  * devices is available. This function takes two parameters:
+  * <ul>
+  *   <li><code>error</code> &mdash; This is set to an error object when
+  *   there is an error in calling this method; it is set to <code>null</code>
+  *   when the call succeeds.</li>
+  *
+  *   <li><p><code>devices</code> &mdash; An array of objects corresponding to
+  *   available microphones and cameras. Each object has three properties: <code>kind</code>,
+  *   <code>deviceId</code>, and <code>label</code>, each of which are strings.
+  *   <p>
+  *   The <code>kind</code> property is set to <code>"audioInput"</code> for audio input
+  *   devices or <code>"videoInput"</code> for video input devices.
+  *   <p>
+  *   The <code>deviceId</code> property is a unique ID for the device. You can pass
+  *   the <code>deviceId</code> in as the <code>audioSource</code> or <code>videoSource</code>
+  *   property of the the <code>options</code> parameter of the
+  *   <a href="#initPublisher">OT.initPublisher()</a> method.
+  *   <p>
+  *   The <code>label</code> property identifies the device. The <code>label</code>
+  *   property is set to an empty string if the user has not previously granted access to
+  *   a camera and microphone. In HTTP, the user must have granted access to a camera and
+  *   microphone in the current page (for example, in response to a call to
+  *   <code>OT.initPublisher()</code>). In HTTPS, the user must have previously granted access
+  *   to the camera and microphone in the current page or in a page previously loaded from the
+  *   domain.</li>
+  * </ul>
+  *
+  * @see <a href="#initPublisher">OT.initPublisher()</a>
+  * @method OT.getDevices
+  * @memberof OT
+  */
+  OT.getDevices = function(callback) {
+    OT.$.getMediaDevices(callback);
+  };
 
 
 /**
@@ -4955,13 +7702,27 @@ OTHelpers.centerElement = function(element, width, height) {
   OT.checkSystemRequirements = function() {
     OT.debug('OT.checkSystemRequirements()');
 
-    var systemRequirementsMet = OT.$.supportsWebSockets() && OT.$.supportsWebRTC() ?
-      this.HAS_REQUIREMENTS : this.NOT_HAS_REQUIREMENTS;
+    // Try native support first, then TBPlugin...
+    var systemRequirementsMet = OT.$.hasCapabilities('websockets', 'webrtc') ||
+                                      TBPlugin.isInstalled();
+
+    systemRequirementsMet = systemRequirementsMet ?
+                                      this.HAS_REQUIREMENTS : this.NOT_HAS_REQUIREMENTS;
 
     OT.checkSystemRequirements = function() {
       OT.debug('OT.checkSystemRequirements()');
       return systemRequirementsMet;
     };
+
+    if(systemRequirementsMet === this.NOT_HAS_REQUIREMENTS) {
+      _analytics.logEvent({
+        action: 'checkSystemRequirements',
+        variation: 'notHasRequirements',
+        'payload_type': 'userAgent',
+        'partner_id': OT.APIKEY,
+        payload: OT.$.userAgent()
+      });
+    }
 
     return systemRequirementsMet;
   };
@@ -4982,6 +7743,20 @@ OTHelpers.centerElement = function(element, width, height) {
   OT.upgradeSystemRequirements = function(){
     // trigger after the OT environment has loaded
     OT.onLoad( function() {
+
+      if(TBPlugin.isSupported()) {
+        OT.Dialogs.Plugin.promptToInstall().on({
+          download: function() {
+            window.location = TBPlugin.pathToInstaller();
+          },
+          refresh: function() {
+            location.reload();
+          },
+          closed: function() {}
+        });
+        return;
+      }
+
       var id = '_upgradeFlash';
 
          // Load the iframe over the whole page.
@@ -5009,12 +7784,15 @@ OTHelpers.centerElement = function(element, width, height) {
         d.frameBorder = '0';
         d.scrolling = 'no';
         d.setAttribute('scrolling', 'no');
+
         var browser = OT.$.browserVersion(),
-            isSupportedButOld = OT.properties.minimumVersion[browser.browser.toLowerCase()];
+            minimumBrowserVersion = OT.properties.minimumVersion[browser.browser.toLowerCase()],
+            isSupportedButOld =  minimumBrowserVersion > browser.version;
         d.src = OT.properties.assetURL + '/html/upgrade.html#' +
                           encodeURIComponent(isSupportedButOld ? 'true' : 'false') + ',' +
                           encodeURIComponent(JSON.stringify(OT.properties.minimumVersion)) + '|' +
                           encodeURIComponent(document.location.href);
+
         return d;
       })());
 
@@ -5300,19 +8078,27 @@ OTHelpers.centerElement = function(element, width, height) {
 
     OT.$.eventing(this, true);
 
-    var onModelUpdate = function onModelUpdate (event) {
+    var modelProperty = function(model, property) {
+      if(OT.$.isFunction(model[property])) {
+        return model[property]();
+      } else {
+        return model[property];
+      }
+    };
+
+    var onModelUpdate = OT.$.bind(function onModelUpdate (event) {
           this.trigger('update', event);
           this.trigger('update:'+event.target.id, event);
-        }.bind(this),
+        }, this),
 
-        onModelDestroy = function onModelDestroyed (event) {
+        onModelDestroy = OT.$.bind(function onModelDestroyed (event) {
           this.remove(event.target, event.reason);
-        }.bind(this);
+        }, this);
 
 
     this.reset = function() {
       // Stop listening on the models, they are no longer our problem
-      _models.forEach(function(model) {
+      OT.$.forEach(_models, function(model) {
         model.off('updated', onModelUpdate, this);
         model.off('destroyed', onModelDestroy, this);
       }, this);
@@ -5321,10 +8107,10 @@ OTHelpers.centerElement = function(element, width, height) {
       _byId = {};
     };
 
-    this.destroy = function() {
-      _models.forEach(function(model) {
+    this.destroy = function(reason) {
+      OT.$.forEach(_models, function(model) {
         if(model && typeof model.destroy === 'function') {
-          model.destroy(void 0, true);
+          model.destroy(reason, true);
         }
       });
 
@@ -5355,14 +8141,14 @@ OTHelpers.centerElement = function(element, width, height) {
     //   }, self);
     //
     this.where = function(attrsOrFilterFn, context) {
-      if (OT.$.isFunction(attrsOrFilterFn)) return _models.filter(attrsOrFilterFn, context);
+      if (OT.$.isFunction(attrsOrFilterFn)) return OT.$.filter(_models, attrsOrFilterFn, context);
 
-      return _models.filter(function(model) {
+      return OT.$.filter(_models, function(model) {
         for (var key in attrsOrFilterFn) {
           if(!attrsOrFilterFn.hasOwnProperty(key)) {
             continue;
           }
-          if (model[key] !== attrsOrFilterFn[key]) return false;
+          if (modelProperty(model, key) !== attrsOrFilterFn[key]) return false;
         }
 
         return true;
@@ -5383,14 +8169,14 @@ OTHelpers.centerElement = function(element, width, height) {
             if(!attrsOrFilterFn.hasOwnProperty(key)) {
               continue;
             }
-            if (model[key] !== attrsOrFilterFn[key]) return false;
+            if (modelProperty(model, key) !== attrsOrFilterFn[key]) return false;
           }
 
           return true;
         };
       }
 
-      filterFn = filterFn.bind(context);
+      filterFn = OT.$.bind(filterFn, context);
 
       for (var i=0; i<_models.length; ++i) {
         if (filterFn(_models[i]) === true) return _models[i];
@@ -5400,7 +8186,7 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     this.add = function(model) {
-      var id = model[_idField];
+      var id = modelProperty(model, _idField);
 
       if (this.has(id)) {
         OT.warn('Model ' + id + ' is already in the collection', _models);
@@ -5419,7 +8205,7 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     this.remove = function(model, reason) {
-      var id = model[_idField];
+      var id = modelProperty(model, _idField);
 
       _models.splice(_byId[id], 1);
 
@@ -5442,15 +8228,15 @@ OTHelpers.centerElement = function(element, width, height) {
     // Used by session connecto fire add events after adding listeners
     this._triggerAddEvents = function() {
       var models = this.where.apply(this, arguments);
-      models.forEach(function(model) {
+      OT.$.forEach(models, function(model) {
         this.trigger('add', model);
-        this.trigger('add:' + model[_idField], model);
+        this.trigger('add:' + modelProperty(model, _idField), model);
       }, this);
     };
 
-    OT.$.defineGetters(this, {
-      length: function() { return _models.length; }
-    });
+    this.length = function() {
+      return _models.length;
+    };
   };
 
 }(this));
@@ -5573,7 +8359,11 @@ OTHelpers.centerElement = function(element, width, height) {
     MICGAINCHANGED : 'microphoneGainChanged',
 
     // Environment Loader
-    ENV_LOADED: 'envLoaded'
+    ENV_LOADED: 'envLoaded',
+    ENV_UNLOADED: 'envUnloaded',
+
+    // Audio activity Events
+    AUDIO_LEVEL_UPDATED: 'audioLevelUpdated'
   };
 
   OT.ExceptionCodes = {
@@ -5796,11 +8586,9 @@ OTHelpers.centerElement = function(element, width, height) {
 
 
 /**
- * Connection event is an event that can have type "connectionCreated" or "connectionDestroyed".
- * These events are dispatched by the Session object when another client connects to or
- * disconnects from a {@link Session}. For the local client, the Session object dispatches a
- * "sessionConnected" or "sessionDisconnected" event, defined by the SessionConnectEvent and
- * SessionDisconnectEvent classes.
+ * Dispatched by the Session object when a client connects to or disconnects from a {@link Session}.
+ * For the local client, the Session object dispatches a "sessionConnected" or "sessionDisconnected"
+ * event, defined by the {@link SessionConnectEvent} and {@link SessionDisconnectEvent} classes.
  *
  * <h5><a href="example"></a>Example</h5>
  *
@@ -5816,16 +8604,12 @@ OTHelpers.centerElement = function(element, width, height) {
  * var connectionCount = 0;
  *
  * var session = OT.initSession(apiKey, sessionID);
- * session.on("sessionConnected", function(event) {
- *    connectionCount = 1; // This represent's your client's connection to the session
- *    displayConnectionCount();
- * });
  * session.on("connectionCreated", function(event) {
- *    connectionCount += 1;
+ *    connectionCount++;
  *    displayConnectionCount();
  * });
  * session.on("connectionDestroyed", function(event) {
- *    connectionCount -= 1;
+ *    connectionCount--;
  *    displayConnectionCount();
  * });
  * session.connect(token);
@@ -5951,13 +8735,12 @@ OTHelpers.centerElement = function(element, width, height) {
  * </pre>
  *
  * @class StreamEvent
- * @property {Stream} stream A Stream object corresponding to the stream that was added (in the
- * case of a <code>streamCreated</code> event) or deleted (in the case of a
- * <code>streamDestroyed</code> event).
  *
- * @property {Array} streams Deprecated. Use the <code>stream</code> property. A
- * <code>streamCreated</code> or <code>streamDestroyed</code> event is dispatched for
- * each stream added or destroyed.
+ * @property {Boolean} cancelable   Whether the event has a default behavior that is cancelable
+ *  (<code>true</code>) or not (<code>false</code>). You can cancel the default behavior by calling
+ *  the <code>preventDefault()</code> method of the StreamEvent object in the event listener
+ *  function. The <code>streamDestroyed</code>
+ *  event is cancelable. (See <a href="#preventDefault">preventDefault()</a>.)
  *
  * @property {String} reason For a <code>streamDestroyed</code> event,
  *  a description of why the session disconnected. This property can have one of the following
@@ -5986,12 +8769,14 @@ OTHelpers.centerElement = function(element, width, height) {
  *
  * <p>For a <code>streamCreated</code> event, this string is undefined.</p>
  *
+ * @property {Stream} stream A Stream object corresponding to the stream that was added (in the
+ * case of a <code>streamCreated</code> event) or deleted (in the case of a
+ * <code>streamDestroyed</code> event).
  *
- * @property {Boolean} cancelable   Whether the event has a default behavior that is cancelable
- *  (<code>true</code>) or not (<code>false</code>). You can cancel the default behavior by calling
- *  the <code>preventDefault()</code> method of the StreamEvent object in the event listener
- *  function. The <code>streamDestroyed</code>
- *  event is cancelable. (See <a href="#preventDefault">preventDefault()</a>.)
+ * @property {Array} streams Deprecated. Use the <code>stream</code> property. A
+ * <code>streamCreated</code> or <code>streamDestroyed</code> event is dispatched for
+ * each stream added or destroyed.
+ *
  * @augments Event
  */
 
@@ -6056,8 +8841,8 @@ OTHelpers.centerElement = function(element, width, height) {
  * @property {Array} connections Deprecated in version 2.2 (and set to an empty array). In
  * version 2.2, listen for the <code>connectionCreated</code> event dispatched by the Session
  * object. In version 2.2, the Session object dispatches a <code>connectionCreated</code> event
- * for each connection other than that of your client. This includes connections
- * present when you first connect to the session.
+ * for each connection (including your own). This includes connections present when you first
+ * connect to the session.
  *
  * @property {Array} streams Deprecated in version 2.2 (and set to an empty array). In version
  * 2.2, listen for the <code>streamCreated</code> event dispatched by the Session object. In
@@ -6072,7 +8857,6 @@ OTHelpers.centerElement = function(element, width, height) {
   var sessionConnectedConnectionsDeprecationWarningShown = false;
   var sessionConnectedStreamsDeprecationWarningShown = false;
   var sessionConnectedArchivesDeprecationWarningShown = false;
-  var sessionConnectedGroupsDeprecationWarningShown = false;
 
   OT.SessionConnectEvent = function (type) {
     OT.Event.call(this, type, false);
@@ -6107,24 +8891,12 @@ OTHelpers.centerElement = function(element, width, height) {
             }
             return [];
           }
-        },
-        groups: {
-          get: function() {
-            if(!sessionConnectedGroupsDeprecationWarningShown) {
-              OT.error('OT.SessionConnectedEvent no longer includes groups. There is no ' +
-                'equivelant in OpenTok v2.2');
-              sessionConnectedGroupsDeprecationWarningShown = true;
-            }
-            return [];
-          }
         }
       });
     } else {
       this.connections = [];
       this.streams = [];
       this.archives = [];
-      // Deprecated in OpenTok v0.91.48
-      this.groups = [];
     }
   };
 
@@ -6213,9 +8985,9 @@ OTHelpers.centerElement = function(element, width, height) {
  * @class StreamPropertyChangedEvent
  * @property {String} changedProperty The property of the stream that changed. This value
  * is either <code>"hasAudio"</code>, <code>"hasVideo"</code>, or <code>"videoDimensions"</code>.
- * @property {Stream} stream The Stream object for which a property has changed.
  * @property {Object} newValue The new value of the property (after the change).
  * @property {Object} oldValue The old value of the property (before the change).
+ * @property {Stream} stream The Stream object for which a property has changed.
  *
  * @see <a href="Publisher.html#publishAudio">Publisher.publishAudio()</a></p>
  * @see <a href="Publisher.html#publishVideo">Publisher.publishVideo()</a></p>
@@ -6280,7 +9052,6 @@ OTHelpers.centerElement = function(element, width, height) {
     this.from = from;
   };
 
-
   OT.StreamUpdatedEvent = function (stream, key, oldValue, newValue) {
     OT.Event.call(this, 'updated', false);
     this.target = stream;
@@ -6293,6 +9064,86 @@ OTHelpers.centerElement = function(element, width, height) {
     OT.Event.call(this, type, false);
     this.target = target;
     this.reason = reason;
+  };
+
+/**
+ * Defines the event object for the <code>videoDisabled</code> and <code>videoEnabled</code> events
+ * dispatched by the Subscriber.
+ *
+ * @class VideoEnabledChangedEvent
+ *
+ * @property {Boolean} cancelable Whether the event has a default behavior that is cancelable
+ * (<code>true</code>) or not (<code>false</code>). You can cancel the default behavior by
+ * calling the <code>preventDefault()</code> method of the event object in the callback
+ * function. (See <a href="#preventDefault">preventDefault()</a>.)
+ *
+ * @property {String} reason The reason the video was disabled or enabled. This can be set to one of
+ * the following values:
+ *
+ * <ul>
+ *
+ *   <li><code>"publishVideo"</code> &mdash; The publisher started or stopped publishing video,
+ *   by calling <code>publishVideo(true)</code> or <code>publishVideo(false)</code>.</li>
+ *
+ *   <li><code>"quality"</code> &mdash; The OpenTok Media Router starts or stops sending video
+ *   to the subscriber based on stream quality changes. This feature of the OpenTok Media
+ *   Router has a subscriber drop the video stream when connectivity degrades. (The subscriber
+ *   continues to receive the audio stream, if there is one.)
+ *   <p>
+ *   If connectivity improves to support video again, the Subscriber object dispatches
+ *   a <code>videoEnabled</code> event, and the Subscriber resumes receiving video.
+ *   <p>
+ *   By default, the Subscriber displays a video disabled indicator when a
+ *   <code>videoDisabled</code> event with this reason is dispatched and removes the indicator
+ *   when the <code>videoDisabled</code> event with this reason is dispatched. You can control
+ *   the display of this icon by calling the <code>setStyle()</code> method of the Subscriber,
+ *   setting the <code>videoDisabledDisplayMode</code> property(or you can set the style when
+ *   calling the <code>Session.subscribe()</code> method, setting the <code>style</code> property
+ *   of the <code>properties</code> parameter).
+ *   <p>
+ *   This feature is only available in sessions that use the OpenTok Media Router (sessions with
+ *   the <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+ *   set to routed), not in sessions with the media mode set to relayed.
+ *   </li>
+ *
+ *   <li><code>"subscribeToVideo"</code> &mdash; The subscriber started or stopped subscribing to
+ *   video, by calling <code>subscribeToVideo(true)</code> or <code>subscribeToVideo(false)</code>.
+ *   </li>
+ *
+ * </ul>
+ *
+ * @property {Object} target The object that dispatched the event.
+ *
+ * @property {String} type  The type of event: <code>"videoDisabled"</code> or
+ * <code>"videoEnabled"</code>.
+ *
+ * @see <a href="Subscriber.html#event:videoDisabled">Subscriber videoDisabled event</a></p>
+ * @see <a href="Subscriber.html#event:videoEnabled">Subscriber videoEnabled event</a></p>
+ * @augments Event
+ */
+  OT.VideoEnabledChangedEvent = function(type, properties) {
+    OT.Event.call(this, type, false);
+    this.reason = properties.reason;
+  };
+
+  OT.VideoDisableWarningEvent = function(type/*, properties*/) {
+    OT.Event.call(this, type, false);
+  };
+
+/**
+ * Dispatched periodically by a Subscriber or Publisher object to indicate the audio
+ * level. This event is dispatched up to 60 times per second, depending on the browser.
+ *
+ * @property {String} audioLevel The audio level, from 0 to 1.0. Adjust this value logarithmically
+ * for use in adjusting a user interface element, such as a volume meter. Use a moving average
+ * to smooth the data.
+ *
+ * @class AudioLevelUpdatedEvent
+ * @augments Event
+ */
+  OT.AudioLevelUpdatedEvent = function(audioLevel) {
+    OT.Event.call(this, OT.Event.names.AUDIO_LEVEL_UPDATED, false);
+    this.audioLevel = audioLevel;
   };
 
 })(window);
@@ -6320,6 +9171,11 @@ OTHelpers.centerElement = function(element, width, height) {
 
 (function(global) {
   'use strict';
+
+  var browser = OT.$.browserVersion();
+  if(browser.browser === 'IE' && browser.version < 10) {
+    return; // IE 8 doesn't do websockets. No websockets, no encoding.
+  }
 
   if ( (global.TextEncoder !== void 0) && (global.TextDecoder !== void 0))  {
     // defer to the native ones
@@ -8816,14 +11672,9 @@ OTHelpers.centerElement = function(element, width, height) {
   };
 
 }(this));
-!(function() {
+!(function(OT) {
 
-  // The interval between polling the websocket's send buffer
-  var BUFFER_DRAIN_INTERVAL = 100,
-      // The total number of times to retest the websocket's send buffer
-      BUFFER_DRAIN_MAX_RETRIES = 10,
-
-      WEB_SOCKET_KEEP_ALIVE_INTERVAL = 9000,
+  var WEB_SOCKET_KEEP_ALIVE_INTERVAL = 9000,
 
       // Magic Connectivity Timeout Constant: We wait 9*the keep alive interval,
       // on the third keep alive we trigger the timeout if we haven't received the
@@ -8872,9 +11723,9 @@ OTHelpers.centerElement = function(element, width, height) {
 
   // The NativeSocket bit is purely to make testing simpler, it defaults to WebSocket
   // so in normal operation you would omit it.
-  OT.Rumor.Socket = function(messagingServer, notifyDisconnectAddress, NativeSocket) {
+  OT.Rumor.Socket = function(messagingURL, notifyDisconnectAddress, NativeSocket) {
+
     var states = ['disconnected',  'error', 'connected', 'connecting', 'disconnecting'],
-        server = messagingServer,
         webSocket,
         id,
         onOpen,
@@ -8882,7 +11733,6 @@ OTHelpers.centerElement = function(element, width, height) {
         onClose,
         onMessage,
         connectCallback,
-        bufferDrainTimeout,           // Timer to poll whether th send buffer has been drained
         connectTimeout,
         lastMessageTimestamp,         // The timestamp of the last message received
         keepAliveTimer;               // Timer for the connectivity checks
@@ -8915,7 +11765,7 @@ OTHelpers.centerElement = function(element, width, height) {
           }
         },
 
-        error = function error (errorMessage) {
+        error = OT.$.bind(function error (errorMessage) {
           OT.error('Rumor.Socket: ' + errorMessage);
 
           var socketError = new OT.Rumor.SocketError(null, errorMessage || 'Unknown Socket Error');
@@ -8930,39 +11780,7 @@ OTHelpers.centerElement = function(element, width, height) {
           }
 
           if (onError) onError(socketError);
-        }.bind(this),
-
-        // Immediately close the socket, only used by disconnectWhenSendBufferIsDrained
-        close = function close() {
-          setState('disconnecting');
-
-          if (bufferDrainTimeout) {
-            clearTimeout(bufferDrainTimeout);
-            bufferDrainTimeout = null;
-          }
-
-          webSocket.close();
-        },
-
-        // Ensure that the WebSocket send buffer is fully drained before disconnecting
-        // the socket. If the buffer doesn't drain after a certain length of time
-        // we give up and close it anyway.
-        disconnectWhenSendBufferIsDrained =
-          function disconnectWhenSendBufferIsDrained (bufferDrainRetries) {
-          if (!webSocket) return;
-
-          if (bufferDrainRetries === void 0) bufferDrainRetries = 0;
-          if (bufferDrainTimeout) clearTimeout(bufferDrainTimeout);
-
-          if (webSocket.bufferedAmount > 0 &&
-            (bufferDrainRetries + 1) <= BUFFER_DRAIN_MAX_RETRIES) {
-            bufferDrainTimeout = setTimeout(disconnectWhenSendBufferIsDrained,
-              BUFFER_DRAIN_INTERVAL, bufferDrainRetries+1);
-          }
-          else {
-            close();
-          }
-        },
+        }, this),
 
         hasLostConnectivity = function hasLostConnectivity () {
           if (!lastMessageTimestamp) return false;
@@ -8970,21 +11788,28 @@ OTHelpers.centerElement = function(element, width, height) {
           return (OT.$.now() - lastMessageTimestamp) >= WEB_SOCKET_CONNECTIVITY_TIMEOUT;
         },
 
-        sendKeepAlive = function sendKeepAlive () {
+        sendKeepAlive = OT.$.bind(function() {
           if (!this.is('connected')) return;
 
           if ( hasLostConnectivity() ) {
             webSocketDisconnected({code: 4001});
           }
           else  {
-            webSocket.send(OT.Rumor.Message.Ping().serialize());
-            keepAliveTimer = setTimeout(sendKeepAlive.bind(this), WEB_SOCKET_KEEP_ALIVE_INTERVAL);
+            webSocket.send(OT.Rumor.Message.Ping());
+            keepAliveTimer = setTimeout(sendKeepAlive, WEB_SOCKET_KEEP_ALIVE_INTERVAL);
           }
-        }.bind(this);
+        }, this),
+
+        // Returns true if we think the DOM has been unloaded
+        // It detects this by looking for the OT global, which
+        // should always exist until the DOM is cleaned up.
+        isDOMUnloaded = function isDOMUnloaded () {
+          return !window.OT;
+        };
 
 
     //// Private Event Handlers
-    var webSocketConnected = function webSocketConnected () {
+    var webSocketConnected = OT.$.bind(function webSocketConnected () {
           if (connectTimeout) clearTimeout(connectTimeout);
           if (this.isNot('connecting')) {
             OT.debug('webSocketConnected reached in state other than connecting');
@@ -8995,7 +11820,7 @@ OTHelpers.centerElement = function(element, width, height) {
           // app server address to notify if we disconnect.
           //
           // We don't need to wait for a reply to this message.
-          webSocket.send(OT.Rumor.Message.Connect(id, notifyDisconnectAddress).serialize());
+          webSocket.send(OT.Rumor.Message.Connect(id, notifyDisconnectAddress));
 
           setState('connected');
           if (connectCallback) {
@@ -9005,11 +11830,11 @@ OTHelpers.centerElement = function(element, width, height) {
 
           if (onOpen) onOpen(id);
 
-          setTimeout(function() {
+          keepAliveTimer = setTimeout(function() {
             lastMessageTimestamp = OT.$.now();
             sendKeepAlive();
           }, WEB_SOCKET_KEEP_ALIVE_INTERVAL);
-        }.bind(this),
+        }, this),
 
         webSocketConnectTimedOut = function webSocketConnectTimedOut () {
           var webSocketWas = webSocket;
@@ -9034,9 +11859,17 @@ OTHelpers.centerElement = function(element, width, height) {
           // until the socket is closed.
           // error(errorMessage);
 
-        webSocketDisconnected = function webSocketDisconnected (closeEvent) {
+        webSocketDisconnected = OT.$.bind(function webSocketDisconnected (closeEvent) {
           if (connectTimeout) clearTimeout(connectTimeout);
           if (keepAliveTimer) clearTimeout(keepAliveTimer);
+
+          if (isDOMUnloaded()) {
+            // Sometimes we receive the web socket close event after
+            // the DOM has already been partially or fully unloaded
+            // if that's the case here then it's not really safe, or
+            // desirable, to continue.
+            return;
+          }
 
           if (closeEvent.code !== 1000 && closeEvent.code !== 1001) {
             var reason = closeEvent.reason || closeEvent.message;
@@ -9048,15 +11881,12 @@ OTHelpers.centerElement = function(element, width, height) {
           }
 
           if (this.isNot('error')) setState('disconnected');
-        }.bind(this),
+        }, this),
 
-        webSocketReceivedMessage = function webSocketReceivedMessage (message) {
+        webSocketReceivedMessage = function webSocketReceivedMessage (msg) {
           lastMessageTimestamp = OT.$.now();
 
           if (onMessage) {
-
-            var msg = OT.Rumor.Message.deserialize(message.data);
-
             if (msg.type !== OT.Rumor.MessageType.PONG) {
               onMessage(msg);
             }
@@ -9067,15 +11897,15 @@ OTHelpers.centerElement = function(element, width, height) {
     //// Public API
 
     this.publish = function (topics, message, headers) {
-      webSocket.send(OT.Rumor.Message.Publish(topics, message, headers).serialize());
+      webSocket.send(OT.Rumor.Message.Publish(topics, message, headers));
     };
 
     this.subscribe = function(topics) {
-      webSocket.send(OT.Rumor.Message.Subscribe(topics).serialize());
+      webSocket.send(OT.Rumor.Message.Subscribe(topics));
     };
 
     this.unsubscribe = function(topics) {
-      webSocket.send(OT.Rumor.Message.Unsubscribe(topics).serialize());
+      webSocket.send(OT.Rumor.Message.Unsubscribe(topics));
     };
 
     this.connect = function (connectionId, complete) {
@@ -9088,17 +11918,23 @@ OTHelpers.centerElement = function(element, width, height) {
       id = connectionId;
       connectCallback = complete;
 
+      setState('connecting');
+
+      var TheWebSocket = NativeSocket || window.WebSocket;
+
+      var events = {
+        onOpen:    webSocketConnected,
+        onClose:   webSocketDisconnected,
+        onError:   webSocketError,
+        onMessage: webSocketReceivedMessage
+      };
+
       try {
-        setState('connecting');
-
-        var TheWebSocket = NativeSocket || WebSocket;
-        webSocket = new TheWebSocket(server);
-        webSocket.binaryType = 'arraybuffer';
-
-        webSocket.onopen = webSocketConnected;
-        webSocket.onclose = webSocketDisconnected;
-        webSocket.onerror = webSocketError;
-        webSocket.onmessage = webSocketReceivedMessage;
+        if(typeof TheWebSocket !== 'undefined') {
+          webSocket = new OT.Rumor.NativeSocket(TheWebSocket, messagingURL, events);
+        } else {
+          webSocket = new OT.Rumor.PluginSocket(messagingURL, events);
+        }
 
         connectTimeout = setTimeout(webSocketConnectTimedOut, OT.Rumor.Socket.CONNECT_TIMEOUT);
       }
@@ -9110,7 +11946,7 @@ OTHelpers.centerElement = function(element, width, height) {
       }
     };
 
-    this.disconnect = function() {
+    this.disconnect = function(drainSocketBuffer) {
       if (connectTimeout) clearTimeout(connectTimeout);
       if (keepAliveTimer) clearTimeout(keepAliveTimer);
 
@@ -9119,23 +11955,23 @@ OTHelpers.centerElement = function(element, width, height) {
         return;
       }
 
-      if (webSocket.readyState === 3/* CLOSED */) {
+      if (webSocket.isClosed()) {
         if (this.isNot('error')) setState('disconnected');
       }
       else {
         if (this.is('connected')) {
           // Look! We are nice to the rumor server ;-)
-          webSocket.send(OT.Rumor.Message.Disconnect().serialize());
+          webSocket.send(OT.Rumor.Message.Disconnect());
         }
 
         // Wait until the socket is ready to close
-        disconnectWhenSendBufferIsDrained();
+        webSocket.close(drainSocketBuffer);
       }
     };
 
 
 
-    Object.defineProperties(this, {
+    OT.$.defineProperties(this, {
       id: {
         get: function() { return id; }
       },
@@ -9180,6 +12016,143 @@ OTHelpers.centerElement = function(element, width, height) {
 
   // The number of ms to wait for the websocket to connect
   OT.Rumor.Socket.CONNECT_TIMEOUT = 15000;
+
+}(window.OT, this));
+!(function() {
+
+  var BUFFER_DRAIN_INTERVAL = 100,
+      // The total number of times to retest the websocket's send buffer
+      BUFFER_DRAIN_MAX_RETRIES = 10;
+
+  OT.Rumor.NativeSocket = function(TheWebSocket, messagingURL, events) {
+
+    var webSocket,
+        disconnectWhenSendBufferIsDrained,
+        bufferDrainTimeout,           // Timer to poll whether th send buffer has been drained
+        close;
+
+    webSocket = new TheWebSocket(messagingURL);
+    webSocket.binaryType = 'arraybuffer';
+
+    webSocket.onopen = events.onOpen;
+    webSocket.onclose = events.onClose;
+    webSocket.onerror = events.onError;
+
+    webSocket.onmessage = function(message) {
+      if (!OT) {
+        // In IE 10/11, This can apparently be called after
+        // the page is unloaded and OT is garbage-collected
+        return;
+      }
+
+      var msg = OT.Rumor.Message.deserialize(message.data);
+      events.onMessage(msg);
+    };
+
+    // Ensure that the WebSocket send buffer is fully drained before disconnecting
+    // the socket. If the buffer doesn't drain after a certain length of time
+    // we give up and close it anyway.
+    disconnectWhenSendBufferIsDrained =
+      function disconnectWhenSendBufferIsDrained (bufferDrainRetries) {
+      if (!webSocket) return;
+
+      if (bufferDrainRetries === void 0) bufferDrainRetries = 0;
+      if (bufferDrainTimeout) clearTimeout(bufferDrainTimeout);
+
+      if (webSocket.bufferedAmount > 0 &&
+        (bufferDrainRetries + 1) <= BUFFER_DRAIN_MAX_RETRIES) {
+        bufferDrainTimeout = setTimeout(disconnectWhenSendBufferIsDrained,
+          BUFFER_DRAIN_INTERVAL, bufferDrainRetries+1);
+
+      } else {
+        close();
+      }
+    };
+
+    close = function close() {
+      webSocket.close();
+    };
+
+    this.close = function(drainBuffer) {
+      if (drainBuffer) {
+        disconnectWhenSendBufferIsDrained();
+      } else {
+        close();
+      }
+    };
+
+    this.send = function(msg) {
+      webSocket.send(msg.serialize());
+    };
+
+    this.isClosed = function() {
+      return webSocket.readyState === 3;
+    };
+
+  };
+
+
+}(this));
+!(function() {
+
+  OT.Rumor.PluginSocket = function(messagingURL, events) {
+
+    var webSocket,
+        state = 'initializing';
+
+    TBPlugin.initRumorSocket(messagingURL, OT.$.bind(function(err, rumorSocket) {
+      if(err) {
+        state = 'closed';
+        events.onClose({ code: 4999 });
+      } else if(state === 'initializing') {
+        webSocket = rumorSocket;
+
+        webSocket.onOpen(function() {
+          state = 'open';
+          events.onOpen();
+        });
+        webSocket.onClose(function(error) {
+          state = 'closed'; /* CLOSED */
+          events.onClose({ code: error });
+        });
+        webSocket.onError(function(error) {
+          state = 'closed'; /* CLOSED */
+          events.onError(error);
+          /* native websockets seem to do this, so should we */
+          events.onClose({ code: error });
+        });
+
+        webSocket.onMessage(function(type, addresses, headers, payload) {
+          var msg = new OT.Rumor.Message(type, addresses, headers, payload);
+          events.onMessage(msg);
+        });
+
+        webSocket.open();
+      } else {
+        this.close();
+      }
+    }, this));
+
+    this.close = function() {
+      if(state === 'initializing' || state === 'closed') {
+        state = 'closed';
+        return;
+      }
+
+      webSocket.close(1000, '');
+    };
+
+    this.send = function(msg) {
+      if(state === 'open') {
+        webSocket.send(msg);
+      }
+    };
+
+    this.isClosed = function() {
+      return state === 'closed';
+    };
+
+  };
 
 }(this));
 !(function() {
@@ -9385,19 +12358,19 @@ OTHelpers.centerElement = function(element, width, height) {
   };
 
   OT.Rumor.Message.Disconnect = function () {
-    return new OT.Rumor.Message(OT.Rumor.MessageType.DISCONNECT, [], [], '');
+    return new OT.Rumor.Message(OT.Rumor.MessageType.DISCONNECT, [], {}, '');
   };
 
   OT.Rumor.Message.Subscribe = function(topics) {
-    return new OT.Rumor.Message(OT.Rumor.MessageType.SUBSCRIBE, topics, [], '');
+    return new OT.Rumor.Message(OT.Rumor.MessageType.SUBSCRIBE, topics, {}, '');
   };
 
   OT.Rumor.Message.Unsubscribe = function(topics) {
-    return new OT.Rumor.Message(OT.Rumor.MessageType.UNSUBSCRIBE, topics, [], '');
+    return new OT.Rumor.Message(OT.Rumor.MessageType.UNSUBSCRIBE, topics, {}, '');
   };
 
   OT.Rumor.Message.Publish = function(topics, message, headers) {
-    return new OT.Rumor.Message(OT.Rumor.MessageType.MESSAGE, topics, headers||[], message);
+    return new OT.Rumor.Message(OT.Rumor.MessageType.MESSAGE, topics, headers||{}, message || '');
   };
 
   // This message is used to implement keepalives on the persistent
@@ -9405,7 +12378,7 @@ OTHelpers.centerElement = function(element, width, height) {
   // client sends a PING to the server, the server will respond with
   // a PONG.
   OT.Rumor.Message.Ping = function() {
-    return new OT.Rumor.Message(OT.Rumor.MessageType.PING, [], [], '');
+    return new OT.Rumor.Message(OT.Rumor.MessageType.PING, [], {}, '');
   };
 
 }(this));
@@ -9433,7 +12406,7 @@ OTHelpers.centerElement = function(element, width, height) {
   // }
   //
   // @todo Raptor Docs {
-  //   Document payload formats for incoming messages (what are the payloads for
+  //   Document payload formats for incoming messages (what are the payloads for 
   //    STREAM CREATED/MODIFIED for example)
   //   Document how keepalives work
   //   Document all the Raptor actions and types
@@ -9587,7 +12560,7 @@ OTHelpers.centerElement = function(element, width, height) {
       method: 'create',
       uri: '/v2/partner/' + apiKey + '/session/' + sessionId + '/connection/' + connectionId,
       content: {
-        userAgent: navigator.userAgent
+        userAgent: OT.$.userAgent()
       }
     });
   };
@@ -9719,8 +12692,8 @@ OTHelpers.centerElement = function(element, width, height) {
       id: subscriberId,
       connection: connectionId,
       keyManagementMethod: OT.$.supportedCryptoScheme(),
-      bundleSupport: OT.$.supportsBundle(),
-      rtcpMuxSupport: OT.$.supportsRtcpMux()
+      bundleSupport: OT.$.hasCapabilities('bundle'),
+      rtcpMuxSupport: OT.$.hasCapabilities('RTCPMux')
     };
     if (channelsToSubscribeTo) content.channel = channelsToSubscribeTo;
 
@@ -9978,7 +12951,7 @@ OTHelpers.centerElement = function(element, width, height) {
     //// Private API
     var setState = OT.$.statable(this, _states, 'disconnected'),
 
-        onConnectComplete = function onConnectComplete (error) {
+        onConnectComplete = function onConnectComplete(error) {
           if (error) {
             setState('error');
           }
@@ -9989,7 +12962,7 @@ OTHelpers.centerElement = function(element, width, height) {
           _completion.apply(null, arguments);
         },
 
-        onClose = function onClose (err) {
+        onClose = OT.$.bind(function onClose (err) {
           var reason = this.is('disconnecting') ? 'clientDisconnected' : 'networkDisconnected';
 
           if(err && err.code === 4001) {
@@ -9999,8 +12972,7 @@ OTHelpers.centerElement = function(element, width, height) {
           setState('disconnected');
 
           _dispatcher.onClose(reason);
-
-        }.bind(this),
+        }, this),
 
         onError = function onError () {};
         // @todo what does having an error mean? Are they always fatal? Are we disconnected now?
@@ -10024,10 +12996,10 @@ OTHelpers.centerElement = function(element, width, height) {
           rumorChannel = '/v2/partner/' + OT.APIKEY + '/session/' + _sessionId;
 
       _rumor = new OT.Rumor.Socket(messagingSocketUrl, symphonyUrl);
-      _rumor.onClose = onClose;
-      _rumor.onMessage = _dispatcher.dispatch.bind(_dispatcher);
+      _rumor.onClose(onClose);
+      _rumor.onMessage(OT.$.bind(_dispatcher.dispatch, _dispatcher));
 
-      _rumor.connect(connectionId, function(error) {
+      _rumor.connect(connectionId, OT.$.bind(function(error) {
         if (error) {
           error.message = 'WebSocketConnection:' + error.code + ':' + error.message;
           onConnectComplete(error);
@@ -10035,7 +13007,7 @@ OTHelpers.centerElement = function(element, width, height) {
         }
 
         // we do this here to avoid getting connect errors twice
-        _rumor.onError = onError;
+        _rumor.onError(onError);
 
         OT.debug('Raptor Socket connected. Subscribing to ' +
           rumorChannel + ' on ' + messagingSocketUrl);
@@ -10043,8 +13015,9 @@ OTHelpers.centerElement = function(element, width, height) {
         _rumor.subscribe([rumorChannel]);
 
         //connect to session
-        var connectMessage = OT.Raptor.Message.connections.create(OT.APIKEY, _sessionId, _rumor.id);
-        this.publish(connectMessage, {'X-TB-TOKEN-AUTH': _token}, function(error) {
+        var connectMessage = OT.Raptor.Message.connections.create(OT.APIKEY,
+          _sessionId, _rumor.id());
+        this.publish(connectMessage, {'X-TB-TOKEN-AUTH': _token}, OT.$.bind(function(error) {
           if (error) {
             error.message = 'ConnectToSession:' + error.code +
                 ':Received error response to connection create message.';
@@ -10054,21 +13027,22 @@ OTHelpers.centerElement = function(element, width, height) {
 
           this.publish( OT.Raptor.Message.sessions.get(OT.APIKEY, _sessionId),
             function (error) {
-            if (error) error.message = 'GetSessionState:' + error.code +
-                      ':Received error response to session read';
+            if (error) {
+              error.message = 'GetSessionState:' + error.code +
+                ':Received error response to session read';
+            }
             onConnectComplete.apply(null, arguments);
           });
-        }.bind(this));
-
-      }.bind(this));
+        }, this));
+      }, this));
     };
 
 
-    this.disconnect = function () {
+    this.disconnect = function (drainSocketBuffer) {
       if (this.is('disconnected')) return;
 
       setState('disconnecting');
-      _rumor.disconnect();
+      _rumor.disconnect(drainSocketBuffer);
     };
 
     // Publishs +message+ to the Symphony app server.
@@ -10109,7 +13083,7 @@ OTHelpers.centerElement = function(element, width, height) {
       _rumor.publish([symphonyUrl], message, OT.$.extend(_headers, {
         'Content-Type': 'application/x-raptor+v2',
         'TRANSACTION-ID': transactionId,
-        'X-TB-FROM-ADDRESS': _rumor.id
+        'X-TB-FROM-ADDRESS': _rumor.id()
       }));
 
       return transactionId;
@@ -10148,7 +13122,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
     this.subscriberCreate = function(streamId, subscriberId, channelsToSubscribeTo, completion) {
       this.publish( OT.Raptor.Message.subscribers.create(OT.APIKEY, _sessionId,
-        streamId, subscriberId, _rumor.id, channelsToSubscribeTo), completion );
+        streamId, subscriberId, _rumor.id(), channelsToSubscribeTo), completion );
     };
 
     this.subscriberDestroy = function(streamId, subscriberId) {
@@ -10208,7 +13182,7 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     this.signal = function(options, completion) {
-      var signal = new OT.Signal(_sessionId, _rumor.id, options || {});
+      var signal = new OT.Signal(_sessionId, _rumor.id(), options || {});
 
       if (!signal.valid) {
         if (completion && OT.$.isFunction(completion)) {
@@ -10226,17 +13200,9 @@ OTHelpers.centerElement = function(element, width, height) {
       });
     };
 
-    OT.$.defineGetters(this, {
-      id: function() {
-        return _rumor && _rumor.id;
-      },
-      sessionId: function() {
-        return _sessionId;
-      },
-      dispatcher: function() {
-        return _dispatcher;
-      }
-    });
+    this.id = function() {
+      return _rumor && _rumor.id();
+    };
 
     if(dispatcher == null) {
       dispatcher = new OT.Raptor.Dispatcher();
@@ -10260,7 +13226,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
   OT.Raptor.Dispatcher = function () {
 
-    if(typeof EventEmitter !== 'undefined') {
+    if(OT.isNodeModule) {
       EventEmitter.call(this);
     } else {
       OT.$.eventing(this, true);
@@ -10270,7 +13236,7 @@ OTHelpers.centerElement = function(element, width, height) {
     this.callbacks = {};
   };
 
-  if(typeof EventEmitter !== 'undefined') {
+  if(OT.isNodeModule) {
     util.inherits(OT.Raptor.Dispatcher, EventEmitter);
   }
 
@@ -10320,7 +13286,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
     var message = OT.Raptor.unboxFromRumorMessage(rumorMessage);
     OT.debug('OT.Raptor.dispatch ' + message.signature);
-    OT.debug(message);
+    OT.debug(rumorMessage.data);
 
     switch(message.resource) {
       case 'session':
@@ -10363,7 +13329,6 @@ OTHelpers.centerElement = function(element, width, height) {
   OT.Raptor.Dispatcher.prototype.dispatchSession = function (message) {
     switch (message.method) {
       case 'read':
-
         this.emit('session#read', message.content, message.transactionId);
         break;
 
@@ -10476,7 +13441,6 @@ OTHelpers.centerElement = function(element, width, height) {
   };
 
   OT.Raptor.Dispatcher.prototype.dispatchSubscriber = function (message) {
-
     switch (message.method) {
       case 'created':
         this.emit('subscriber#created', message.params.stream, message.fromAddress,
@@ -10520,7 +13484,7 @@ OTHelpers.centerElement = function(element, width, height) {
       case 'created':
         this.emit('archive#created', message.content);
         break;
-
+      
       case 'updated':
         this.emit('archive#updated', message.params.archive, message.content);
         break;
@@ -10540,10 +13504,12 @@ OTHelpers.centerElement = function(element, width, height) {
       return new OT.StreamChannel(channel);
     });
 
+    var connectionId = dict.connectionId ? dict.connectionId : dict.connection.id;
+
     return  new OT.Stream(  dict.id,
                             dict.name,
                             dict.creationTime,
-                            session.connections.get(dict.connection.id),
+                            session.connections.get(connectionId),
                             session,
                             channel );
   }
@@ -10572,6 +13538,15 @@ OTHelpers.centerElement = function(element, width, height) {
     return archive;
   }
 
+  var sessionRead;
+  var sessionReadQueue = [];
+
+  function sessionReadQueuePush(type, args) {
+    var triggerArgs = ['signal'];
+    triggerArgs.push.apply(triggerArgs, args);
+    sessionReadQueue.push(triggerArgs);
+  }
+
   window.OT.SessionDispatcher = function(session) {
 
     var dispatcher = new OT.Raptor.Dispatcher();
@@ -10584,9 +13559,9 @@ OTHelpers.centerElement = function(element, width, height) {
         return;
       }
 
-      if (connection.destroyedReason) {
+      if (connection.destroyedReason()) {
         OT.debug('OT.Raptor.Socket: Socket was closed but the connection had already ' +
-          'been destroyed. Reason: ' + connection.destroyedReason);
+          'been destroyed. Reason: ' + connection.destroyedReason());
         return;
       }
 
@@ -10603,23 +13578,30 @@ OTHelpers.centerElement = function(element, width, height) {
       state.connections = [];
       state.archives = [];
 
-      content.connection.forEach(function(connectionParams) {
+      OT.$.forEach(content.connection, function(connectionParams) {
         connection = OT.Connection.fromHash(connectionParams);
         state.connections.push(connection);
         session.connections.add(connection);
       });
 
-      content.stream.forEach(function(streamParams) {
+      OT.$.forEach(content.stream, function(streamParams) {
         state.streams.push( parseAndAddStreamToSession(streamParams, session) );
       });
 
-      (content.archive || content.archives).forEach(function(archiveParams) {
+      OT.$.forEach(content.archive || content.archives, function(archiveParams) {
         state.archives.push( parseAndAddArchiveToSession(archiveParams, session) );
       });
 
       session._.subscriberMap = {};
 
       dispatcher.triggerCallback(transactionId, null, state);
+
+      sessionRead = true;
+      for (var i = 0; i < sessionReadQueue.length; ++i) {
+        dispatcher.trigger.apply(dispatcher, sessionReadQueue[i]);
+      }
+      sessionReadQueue = [];
+
     });
 
     dispatcher.on('connection#created', function(connection) {
@@ -10638,7 +13620,7 @@ OTHelpers.centerElement = function(element, width, height) {
       stream = parseAndAddStreamToSession(stream, session);
 
       if (stream.publisher) {
-        stream.publisher.stream = stream;
+        stream.publisher.setStream(stream);
       }
 
       dispatcher.triggerCallback(transactionId, null, stream);
@@ -10717,7 +13699,6 @@ OTHelpers.centerElement = function(element, width, height) {
         case 'pranswer':
         case 'generateoffer':
         case 'unsubscribe':
-          console.warn('generateoffer maybe?');
           actors = OT.publishers.where({streamId: streamId});
           break;
 
@@ -10746,7 +13727,7 @@ OTHelpers.centerElement = function(element, width, height) {
       if(!fromConnection && fromAddress.match(/^symphony\./)) {
         fromConnection = OT.Connection.fromHash({
           id: fromAddress,
-          creationTime: Date.now()
+          creationTime: Math.floor(OT.$.now())
         });
 
         actors[0].session.connections.add(fromConnection);
@@ -10756,17 +13737,17 @@ OTHelpers.centerElement = function(element, width, height) {
         return;
       }
 
-      actors.forEach(function(actor) {
+      OT.$.forEach(actors, function(actor) {
         actor.processMessage(method, fromConnection, message);
       });
     };
 
-    dispatcher.on('jsep#offer', jsepHandler.bind(null, 'offer'));
-    dispatcher.on('jsep#answer', jsepHandler.bind(null, 'answer'));
-    dispatcher.on('jsep#pranswer', jsepHandler.bind(null, 'pranswer'));
-    dispatcher.on('jsep#generateoffer', jsepHandler.bind(null, 'generateoffer'));
-    dispatcher.on('jsep#unsubscribe', jsepHandler.bind(null, 'unsubscribe'));
-    dispatcher.on('jsep#candidate', jsepHandler.bind(null, 'candidate'));
+    dispatcher.on('jsep#offer', OT.$.bind(jsepHandler, null, 'offer'));
+    dispatcher.on('jsep#answer', OT.$.bind(jsepHandler, null, 'answer'));
+    dispatcher.on('jsep#pranswer', OT.$.bind(jsepHandler, null, 'pranswer'));
+    dispatcher.on('jsep#generateoffer', OT.$.bind(jsepHandler, null, 'generateoffer'));
+    dispatcher.on('jsep#unsubscribe', OT.$.bind(jsepHandler, null, 'unsubscribe'));
+    dispatcher.on('jsep#candidate', OT.$.bind(jsepHandler, null, 'candidate'));
 
     dispatcher.on('subscriberChannel#updated', function(streamId, channelId, content) {
 
@@ -10833,8 +13814,14 @@ OTHelpers.centerElement = function(element, width, height) {
     });
 
     dispatcher.on('signal', function(fromAddress, signalType, data) {
-      session._.dispatchSignal(session.connections.get(fromAddress),
-                               signalType, data);
+      if (sessionRead) {
+        var fromConnection = session.connections.get(fromAddress);
+        session._.dispatchSignal(fromConnection, signalType, data);
+      } else {
+        if (!sessionRead) {
+          sessionReadQueuePush('signal', arguments);
+        }
+      }
     });
 
     dispatcher.on('archive#created', function(archive) {
@@ -10859,7 +13846,7 @@ OTHelpers.centerElement = function(element, width, height) {
   };
 
 })(window);
-!(function(window) {
+!(function() {
 
   // Helper to synchronise several startup tasks and then dispatch a unified
   // 'envLoaded' event.
@@ -10870,10 +13857,15 @@ OTHelpers.centerElement = function(element, width, height) {
   //
   function EnvironmentLoader() {
     var _configReady = false,
-        _domReady = false,
+
+        // If the plugin is installed, then we should wait for it to
+        // be ready as well.
+        _pluginSupported = TBPlugin.isSupported(),
+        _pluginLoadAttemptComplete = _pluginSupported ? TBPlugin.isReady() : true,
 
         isReady = function() {
-          return _domReady && _configReady;
+          return !OT.$.isDOMUnloaded() && OT.$.isReady() &&
+                      _configReady && _pluginLoadAttemptComplete;
         },
 
         onLoaded = function() {
@@ -10882,19 +13874,41 @@ OTHelpers.centerElement = function(element, width, height) {
           }
         },
 
-        onDomReady = function() {
-          _domReady = true;
 
-          // This is making an assumption about there being only one "window"
-          // that we care about.
-          OT.$.on(window, 'unload', function() {
-            OT.publishers.destroy();
-            OT.subscribers.destroy();
-            OT.sessions.destroy();
-          });
+        onDomReady = function() {
+          OT.$.onDOMUnload(onDomUnload);
 
           // The Dynamic Config won't load until the DOM is ready
           OT.Config.load(OT.properties.configURL);
+
+          onLoaded();
+        },
+
+        onDomUnload = function() {
+          // Disconnect the session first, this will prevent the plugin
+          // from locking up during browser unload.
+          // if (_pluginSupported) {
+          //   var sessions = OT.sessions.where();
+          //   for (var i=0; i<sessions.length; ++i) {
+          //     sessions[i].disconnect(false);
+          //   }
+          // }
+
+          OT.publishers.destroy();
+          OT.subscribers.destroy();
+          OT.sessions.destroy('unloaded');
+
+          OT.dispatchEvent(new OT.EnvLoadedEvent(OT.Event.names.ENV_UNLOADED));
+        },
+
+        onPluginReady = function(err) {
+          // We mark the plugin as ready so as not to stall the environment
+          // loader. In this case though, TBPlugin is not supported.
+          _pluginLoadAttemptComplete = true;
+
+          if (err) {
+            OT.debug('TB Plugin failed to load or was not installed');
+          }
 
           onLoaded();
         },
@@ -10911,45 +13925,54 @@ OTHelpers.centerElement = function(element, width, height) {
           configLoaded();
         };
 
+
     OT.Config.on('dynamicConfigChanged', configLoaded);
     OT.Config.on('dynamicConfigLoadFailed', configLoadFailed);
-    if (document.readyState === 'complete' ||
-      (document.readyState === 'interactive' && document.body)) {
-      onDomReady();
-    } else {
-      if (document.addEventListener) {
-        document.addEventListener('DOMContentLoaded', onDomReady, false);
-      } else if (document.attachEvent) {
-        // This is so onLoad works in IE, primarily so we can show the upgrade to Chrome popup
-        document.attachEvent('onreadystatechange', function() {
-          if (document.readyState === 'complete') onDomReady();
-        });
-      }
-    }
 
-    this.onLoad = function(cb) {
+    OT.$.onDOMLoad(onDomReady);
+
+    // If the plugin should work on this platform then
+    // see if it loads.
+    if (_pluginSupported) TBPlugin.ready(onPluginReady);
+
+    this.onLoad = function(cb, context) {
       if (isReady()) {
-        cb();
+        cb.call(context);
         return;
       }
 
-      OT.on(OT.Event.names.ENV_LOADED, cb);
+      OT.on(OT.Event.names.ENV_LOADED, cb, context);
+    };
+
+    this.onUnload = function(cb, context) {
+      if (this.isUnloaded()) {
+        cb.call(context);
+        return;
+      }
+
+      OT.on(OT.Event.names.ENV_UNLOADED, cb, context);
+    };
+
+    this.isUnloaded = function() {
+      return OT.$.isDOMUnloaded();
     };
   }
 
   var EnvLoader = new EnvironmentLoader();
 
   OT.onLoad = function(cb, context) {
-    if (!context) {
-      EnvLoader.onLoad(cb);
-    } else {
-      EnvLoader.onLoad(
-        cb.bind(context)
-      );
-    }
+    EnvLoader.onLoad(cb, context);
   };
 
-})(window);
+  OT.onUnload = function(cb, context) {
+    EnvLoader.onUnload(cb, context);
+  };
+
+  OT.isUnloaded = function() {
+    return EnvLoader.isUnloaded();
+  };
+
+})();
 !(function() {
 
   /**
@@ -11238,7 +14261,7 @@ OTHelpers.centerElement = function(element, width, height) {
         sessionId: session.sessionId
       };
 
-      if (session.connected) context.connectionId = session.connection.connectionId;
+      if (session.isConnected()) context.connectionId = session.connection.connectionId;
       if (!options.target) options.target = session;
 
     } else if (options.sessionId) {
@@ -11251,30 +14274,6 @@ OTHelpers.centerElement = function(element, width, height) {
 
     _exceptionHandler(options.target, errorMsg, code, context);
   };
-
-
-// @todo redo this when we have time to tidy up
-//
-// Public callback for exceptions from Flash.
-//
-// Called from Flash like:
-//  OT.exceptionHandler('publisher_1234,1234',
-//  "Descriptive Error Message", "Error Title", 2000, contextObj)
-//
-  OT.exceptionHandler = function(componentId, msg, errorTitle, errorCode, context) {
-    var target;
-
-    if (componentId) {
-      target = OT.components[componentId];
-
-      if (!target) {
-        OT.warn('Could not find the component with component ID ' + componentId);
-      }
-    }
-
-    _exceptionHandler(target, msg, errorCode, context);
-  };
-
 
   // This is a placeholder until error handling can be rewritten
   OT.dispatchError = function (code, message, completionHandler, session) {
@@ -11317,10 +14316,11 @@ OTHelpers.centerElement = function(element, width, height) {
    * client has successfully called the <code>connect()</code> method of the {@link Session}
    * object.)
    * <p>
-   * The Session object dispatches a <code>connectionCreated</code> event when each client (other
-   * than your own) connects to a session (and for clients that are present in the session when you
-   * connect). The <code>connectionCreated</code> event object has a <code>connection</code>
-   * property, which is a Connection object corresponding to the client the event pertains to.
+   * The Session object dispatches a <code>connectionCreated</code> event when each client
+   * (including your own) connects to a session (and for clients that are present in the
+   * session when you connect). The <code>connectionCreated</code> event object has a
+   * <code>connection</code> property, which is a Connection object corresponding to the client
+   * the event pertains to.
    * <p>
    * The Stream object has a <code>connection</code> property that is a Connection object.
    * It represents the connection of the client that is publishing the stream.
@@ -11351,7 +14351,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
     OT.$.eventing(this);
 
-    this.destroy = function(reason, quiet) {
+    this.destroy = OT.$.bind(function(reason, quiet) {
       destroyedReason = reason || 'clientDisconnected';
 
       if (quiet !== true) {
@@ -11364,19 +14364,16 @@ OTHelpers.centerElement = function(element, width, height) {
           )
         );
       }
-    }.bind(this);
+    }, this);
 
-    Object.defineProperties(this, {
-      destroyed: {
-        get: function() { return destroyedReason !== void 0; },
-        enumerable: true
-      },
+    this.destroyed = function() {
+      return destroyedReason !== void 0;
+    };
 
-      destroyedReason: {
-        get: function() { return destroyedReason; },
-        enumerable: true
-      }
-    });
+    this.destroyedReason = function() {
+      return destroyedReason;
+    };
+
   };
 
   OT.Connection.fromHash = function(hash) {
@@ -11425,6 +14422,10 @@ OTHelpers.centerElement = function(element, width, height) {
             this.active = OT.$.castToBoolean(attributes[key]);
             break;
 
+          case 'disableWarning':
+            this.disableWarning = OT.$.castToBoolean(attributes[key]);
+            break;
+
           case 'frameRate':
             this.frameRate = parseFloat(attributes[key], 10);
             break;
@@ -11453,7 +14454,7 @@ OTHelpers.centerElement = function(element, width, height) {
         this.trigger('update', this, key, oldValue, this[key]);
       }
 
-      if (Object.keys(videoDimensions).length) {
+      if (OT.$.keys(videoDimensions).length) {
         // To make things easier for the public API, we broadcast videoDimensions changes,
         // which is an aggregate of width, height, and orientation changes.
         this.trigger('update', this, 'videoDimensions', oldVideoDimensions, videoDimensions);
@@ -11512,6 +14513,11 @@ OTHelpers.centerElement = function(element, width, height) {
  * {@link Session} object dispatches a <code>streamPropertyChanged</code> event (see
  * {@link StreamPropertyChangedEvent}.)
  *
+ * @property {String} name The name of the stream. Publishers can specify a name when publishing
+ * a stream (using the <code>publish()</code> method of the publisher's Session object).
+ *
+ * @property {String} streamId The unique ID of the stream.
+ *
  * @property {Object} videoDimensions This object has two properties: <code>width</code> and
  * <code>height</code>. Both are numbers. The <code>width</code> property is the width of the
  * encoded stream; the <code>height</code> property is the height of the encoded stream. (These
@@ -11520,11 +14526,6 @@ OTHelpers.centerElement = function(element, width, height) {
  * published from an iOS device resizes, based on a change in the device orientation. When this
  * occurs, the {@link Session} object dispatches a <code>streamPropertyChanged</code> event (see
  * {@link StreamPropertyChangedEvent}.)
- *
- * @property {String} name The name of the stream. Publishers can specify a name when publishing
- * a stream (using the <code>publish()</code> method of the publisher's Session object).
- *
- * @property {String} streamId The unique ID of the stream.
  */
 
 
@@ -11538,17 +14539,24 @@ OTHelpers.centerElement = function(element, width, height) {
     this.connection = connection;
     this.channel = channel;
     this.publisher = OT.publishers.find({streamId: this.id});
-    this.publisherId = this.publisher ? this.publisher.id : null;
 
     OT.$.eventing(this);
 
-    var onChannelUpdate = function(channel, key, oldValue, newValue) {
+    var onChannelUpdate = OT.$.bind(function(channel, key, oldValue, newValue) {
       var _key = key;
 
       switch(_key) {
         case 'active':
           _key = channel.type === 'audio' ? 'hasAudio' : 'hasVideo';
           this[_key] = newValue;
+          break;
+
+        case 'disableWarning':
+          _key = channel.type === 'audio' ? 'audioDisableWarning': 'videoDisableWarning';
+          this[_key] = newValue;
+          if (!this[channel.type === 'audio' ? 'hasAudio' : 'hasVideo']) {
+            return; // Do NOT event in this case.
+          }
           break;
 
         case 'orientation':
@@ -11565,22 +14573,22 @@ OTHelpers.centerElement = function(element, width, height) {
       }
 
       this.dispatchEvent( new OT.StreamUpdatedEvent(this, _key, oldValue, newValue) );
-    }.bind(this);
+    }, this);
 
-    var associatedWidget = function() {
+    var associatedWidget = OT.$.bind(function() {
       if(this.publisher) {
         return this.publisher;
       } else {
         return OT.subscribers.find(function(subscriber) {
-          return subscriber.streamId === this.id &&
+          return subscriber.stream.id === this.id &&
             subscriber.session.id === session.id;
         });
       }
-    }.bind(this);
+    }, this);
 
     // Returns all channels that have a type of +type+.
     this.getChannelsOfType = function (type) {
-      return this.channel.filter(function(channel) {
+      return OT.$.filter(this.channel, function(channel) {
         return channel.type === type;
       });
     };
@@ -11602,7 +14610,7 @@ OTHelpers.centerElement = function(element, width, height) {
     var audioChannel = this.getChannelsOfType('audio')[0],
         videoChannel = this.getChannelsOfType('video')[0];
 
-    // @todo this should really be: "has at least one video/audio track" instead of
+    // @todo this should really be: "has at least one video/audio track" instead of 
     // "the first video/audio track"
     this.hasAudio = audioChannel != null && audioChannel.active;
     this.hasVideo = videoChannel != null && videoChannel.active;
@@ -11614,6 +14622,7 @@ OTHelpers.centerElement = function(element, width, height) {
       this.videoDimensions.orientation = videoChannel.orientation;
 
       videoChannel.on('update', onChannelUpdate);
+      this.frameRate = videoChannel.frameRate;
     }
 
     if (audioChannel) {
@@ -11636,11 +14645,11 @@ OTHelpers.centerElement = function(element, width, height) {
       });
     };
 
-    var updateChannelsOfType = function(channelType, attributes) {
+    var updateChannelsOfType = OT.$.bind(function(channelType, attributes) {
       var setChannelActiveState;
       if (!this.publisher) {
         var subscriber = OT.subscribers.find(function(subscriber) {
-          return subscriber.streamId === this.id &&
+          return subscriber.stream.id === this.id &&
             subscriber.session.id === session.id;
         }, this);
 
@@ -11653,11 +14662,16 @@ OTHelpers.centerElement = function(element, width, height) {
         };
       }
 
-      this.getChannelsOfType(channelType).forEach(setChannelActiveState.bind(this));
-    }.bind(this);
+      OT.$.forEach(this.getChannelsOfType(channelType), OT.$.bind(setChannelActiveState, this));
+    }, this);
 
+    this.destroyed = false;
+    this.destroyedReason = void 0;
+ 
     this.destroy = function(reason, quiet) {
       destroyedReason = reason || 'clientDisconnected';
+      this.destroyed = true;
+      this.destroyedReason = destroyedReason;
 
       if (quiet !== true) {
         this.dispatchEvent(
@@ -11670,24 +14684,7 @@ OTHelpers.centerElement = function(element, width, height) {
         );
       }
     };
-
-    Object.defineProperties(this, {
-      destroyed: {
-        get: function() { return destroyedReason !== void 0; },
-        enumerable: true
-      },
-
-      destroyedReason: {
-        get: function() { return destroyedReason; },
-        enumerable: true
-      },
-
-      frameRate: {
-        get: function() { return this.getChannelsOfType('video')[0].frameRate; },
-        enumerable: true
-      }
-    });
-
+    
     /// PRIVATE STUFF CALLED BY Raptor.Dispatcher
 
     // Confusingly, this should not be called when you want to change
@@ -11699,8 +14696,8 @@ OTHelpers.centerElement = function(element, width, height) {
     // have access to their session.
     //
     this._ = {};
-    this._.updateProperty = function (key, value) {
-      if (validPropertyNames.indexOf(key) === -1) {
+    this._.updateProperty = OT.$.bind(function(key, value) {
+      if (OT.$.arrayIndexOf(validPropertyNames, key) === -1) {
         OT.warn('Unknown stream property "' + key + '" was modified to "' + value + '".');
         return;
       }
@@ -11724,21 +14721,21 @@ OTHelpers.centerElement = function(element, width, height) {
 
       var event = new OT.StreamUpdatedEvent(this, key, oldValue, newValue);
       this.dispatchEvent(event);
-    }.bind(this);
+    }, this);
 
     // Mass update, called by Raptor.Dispatcher
-    this._.update = function (attributes) {
+    this._.update = OT.$.bind(function(attributes) {
       for (var key in attributes) {
         if(!attributes.hasOwnProperty(key)) {
           continue;
         }
         this._.updateProperty(key, attributes[key]);
       }
-    }.bind(this);
+    }, this);
 
-    this._.updateChannel = function (channelId, attributes) {
+    this._.updateChannel = OT.$.bind(function(channelId, attributes) {
       this.getChannel(channelId).update(attributes);
-    }.bind(this);
+    }, this);
   };
 
 })(window);
@@ -11746,7 +14743,6 @@ OTHelpers.centerElement = function(element, width, height) {
 
 
   OT.Archive = function(id, name, status) {
-
     this.id = id;
     this.name = name;
     this.status = status;
@@ -11756,7 +14752,7 @@ OTHelpers.centerElement = function(element, width, height) {
     OT.$.eventing(this);
 
     // Mass update, called by Raptor.Dispatcher
-    this._.update = function (attributes) {
+    this._.update = OT.$.bind(function (attributes) {
       for (var key in attributes) {
         if(!attributes.hasOwnProperty(key)) {
           continue;
@@ -11766,21 +14762,194 @@ OTHelpers.centerElement = function(element, width, height) {
 
         var event = new OT.ArchiveUpdatedEvent(this, key, oldValue, this[key]);
         this.dispatchEvent(event);
-
       }
-    }.bind(this);
+    }, this);
 
     this.destroy = function() {};
 
   };
 
 })(window);
+!(function() {
+
+
+  /*
+   * A <code>RTCPeerConnection.getStats</code> based audio level sampler.
+   *
+   * It uses the the <code>getStats</code> method to get the <code>audioOutputLevel</code>.
+   * This implementation expects the single parameter version of the <code>getStats</code> method.
+   *
+   * Currently the <code>audioOutputLevel</code> stats is only supported in Chrome.
+   *
+   * @param {OT.SubscriberPeerConnection} peerConnection the peer connection to use to get the stats
+   * @constructor
+   */
+  OT.GetStatsAudioLevelSampler = function(peerConnection) {
+
+    if (!OT.$.hasCapabilities('audioOutputLevelStat', 'getStatsWithSingleParameter')) {
+      throw new Error('The current platform does not provide the required capabilities');
+    }
+
+    var _peerConnection = peerConnection,
+        _statsProperty = 'audioOutputLevel';
+
+    /*
+     * Acquires the audio level.
+     *
+     * @param {function(?number)} done a callback to be called with the acquired value in the
+     * [0, 1] range when available or <code>null</code> if no value could be acquired
+     */
+    this.sample = function(done) {
+      _peerConnection.getStatsWithSingleParameter(function(statsReport) {
+        var results = statsReport.result();
+
+        for (var i = 0; i < results.length; i++) {
+          var result = results[i];
+          if (result.local) {
+            var audioOutputLevel = parseFloat(result.local.stat(_statsProperty));
+            if (!isNaN(audioOutputLevel)) {
+              // the mex value delivered by getStats for audio levels is 2^15
+              done(audioOutputLevel / 32768);
+              return;
+            }
+          }
+        }
+
+        done(null);
+      });
+    };
+  };
+
+
+  /*
+   * An <code>AudioContext</code> based audio level sampler. It returns the maximum value in the
+   * last 1024 samples.
+   *
+   * It is worth noting that the remote <code>MediaStream</code> audio analysis is currently only
+   * available in FF.
+   *
+   * This implementation gracefully handles the case where the <code>MediaStream</code> has not
+   * been set yet by returning a <code>null</code> value until the stream is set. It is up to the
+   * call site to decide what to do with this value (most likely ignore it and retry later).
+   *
+   * @constructor
+   * @param {AudioContext} audioContext an audio context instance to get an analyser node
+   */
+  OT.AnalyserAudioLevelSampler = function(audioContext) {
+
+    var _sampler = this,
+        _analyser = null,
+        _timeDomainData = null;
+
+    var _getAnalyser = function(stream) {
+      var sourceNode = audioContext.createMediaStreamSource(stream);
+      var analyser = audioContext.createAnalyser();
+      sourceNode.connect(analyser);
+      return analyser;
+    };
+
+    this.webOTStream = null;
+
+    this.sample = function(done) {
+
+      if (!_analyser && _sampler.webOTStream) {
+        _analyser = _getAnalyser(_sampler.webOTStream);
+        _timeDomainData = new Uint8Array(_analyser.frequencyBinCount);
+      }
+
+      if (_analyser) {
+        _analyser.getByteTimeDomainData(_timeDomainData);
+
+        // varies from 0 to 255
+        var max = 0;
+        for (var idx = 0; idx < _timeDomainData.length; idx++) {
+          max = Math.max(max, Math.abs(_timeDomainData[idx] - 128));
+        }
+
+        // normalize the collected level to match the range delivered by
+        // the getStats' audioOutputLevel
+        done(max / 128);
+      } else {
+        done(null);
+      }
+    };
+  };
+
+  /*
+   * Transforms a raw audio level to produce a "smoother" animation when using displaying the
+   * audio level. This transformer is state-full because it needs to keep the previous average
+   * value of the signal for filtering.
+   *
+   * It applies a low pass filter to get rid of level jumps and apply a log scale.
+   *
+   * @constructor
+   */
+  OT.AudioLevelTransformer = function() {
+
+    var _averageAudioLevel = null;
+
+    /*
+     *
+     * @param {number} audioLevel a level in the [0,1] range
+     * @returns {number} a level in the [0,1] range transformed
+     */
+    this.transform = function(audioLevel) {
+      if (_averageAudioLevel === null || audioLevel >= _averageAudioLevel) {
+        _averageAudioLevel = audioLevel;
+      } else {
+        // a simple low pass filter with a smoothing of 70
+        _averageAudioLevel = audioLevel * 0.3 + _averageAudioLevel * 0.7;
+      }
+
+      // 1.5 scaling to map -30-0 dBm range to [0,1]
+      var logScaled = (Math.log(_averageAudioLevel) / Math.LN10) / 1.5 + 1;
+
+      return Math.min(Math.max(logScaled, 0), 1);
+    };
+  };
+
+})(window);
+!(function() {
+
+  /*
+   * Executes the provided callback thanks to <code>window.setInterval</code>.
+   *
+   * @param {function()} callback
+   * @param {number} frequency how many times per second we want to execute the callback
+   * @constructor
+   */
+  OT.IntervalRunner = function(callback, frequency) {
+    var _callback = callback,
+      _frequency = frequency,
+      _intervalId = null;
+
+    this.start = function() {
+      _intervalId = window.setInterval(_callback, 1000 / _frequency);
+    };
+
+    this.stop = function() {
+      window.clearInterval(_intervalId);
+      _intervalId = null;
+    };
+  };
+
+})(window);
 !(function(window) {
 
-  // order is very important: "RTCSessionDescription" defined in Firefox Nighly but useless
-  var NativeRTCSessionDescription = (window.mozRTCSessionDescription ||
-    window.RTCSessionDescription);
-  var NativeRTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+  // Normalise these
+  var NativeRTCSessionDescription,
+      NativeRTCIceCandidate;
+
+  if (!TBPlugin.isInstalled()) {
+    // order is very important: 'RTCSessionDescription' defined in Firefox Nighly but useless
+    NativeRTCSessionDescription = (window.mozRTCSessionDescription ||
+                                   window.RTCSessionDescription);
+    NativeRTCIceCandidate = (window.mozRTCIceCandidate || window.RTCIceCandidate);
+  }
+  else {
+    NativeRTCSessionDescription = TBPlugin.RTCSessionDescription;
+    NativeRTCIceCandidate = TBPlugin.RTCIceCandidate;
+  }
 
   // Helper function to forward Ice Candidates via +messageDelegate+
   var iceCandidateForwarder = function(messageDelegate) {
@@ -11806,19 +14975,16 @@ OTHelpers.centerElement = function(element, width, height) {
   //  iceProcessor.process(iceMessage2);
   //  iceProcessor.process(iceMessage3);
   //
-  //  iceProcessor.peerConnection = peerConnection;
+  //  iceProcessor.setPeerConnection(peerConnection);
   //  iceProcessor.processPending();
   //
   var IceCandidateProcessor = function() {
     var _pendingIceCandidates = [],
         _peerConnection = null;
 
-
-    Object.defineProperty(this, 'peerConnection', {
-      set: function(peerConnection) {
-        _peerConnection = peerConnection;
-      }
-    });
+    this.setPeerConnection = function(peerConnection) {
+      _peerConnection = peerConnection;
+    };
 
     this.process = function(message) {
       var iceCandidate = new NativeRTCIceCandidate(message.content);
@@ -11854,7 +15020,7 @@ OTHelpers.centerElement = function(element, width, height) {
     //   1. extract all the payload types from the rtpmap CN lines
     //   2. find the index of the audio media line
     //
-    sdpLines = sdp.split('\r\n').filter(function(line, index) {
+    sdpLines = OT.$.filter(sdp.split('\r\n'), function(line, index) {
       if (line.indexOf('m=audio') !== -1) audioMediaLineIndex = index;
 
       match = line.match(matcher);
@@ -11871,6 +15037,35 @@ OTHelpers.centerElement = function(element, width, height) {
     if (payloadTypes.length && audioMediaLineIndex) {
       // Remove all CN payload types from the audio media line.
       sdpLines[audioMediaLineIndex] = sdpLines[audioMediaLineIndex].replace(
+        new RegExp(payloadTypes.join('|'), 'ig') , '').replace(/\s+/g, ' ');
+    }
+
+    return sdpLines.join('\r\n');
+  };
+
+  var removeVideoCodec = function removeVideoCodec (sdp, codec) {
+    var matcher =  new RegExp('a=rtpmap:(\\d+) ' + codec + '\\/\\d+', 'i'),
+        payloadTypes = [],
+        videoMediaLineIndex,
+        sdpLines,
+        match;
+
+    sdpLines = OT.$.filter(sdp.split('\r\n'), function(line, index) {
+      if (line.indexOf('m=video') !== -1) videoMediaLineIndex = index;
+
+      match = line.match(matcher);
+      if (match !== null) {
+        payloadTypes.push(match[1]);
+
+        // remove this line as it contains the codec
+        return false;
+      }
+
+      return true;
+    });
+
+    if (payloadTypes.length && videoMediaLineIndex) {
+      sdpLines[videoMediaLineIndex] = sdpLines[videoMediaLineIndex].replace(
         new RegExp(payloadTypes.join('|'), 'ig') , '').replace(/\s+/g, ' ');
     }
 
@@ -11901,6 +15096,8 @@ OTHelpers.centerElement = function(element, width, height) {
 
     setLocalDescription = function(answer) {
       answer.sdp = removeComfortNoise(answer.sdp);
+      answer.sdp = removeVideoCodec(answer.sdp, 'ulpfec');
+      answer.sdp = removeVideoCodec(answer.sdp, 'red');
 
       peerConnection.setLocalDescription(
         answer,
@@ -11985,6 +15182,8 @@ OTHelpers.centerElement = function(element, width, height) {
 
     setLocalDescription = function(offer) {
       offer.sdp = removeComfortNoise(offer.sdp);
+      offer.sdp = removeVideoCodec(offer.sdp, 'ulpfec');
+      offer.sdp = removeVideoCodec(offer.sdp, 'red');
 
       peerConnection.setLocalDescription(
         offer,
@@ -12026,23 +15225,23 @@ OTHelpers.centerElement = function(element, width, height) {
    */
   OT.PeerConnection = function(config) {
     var _peerConnection,
+        _peerConnectionCompletionHandlers = [],
         _iceProcessor = new IceCandidateProcessor(),
         _offer,
         _answer,
         _state = 'new',
-        _messageDelegates = [],
-        _gettingStats,
-        _createTime = OT.$.now();
+        _messageDelegates = [];
+
 
     OT.$.eventing(this);
 
     // if ice servers doesn't exist Firefox will throw an exception. Chrome
-    // interprets this as "Use my default STUN servers" whereas FF reads it
-    // as "Don't use STUN at all". *Grumble*
+    // interprets this as 'Use my default STUN servers' whereas FF reads it
+    // as 'Don't use STUN at all'. *Grumble*
     if (!config.iceServers) config.iceServers = [];
 
     // Private methods
-    var delegateMessage = function(type, messagePayload) {
+    var delegateMessage = OT.$.bind(function(type, messagePayload) {
           if (_messageDelegates.length) {
             // We actually only ever send to the first delegate. This is because
             // each delegate actually represents a Publisher/Subscriber that
@@ -12051,69 +15250,124 @@ OTHelpers.centerElement = function(element, width, height) {
             // each PeerConnection.
             _messageDelegates[0](type, messagePayload);
           }
-        }.bind(this),
+        }, this),
 
-        setupPeerConnection = function() {
-          if (!_peerConnection) {
-            try {
-              OT.debug('Creating peer connection config "' + JSON.stringify(config) + '".');
-              if (!config.iceServers || config.iceServers.length === 0) {
-                // This should never happen unless something is misconfigured
-                OT.error('No ice servers present');
-              }
-              _peerConnection = OT.$.createPeerConnection(config, {
-                optional: [
-                  { DtlsSrtpKeyAgreement: true }
-                ]
-              });
-            } catch(e) {
-              triggerError('Failed to create PeerConnection, exception: ' +
-                  e.message, 'NewPeerConnection');
-              return null;
-            }
-
-            _peerConnection.onicecandidate = iceCandidateForwarder(delegateMessage);
-            _peerConnection.onaddstream = onRemoteStreamAdded.bind(this);
-            _peerConnection.onremovestream = onRemoteStreamRemoved.bind(this);
-
-            if (_peerConnection.onsignalingstatechange !== undefined) {
-              _peerConnection.onsignalingstatechange = routeStateChanged.bind(this);
-            } else if (_peerConnection.onstatechange !== undefined) {
-              _peerConnection.onstatechange = routeStateChanged.bind(this);
-            }
-
-            if (_peerConnection.oniceconnectionstatechange !== undefined) {
-              var failedStateTimer;
-              _peerConnection.oniceconnectionstatechange = function (event) {
-                if (event.target.iceConnectionState === 'failed') {
-                  if (failedStateTimer) {
-                    clearTimeout(failedStateTimer);
-                  }
-                  // We wait 5 seconds and make sure that it's still in the failed state
-                  // before we trigger the error. This is because we sometimes see
-                  // 'failed' and then 'connected' afterwards.
-                  setTimeout(function () {
-                    if (event.target.iceConnectionState === 'failed') {
-                      triggerError('The stream was unable to connect due to a network error.' +
-                       ' Make sure your connection isn\'t blocked by a firewall.', 'ICEWorkflow');
-                    }
-                  }, 5000);
-                }
-              };
-            }
+        // Create and initialise the PeerConnection object. This deals with
+        // any differences between the various browser implementations and
+        // our own TBPlugin version.
+        //
+        // +completion+ is the function is call once we've either successfully
+        // created the PeerConnection or on failure.
+        //
+        // +localWebRtcStream+ will be null unless the callee is representing
+        // a publisher. This is an unfortunate implementation limitation
+        // of TBPlugin, it's not used for vanilla WebRTC. Hopefully this can
+        // be tidied up later.
+        //
+        createPeerConnection = OT.$.bind(function (completion, localWebRtcStream) {
+          if (_peerConnection) {
+            completion.call(null, null, _peerConnection);
+            return;
           }
 
-          return _peerConnection;
-        }.bind(this),
+          _peerConnectionCompletionHandlers.push(completion);
+
+          if (_peerConnectionCompletionHandlers.length > 1) {
+            // The PeerConnection is already being setup, just wait for
+            // it to be ready.
+            return;
+          }
+
+          var pcConstraints = {
+            optional: [
+              {DtlsSrtpKeyAgreement: true}
+            ]
+          };
+
+          OT.debug('Creating peer connection config "' + JSON.stringify(config) + '".');
+
+          if (!config.iceServers || config.iceServers.length === 0) {
+            // This should never happen unless something is misconfigured
+            OT.error('No ice servers present');
+          }
+
+          OT.$.createPeerConnection(config, pcConstraints, localWebRtcStream,
+                                    OT.$.bind(attachEventsToPeerConnection, this));
+        }, this),
+
+        // An auxiliary function to createPeerConnection. This binds the various event callbacks
+        // once the peer connection is created.
+        //
+        // +err+ will be non-null if an err occured while creating the PeerConnection
+        // +pc+ will be the PeerConnection object itself.
+        //
+        attachEventsToPeerConnection = OT.$.bind(function(err, pc) {
+          if (err) {
+            triggerError('Failed to create PeerConnection, exception: ' +
+                err.toString(), 'NewPeerConnection');
+
+            _peerConnectionCompletionHandlers = [];
+            return;
+          }
+
+          OT.debug('OT attachEventsToPeerConnection');
+          _peerConnection = pc;
+
+          _peerConnection.onicecandidate = iceCandidateForwarder(delegateMessage);
+          _peerConnection.onaddstream = OT.$.bind(onRemoteStreamAdded, this);
+          _peerConnection.onremovestream = OT.$.bind(onRemoteStreamRemoved, this);
+
+          if (_peerConnection.onsignalingstatechange !== undefined) {
+            _peerConnection.onsignalingstatechange = OT.$.bind(routeStateChanged, this);
+          } else if (_peerConnection.onstatechange !== undefined) {
+            _peerConnection.onstatechange = OT.$.bind(routeStateChanged, this);
+          }
+
+          if (_peerConnection.oniceconnectionstatechange !== undefined) {
+            var failedStateTimer;
+            _peerConnection.oniceconnectionstatechange = function (event) {
+              if (event.target.iceConnectionState === 'failed') {
+                if (failedStateTimer) {
+                  clearTimeout(failedStateTimer);
+                }
+                // We wait 5 seconds and make sure that it's still in the failed state
+                // before we trigger the error. This is because we sometimes see
+                // 'failed' and then 'connected' afterwards.
+                setTimeout(function () {
+                  if (event.target.iceConnectionState === 'failed') {
+                    triggerError('The stream was unable to connect due to a network error.' +
+                     ' Make sure your connection isn\'t blocked by a firewall.', 'ICEWorkflow');
+                  }
+                }, 5000);
+              }
+            };
+          }
+
+          triggerPeerConnectionCompletion(null);
+        }, this),
+
+        triggerPeerConnectionCompletion = function () {
+          while (_peerConnectionCompletionHandlers.length) {
+            _peerConnectionCompletionHandlers.shift().call(null);
+          }
+        },
 
         // Clean up the Peer Connection and trigger the close event.
         // This function can be called safely multiple times, it will
         // only trigger the close event once (per PeerConnection object)
         tearDownPeerConnection = function() {
           // Our connection is dead, stop processing ICE candidates
-          if (_iceProcessor) _iceProcessor.peerConnection = null;
+          if (_iceProcessor) _iceProcessor.setPeerConnection(null);
+
+          qos.stopCollecting();
 
           if (_peerConnection !== null) {
+            if (_peerConnection.destroy) {
+              // OTPlugin defines a destroy method on PCs. This allows
+              // the plugin to release any resources that it's holding.
+              _peerConnection.destroy();
+            }
+
             _peerConnection = null;
             this.trigger('close');
           }
@@ -12135,7 +15389,6 @@ OTHelpers.centerElement = function(element, width, height) {
             newState = event.target.readyState;
           }
 
-          OT.debug('PeerConnection.stateChange: ' + newState);
           if (newState && newState.toLowerCase() !== _state) {
             _state = newState.toLowerCase();
             OT.debug('PeerConnection.stateChange: ' + _state);
@@ -12147,6 +15400,10 @@ OTHelpers.centerElement = function(element, width, height) {
             }
           }
         },
+
+        qosCallback = OT.$.bind(function(parsedStats) {
+          this.trigger('qos', parsedStats);
+        }, this),
 
         getRemoteStreams = function() {
           var streams;
@@ -12160,7 +15417,7 @@ OTHelpers.centerElement = function(element, width, height) {
               'method for retrieving remote streams');
           }
 
-          // Force streams to be an Array, rather than a "Sequence" object,
+          // Force streams to be an Array, rather than a 'Sequence' object,
           // which is browser dependent and does not behaviour like an Array
           // in every case.
           return Array.prototype.slice.call(streams);
@@ -12184,15 +15441,18 @@ OTHelpers.centerElement = function(element, width, height) {
           delegateMessage(messageType, sdp);
         },
 
+
         // Process an offer that
         processOffer = function(message) {
           var offer = new NativeRTCSessionDescription({type: 'offer', sdp: message.content.sdp}),
 
               // Relays +answer+ Answer
               relayAnswer = function(answer) {
-                _iceProcessor.peerConnection = _peerConnection;
+                _iceProcessor.setPeerConnection(_peerConnection);
                 _iceProcessor.processPending();
                 relaySDP(OT.Raptor.Actions.ANSWER, answer);
+
+                qos.startCollecting(_peerConnection);
               },
 
               reportError = function(message, errorReason, prefix) {
@@ -12200,14 +15460,14 @@ OTHelpers.centerElement = function(element, width, height) {
                   errorReason, prefix);
               };
 
-          setupPeerConnection();
-
-          offerProcessor(
-            _peerConnection,
-            offer,
-            relayAnswer,
-            reportError
-          );
+          createPeerConnection(function() {
+            offerProcessor(
+              _peerConnection,
+              offer,
+              relayAnswer,
+              reportError
+            );
+          });
         },
 
         processAnswer = function(message) {
@@ -12226,40 +15486,50 @@ OTHelpers.centerElement = function(element, width, height) {
                   'SetRemoteDescription');
               });
 
-          _iceProcessor.peerConnection = _peerConnection;
+          _iceProcessor.setPeerConnection(_peerConnection);
           _iceProcessor.processPending();
+
+          qos.startCollecting(_peerConnection);
         },
 
         processSubscribe = function() {
           OT.debug('PeerConnection.processSubscribe: Sending offer to subscriber.');
 
-          setupPeerConnection();
+          if (!_peerConnection) {
+            // TODO(rolly) I need to examine whether this can
+            // actually happen. If it does happen in the short
+            // term, I want it to be noisy.
+            throw new Error('PeerConnection broke!');
+          }
 
-          suscribeProcessor(
-            _peerConnection,
+          createPeerConnection(function() {
+            suscribeProcessor(
+              _peerConnection,
 
-            // Success: Relay Offer
-            function(offer) {
-              _offer = offer;
-              relaySDP(OT.Raptor.Actions.OFFER, _offer);
-            },
+              // Success: Relay Offer
+              function(offer) {
+                _offer = offer;
+                relaySDP(OT.Raptor.Actions.OFFER, _offer);
+              },
 
-            // Failure
-            function(message, errorReason, prefix) {
-              triggerError('PeerConnection.suscribeProcessor ' + message + ': ' +
-                errorReason, prefix);
-            }
-          );
+              // Failure
+              function(message, errorReason, prefix) {
+                triggerError('PeerConnection.suscribeProcessor ' + message + ': ' +
+                  errorReason, prefix);
+              }
+            );
+          });
         },
 
-        triggerError = function(errorReason, prefix) {
+        triggerError = OT.$.bind(function(errorReason, prefix) {
           OT.error(errorReason);
           this.trigger('error', errorReason, prefix);
-        }.bind(this);
+        }, this);
 
     this.addLocalStream = function(webRTCStream) {
-      setupPeerConnection();
-      _peerConnection.addStream(webRTCStream);
+      createPeerConnection(function() {
+        _peerConnection.addStream(webRTCStream);
+      }, webRTCStream);
     };
 
     this.disconnect = function() {
@@ -12281,6 +15551,7 @@ OTHelpers.centerElement = function(element, width, height) {
     this.processMessage = function(type, message) {
       OT.debug('PeerConnection.processMessage: Received ' +
         type + ' from ' + message.fromAddress);
+
       OT.debug(message);
 
       switch(type) {
@@ -12320,7 +15591,7 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     this.unregisterMessageDelegate = function(delegateFn) {
-      var index = _messageDelegates.indexOf(delegateFn);
+      var index = OT.$.arrayIndexOf(_messageDelegates, delegateFn);
 
       if ( index !== -1 ) {
         _messageDelegates.splice(index, 1);
@@ -12328,193 +15599,448 @@ OTHelpers.centerElement = function(element, width, height) {
       return _messageDelegates.length;
     };
 
-    /**
-     * Retrieves the PeerConnection stats.
-     *
-     * TODO document what the format of the final reports that +callback+ gets is
-     *
-     * @ignore
-     * @private
-     * @memberof PeerConnection
-     * @param callback {Function} this will be triggered once the stats a are ready.
-     * It takes a single argument which is the stats report, which may be undefined
-     * if there is presently no stats.
-     */
-    this.getStats = function(prevStats, callback) {
-      var parsedStats = {},
-          now,
-          timeDifference,
-          parseAvgVideoBitrate,
-          parseAvgAudioBitrate,
-          parseFrameRate,
-          parseStatsReports,
-          parseStats,
-          needsNewGetStats;
+    this.remoteStreams = function() {
+      return _peerConnection ? getRemoteStreams() : [];
+    };
 
-      // need to make sure that this isn't called again when in the middle of processing
-      if (_gettingStats === true) {
-        OT.warn('PeerConnection.getStats: Already getting the stats!');
-        return;
-      }
-
-      // locking this function
-      _gettingStats = true;
-
-      // get the previous timestamp (seconds)
-      now = OT.$.now();
-      timeDifference = (now - prevStats.timeStamp) / 1000; // how many seconds has passed
-
-      // now update the date
-      prevStats.timeStamp = now;
-
-      /* this parses a result if there it contains the video bitrate */
-      parseAvgVideoBitrate = function(result) {
-        var lastBytesSent = prevStats.videoBytesTransferred || 0;
-
-        if (result.bytesSent || result.bytesReceived) {
-          prevStats.videoBytesTransferred = result.bytesSent || result.bytesReceived;
-          return Math.round((prevStats.videoBytesTransferred - lastBytesSent) * 8 / timeDifference);
-
-        } else if (result.stat('googFrameHeightSent')) {
-          prevStats.videoBytesTransferred = result.stat('bytesSent');
-          return Math.round((prevStats.videoBytesTransferred - lastBytesSent) * 8 / timeDifference);
-
-        } else if (result.stat('googFrameHeightReceived')) {
-          prevStats.videoBytesTransferred = result.stat('bytesReceived');
-          return Math.round((prevStats.videoBytesTransferred - lastBytesSent) * 8 / timeDifference);
-
-        } else {
-          return NaN;
-        }
-
-      };
-
-        /* this parses a result if there it contains the audio bitrate */
-      parseAvgAudioBitrate = function(result) {
-        var lastBytesSent = prevStats.audioBytesTransferred || 0;
-
-        if (result.bytesSent || result.bytesReceived) {
-          prevStats.audioBytesTransferred = result.bytesSent || result.bytesReceived;
-          return Math.round((prevStats.audioBytesTransferred - lastBytesSent) * 8 / timeDifference);
-
-        } else if (result.stat('audioInputLevel')) {
-          prevStats.audioBytesTransferred = result.stat('bytesSent');
-          return Math.round((prevStats.audioBytesTransferred - lastBytesSent) * 8 / timeDifference);
-
-        } else if (result.stat('audioOutputLevel')) {
-          prevStats.audioBytesTransferred = result.stat('bytesReceived');
-          return Math.round((prevStats.audioBytesTransferred - lastBytesSent) * 8 / timeDifference);
-
-        } else {
-          return NaN;
-        }
-
-      };
-
-      parseFrameRate = function(result) {
-        if (result.stat('googFrameRateSent')) {
-          return result.stat('googFrameRateSent');
-        } else if (result.stat('googFrameRateReceived')) {
-          return result.stat('googFrameRateReceived');
-        }
-        return null;
-      };
-
-      parseStatsReports = function(stats) {
-        if (stats.result) {
-          var resultList = stats.result();
-          for (var resultIndex = 0; resultIndex < resultList.length; resultIndex++) {
-            var result = resultList[resultIndex];
-            if (result.stat) {
-
-              if(result.stat('googActiveConnection') === 'true') {
-                parsedStats.localCandidateType = result.stat('googLocalCandidateType');
-                parsedStats.remoteCandidateType = result.stat('googRemoteCandidateType');
-                parsedStats.transportType = result.stat('googTransportType');
-              }
-
-              var avgVideoBitrate = parseAvgVideoBitrate(result);
-              if (!isNaN(avgVideoBitrate)) {
-                parsedStats.avgVideoBitrate = avgVideoBitrate;
-              }
-
-              var avgAudioBitrate = parseAvgAudioBitrate(result);
-              if (!isNaN(avgAudioBitrate)) {
-                parsedStats.avgAudioBitrate = avgAudioBitrate;
-              }
-              var frameRate = parseFrameRate(result);
-              if (frameRate != null) {
-                parsedStats.frameRate = frameRate;
-              }
-            }
-          }
-        }
-
-        _gettingStats = false;
-        callback(parsedStats);
-      };
-      parsedStats.duration = Math.round(now - _createTime);
-
-      parseStats = function(stats) {
-        for (var key in stats) {
-          if (stats.hasOwnProperty(key) &&
-            (stats[key].type === 'outboundrtp' || stats[key].type === 'inboundrtp')) {
-            var res = stats[key];
-            // Find the bandwidth info for video
-            if (res.id.indexOf('video') !== -1) {
-
-              var avgVideoBitrate = parseAvgVideoBitrate(res);
-              if(!isNaN(avgVideoBitrate)) {
-                parsedStats.avgVideoBitrate = avgVideoBitrate;
-              }
-
-            } else if (res.id.indexOf('audio') !== -1) {
-
-              var avgAudioBitrate = parseAvgAudioBitrate(res);
-              if(!isNaN(avgAudioBitrate)) {
-                parsedStats.avgAudioBitrate = avgAudioBitrate;
-              }
-
-            }
-          }
-        }
-
-        _gettingStats = false;
-        callback(parsedStats);
-      };
-
-      needsNewGetStats = function() {
-        var firefoxVersion = window.navigator.userAgent.toLowerCase()
-        .match(/Firefox\/([0-9\.]+)/i);
-        var needs = (firefoxVersion !== null && parseFloat(firefoxVersion[1], 10) >= 27.0);
-        needsNewGetStats = function() { return needs; };
-        return needs;
-      };
-
-      if (_peerConnection && _peerConnection.getStats) {
-        if(needsNewGetStats()) {
-          _peerConnection.getStats(null, parseStats, function(err) {
-            OT.warn('Error collecting stats', err);
-            _gettingStats = false;
-          });
-        } else {
-          _peerConnection.getStats(parseStatsReports);
-        }
-      } else {
-        // there was no peer connection yet or getStats isn't implemented in this enviroment
-        _gettingStats = false;
-        callback(parsedStats);
+    this.getStatsWithSingleParameter = function(callback) {
+      if (OT.$.hasCapabilities('getStatsWithSingleParameter')) {
+        createPeerConnection(function() {
+          _peerConnection.getStats(callback);
+        });
       }
     };
 
-    Object.defineProperty(this, 'remoteStreams', {
-      get: function() {
-        return _peerConnection ? getRemoteStreams() : [];
-      }
-    });
+    var qos = new OT.PeerConnection.QOS(qosCallback);
   };
 
 })(window);
+//
+// There are three implementations of stats parsing in this file.
+// 1. For Chrome: Chrome is currently using an older version of the API
+// 2. For OTPlugin: The plugin is using a newer version of the API that
+//    exists in the latest WebRTC codebase
+// 3. For Firefox: FF is using a version that looks a lot closer to the
+//    current spec.
+//
+// I've attempted to keep the three implementations from sharing any code,
+// accordingly you'll notice a bunch of duplication between the three.
+//
+// This is acceptable as the goal is to be able to remove each implementation
+// as it's no longer needed without any risk of affecting the others. If there
+// was shared code between them then each removal would require an audit of
+// all the others.
+//
+//
+!(function() {
+
+  ///
+  // Get Stats using the older API. Used by all current versions
+  // of Chrome.
+  //
+  var parseStatsOldAPI = function parseStatsOldAPI (peerConnection,
+                                                    prevStats,
+                                                    currentStats,
+                                                    completion) {
+
+    /* this parses a result if there it contains the video bitrate */
+    var parseAvgVideoBitrate = function (result) {
+          if (result.stat('googFrameHeightSent')) {
+            currentStats.videoBytesTransferred = result.stat('bytesSent');
+          } else if (result.stat('googFrameHeightReceived')) {
+            currentStats.videoBytesTransferred = result.stat('bytesReceived');
+          } else {
+            return NaN;
+          }
+
+          var transferDelta = currentStats.videoBytesTransferred -
+                                        (prevStats.videoBytesTransferred || 0);
+
+          return Math.round(transferDelta * 8 / currentStats.deltaSecs);
+        },
+
+        /* this parses a result if there it contains the audio bitrate */
+        parseAvgAudioBitrate = function (result) {
+          if (result.stat('audioInputLevel')) {
+            currentStats.audioBytesTransferred = result.stat('bytesSent');
+          } else if (result.stat('audioOutputLevel')) {
+            currentStats.audioBytesTransferred = result.stat('bytesReceived');
+          } else {
+            return NaN;
+          }
+
+          var transferDelta = currentStats.audioBytesTransferred -
+                                        (prevStats.audioBytesTransferred || 0);
+          return Math.round(transferDelta * 8 / currentStats.deltaSecs);
+        },
+
+        parseFrameRate = function (result) {
+          if (result.stat('googFrameRateSent')) {
+            return result.stat('googFrameRateSent');
+          } else if (result.stat('googFrameRateReceived')) {
+            return result.stat('googFrameRateReceived');
+          }
+          return null;
+        },
+
+        parseStatsReports = function (stats) {
+          if (stats.result) {
+            var resultList = stats.result();
+            for (var resultIndex = 0; resultIndex < resultList.length; resultIndex++) {
+              var result = resultList[resultIndex];
+
+              if (result.stat) {
+
+                if(result.stat('googActiveConnection') === 'true') {
+                  currentStats.localCandidateType = result.stat('googLocalCandidateType');
+                  currentStats.remoteCandidateType = result.stat('googRemoteCandidateType');
+                  currentStats.transportType = result.stat('googTransportType');
+                }
+
+                var avgVideoBitrate = parseAvgVideoBitrate(result);
+                if (!isNaN(avgVideoBitrate)) {
+                  currentStats.avgVideoBitrate = avgVideoBitrate;
+                }
+
+                var avgAudioBitrate = parseAvgAudioBitrate(result);
+                if (!isNaN(avgAudioBitrate)) {
+                  currentStats.avgAudioBitrate = avgAudioBitrate;
+                }
+
+                var frameRate = parseFrameRate(result);
+                if (frameRate != null) {
+                  currentStats.frameRate = frameRate;
+                }
+              }
+            }
+          }
+
+          completion(null, currentStats);
+        };
+
+    peerConnection.getStats(parseStatsReports);
+  };
+
+  ///
+  // Get Stats for the OT Plugin, newer than Chromes version, but
+  // still not in sync with the spec.
+  //
+  var parseStatsOTPlugin = function parseStatsOTPlugin (peerConnection,
+                                                    prevStats,
+                                                    currentStats,
+                                                    completion) {
+
+    var onStatsError = function onStatsError (error) {
+          completion(error);
+        },
+
+        ///
+        // From the Audio Tracks
+        // * avgAudioBitrate
+        // * audioBytesTransferred
+        //
+        parseAudioStats = function (statsReport) {
+          var lastBytesSent = prevStats.audioBytesTransferred || 0,
+              transferDelta;
+
+          if (statsReport.audioInputLevel) {
+            currentStats.audioBytesTransferred = statsReport.bytesSent;
+          }
+          else if (statsReport.audioOutputLevel) {
+            currentStats.audioBytesTransferred = statsReport.bytesReceived;
+          }
+
+          if (currentStats.audioBytesTransferred) {
+            transferDelta = currentStats.audioBytesTransferred - lastBytesSent;
+            currentStats.avgAudioBitrate = Math.round(transferDelta * 8 / currentStats.deltaSecs);
+          }
+        },
+
+        ///
+        // From the Video Tracks
+        // * frameRate
+        // * avgVideoBitrate
+        // * videoBytesTransferred
+        //
+        parseVideoStats = function (statsReport) {
+
+          var lastBytesSent = prevStats.videoBytesTransferred || 0,
+              transferDelta;
+
+          if (statsReport.googFrameHeightSent) {
+            currentStats.videoBytesTransferred = statsReport.bytesSent;
+          }
+          else if (statsReport.googFrameHeightReceived) {
+            currentStats.videoBytesTransferred = statsReport.bytesReceived;
+          }
+
+          if (currentStats.videoBytesTransferred) {
+            transferDelta = currentStats.videoBytesTransferred - lastBytesSent;
+            currentStats.avgVideoBitrate = Math.round(transferDelta * 8 / currentStats.deltaSecs);
+          }
+
+          if (statsReport.googFrameRateSent) {
+            currentStats.frameRate = statsReport.googFrameRateSent;
+          } else if (statsReport.googFrameRateReceived) {
+            currentStats.frameRate = statsReport.googFrameRateReceived;
+          }
+        },
+
+        isStatsForVideoTrack = function(statsReport) {
+          return statsReport.googFrameHeightSent !== void 0 ||
+                  statsReport.googFrameHeightReceived !== void 0 ||
+                  currentStats.videoBytesTransferred !== void 0 ||
+                  statsReport.googFrameRateSent !== void 0;
+        },
+
+        isStatsForIceCandidate = function(statsReport) {
+          return statsReport.googActiveConnection === 'true';
+        };
+
+    peerConnection.getStats(null, function(statsReports) {
+      statsReports.forEach(function(statsReport) {
+        if (isStatsForIceCandidate(statsReport)) {
+          currentStats.localCandidateType = statsReport.googLocalCandidateType;
+          currentStats.remoteCandidateType = statsReport.googRemoteCandidateType;
+          currentStats.transportType = statsReport.googTransportType;
+        }
+        else if (isStatsForVideoTrack(statsReport)) {
+          parseVideoStats(statsReport);
+        }
+        else {
+          parseAudioStats(statsReport);
+        }
+      });
+
+      completion(null, currentStats);
+    }, onStatsError);
+  };
+
+
+  ///
+  // Get Stats using the newer API.
+  //
+  var parseStatsNewAPI = function parseStatsNewAPI (peerConnection,
+                                                    prevStats,
+                                                    currentStats,
+                                                    completion) {
+
+    var onStatsError = function onStatsError (error) {
+          completion(error);
+        },
+
+        parseAvgVideoBitrate = function parseAvgVideoBitrate (result) {
+          if (result.bytesSent || result.bytesReceived) {
+            currentStats.videoBytesTransferred = result.bytesSent || result.bytesReceived;
+          }
+          else {
+            return NaN;
+          }
+
+          var transferDelta = currentStats.videoBytesTransferred -
+                                        (prevStats.videoBytesTransferred || 0);
+
+          return Math.round(transferDelta * 8 / currentStats.deltaSecs);
+        },
+
+        parseAvgAudioBitrate = function parseAvgAudioBitrate (result) {
+          if (result.bytesSent || result.bytesReceived) {
+            currentStats.audioBytesTransferred = result.bytesSent || result.bytesReceived;
+          } else {
+            return NaN;
+          }
+
+          var transferDelta = currentStats.audioBytesTransferred -
+                                        (prevStats.audioBytesTransferred || 0);
+          return Math.round(transferDelta * 8 / currentStats.deltaSecs);
+        },
+
+        round = function round(num) {
+          return Math.round(num * 100) / 100;
+        },
+
+        dumpRtpStats = function dumpRtpStats(stat, label) {
+          var statsString = label + " " + new Date(stat.timestamp).toTimeString() +
+                            " " + stat.type + " SSRC: " + stat.ssrc;
+          if (stat.packetsReceived !== undefined) {
+            statsString += " Received: " + stat.packetsReceived + " packets";
+            if (stat.bytesReceived !== undefined) {
+              statsString += " (" + round(stat.bytesReceived/1024) + " Kb)";
+            }
+            statsString += " Lost: " + stat.packetsLost + " Jitter: " + stat.jitter;
+            if (stat.mozRtt !== undefined) {
+              statsString += " RTT: " + stat.mozRtt + " ms";
+            }
+          } else if (stat.packetsSent !== undefined) {
+            statsString += " Sent: " + stat.packetsSent + " packets";
+            if (stat.bytesSent !== undefined) {
+              statsString += " (" + round(stat.bytesSent/1024) + " Kb)";
+            }
+          }
+          return statsString;
+        },
+        dumpAvStat = function dumpAvStat(stat) {
+	  var statsString = '';
+	  if (stat.mozAvSyncDelay !== undefined) {
+	    statsString += "A/V sync: " + stat.mozAvSyncDelay + " ms ";
+	  }
+	  if (stat.mozJitterBufferDelay !== undefined) {
+	    statsString += "Jitter-buffer delay: " + stat.mozJitterBufferDelay + " ms";
+	  }
+          return statsString;
+        },
+        dumpCoderStat = function dumpCoderStat(stat) {
+          var statsString = '';
+	  if (stat.bitrateMean !== undefined ||
+	      stat.framerateMean !== undefined ||
+	      stat.droppedFrames !== undefined ||
+	      stat.discardedPackets !== undefined) {
+	    statsString = (stat.packetsReceived !== undefined)? " Decoder:" : " Encoder:";
+	    if (stat.bitrateMean !== undefined) {
+	      statsString += " Avg. bitrate: " + (stat.bitrateMean/1000000).toFixed(2) + " Mbps";
+	      if (stat.bitrateStdDev !== undefined) {
+		statsString += " (" + (stat.bitrateStdDev/1000000).toFixed(2) + " SD)";
+	      }
+	    }
+	    if (stat.framerateMean !== undefined) {
+	      statsString += " Avg. framerate: " + (stat.framerateMean).toFixed(2) + " fps";
+	      if (stat.framerateStdDev !== undefined) {
+		statsString += " (" + stat.framerateStdDev.toFixed(2) + " SD)";
+	      }
+	    }
+	    if (stat.droppedFrames !== undefined) {
+	      statsString += " Dropped frames: " + stat.droppedFrames;
+	    }
+	    if (stat.discardedPackets !== undefined) {
+	      statsString += " Discarded packets: " + stat.discardedPackets;
+	    }
+	  }
+          return statsString;
+        };
+
+    peerConnection.getStats(null, function(stats) {
+
+      for (var key in stats) {
+        if (stats.hasOwnProperty(key) &&
+          (stats[key].type === 'outboundrtp' || stats[key].type === 'inboundrtp')) {
+
+          var res = stats[key];
+
+          var statsString = 'WebRTC stats - ' + key + ' * ';
+          if (!res.isRemote) {
+	    if (res.mozAvSyncDelay !== undefined ||
+		res.mozJitterBufferDelay !== undefined) {
+	      if (dumpAvStat(res)) {
+                statsString += 'WebRTC A/V stats - ' + dumpAvStat(res) + ' * ';
+              }
+	    }
+	    if (dumpCoderStat(res)) {
+	      statsString += 'WebRTC Coder stats - ' + dumpCoderStat(res) + ' * ';
+	    }
+            statsString += 'WebRTC RTP stats - ' + dumpRtpStats(res, 'Local') + ' * ';
+            if (res.remoteId) {
+              statsString += 'WebRTC RTP stats - ' + dumpRtpStats(stats[res.remoteId], 'Remote') + ' * ';
+            }
+          }
+          OT.log(statsString);
+
+          // Find the bandwidth info for video
+          if (res.id.indexOf('video') !== -1) {
+            var avgVideoBitrate = parseAvgVideoBitrate(res);
+            if(!isNaN(avgVideoBitrate)) {
+              currentStats.avgVideoBitrate = avgVideoBitrate;
+            }
+
+          } else if (res.id.indexOf('audio') !== -1) {
+            var avgAudioBitrate = parseAvgAudioBitrate(res);
+            if(!isNaN(avgAudioBitrate)) {
+              currentStats.avgAudioBitrate = avgAudioBitrate;
+            }
+
+          }
+        }
+      }
+
+      completion(null, currentStats);
+    }, onStatsError);
+  };
+
+
+  var parseQOS = function (peerConnection, prevStats, currentStats, completion) {
+    var firefoxVersion = window.navigator.userAgent
+                              .toLowerCase().match(/Firefox\/([0-9\.]+)/i);
+
+    if (TBPlugin.isInstalled()) {
+      parseQOS = parseStatsOTPlugin;
+      return parseStatsOTPlugin(peerConnection, prevStats, currentStats, completion);
+    }
+    else if (firefoxVersion !== null && parseFloat(firefoxVersion[1], 10) >= 27.0) {
+      parseQOS = parseStatsNewAPI;
+      return parseStatsNewAPI(peerConnection, prevStats, currentStats, completion);
+    }
+    else {
+      parseQOS = parseStatsOldAPI;
+      return parseStatsOldAPI(peerConnection, prevStats, currentStats, completion);
+    }
+  };
+
+  OT.PeerConnection.QOS = function (qosCallback) {
+    var _creationTime = OT.$.now(),
+        _peerConnection;
+
+    var calculateQOS = OT.$.bind(function calculateQOS (prevStats) {
+      if (!_peerConnection) {
+        // We don't have a PeerConnection yet, or we did and
+        // it's been closed. Either way we're done.
+        return;
+      }
+
+      var now = OT.$.now();
+
+      var currentStats = {
+        timeStamp: now,
+        duration: Math.round(now - _creationTime),
+        deltaSecs: (now - prevStats.timeStamp) / 1000
+      };
+
+      var onParsedStats = function (err, parsedStats) {
+        if (err) {
+          OT.error('Failed to Parse QOS Stats: ' + JSON.stringify(err));
+          return;
+        }
+
+        qosCallback(parsedStats, prevStats);
+
+        // Recalculate the stats
+        setTimeout(OT.$.bind(calculateQOS, null, parsedStats), OT.PeerConnection.QOS.INTERVAL);
+      };
+
+      parseQOS(_peerConnection, prevStats, currentStats, onParsedStats);
+    }, this);
+
+
+    this.startCollecting = function (peerConnection) {
+      if (!peerConnection || !peerConnection.getStats) {
+        // It looks like this browser doesn't support getStats
+        // Bail.
+        return;
+      }
+
+      _peerConnection = peerConnection;
+
+      calculateQOS({
+        timeStamp: OT.$.now()
+      });
+    };
+
+    this.stopCollecting = function () {
+      _peerConnection = null;
+    };
+  };
+
+  // Recalculate the stats in 30 sec
+  OT.PeerConnection.QOS.INTERVAL = 30000;
+})();
 !(function() {
 
   var _peerConnections = {};
@@ -12578,7 +16104,8 @@ OTHelpers.centerElement = function(element, width, height) {
         _subscriberId = session._.subscriberMap[remoteConnection.id + '_' + streamId],
         _onPeerClosed,
         _onPeerError,
-        _relayMessageToPeer;
+        _relayMessageToPeer,
+        _onQOS;
 
     // Private
     _onPeerClosed = function() {
@@ -12592,7 +16119,7 @@ OTHelpers.centerElement = function(element, width, height) {
       this.destroy();
     };
 
-    _relayMessageToPeer = function(type, payload) {
+    _relayMessageToPeer = OT.$.bind(function(type, payload) {
       if (!_hasRelayCandidates){
         var extractCandidates = type === OT.Raptor.Actions.CANDIDATE ||
                                 type === OT.Raptor.Actions.OFFER ||
@@ -12636,7 +16163,11 @@ OTHelpers.centerElement = function(element, width, height) {
             session._.jsepCandidate(streamId, payload);
           }
       }
-    }.bind(this);
+    }, this);
+
+    _onQOS = OT.$.bind(function _onQOS (parsedStats, prevStats) {
+      this.trigger('qos', remoteConnection, parsedStats, prevStats);
+    }, this);
 
     OT.$.eventing(this);
 
@@ -12644,19 +16175,15 @@ OTHelpers.centerElement = function(element, width, height) {
     this.destroy = function() {
       // Clean up our PeerConnection
       if (_peerConnection) {
+        _peerConnection.off();
         OT.PeerConnections.remove(remoteConnection, streamId);
       }
 
-      _peerConnection.off();
       _peerConnection = null;
     };
 
     this.processMessage = function(type, message) {
       _peerConnection.processMessage(type, message);
-    };
-
-    this.getStats = function(prevStats, callback) {
-      _peerConnection.getStats(prevStats, callback);
     };
 
     // Init
@@ -12667,19 +16194,21 @@ OTHelpers.centerElement = function(element, width, height) {
 
       _peerConnection.on({
         close: _onPeerClosed,
-        error: _onPeerError
+        error: _onPeerError,
+        qos: _onQOS
       }, this);
 
       _peerConnection.registerMessageDelegate(_relayMessageToPeer);
       _peerConnection.addLocalStream(webRTCStream);
 
-      Object.defineProperty(this, 'remoteConnection', {
-        value: remoteConnection
-      });
+      this.remoteConnection = function() {
+        return remoteConnection;
+      };
 
-      Object.defineProperty(this, 'hasRelayCandidates', {
-        get: function() { return _hasRelayCandidates; }
-      });
+      this.hasRelayCandidates = function() {
+        return _hasRelayCandidates;
+      };
+
     };
   };
 
@@ -12713,13 +16242,15 @@ OTHelpers.centerElement = function(element, width, height) {
   OT.SubscriberPeerConnection = function(remoteConnection, session, stream,
     subscriber, properties) {
     var _peerConnection,
+        _destroyed = false,
         _hasRelayCandidates = false,
         _onPeerClosed,
         _onRemoteStreamAdded,
         _onRemoteStreamRemoved,
         _onPeerError,
         _relayMessageToPeer,
-        _setEnabledOnStreamTracksCurry;
+        _setEnabledOnStreamTracksCurry,
+        _onQOS;
 
     // Private
     _onPeerClosed = function() {
@@ -12737,10 +16268,10 @@ OTHelpers.centerElement = function(element, width, height) {
 
     // Note: All Peer errors are fatal right now.
     _onPeerError = function(errorReason, prefix) {
-      this.trigger('error', null, errorReason, this, prefix);
+      this.trigger('error', errorReason, this, prefix);
     };
 
-    _relayMessageToPeer = function(type, payload) {
+    _relayMessageToPeer = OT.$.bind(function(type, payload) {
       if (!_hasRelayCandidates){
         var extractCandidates = type === OT.Raptor.Actions.CANDIDATE ||
                                 type === OT.Raptor.Actions.OFFER ||
@@ -12769,14 +16300,14 @@ OTHelpers.centerElement = function(element, width, height) {
           session._.jsepCandidateP2p(stream.id, subscriber.widgetId, payload);
           break;
       }
-    }.bind(this);
+    }, this);
 
     // Helper method used by subscribeToAudio/subscribeToVideo
     _setEnabledOnStreamTracksCurry = function(isVideo) {
       var method = 'get' + (isVideo ? 'Video' : 'Audio') + 'Tracks';
 
       return function(enabled) {
-        var remoteStreams = _peerConnection.remoteStreams,
+        var remoteStreams = _peerConnection.remoteStreams(),
             tracks,
             stream;
 
@@ -12799,18 +16330,24 @@ OTHelpers.centerElement = function(element, width, height) {
       };
     };
 
+    _onQOS = OT.$.bind(function _onQOS (parsedStats, prevStats) {
+      this.trigger('qos', parsedStats, prevStats);
+    }, this);
 
     OT.$.eventing(this);
 
     // Public
     this.destroy = function() {
+      if (_destroyed) return;
+      _destroyed = true;
+
       if (_peerConnection) {
         var numDelegates = _peerConnection.unregisterMessageDelegate(_relayMessageToPeer);
 
         // Only clean up the PeerConnection if there isn't another Subscriber using it
         if (numDelegates === 0) {
           // Unsubscribe us from the stream, if it hasn't already been destroyed
-          if (session && session.connected && stream && !stream.destroyed) {
+          if (session && session.isConnected() && stream && !stream.destroyed) {
               // Notify the server components
             session._.subscriberDestroy(stream, subscriber);
           }
@@ -12818,7 +16355,7 @@ OTHelpers.centerElement = function(element, width, height) {
           // Ref: OPENTOK-2458 disable all audio tracks before removing it.
           this.subscribeToAudio(false);
         }
-        OT.PeerConnections.remove(remoteConnection, stream.streamId);
+        OT.PeerConnections.remove(remoteConnection, stream.id);
       }
       _peerConnection = null;
       this.off();
@@ -12828,16 +16365,13 @@ OTHelpers.centerElement = function(element, width, height) {
       _peerConnection.processMessage(type, message);
     };
 
-    this.getStats = function(prevStats, callback) {
-      _peerConnection.getStats(prevStats, callback);
-    };
 
     this.subscribeToAudio = _setEnabledOnStreamTracksCurry(false);
     this.subscribeToVideo = _setEnabledOnStreamTracksCurry(true);
 
-    Object.defineProperty(this, 'hasRelayCandidates', {
-      get: function() { return _hasRelayCandidates; }
-    });
+    this.hasRelayCandidates = function() {
+      return _hasRelayCandidates;
+    };
 
     // Init
     this.init = function() {
@@ -12847,14 +16381,15 @@ OTHelpers.centerElement = function(element, width, height) {
         close: _onPeerClosed,
         streamAdded: _onRemoteStreamAdded,
         streamRemoved: _onRemoteStreamRemoved,
-        error: _onPeerError
+        error: _onPeerError,
+        qos: _onQOS
       }, this);
 
       var numDelegates = _peerConnection.registerMessageDelegate(_relayMessageToPeer);
 
         // If there are already remoteStreams, add them immediately
-      if (_peerConnection.remoteStreams.length > 0) {
-        _peerConnection.remoteStreams.forEach(_onRemoteStreamAdded, this);
+      if (_peerConnection.remoteStreams().length > 0) {
+        OT.$.forEach(_peerConnection.remoteStreams(), _onRemoteStreamAdded, this);
       } else if (numDelegates === 1) {
         // We only bother with the PeerConnection negotiation if we don't already
         // have a remote stream.
@@ -12865,13 +16400,13 @@ OTHelpers.centerElement = function(element, width, height) {
           var audio = stream.getChannelsOfType('audio'),
               video = stream.getChannelsOfType('video');
 
-          channelsToSubscribeTo = audio.map(function(channel) {
+          channelsToSubscribeTo = OT.$.map(audio, function(channel) {
             return {
               id: channel.id,
               type: channel.type,
               active: properties.subscribeToAudio
             };
-          }).concat(video.map(function(channel) {
+          }).concat(OT.$.map(video, function(channel) {
             return {
               id: channel.id,
               type: channel.type,
@@ -12883,12 +16418,18 @@ OTHelpers.centerElement = function(element, width, height) {
         }
 
         session._.subscriberCreate(stream, subscriber, channelsToSubscribeTo,
-          function(err, message) {
+          OT.$.bind(function(err, message) {
             if (err) {
-              this.trigger('error', null, err.message, this, 'Subscribe');
+              this.trigger('error', err.message, this, 'Subscribe');
             }
             _peerConnection.setIceServers(OT.Raptor.parseIceServers(message));
-          }.bind(this));
+          }, this));
+      }
+    };
+
+    this.getStatsWithSingleParameter = function(callback) {
+      if(_peerConnection) {
+        _peerConnection.getStatsWithSingleParameter(callback);
       }
     };
   };
@@ -12908,9 +16449,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
           _widgets[name] = widget;
 
-          Object.defineProperty(this, name, {
-            get: function() { return _widgets[name]; }
-          });
+          this[name] = widget;
         };
 
     if (!properties.parent) {
@@ -13034,17 +16573,17 @@ OTHelpers.centerElement = function(element, width, height) {
 
       if (_options.onCreate) _options.onCreate(this.domElement);
 
-      // if the mode isn't auto, then we can directly set it
-      if (_options.mode !== 'auto') {
-        widget.setDisplayMode(_options.mode);
-      } else {
-        // we set it to on at first, and then apply the desired mode
-        // this will let the proper widgets nicely fade away
-        widget.setDisplayMode('on');
+      widget.setDisplayMode(_options.mode);
+
+      if (_options.mode === 'auto') {
+        // if the mode is auto we hold the "on mode" for 2 seconds
+        // this will let the proper widgets nicely fade away and help discoverability
+        OT.$.addClass(widget.domElement, 'OT_mode-on-hold');
         setTimeout(function() {
-          widget.setDisplayMode(_options.mode);
+          OT.$.removeClass(widget.domElement, 'OT_mode-on-hold');
         }, 2000);
       }
+
 
       // add the widget to the parent
       parent.appendChild(this.domElement);
@@ -13075,17 +16614,7 @@ OTHelpers.centerElement = function(element, width, height) {
   // can be destroyed
   OT.Chrome.BackingBar = function(options) {
     var _nameMode = options.nameMode,
-        _muteMode = options.muteMode,
-        _domElement;
-
-    // This behaviour must be implemented to make the widget behaviour work.
-    // @fixme This is a nasty code smell
-    Object.defineProperty(this, 'domElement', {
-      get: function() { return _domElement; },
-      set: function(domElement) {
-        _domElement = domElement;
-      }
-    });
+        _muteMode = options.muteMode;
 
     function getDisplayMode() {
       if(_nameMode === 'on' || _muteMode === 'on') {
@@ -13138,41 +16667,29 @@ OTHelpers.centerElement = function(element, width, height) {
   // can be destroyed
   OT.Chrome.NamePanel = function(options) {
     var _name = options.name,
-        _bugMode = options.bugMode,
-        _domElement;
+        _bugMode = options.bugMode;
 
-    if (!_name || _name.trim().length === '') {
+    if (!_name || OT.$.trim(_name).length === '') {
       _name = null;
 
       // THere's no name, just flip the mode off
       options.mode = 'off';
     }
 
-    // This behaviour must be implemented to make the widget behaviour work.
-    // @fixme This is a nasty code smell
-    Object.defineProperty(this, 'domElement', {
-      get: function() { return _domElement; },
-      set: function(domElement) {
-        _domElement = domElement;
-      }
+    this.setName = OT.$.bind(function(name) {
+      if (!_name) this.setDisplayMode('auto');
+      _name = name;
+      this.domElement.innerHTML = _name;
     });
 
-    Object.defineProperty(this, 'name', {
-      set: function(name) {
-        if (!_name) this.setDisplayMode('auto');
-        _name = name;
-        _domElement.innerHTML = _name;
-      }.bind(this)
-    });
-
-    this.setBugMode = function(bugMode) {
+    this.setBugMode = OT.$.bind(function(bugMode) {
       _bugMode = bugMode;
       if(bugMode === 'off') {
-        OT.$.addClass(_domElement, 'OT_name-no-bug');
+        OT.$.addClass(this.domElement, 'OT_name-no-bug');
       } else {
-        OT.$.removeClass(_domElement, 'OT_name-no-bug');
+        OT.$.removeClass(this.domElement, 'OT_name-no-bug');
       }
-    };
+    }, this);
 
     // Mixin common widget behaviour
     OT.Chrome.Behaviour.Widget(this, {
@@ -13182,9 +16699,9 @@ OTHelpers.centerElement = function(element, width, height) {
       htmlAttributes: {
         className: 'OT_name OT_edge-bar-item'
       },
-      onCreate: function() {
+      onCreate: OT.$.bind(function() {
         this.setBugMode(_bugMode);
-      }.bind(this)
+      }, this)
     });
 
   };
@@ -13195,38 +16712,28 @@ OTHelpers.centerElement = function(element, width, height) {
   OT.Chrome.MuteButton = function(options) {
     var _onClickCb,
         _muted = options.muted || false,
-        _domElement,
         updateClasses,
         attachEvents,
         detachEvents,
         onClick;
 
-    // This behaviour must be implemented to make the widget behaviour work.
-    // @fixme This is a nasty code smell
-    Object.defineProperty(this, 'domElement', {
-      get: function() { return _domElement; },
-      set: function(domElement) {
-        _domElement = domElement;
-      }
-    });
-
-    updateClasses = function() {
+    updateClasses = OT.$.bind(function() {
       if (_muted) {
-        OT.$.addClass(_domElement, 'OT_active');
+        OT.$.addClass(this.domElement, 'OT_active');
       } else {
-        OT.$.removeClass(_domElement, 'OT_active ');
+        OT.$.removeClass(this.domElement, 'OT_active ');
       }
-    };
+    }, this);
 
     // Private Event Callbacks
     attachEvents = function(elem) {
-      _onClickCb = onClick.bind(this);
-      elem.addEventListener('click', _onClickCb, false);
+      _onClickCb = OT.$.bind(onClick, this);
+      OT.$.on(elem, 'click', _onClickCb);
     };
 
     detachEvents = function(elem) {
       _onClickCb = null;
-      elem.removeEventListener('click', _onClickCb, false);
+      OT.$.off(elem, 'click', _onClickCb);
     };
 
     onClick = function() {
@@ -13243,11 +16750,13 @@ OTHelpers.centerElement = function(element, width, height) {
       return false;
     };
 
-    Object.defineProperty(this, 'muted', {
-      get: function() { return _muted; },
-      set: function(muted) {
-        _muted = muted;
-        updateClasses();
+    OT.$.defineProperties(this, {
+      muted: {
+        get: function() { return _muted; },
+        set: function(muted) {
+          _muted = muted;
+          updateClasses();
+        }
       }
     });
 
@@ -13260,8 +16769,8 @@ OTHelpers.centerElement = function(element, width, height) {
       htmlAttributes: {
         className: classNames
       },
-      onCreate: attachEvents.bind(this),
-      onDestroy: detachEvents.bind(this)
+      onCreate: OT.$.bind(attachEvents, this),
+      onDestroy: OT.$.bind(detachEvents, this)
     });
   };
 
@@ -13270,16 +16779,6 @@ OTHelpers.centerElement = function(element, width, height) {
 !(function() {
 
   OT.Chrome.OpenTokButton = function(options) {
-
-    // This behaviour must be implemented to make the widget behaviour work.
-    // @fixme This is a nasty code smell
-    var _domElement;
-    Object.defineProperty(this, 'domElement', {
-      get: function() { return _domElement; },
-      set: function(domElement) {
-        _domElement = domElement;
-      }
-    });
 
     // Mixin common widget behaviour
     OT.Chrome.Behaviour.Widget(this, {
@@ -13317,26 +16816,17 @@ OTHelpers.centerElement = function(element, width, height) {
         _lightBox,
         _light,
         _text,
-        _domElement,
+        _textNode,
         renderStageDelayedAction,
         renderText,
         renderStage;
 
-    // This behaviour must be implemented to make the widget behaviour work.
-    // @fixme This is a nasty code smell
-    Object.defineProperty(this, 'domElement', {
-      get: function() { return _domElement; },
-      set: function(domElement) {
-        _domElement = domElement;
-      }
-    });
-
     renderText = function(text) {
-      _text.innerText = text;
+      _textNode.nodeValue = text;
       _lightBox.setAttribute('title', text);
     };
 
-    renderStage = function() {
+    renderStage = OT.$.bind(function() {
       if(renderStageDelayedAction) {
         clearTimeout(renderStageDelayedAction);
         renderStageDelayedAction = null;
@@ -13348,8 +16838,8 @@ OTHelpers.centerElement = function(element, width, height) {
         OT.$.removeClass(_light, 'OT_active');
       }
 
-      OT.$.removeClass(_domElement, 'OT_archiving-' + (!_archiving ? 'on' : 'off'));
-      OT.$.addClass(_domElement, 'OT_archiving-' + (_archiving ? 'on' : 'off'));
+      OT.$.removeClass(this.domElement, 'OT_archiving-' + (!_archiving ? 'on' : 'off'));
+      OT.$.addClass(this.domElement, 'OT_archiving-' + (_archiving ? 'on' : 'off'));
       if(options.show && _archiving) {
         renderText(_archivingStarted);
         OT.$.addClass(_text, 'OT_mode-on');
@@ -13358,26 +16848,26 @@ OTHelpers.centerElement = function(element, width, height) {
         renderStageDelayedAction = setTimeout(function() {
           OT.$.addClass(_text, 'OT_mode-auto');
           OT.$.removeClass(_text, 'OT_mode-on');
-        }.bind(this), 5000);
+        }, 5000);
       } else if(options.show && !_initialState) {
         OT.$.addClass(_text, 'OT_mode-on');
         OT.$.removeClass(_text, 'OT_mode-auto');
         this.setDisplayMode('on');
         renderText(_archivingEnded);
-        renderStageDelayedAction = setTimeout(function() {
+        renderStageDelayedAction = setTimeout(OT.$.bind(function() {
           this.setDisplayMode('off');
-        }.bind(this), 5000);
+        }, this), 5000);
       } else {
         this.setDisplayMode('off');
       }
-    }.bind(this);
+    }, this);
 
     // Mixin common widget behaviour
     OT.Chrome.Behaviour.Widget(this, {
       mode: _archiving && options.show && 'on' || 'off',
       nodeName: 'h1',
       htmlAttributes: {className: 'OT_archiving OT_edge-bar-item OT_edge-bottom'},
-      onCreate: function() {
+      onCreate: OT.$.bind(function() {
         _lightBox = OT.$.createElement('div', {
           className: 'OT_archiving-light-box'
         }, '');
@@ -13388,29 +16878,134 @@ OTHelpers.centerElement = function(element, width, height) {
         _text = OT.$.createElement('div', {
           className: 'OT_archiving-status OT_mode-on OT_edge-bar-item OT_edge-bottom'
         }, '');
-        _domElement.appendChild(_lightBox);
-        _domElement.appendChild(_text);
+        _textNode = document.createTextNode('');
+        _text.appendChild(_textNode);
+        this.domElement.appendChild(_lightBox);
+        this.domElement.appendChild(_text);
         renderStage();
-      }
+      }, this)
     });
 
-    this.setShowArchiveStatus = function(show) {
+    this.setShowArchiveStatus = OT.$.bind(function(show) {
       options.show = show;
-      if(_domElement) {
+      if(this.domElement) {
         renderStage.call(this);
       }
-    };
+    }, this);
 
-    this.setArchiving = function(status) {
+    this.setArchiving = OT.$.bind(function(status) {
       _archiving = status;
       _initialState = false;
-      if(_domElement) {
+      if(this.domElement) {
         renderStage.call(this);
       }
-    };
+    }, this);
 
   };
 
+})(window);
+!(function() {
+
+  OT.Chrome.AudioLevelMeter = function(options) {
+
+    var widget = this,
+        _meterBarElement,
+        _voiceOnlyIconElement,
+        _meterValueElement,
+        _value,
+        _maxValue = options.maxValue || 1,
+        _minValue = options.minValue || 0;
+
+    // Mixin common widget behaviour
+    OT.Chrome.Behaviour.Widget(this, {
+      mode: options ? options.mode : 'auto',
+      nodeName: 'div',
+      htmlAttributes: {
+        className: 'OT_audio-level-meter'
+      },
+      onCreate: function() {
+        _meterBarElement = OT.$.createElement('div', {
+          className: 'OT_audio-level-meter__bar'
+        }, '');
+        _meterValueElement = OT.$.createElement('div', {
+          className: 'OT_audio-level-meter__value'
+        }, '');
+        _voiceOnlyIconElement = OT.$.createElement('div', {
+          className: 'OT_audio-level-meter__audio-only-img'
+        }, '');
+
+        widget.domElement.appendChild(_meterBarElement);
+        widget.domElement.appendChild(_voiceOnlyIconElement);
+        widget.domElement.appendChild(_meterValueElement);
+      }
+    });
+
+    function updateView() {
+      var percentSize = _value * 100 / (_maxValue - _minValue);
+      _meterValueElement.style.width = _meterValueElement.style.height = 2 * percentSize + '%';
+      _meterValueElement.style.top = _meterValueElement.style.right = -percentSize + '%';
+    }
+
+    widget.setValue = function(value) {
+      _value = value;
+      updateView();
+    };
+  };
+
+})(window);
+!(function() {
+  OT.Chrome.VideoDisabledIndicator = function(options) {
+    var _mode,
+        _videoDisabled = false,
+        _warning = false,
+        updateClasses;
+
+    _mode = options.mode || 'auto';
+    updateClasses = function(domElement) {
+      if (_videoDisabled) {
+        OT.$.addClass(domElement, 'OT_video-disabled');
+      } else {
+        OT.$.removeClass(domElement, 'OT_video-disabled');
+      }
+      if(_warning) {
+        OT.$.addClass(domElement, 'OT_video-disabled-warning');
+      } else {
+        OT.$.removeClass(domElement, 'OT_video-disabled-warning');
+      }
+      if ((_videoDisabled || _warning) && (_mode === 'auto' || _mode === 'on')) {
+        OT.$.addClass(domElement, 'OT_active');
+      } else {
+        OT.$.removeClass(domElement, 'OT_active');
+      }
+    };
+
+    this.disableVideo = function(value) {
+      _videoDisabled = value;
+      if(value === true) {
+        _warning = false;
+      }
+      updateClasses(this.domElement);
+    };
+
+    this.setWarning = function(value) {
+      _warning = value;
+      updateClasses(this.domElement);
+    };
+
+    // Mixin common widget behaviour
+    OT.Chrome.Behaviour.Widget(this, {
+      mode: _mode,
+      nodeName: 'div',
+      htmlAttributes: {
+        className: 'OT_video-disabled-indicator'
+      }
+    });
+
+    this.setDisplayMode = function(mode) {
+      _mode = mode;
+      updateClasses(this.domElement);
+    };
+  };
 })(window);
 (function() {
 /* Stylable Notes
@@ -13493,7 +17088,12 @@ OTHelpers.centerElement = function(element, width, height) {
    * properties:
    *
    *     <ul>
-   *       <li><code>backgroundImageURI</code> (String) &mdash; A URI for an image to display as
+   *       <li><code>audioLevelDisplayMode</code> (String) &mdash; How to display the audio level
+   *       indicator. Possible values are: <code>"auto"</code> (the indicator is displayed when the
+   *       video is disabled), <code>"off"</code> (the indicator is not displayed), and
+   *       <code>"on"</code> (the indicator is always displayed).</li>
+   *
+   *       <li><p><code>backgroundImageURI</code> (String) &mdash; A URI for an image to display as
    *       the background image when a video is not displayed. (A video may not be displayed if
    *       you call <code>publishVideo(false)</code> on the Publisher object). You can pass an http
    *       or https URI to a PNG, JPEG, or non-animated GIF file location. You can also use the
@@ -13503,7 +17103,14 @@ OTHelpers.centerElement = function(element, width, height) {
    *       you could set the property to <code>"data:VBORw0KGgoAA..."</code>, where the portion of
    *       the string after <code>"data:"</code> is the result of a call to
    *       <code>Publisher.getImgData()</code>. If the URL or the image data is invalid, the
-   *       property is ignored (the attempt to set the image fails silently).</li>
+   *       property is ignored (the attempt to set the image fails silently).
+   *       <p>
+   *       Note that in Internet Explorer 8 (using the OpenTok Plugin for Internet Explorer),
+   *       you cannot set the <code>backgroundImageURI</code> style to a string larger than
+   *       32&nbsp;kB. This is due to an IE 8 limitation on the size of URI strings. Due to this
+   *       limitation, you cannot set the <code>backgroundImageURI</code> style to a string obtained
+   *       with the <code>getImgData()</code> method.
+   *       </p></li>
    *
    *       <li><code>buttonDisplayMode</code> (String) &mdash; How to display the microphone
    *       controls. Possible values are: <code>"auto"</code> (controls are displayed when the
@@ -13558,7 +17165,12 @@ OTHelpers.centerElement = function(element, width, height) {
    * properties:
    *
    *     <ul>
-   *       <li><code>backgroundImageURI</code> (String) &mdash; A URI for an image to display as
+   *       <li><code>audioLevelDisplayMode</code> (String) &mdash; How to display the audio level
+   *       indicator. Possible values are: <code>"auto"</code> (the indicator is displayed when the
+   *       video is disabled), <code>"off"</code> (the indicator is not displayed), and
+   *       <code>"on"</code> (the indicator is always displayed).</li>
+   *
+   *       <li><p><code>backgroundImageURI</code> (String) &mdash; A URI for an image to display as
    *       the background image when a video is not displayed. (A video may not be displayed if
    *       you call <code>subscribeToVideo(false)</code> on the Publisher object). You can pass an
    *       http or https URI to a PNG, JPEG, or non-animated GIF file location. You can also use the
@@ -13568,7 +17180,14 @@ OTHelpers.centerElement = function(element, width, height) {
    *       you could set the property to <code>"data:VBORw0KGgoAA..."</code>, where the portion of
    *       the string after <code>"data:"</code> is the result of a call to
    *       <code>Publisher.getImgData()</code>. If the URL or the image data is invalid, the
-   *       property is ignored (the attempt to set the image fails silently).</li>
+   *       property is ignored (the attempt to set the image fails silently).
+   *       <p>
+   *       Note that in Internet Explorer 8 (using the OpenTok Plugin for Internet Explorer),
+   *       you cannot set the <code>backgroundImageURI</code> style to a string larger than
+   *       32&nbsp;kB. This is due to an IE 8 limitation on the size of URI strings. Due to this
+   *       limitation, you cannot set the <code>backgroundImageURI</code> style to a string obtained
+   *       with the <code>getImgData()</code> method.
+   *       </p></li>
    *
    *       <li><code>buttonDisplayMode</code> (String) &mdash; How to display the speaker
    *       controls. Possible values are: <code>"auto"</code> (controls are displayed when the
@@ -13579,6 +17198,14 @@ OTHelpers.centerElement = function(element, width, height) {
    *       Possible values are: <code>"auto"</code> (the name is displayed when the stream is first
    *       displayed and when the user mouses over the display), <code>"off"</code> (the name is not
    *       displayed), and <code>"on"</code> (the name is always displayed).</li>
+   *
+   *       <li><code>videoDisabledDisplayMode</code> (String) &#151; Whether to display the video
+   *       disabled indicator and video disabled warning icons for a Subscriber. These icons
+   *       indicate that the video has been disabled (or is in risk of being disabled for
+   *       the warning icon) due to poor stream quality. Possible values are: <code>"auto"</code>
+   *       (the icons are automatically when the displayed video is disabled or in risk of being
+   *       disabled due to poor stream quality), <code>"off"</code> (do not display the icons), and
+   *       <code>"on"</code> (display the icons).</li>
    *   </ul>
    * </p>
    *
@@ -13643,19 +17270,21 @@ OTHelpers.centerElement = function(element, width, height) {
       buttonDisplayMode: ['auto', 'mini', 'mini-auto', 'off', 'on'],
       nameDisplayMode: ['auto', 'off', 'on'],
       bugDisplayMode: ['auto', 'off', 'on'],
+      audioLevelDisplayMode: ['auto', 'off', 'on'],
       showSettingsButton: [true, false],
       showMicButton: [true, false],
       backgroundImageURI: null,
       showControlBar: [true, false],
-      showArchiveStatus: [true, false]
+      showArchiveStatus: [true, false],
+      videoDisabledDisplayMode: ['auto', 'off', 'on']
     };
 
 
     // Validates the style +key+ and also whether +value+ is valid for +key+
     isValidStyle = function(key, value) {
       return key === 'backgroundImageURI' ||
-        (   _validStyleValues.hasOwnProperty(key) &&
-        _validStyleValues[key].indexOf(value) !== -1 );
+        (_validStyleValues.hasOwnProperty(key) &&
+          OT.$.arrayIndexOf(_validStyleValues[key], value) !== -1 );
     };
 
     castValue = function(value) {
@@ -13677,7 +17306,8 @@ OTHelpers.centerElement = function(element, width, height) {
         if(!style.hasOwnProperty(key)) {
           continue;
         }
-        if (_COMPONENT_STYLES.indexOf(key) < 0) {
+        if (OT.$.arrayIndexOf(_COMPONENT_STYLES, key) < 0) {
+
           // Strip unnecessary properties out, should this happen on Set?
           delete style[key];
         }
@@ -13722,7 +17352,7 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     this.set = function(key, value) {
-      OT.debug('Publisher.setStyle: ' + key.toString());
+      OT.debug('setStyle: ' + key.toString());
 
       var newValue = castValue(value),
           oldValue;
@@ -13756,48 +17386,42 @@ OTHelpers.centerElement = function(element, width, height) {
  * * bind to changes in mute/unmute/volume/etc and respond to them
  */
   OT.Microphone = function(webRTCStream, muted) {
-    var _muted,
-        _gain = 50;
+    var _muted;
 
+    OT.$.defineProperties(this, {
+      muted: {
+        get: function() {
+          return _muted;
+        },
+        set: function(muted) {
+          if (_muted === muted) return;
 
-    Object.defineProperty(this, 'muted', {
-      get: function() { return _muted; },
-      set: function(muted) {
-        if (_muted === muted) return;
+          _muted = muted;
 
-        _muted = muted;
+          var audioTracks = webRTCStream.getAudioTracks();
 
-        var audioTracks = webRTCStream.getAudioTracks();
-
-        for (var i=0, num=audioTracks.length; i<num; ++i) {
-          audioTracks[i].enabled = !_muted;
+          for (var i=0, num=audioTracks.length; i<num; ++i) {
+            audioTracks[i].setEnabled(!_muted);
+          }
         }
-      }
-    });
-
-    Object.defineProperty(this, 'gain', {
-      get: function() { return _gain; },
-      set: function(gain) {
-        OT.warn('OT.Microphone.gain IS NOT YET IMPLEMENTED');
-        _gain = gain;
       }
     });
 
     // Set the initial value
     if (muted !== undefined) {
-      this.muted = muted === true;
+      this.muted(muted === true);
 
     } else if (webRTCStream.getAudioTracks().length) {
-      this.muted = !webRTCStream.getAudioTracks()[0].enabled;
+      this.muted(!webRTCStream.getAudioTracks()[0].enabled);
 
     } else {
-      this.muted = false;
+      this.muted(false);
     }
 
   };
 
 })(window);
-!(function() {
+!(function(window, OT) {
 
   // A Factory method for generating simple state machine classes.
   //
@@ -13817,16 +17441,19 @@ OTHelpers.centerElement = function(element, width, height) {
         validTransitions = OT.$.clone(transitions);
 
     var isValidState = function (state) {
-      return validStates.indexOf(state) !== -1;
+      return OT.$.arrayIndexOf(validStates, state) !== -1;
     };
 
     var isValidTransition = function(fromState, toState) {
-      return validTransitions[fromState] && validTransitions[fromState].indexOf(toState) !== -1;
+      return validTransitions[fromState] &&
+        OT.$.arrayIndexOf(validTransitions[fromState], toState) !== -1;
     };
 
     return function(stateChangeFailed) {
       var currentState = initialState,
           previousState = null;
+
+      this.current = currentState;
 
       function signalChangeFailed(message, newState) {
         stateChangeFailed({
@@ -13858,24 +17485,14 @@ OTHelpers.centerElement = function(element, width, height) {
 
       this.set = function(newState) {
         if (!handleInvalidStateChanges(newState)) return;
-
         previousState = currentState;
-        currentState = newState;
+        this.current = currentState = newState;
       };
-
-      Object.defineProperties(this, {
-        current: {
-          get: function() { return currentState; }
-        },
-
-        subscribing: {
-          get: function() { return currentState === 'Subscribing'; }
-        }
-      });
+      
     };
   };
 
-})(window);
+})(window, window.OT);
 !(function() {
 
 // Models a Subscriber's subscribing State
@@ -13889,6 +17506,7 @@ OTHelpers.centerElement = function(element, width, height) {
 //     Subscribing               (this is 'onLoad'
 //     Failed                    (terminal state, with a reason that maps to one of the
 //                               (failure cases above
+//     Destroyed                 (The subscriber has been cleaned up, terminal state
 //
 //
 // Valid Transitions:
@@ -13917,7 +17535,10 @@ OTHelpers.centerElement = function(element, width, height) {
 //           | Failed                      (probably a peer connection failure after we began
 //                                         (subscribing
 //
-//     Failed ->                           (terminal error state)
+//     Failed ->
+//             Destroyed
+//
+//     Destroyed ->                        (terminal state)
 //
 //
 // @example
@@ -13936,26 +17557,41 @@ OTHelpers.centerElement = function(element, width, height) {
       initialState = 'NotSubscribing';
 
   validStates = [
-    'NotSubscribing', 'Init', 'ConnectingToPeer', 'BindingRemoteStream', 'Subscribing', 'Failed'
+    'NotSubscribing', 'Init', 'ConnectingToPeer',
+    'BindingRemoteStream', 'Subscribing', 'Failed',
+    'Destroyed'
   ];
 
   validTransitions = {
-    NotSubscribing: ['NotSubscribing', 'Init'],
-    Init: ['NotSubscribing', 'ConnectingToPeer', 'BindingRemoteStream'],
-    ConnectingToPeer: ['NotSubscribing', 'BindingRemoteStream', 'Failed'],
-    BindingRemoteStream: ['NotSubscribing', 'Subscribing', 'Failed'],
-    Subscribing: ['NotSubscribing', 'Failed'],
-    Failed: []
+    NotSubscribing: ['NotSubscribing', 'Init', 'Destroyed'],
+    Init: ['NotSubscribing', 'ConnectingToPeer', 'BindingRemoteStream', 'Destroyed'],
+    ConnectingToPeer: ['NotSubscribing', 'BindingRemoteStream', 'Failed', 'Destroyed'],
+    BindingRemoteStream: ['NotSubscribing', 'Subscribing', 'Failed', 'Destroyed'],
+    Subscribing: ['NotSubscribing', 'Failed', 'Destroyed'],
+    Failed: ['Destroyed'],
+    Destroyed: []
   };
 
   OT.SubscribingState = OT.generateSimpleStateMachine(initialState, validStates, validTransitions);
 
-  Object.defineProperty(OT.SubscribingState.prototype, 'attemptingToSubscribe', {
-    get: function() {
-      return [ 'Init', 'ConnectingToPeer', 'BindingRemoteStream' ]
-        .indexOf(this.current) !== -1;
-    }
-  });
+  OT.SubscribingState.prototype.isDestroyed = function() {
+    return this.current === 'Destroyed';
+  };
+
+  OT.SubscribingState.prototype.isFailed = function() {
+    return this.current === 'Failed';
+  };
+
+  OT.SubscribingState.prototype.isSubscribing = function() {
+    return this.current === 'Subscribing';
+  };
+
+  OT.SubscribingState.prototype.isAttemptingToSubscribe = function() {
+    return OT.$.arrayIndexOf(
+      [ 'Init', 'ConnectingToPeer', 'BindingRemoteStream' ],
+      this.current
+    ) !== -1;
+  };
 
 })(window);
 !(function() {
@@ -13970,6 +17606,7 @@ OTHelpers.centerElement = function(element, width, height) {
 //    PublishingToSession
 //    Publishing
 //    Failed
+//    Destroyed
 //
 //
 // Valid Transitions:
@@ -14009,42 +17646,47 @@ OTHelpers.centerElement = function(element, width, height) {
 //                                    (failing is just an error, all is failure)
 //      | NotPublishing               (destroy()
 //
-//    Failed ->                       (Terminal state
+//    Failed ->
+//       Destroyed
+//
+//    Destroyed ->                    (Terminal state
 //
 //
 
   var validStates = [
       'NotPublishing', 'GetUserMedia', 'BindingMedia', 'MediaBound',
-      'PublishingToSession', 'Publishing', 'Failed'
+      'PublishingToSession', 'Publishing', 'Failed',
+      'Destroyed'
     ],
 
     validTransitions = {
-      NotPublishing: ['NotPublishing', 'GetUserMedia'],
-      GetUserMedia: ['BindingMedia', 'Failed', 'NotPublishing'],
-      BindingMedia: ['MediaBound', 'Failed', 'NotPublishing'],
-      MediaBound: ['NotPublishing', 'PublishingToSession', 'Failed'],
-      PublishingToSession: ['NotPublishing', 'Publishing', 'Failed'],
-      Publishing: ['NotPublishing', 'MediaBound', 'Failed'],
-      Failed: []
+      NotPublishing: ['NotPublishing', 'GetUserMedia', 'Destroyed'],
+      GetUserMedia: ['BindingMedia', 'Failed', 'NotPublishing', 'Destroyed'],
+      BindingMedia: ['MediaBound', 'Failed', 'NotPublishing', 'Destroyed'],
+      MediaBound: ['NotPublishing', 'PublishingToSession', 'Failed', 'Destroyed'],
+      PublishingToSession: ['NotPublishing', 'Publishing', 'Failed', 'Destroyed'],
+      Publishing: ['NotPublishing', 'MediaBound', 'Failed', 'Destroyed'],
+      Failed: ['Destroyed'],
+      Destroyed: []
     },
 
     initialState = 'NotPublishing';
 
   OT.PublishingState = OT.generateSimpleStateMachine(initialState, validStates, validTransitions);
 
-  Object.defineProperties(OT.PublishingState.prototype, {
-    attemptingToPublish: {
-      get: function() {
-        return [ 'GetUserMedia', 'BindingMedia', 'MediaBound', 'PublishingToSession' ]
-          .indexOf(this.current) !== -1;
-      }
-    },
+  OT.PublishingState.prototype.isDestroyed = function() {
+    return this.current === 'Destroyed';
+  };
 
-    publishing: {
-      get: function() { return this.current === 'Publishing'; }
-    }
-  });
+  OT.PublishingState.prototype.isAttemptingToPublish = function() {
+    return OT.$.arrayIndexOf(
+      [ 'GetUserMedia', 'BindingMedia', 'MediaBound', 'PublishingToSession' ],
+      this.current) !== -1;
+  };
 
+  OT.PublishingState.prototype.isPublishing = function() {
+    return this.current === 'Publishing';
+  };
 
 })(window);
 !(function() {
@@ -14123,13 +17765,15 @@ OTHelpers.centerElement = function(element, width, height) {
         _publishStartTime,
         _microphone,
         _chrome,
+        _audioLevelMeter,
         _analytics = new OT.Analytics(),
         _validResolutions,
         _validFrameRates = [ 1, 7, 15, 30 ],
-        _qosIntervals = {},
         _prevStats,
         _state,
-        _iceServers;
+        _iceServers,
+        _audioLevelCapable = OT.$.hasCapabilities('webAudio'),
+        _audioLevelSampler;
 
     _validResolutions = {
       '320x240': {width: 320, height: 240},
@@ -14143,12 +17787,39 @@ OTHelpers.centerElement = function(element, width, height) {
 
     OT.$.eventing(this);
 
+    if(_audioLevelCapable) {
+      _audioLevelSampler = new OT.AnalyserAudioLevelSampler(new window.AudioContext());
+
+      var publisher = this;
+      var audioLevelRunner = new OT.IntervalRunner(function() {
+        _audioLevelSampler.sample(function(audioInputLevel) {
+          OT.$.requestAnimationFrame(function() {
+            publisher.dispatchEvent(
+              new OT.AudioLevelUpdatedEvent(audioInputLevel));
+          });
+        });
+      }, 60);
+
+      this.on({
+        'audioLevelUpdated:added': function(count) {
+          if (count === 1) {
+            audioLevelRunner.start();
+          }
+        },
+        'audioLevelUpdated:removed': function(count) {
+          if (count === 0) {
+            audioLevelRunner.stop();
+          }
+        }
+      });
+    }
+
     OT.StylableComponent(this, {
-      showMicButton: true,
       showArchiveStatus: true,
       nameDisplayMode: 'auto',
       buttonDisplayMode: 'auto',
       bugDisplayMode: 'auto',
+      audioLevelDisplayMode: 'auto',
       backgroundImageURI: null
     });
 
@@ -14161,7 +17832,7 @@ OTHelpers.centerElement = function(element, width, height) {
             payload: payload,
             'session_id': _session ? _session.sessionId : null,
             'connection_id': _session &&
-              _session.connected ? _session.connection.connectionId : null,
+              _session.isConnected() ? _session.connection.connectionId : null,
             'partner_id': _session ? _session.apiKey : OT.APIKEY,
             streamId: _stream ? _stream.id : null,
             'widget_id': _guid,
@@ -14169,12 +17840,16 @@ OTHelpers.centerElement = function(element, width, height) {
           });
         },
 
-        recordQOS = function(connectionId) {
+        recordQOS = OT.$.bind(function(connection, parsedStats) {
+          if(!_state.isPublishing()) {
+            return;
+          }
           var QoSBlob = {
             'widget_type': 'Publisher',
             'stream_type': 'WebRTC',
             sessionId: _session ? _session.sessionId : null,
-            connectionId: _session && _session.connected ? _session.connection.connectionId : null,
+            connectionId: _session && _session.isConnected() ?
+              _session.connection.connectionId : null,
             partnerId: _session ? _session.apiKey : OT.APIKEY,
             streamId: _stream ? _stream.id : null,
             width: _container ? OT.$.width(_container.domElement)  : undefined,
@@ -14184,20 +17859,12 @@ OTHelpers.centerElement = function(element, width, height) {
             'media_server_name': _session ? _session.sessionInfo.messagingServer : null,
             p2pFlag: _session ? _session.sessionInfo.p2pEnabled : false,
             duration: _publishStartTime ? new Date().getTime() - _publishStartTime.getTime() : 0,
-            'remote_connection_id': connectionId
+            'remote_connection_id': connection.id
           };
 
-          // get stats for each connection id
-          _peerConnections[connectionId].getStats(_prevStats, function(stats) {
-            var statIndex;
-            if (stats) {
-              for (statIndex in stats) {
-                QoSBlob[statIndex] = stats[statIndex];
-              }
-            }
-            _analytics.logQOS(QoSBlob);
-          });
-        },
+          _analytics.logQOS( OT.$.extend(QoSBlob, parsedStats) );
+          this.trigger('qos', parsedStats);
+        }, this),
 
         /// Private Events
 
@@ -14207,12 +17874,19 @@ OTHelpers.centerElement = function(element, width, height) {
         },
 
         onLoaded = function() {
+          if (_state.isDestroyed()) {
+            // The publisher was destroyed before loading finished
+            return;
+          }
+
           OT.debug('OT.Publisher.onLoaded');
 
           _state.set('MediaBound');
+
           // If we have a session and we haven't created the stream yet then
           // wait until that is complete before hiding the loading spinner
-          _container.loading = this.session ? !_stream : false;
+          _container.loading(this.session ? !_stream : false);
+
           _loaded = true;
 
           _createChrome.call(this);
@@ -14248,22 +17922,31 @@ OTHelpers.centerElement = function(element, width, height) {
           this.publishVideo(_publishProperties.publishVideo &&
             _webRTCStream.getVideoTracks().length > 0);
 
+          this.accessAllowed = true;
           this.dispatchEvent(
             new OT.Event(OT.Event.names.ACCESS_ALLOWED, false)
           );
 
-          _targetElement = new OT.VideoElement({
-            attributes: {muted:true}
-          });
+          var videoContainerOptions = {
+            muted: true,
+            error: OT.$.bind(onVideoError, this)
+          };
 
-          _targetElement.on({
-            streamBound: onLoaded,
-            loadError: onLoadFailure,
-            error: onVideoError
-          }, this)
-            .bindToStream(_webRTCStream);
+          _targetElement = _container.bindVideo(_webRTCStream,
+                                            videoContainerOptions,
+                                            OT.$.bind(function(err) {
+            if (err) {
+              onLoadFailure.call(this, err);
+              return;
+            }
 
-          _container.video = _targetElement;
+            onLoaded.call(this);
+          }, this));
+
+          if(_audioLevelSampler) {
+            _audioLevelSampler.webOTStream = webOTStream;
+          }
+
         },
 
         onStreamAvailableError = function(error) {
@@ -14348,13 +18031,25 @@ OTHelpers.centerElement = function(element, width, height) {
               if(!event.isDefaultPrevented()) {
                 if(browser.browser === 'Chrome') {
                   accessDialogChromeTimeout = setTimeout(function() {
+                    accessDialogChromeTimeout = null;
+                    logAnalyticsEvent('allowDenyHelpers', 'show', 'version', 'Chrome');
                     accessDialogPrompt = OT.Dialogs.AllowDeny.Chrome.initialPrompt();
+                    accessDialogPrompt.on('closeButtonClicked', function() {
+                      logAnalyticsEvent('allowDenyHelpers', 'dismissed', 'version', 'Chrome');
+                    });
                   }, 5000);
                 } else if(browser.browser === 'Firefox') {
                   accessDialogFirefoxTimeout = setTimeout(function() {
+                    accessDialogFirefoxTimeout = null;
+                    logAnalyticsEvent('allowDenyHelpers', 'show', 'version', 'Firefox');
                     accessDialogPrompt = OT.Dialogs.AllowDeny.Firefox.maybeDenied();
+                    accessDialogPrompt.on('closeButtonClicked', function() {
+                      logAnalyticsEvent('allowDenyHelpers', 'dismissed', 'version', 'Firefox');
+                    });
                   }, 7000);
                 }
+              } else {
+                logAnalyticsEvent('allowDenyHelpers', 'developerPrevented', '', '');
               }
             }
           );
@@ -14365,16 +18060,20 @@ OTHelpers.centerElement = function(element, width, height) {
 
           if(accessDialogChromeTimeout) {
             clearTimeout(accessDialogChromeTimeout);
+            logAnalyticsEvent('allowDenyHelpers', 'notShown', 'version', 'Chrome');
             accessDialogChromeTimeout = null;
           }
 
           if(accessDialogFirefoxTimeout) {
             clearTimeout(accessDialogFirefoxTimeout);
+            logAnalyticsEvent('allowDenyHelpers', 'notShown', 'version', 'Firefox');
             accessDialogFirefoxTimeout = null;
           }
 
           if(accessDialogPrompt) {
             accessDialogPrompt.close();
+            var browser = OT.$.browserVersion();
+            logAnalyticsEvent('allowDenyHelpers', 'closed', 'version', browser.browser);
             accessDialogPrompt = null;
           }
 
@@ -14392,7 +18091,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
           _state.set('Failed');
 
-          if (_state.attemptingToPublish) {
+          if (_state.isAttemptingToPublish()) {
             this.trigger('publishComplete', new OT.Error(OT.ExceptionCodes.UNABLE_TO_PUBLISH,
                 message));
           } else {
@@ -14409,15 +18108,15 @@ OTHelpers.centerElement = function(element, width, height) {
         onPeerDisconnected = function(peerConnection) {
           OT.debug('OT.Subscriber has been disconnected from the Publisher\'s PeerConnection');
 
-          this.cleanupSubscriber(peerConnection.remoteConnection.id);
+          this.cleanupSubscriber(peerConnection.remoteConnection().id);
         },
 
         onPeerConnectionFailure = function(code, reason, peerConnection, prefix) {
           logAnalyticsEvent('publish', 'Failure', 'reason|hasRelayCandidates',
             (prefix ? prefix : '') + [':Publisher PeerConnection with connection ' +
               (peerConnection && peerConnection.remoteConnection &&
-              peerConnection.remoteConnection.id)  + ' failed: ' +
-              reason, peerConnection.hasRelayCandidates
+              peerConnection.remoteConnection().id)  + ' failed: ' +
+              reason, peerConnection.hasRelayCandidates()
           ].join('|'));
 
           OT.handleJsException('Publisher PeerConnection Error: ' + reason,
@@ -14430,10 +18129,8 @@ OTHelpers.centerElement = function(element, width, height) {
           // disconnected analytics event, which we don't want in this
           // instance. The duplication is crufty though and should
           // be tidied up.
-          clearInterval(_qosIntervals[peerConnection.remoteConnection.id]);
-          delete _qosIntervals[peerConnection.remoteConnection.id];
 
-          delete _peerConnections[peerConnection.remoteConnection.id];
+          delete _peerConnections[peerConnection.remoteConnection().id];
         },
 
         /// Private Helpers
@@ -14441,12 +18138,12 @@ OTHelpers.centerElement = function(element, width, height) {
         // Assigns +stream+ to this publisher. The publisher listens
         // for a bunch of events on the stream so it can respond to
         // changes.
-        assignStream = function(stream) {
-          _stream = stream;
+        assignStream = OT.$.bind(function(stream) {
+          this.stream = _stream = stream;
           _stream.on('destroyed', this.disconnect, this);
 
           _state.set('Publishing');
-          _container.loading = !_loaded;
+          _container.loading(!_loaded);
           _publishStartTime = new Date();
 
           this.trigger('publishComplete', null, this);
@@ -14454,7 +18151,7 @@ OTHelpers.centerElement = function(element, width, height) {
           this.dispatchEvent(new OT.StreamEvent('streamCreated', stream, null, false));
 
           logAnalyticsEvent('publish', 'Success', 'streamType:streamId', 'WebRTC:' + _streamId);
-        }.bind(this),
+        }, this),
 
         // Clean up our LocalMediaStream
         cleanupLocalStream = function() {
@@ -14476,7 +18173,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
             // Cleanup our subscriber when they disconnect
             remoteConnection.on('destroyed',
-              this.cleanupSubscriber.bind(this, remoteConnection.id));
+              OT.$.bind(this.cleanupSubscriber, this, remoteConnection.id));
 
             peerConnection = _peerConnections[remoteConnection.id] = new OT.PublisherPeerConnection(
               remoteConnection,
@@ -14489,16 +18186,12 @@ OTHelpers.centerElement = function(element, width, height) {
               connected: function() {
                 logAnalyticsEvent('createPeerConnection', 'Success', 'pcc|hasRelayCandidates', [
                   parseInt(OT.$.now() - startConnectingTime, 10),
-                  peerConnection.hasRelayCandidates
+                  peerConnection.hasRelayCandidates()
                 ].join('|'));
-
-                // start recording the QoS for this peer connection
-                _qosIntervals[remoteConnection.id] = setInterval(function() {
-                  recordQOS(remoteConnection.id);
-                }, 30000);
               },
               disconnected: onPeerDisconnected,
-              error: onPeerConnectionFailure
+              error: onPeerConnectionFailure,
+              qos: recordQOS
             }, this);
 
             peerConnection.init(_iceServers);
@@ -14530,7 +18223,7 @@ OTHelpers.centerElement = function(element, width, height) {
           switch(key) {
             case 'nameDisplayMode':
               _chrome.name.setDisplayMode(value);
-              _chrome.backingBar.nameMode = value;
+              _chrome.backingBar.setNameMode(value);
               break;
 
             case 'showArchiveStatus':
@@ -14539,29 +18232,35 @@ OTHelpers.centerElement = function(element, width, height) {
               break;
 
             case 'buttonDisplayMode':
-            case 'showMicButton':
-              // _chrome.muteButton.setDisplayMode(
-              //     chromeButtonMode.call(this, this.getStyle('showMicButton'))
-              // );
+              _chrome.muteButton.setDisplayMode(value);
+              _chrome.backingBar.setMuteMode(value);
+              break;
+
+            case 'audioLevelDisplayMode':
+              _chrome.audioLevel.setDisplayMode(value);
+              break;
+
             case 'bugDisplayMode':
-              // _chrome.name.bugMode = value;
+              // bugDisplayMode can't be updated but is used by some partners
+
+            case 'backgroundImageURI':
+              _container.setBackgroundImageURI(value);
           }
         },
 
         _createChrome = function() {
+
           if(this.getStyle('bugDisplayMode') === 'off') {
             logAnalyticsEvent('bugDisplayMode', 'createChrome', 'mode', 'off');
           }
           if(!this.getStyle('showArchiveStatus')) {
             logAnalyticsEvent('showArchiveStatus', 'createChrome', 'mode', 'off');
           }
-          _chrome = new OT.Chrome({
-            parent: _container.domElement
-          }).set({
 
+          var widgets = {
             backingBar: new OT.Chrome.BackingBar({
-              nameMode: this.getStyle('nameDisplayMode'),
-              muteMode: chromeButtonMode.call(this, this.getStyle('showMicButton'))
+              nameMode: !_publishProperties.name ? 'off' : this.getStyle('nameDisplayMode'),
+              muteMode: chromeButtonMode.call(this, this.getStyle('buttonDisplayMode'))
             }),
 
             name: new OT.Chrome.NamePanel({
@@ -14572,7 +18271,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
             muteButton: new OT.Chrome.MuteButton({
               muted: _publishProperties.publishAudio === false,
-              mode: chromeButtonMode.call(this, this.getStyle('showMicButton'))
+              mode: chromeButtonMode.call(this, this.getStyle('buttonDisplayMode'))
             }),
 
             opentokButton: new OT.Chrome.OpenTokButton({
@@ -14583,14 +18282,30 @@ OTHelpers.centerElement = function(element, width, height) {
               show: this.getStyle('showArchiveStatus'),
               archiving: false
             })
+          };
 
-          }).on({
-            muted: this.publishAudio.bind(this, false),
-            unmuted: this.publishAudio.bind(this, true)
+          if(_audioLevelCapable) {
+            _audioLevelMeter = new OT.Chrome.AudioLevelMeter({
+              mode: this.getStyle('audioLevelDisplayMode')
+            });
+
+            var audioLevelTransformer = new OT.AudioLevelTransformer();
+            this.on('audioLevelUpdated', function(evt) {
+              _audioLevelMeter.setValue(audioLevelTransformer.transform(evt.audioLevel));
+            });
+
+            widgets.audioLevel = _audioLevelMeter;
+          }
+
+          _chrome = new OT.Chrome({
+            parent: _container.domElement
+          }).set(widgets).on({
+            muted: OT.$.bind(this.publishAudio, this, false),
+            unmuted: OT.$.bind(this.publishAudio, this, true)
           });
         },
 
-        reset = function() {
+        reset = OT.$.bind(function() {
           if (_chrome) {
             _chrome.destroy();
             _chrome = null;
@@ -14612,29 +18327,23 @@ OTHelpers.centerElement = function(element, width, height) {
             _container = null;
           }
 
-          if (this.session) {
-            this._.unpublishFromSession(this.session, 'reset');
+          if (_session) {
+            this._.unpublishFromSession(_session, 'reset');
           }
 
-          // clear all the intervals
-          for (var connId in _qosIntervals) {
-            clearInterval(_qosIntervals[connId]);
-            delete _qosIntervals[connId];
-          }
-
-          _domId = null;
-          _stream = null;
+          this.id = _domId = null;
+          this.stream = _stream = null;
           _loaded = false;
 
-          _session = null;
+          this.session = _session = null;
 
-          _state.set('NotPublishing');
-        }.bind(this);
+          if (!_state.isDestroyed()) _state.set('NotPublishing');
+        }, this);
 
     this.publish = function(targetElement, properties) {
       OT.debug('OT.Publisher: publish');
 
-      if ( _state.attemptingToPublish || _state.publishing ) reset();
+      if ( _state.isAttemptingToPublish() || _state.isPublishing() ) reset();
       _state.set('GetUserMedia');
 
       _publishProperties = OT.$.defaults(properties || {}, {
@@ -14645,48 +18354,115 @@ OTHelpers.centerElement = function(element, width, height) {
 
       if (!_publishProperties.constraints) {
         _publishProperties.constraints = OT.$.clone(defaultConstraints);
-        if (_publishProperties.resolution) {
-          if (_publishProperties.resolution !== void 0 &&
-            !_validResolutions.hasOwnProperty(_publishProperties.resolution)) {
-            OT.warn('Invalid resolution passed to the Publisher. Got: ' +
-              _publishProperties.resolution + ' expecting one of "' +
-              Object.keys(_validResolutions).join('","') + '"');
-          } else {
-            _publishProperties.videoDimensions = _validResolutions[_publishProperties.resolution];
-            _publishProperties.constraints.video = {
-              mandatory: {},
-              optional: [
-                {minWidth: _publishProperties.videoDimensions.width},
-                {maxWidth: _publishProperties.videoDimensions.width},
-                {minHeight: _publishProperties.videoDimensions.height},
-                {maxHeight: _publishProperties.videoDimensions.height}
-              ]
-            };
+
+        if(_publishProperties.audioSource === null || _publishProperties.audioSource === false) {
+          _publishProperties.constraints.audio = false;
+          _publishProperties.publishAudio = false;
+        } else {
+          if(typeof _publishProperties.audioSource === 'object') {
+            if(_publishProperties.audioSource.deviceId != null) {
+              _publishProperties.audioSource = _publishProperties.audioSource.deviceId;
+            } else {
+              OT.warn('Invalid audioSource passed to Publisher. Expected either a device ID');
+            }
+          }
+
+          if (_publishProperties.audioSource) {
+            if (typeof _publishProperties.constraints.audio !== 'object') {
+              _publishProperties.constraints.audio = {};
+            }
+            if (!_publishProperties.constraints.audio.mandatory) {
+              _publishProperties.constraints.audio.mandatory = {};
+            }
+            if (!_publishProperties.constraints.audio.optional) {
+              _publishProperties.constraints.audio.optional = [];
+            }
+            _publishProperties.constraints.audio.mandatory.sourceId =
+              _publishProperties.audioSource;
           }
         }
 
-        if (_publishProperties.frameRate !== void 0 &&
-          _validFrameRates.indexOf(_publishProperties.frameRate) === -1) {
-          OT.warn('Invalid frameRate passed to the publisher got: ' +
-            _publishProperties.frameRate + ' expecting one of ' + _validFrameRates.join(','));
-          delete _publishProperties.frameRate;
-        } else if (_publishProperties.frameRate) {
-          if (!_publishProperties.constraints.video.optional) {
+        if(_publishProperties.videoSource === null || _publishProperties.videoSource === false) {
+          _publishProperties.constraints.video = false;
+          _publishProperties.publishVideo = false;
+        } else {
+
+          if(typeof _publishProperties.videoSource === 'object') {
+            if(_publishProperties.videoSource.deviceId != null) {
+              _publishProperties.videoSource = _publishProperties.videoSource.deviceId;
+            } else {
+              OT.warn('Invalid videoSource passed to Publisher. Expected either a device ID');
+            }
+          }
+
+          if (_publishProperties.videoSource) {
             if (typeof _publishProperties.constraints.video !== 'object') {
               _publishProperties.constraints.video = {};
             }
-            _publishProperties.constraints.video.optional = [];
+            if (!_publishProperties.constraints.video.mandatory) {
+              _publishProperties.constraints.video.mandatory = {};
+            }
+            if (!_publishProperties.constraints.video.optional) {
+              _publishProperties.constraints.video.optional = [];
+            }
+            _publishProperties.constraints.video.mandatory.sourceId =
+              _publishProperties.videoSource;
           }
-          _publishProperties.constraints.video.optional.push({
-            minFrameRate: _publishProperties.frameRate
-          });
-          _publishProperties.constraints.video.optional.push({
-            maxFrameRate: _publishProperties.frameRate
-          });
+
+          if (_publishProperties.resolution) {
+            if (_publishProperties.resolution !== void 0 &&
+              !_validResolutions.hasOwnProperty(_publishProperties.resolution)) {
+              OT.warn('Invalid resolution passed to the Publisher. Got: ' +
+                _publishProperties.resolution + ' expecting one of "' +
+                OT.$.keys(_validResolutions).join('","') + '"');
+            } else {
+              _publishProperties.videoDimensions = _validResolutions[_publishProperties.resolution];
+              if (typeof _publishProperties.constraints.video !== 'object') {
+                _publishProperties.constraints.video = {};
+              }
+              if (!_publishProperties.constraints.video.mandatory) {
+                _publishProperties.constraints.video.mandatory = {};
+              }
+              if (!_publishProperties.constraints.video.optional) {
+                _publishProperties.constraints.video.optional = [];
+              }
+              _publishProperties.constraints.video.optional =
+                _publishProperties.constraints.video.optional.concat([
+                  {minWidth: _publishProperties.videoDimensions.width},
+                  {maxWidth: _publishProperties.videoDimensions.width},
+                  {minHeight: _publishProperties.videoDimensions.height},
+                  {maxHeight: _publishProperties.videoDimensions.height}
+                ]);
+            }
+          }
+
+          if (_publishProperties.frameRate !== void 0 &&
+            OT.$.arrayIndexOf(_validFrameRates, _publishProperties.frameRate) === -1) {
+            OT.warn('Invalid frameRate passed to the publisher got: ' +
+              _publishProperties.frameRate + ' expecting one of ' + _validFrameRates.join(','));
+            delete _publishProperties.frameRate;
+          } else if (_publishProperties.frameRate) {
+            if (typeof _publishProperties.constraints.video !== 'object') {
+              _publishProperties.constraints.video = {};
+            }
+            if (!_publishProperties.constraints.video.mandatory) {
+              _publishProperties.constraints.video.mandatory = {};
+            }
+            if (!_publishProperties.constraints.video.optional) {
+              _publishProperties.constraints.video.optional = [];
+            }
+            _publishProperties.constraints.video.optional =
+              _publishProperties.constraints.video.optional.concat([
+                { minFrameRate: _publishProperties.frameRate },
+                { maxFrameRate: _publishProperties.frameRate }
+              ]);
+          }
         }
+
       } else {
         OT.warn('You have passed your own constraints not using ours');
       }
+
 
       if (_publishProperties.style) {
         this.setStyle(_publishProperties.style, null, true);
@@ -14702,9 +18478,10 @@ OTHelpers.centerElement = function(element, width, height) {
       // the DOM is actually loaded.
       OT.onLoad(function() {
         _container = new OT.WidgetView(targetElement, _publishProperties);
-        _domId = _container.domId;
+        this.id = _domId = _container.domId();
+        this.element = _container.domElement;
 
-        OT.$.shouldAskForDevices(function(devices) {
+        OT.$.shouldAskForDevices(OT.$.bind(function(devices) {
           if(!devices.video) {
             OT.warn('Setting video constraint to false, there are no video sources');
             _publishProperties.constraints.video = false;
@@ -14715,14 +18492,15 @@ OTHelpers.centerElement = function(element, width, height) {
           }
           OT.$.getUserMedia(
             _publishProperties.constraints,
-            onStreamAvailable.bind(this),
-            onStreamAvailableError.bind(this),
-            onAccessDialogOpened.bind(this),
-            onAccessDialogClosed.bind(this),
-            onAccessDenied.bind(this),
+            OT.$.bind(onStreamAvailable, this),
+            OT.$.bind(onStreamAvailableError, this),
+            OT.$.bind(onAccessDialogOpened, this),
+            OT.$.bind(onAccessDialogClosed, this),
+            OT.$.bind(onAccessDenied, this),
             OT.$.customGetUserMedia
           );
-        }.bind(this));
+        }, this));
+
       }, this);
 
       return this;
@@ -14746,11 +18524,11 @@ OTHelpers.centerElement = function(element, width, height) {
       _publishProperties.publishAudio = value;
 
       if (_microphone) {
-        _microphone.muted = !value;
+        _microphone.muted(!value);
       }
 
       if (_chrome) {
-        _chrome.muteButton.muted = !value;
+        _chrome.muteButton.muted(!value);
       }
 
       if (_session && _stream) {
@@ -14789,23 +18567,18 @@ OTHelpers.centerElement = function(element, width, height) {
       if (_webRTCStream) {
         var videoTracks = _webRTCStream.getVideoTracks();
         for (var i=0, num=videoTracks.length; i<num; ++i) {
-          videoTracks[i].enabled = value;
+          videoTracks[i].setEnabled(value);
         }
       }
 
       if(_container) {
-        _container.showPoster = !value;
+        _container.audioOnly(!value);
+        _container.showPoster(!value);
       }
 
       return this;
     };
 
-    this.recordQOS = function() {
-      // have to record QoS for every peer connection
-      for (var connId in _peerConnections) {
-        recordQOS(connId);
-      }
-    };
 
     /**
     * Deletes the Publisher object and removes it from the HTML DOM.
@@ -14818,6 +18591,9 @@ OTHelpers.centerElement = function(element, width, height) {
     * @return {Publisher} The Publisher.
     */
     this.destroy = function(/* unused */ reason, quiet) {
+      if (_state.isDestroyed()) return;
+      _state.set('Destroyed');
+
       reset();
 
       if (quiet !== true) {
@@ -14827,7 +18603,7 @@ OTHelpers.centerElement = function(element, width, height) {
             this,
             reason
           ),
-          this.off.bind(this)
+          OT.$.bind(this.off,this)
         );
       }
 
@@ -14847,9 +18623,6 @@ OTHelpers.centerElement = function(element, width, height) {
 
     this.cleanupSubscriber = function(fromConnectionId) {
       var pc = _peerConnections[fromConnectionId];
-
-      clearInterval(_qosIntervals[fromConnectionId]);
-      delete _qosIntervals[fromConnectionId];
 
       if (pc) {
         pc.destroy();
@@ -14904,15 +18677,15 @@ OTHelpers.centerElement = function(element, width, height) {
         return null;
       }
 
-      return _targetElement.imgData;
+      return _targetElement.imgData();
     };
 
 
     // API Compatibility layer for Flash Publisher, this could do with some tidyup.
     this._ = {
-      publishToSession: function(session) {
+      publishToSession: OT.$.bind(function(session) {
         // Add session property to Publisher
-        this.session = session;
+        this.session = _session = session;
 
         var createStream = function() {
 
@@ -14921,38 +18694,37 @@ OTHelpers.centerElement = function(element, width, height) {
 
           // Bail if this.session is gone, it means we were unpublished
           // before createStream could finish.
-          if (!this.session) return;
+          if (!_session) return;
 
           _state.set('PublishingToSession');
 
-          var onStreamRegistered = function(err, streamId, message) {
+          var onStreamRegistered = OT.$.bind(function(err, streamId, message) {
             if (err) {
               // @todo we should respect err.code here and translate it to the local
               // client equivalent.
               logAnalyticsEvent('publish', 'Failure', 'reason',
                 'Publish:' + OT.ExceptionCodes.UNABLE_TO_PUBLISH + ':' + err.message);
-              if (_state.attemptingToPublish) {
+              if (_state.isAttemptingToPublish()) {
                 this.trigger('publishComplete', new OT.Error(OT.ExceptionCodes.UNABLE_TO_PUBLISH,
                   err.message));
               }
               return;
             }
 
-            _streamId = streamId;
-
+            this.streamId = _streamId = streamId;
             _iceServers = OT.Raptor.parseIceServers(message);
-          }.bind(this);
+          }, this);
 
           // We set the streamWidth and streamHeight to be the minimum of the requested
           // resolution and the actual resolution.
           if (_publishProperties.videoDimensions) {
             streamWidth = Math.min(_publishProperties.videoDimensions.width,
-              _targetElement.videoWidth || 640);
+              _targetElement.videoWidth() || 640);
             streamHeight = Math.min(_publishProperties.videoDimensions.height,
-              _targetElement.videoHeight || 480);
+              _targetElement.videoHeight() || 480);
           } else {
-            streamWidth = _targetElement.videoWidth || 640;
-            streamHeight = _targetElement.videoHeight || 480;
+            streamWidth = _targetElement.videoWidth() || 640;
+            streamHeight = _targetElement.videoHeight() || 480;
           }
 
           session._.streamCreate(
@@ -14973,53 +18745,59 @@ OTHelpers.centerElement = function(element, width, height) {
         logAnalyticsEvent('publish', 'Attempt', 'streamType', 'WebRTC');
 
         return this;
-      }.bind(this),
+      }, this),
 
-      unpublishFromSession: function(session, reason) {
-        if (!this.session || session.id !== this.session.id) {
-          OT.warn('The publisher ' + this.guid + ' is trying to unpublish from a session ' +
-            session.id + ' it is not attached to (' +
-            (this.session && this.session.id || 'no this.session') + ')');
+      unpublishFromSession: OT.$.bind(function(session, reason) {
+        if (!_session || session.id !== _session.id) {
+          OT.warn('The publisher ' + _guid + ' is trying to unpublish from a session ' +
+            session.id + ' it is not attached to (it is attached to ' +
+            (_session && _session.id || 'no session') + ')');
           return this;
         }
 
-        if (session.connected && this.stream) {
+        if (session.isConnected() && this.stream) {
           session._.streamDestroy(this.stream.id);
         }
 
         // Disconnect immediately, rather than wait for the WebSocket to
         // reply to our destroyStream message.
         this.disconnect();
-        this.session = null;
+        this.session = _session = null;
 
         // We're back to being a stand-alone publisher again.
-        _state.set('MediaBound');
+        if (!_state.isDestroyed()) _state.set('MediaBound');
 
         logAnalyticsEvent('unpublish', 'Success', 'sessionId', session.id);
 
         this._.streamDestroyed(reason);
 
         return this;
-      }.bind(this),
+      }, this),
 
-      streamDestroyed: function(reason) {
-        if(['reset'].indexOf(reason) < 0) {
+      streamDestroyed: OT.$.bind(function(reason) {
+        if(OT.$.arrayIndexOf(['reset'], reason) < 0) {
           var event = new OT.StreamEvent('streamDestroyed', _stream, reason, true);
-          var defaultAction = function() {
+          var defaultAction = OT.$.bind(function() {
             if(!event.isDefaultPrevented()) {
               this.destroy();
             }
-          }.bind(this);
+          }, this);
           this.dispatchEvent(event, defaultAction);
         }
-      }.bind(this),
+      }, this),
 
-      archivingStatus: function(status) {
+
+      archivingStatus: OT.$.bind(function(status) {
         if(_chrome) {
           _chrome.archive.setArchiving(status);
         }
+
         return status;
-      }.bind(this)
+      }, this),
+
+      webRtcStream: function() {
+        return _webRTCStream;
+      }
     };
 
     this.detectDevices = function() {
@@ -15053,79 +18831,38 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
 
-    Object.defineProperties(this, {
-      id: {
-        get: function() { return _domId; },
-        enumerable: true
-      },
+    // Platform methods:
 
-      element: {
-        get: function() { return _container.domElement; },
-        enumerable: true
-      },
+    this.guid = function() {
+      return _guid;
+    };
 
-      guid: {
-        get: function() { return _guid; },
-        enumerable: true
-      },
+    this.videoElement = function() {
+      return _targetElement.domElement();
+    };
 
-      stream: {
-        get: function() { return _stream; },
-        set: function(stream) {
-          assignStream(stream);
-        },
-        enumerable: true
-      },
+    this.setStream = assignStream;
 
-      streamId: {
-        get: function() { return _streamId; },
-        enumerable: true
-      },
+    this.isWebRTC = true;
 
-      targetElement: {
-        get: function() { return _targetElement.domElement; }
-      },
+    this.isLoading = function() {
+      return _container && _container.loading();
+    };
 
-      domId: {
-        get: function() { return _domId; }
-      },
+    this.videoWidth = function() {
+      return _targetElement.videoWidth();
+    };
 
-      session: {
-        get: function() { return _session; },
-        set: function(session) {
-          _session = session;
-        },
-        enumerable: true
-      },
+    this.videoHeight = function() {
+      return _targetElement.videoHeight();
+    };
 
-      isWebRTC: {
-        get: function() { return true; }
-      },
-
-      loading: {
-        get: function(){
-          return _container && _container.loading;
-        }
-      },
-
-      videoWidth: {
-        get: function() { return _targetElement.videoWidth; },
-        enumerable: true
-      },
-
-      videoHeight: {
-        get: function() { return _targetElement.videoHeight; },
-        enumerable: true
-      }
-    });
-
-    Object.defineProperty(this._, 'webRtcStream', {
-      get: function() { return _webRTCStream; }
-    });
+    // Make read-only: element, guid, _.webRtcStream
 
     this.on('styleValueChanged', updateChromeForStyleChange, this);
     _state = new OT.PublishingState(stateChangeFailed);
 
+    this.accessAllowed = false;
 
 	/**
 	* Dispatched when the user has clicked the Allow button, granting the
@@ -15175,6 +18912,40 @@ OTHelpers.centerElement = function(element, width, height) {
 	* @memberof Publisher
 	*/
 
+    /**
+    * Dispatched periodically to indicate the publisher's audio level. The event is dispatched
+    * up to 60 times per second, depending on the browser. The <code>audioLevel</code> property
+    * of the event is audio level, from 0 to 1.0. See {@link AudioLevelUpdatedEvent} for more
+    * information.
+    * <p>
+    * The following example adjusts the value of a meter element that shows volume of the
+    * publisher. Note that the audio level is adjusted logarithmically and a moving average
+    * is applied:
+    * <p>
+    * <pre>
+    * var movingAvg = null;
+    * publisher.on('audioLevelUpdated', function(event) {
+    *   if (movingAvg === null || movingAvg <= event.audioLevel) {
+    *     movingAvg = event.audioLevel;
+    *   } else {
+    *     movingAvg = 0.7 * movingAvg + 0.3 * event.audioLevel;
+    *   }
+    *
+    *   // 1.5 scaling to map the -30 - 0 dBm range to [0,1]
+    *   var logLevel = (Math.log(movingAvg) / Math.LN10) / 1.5 + 1;
+    *   logLevel = Math.min(Math.max(logLevel, 0), 1);
+    *   document.getElementById('publisherMeter').value = logLevel;
+    * });
+    * </pre>
+    * <p>This example shows the algorithm used by the default audio level indicator displayed
+    * in an audio-only Publisher.
+    *
+    * @name audioLevelUpdated
+    * @event
+    * @memberof Publisher
+    * @see AudioLevelUpdatedEvent
+    */
+
 	/**
 	 * The publisher has started streaming to the session.
 	 * @name streamCreated
@@ -15210,7 +18981,7 @@ OTHelpers.centerElement = function(element, width, height) {
   OT.Publisher.nextId = OT.$.uuid;
 
 })(window);
-!(function(window) {
+!(function() {
 
 /**
  * The Subscriber object is a representation of the local video element that is playing back
@@ -15231,20 +19002,28 @@ OTHelpers.centerElement = function(element, width, height) {
         _container,
         _streamContainer,
         _chrome,
+        _audioLevelMeter,
         _stream,
         _fromConnectionId,
         _peerConnection,
         _session = options.session,
         _subscribeStartTime,
         _startConnectingTime,
-        _qosInterval,
         _properties = OT.$.clone(options),
         _analytics = new OT.Analytics(),
-        _audioVolume = 50,
+        _audioVolume = 100,
         _state,
-        _subscribeAudioFalseWorkaround, // OPENTOK-6844
         _prevStats,
-        _lastSubscribeToVideoReason;
+        _lastSubscribeToVideoReason,
+        _audioLevelCapable =  OT.$.hasCapabilities('audioOutputLevelStat') ||
+                              OT.$.hasCapabilities('webAudioCapableRemoteStream'),
+        _audioLevelSampler,
+        _audioLevelRunner,
+        _frameRateRestricted = false;
+
+    this.id = _domId;
+    this.widgetId = _widgetId;
+    this.session = _session;
 
     _prevStats = {
       timeStamp: OT.$.now()
@@ -15259,14 +19038,32 @@ OTHelpers.centerElement = function(element, width, height) {
       return;
     }
 
-    OT.$.eventing(this);
+    OT.$.eventing(this, false);
+
+    if(_audioLevelCapable) {
+      this.on({
+        'audioLevelUpdated:added': function(count) {
+          if (count === 1 && _audioLevelRunner) {
+            _audioLevelRunner.start();
+          }
+        },
+        'audioLevelUpdated:removed': function(count) {
+          if (count === 0 && _audioLevelRunner) {
+            _audioLevelRunner.stop();
+          }
+        }
+      });
+    }
 
     OT.StylableComponent(this, {
       nameDisplayMode: 'auto',
       buttonDisplayMode: 'auto',
+      audioLevelDisplayMode: 'auto',
+      videoDisabledIndicatorDisplayMode: 'auto',
       backgroundImageURI: null,
       showArchiveStatus: true,
-      showMicButton: true
+      showMicButton: true,
+      bugDisplayMode: 'auto'
     });
 
     var logAnalyticsEvent = function(action, variation, payloadType, payload) {
@@ -15278,15 +19075,16 @@ OTHelpers.centerElement = function(element, width, height) {
             payload: payload,
             stream_id: _stream ? _stream.id : null,
             session_id: _session ? _session.sessionId : null,
-            connection_id: _session && _session.connected ? _session.connection.connectionId : null,
-            partner_id: _session && _session.connected ? _session.sessionInfo.partnerId : null,
+            connection_id: _session && _session.isConnected() ?
+              _session.connection.connectionId : null,
+            partner_id: _session && _session.isConnected() ? _session.sessionInfo.partnerId : null,
             widget_id: _widgetId,
             widget_type: 'Subscriber'
           });
         },
 
-        recordQOS = function() {
-          if(_state.subscribing && _session && _session.connected) {
+        recordQOS = OT.$.bind(function(parsedStats) {
+          if(_state.isSubscribing() && _session && _session.isConnected()) {
             /*jshint camelcase:false */
             var QoSBlob = {
               widget_type: 'Subscriber',
@@ -15305,18 +19103,11 @@ OTHelpers.centerElement = function(element, width, height) {
               remote_connection_id: _stream.connection.connectionId
             };
 
-            // get stats for each connection id
-            _peerConnection.getStats(_prevStats, function(stats) {
-              var statIndex;
-              if (stats) {
-                for (statIndex in stats) {
-                  QoSBlob[statIndex] = stats[statIndex];
-                }
-              }
-              _analytics.logQOS(QoSBlob);
-            });
+            _analytics.logQOS( OT.$.extend(QoSBlob, parsedStats) );
+            this.trigger('qos', parsedStats);
           }
-        },
+        }, this),
+
 
         stateChangeFailed = function(changeFailed) {
           OT.error('Subscriber State Change Failed: ', changeFailed.message);
@@ -15324,7 +19115,7 @@ OTHelpers.centerElement = function(element, width, height) {
         },
 
         onLoaded = function() {
-          if (_state.subscribing || !_streamContainer) return;
+          if (_state.isSubscribing() || !_streamContainer) return;
 
           OT.debug('OT.Subscriber.onLoaded');
 
@@ -15333,19 +19124,15 @@ OTHelpers.centerElement = function(element, width, height) {
 
           logAnalyticsEvent('createPeerConnection', 'Success', 'pcc|hasRelayCandidates', [
             parseInt(_subscribeStartTime - _startConnectingTime, 10),
-            _peerConnection && _peerConnection.hasRelayCandidates
+            _peerConnection && _peerConnection.hasRelayCandidates()
           ].join('|'));
 
-          _qosInterval = setInterval(recordQOS, 30000);
-
-          if(_subscribeAudioFalseWorkaround) {
-            _subscribeAudioFalseWorkaround = null;
-            this.subscribeToVideo(false);
-          }
-
-          _container.loading = false;
+          _container.loading(false);
 
           _createChrome.call(this);
+          if(_frameRateRestricted) {
+            _stream.setRestrictFrameRate(true);
+          }
 
           this.trigger('subscribeComplete', null, this);
           this.trigger('loaded', this);
@@ -15356,12 +19143,12 @@ OTHelpers.centerElement = function(element, width, height) {
         onDisconnected = function() {
           OT.debug('OT.Subscriber has been disconnected from the Publisher\'s PeerConnection');
 
-          if (_state.attemptingToSubscribe) {
+          if (_state.isAttemptingToSubscribe()) {
             // subscribing error
             _state.set('Failed');
             this.trigger('subscribeComplete', new OT.Error(null, 'ClientDisconnected'));
 
-          } else if (_state.subscribing) {
+          } else if (_state.isSubscribing()) {
             _state.set('Failed');
 
             // we were disconnected after we were already subscribing
@@ -15371,19 +19158,19 @@ OTHelpers.centerElement = function(element, width, height) {
           this.disconnect();
         },
 
-        onPeerConnectionFailure = function(code, reason, peerConnection, prefix) {
-          if (_state.attemptingToSubscribe) {
+        onPeerConnectionFailure = OT.$.bind(function(reason, peerConnection, prefix) {
+          if (_state.isAttemptingToSubscribe()) {
             // We weren't subscribing yet so this was a failure in setting
             // up the PeerConnection or receiving the initial stream.
             logAnalyticsEvent('createPeerConnection', 'Failure', 'reason|hasRelayCandidates', [
               'Subscriber PeerConnection Error: ' + reason,
-              _peerConnection && _peerConnection.hasRelayCandidates
+              _peerConnection && _peerConnection.hasRelayCandidates()
             ].join('|'));
 
             _state.set('Failed');
             this.trigger('subscribeComplete', new OT.Error(null, reason));
 
-          } else if (_state.subscribing) {
+          } else if (_state.isSubscribing()) {
             // we were disconnected after we were already subscribing
             _state.set('Failed');
             this.trigger('error', reason);
@@ -15401,7 +19188,7 @@ OTHelpers.centerElement = function(element, width, height) {
             }
           );
           _showError.call(this, reason);
-        },
+        }, this),
 
         onRemoteStreamAdded = function(webOTStream) {
           OT.debug('OT.Subscriber.onRemoteStreamAdded');
@@ -15411,32 +19198,53 @@ OTHelpers.centerElement = function(element, width, height) {
           // Disable the audio/video, if needed
           this.subscribeToAudio(_properties.subscribeToAudio);
 
-          var preserver = _subscribeAudioFalseWorkaround;
-          this.subscribeToVideo(_properties.subscribeToVideo);
-          _subscribeAudioFalseWorkaround = preserver;
+          _lastSubscribeToVideoReason = 'loading';
+          this.subscribeToVideo(_properties.subscribeToVideo, 'loading');
 
-          var streamElement = new OT.VideoElement();
-          // makes the incoming audio streams takes priority (will impact only FF OS for now)
-          streamElement.audioChannelType = 'telephony';
-
-          // Initialize the audio volume
-          streamElement.setAudioVolume(_audioVolume);
-          streamElement.on({
-            streamBound: onLoaded,
-            loadError: onPeerConnectionFailure,
-            error: onPeerConnectionFailure
-          }, this);
-
-          streamElement.bindToStream(webOTStream);
-          _container.video = streamElement;
-
-          _streamContainer = streamElement;
-
-          _streamContainer.orientation = {
-            width: _stream.videoDimensions.width,
-            height: _stream.videoDimensions.height,
-            videoOrientation: _stream.videoDimensions.orientation
+          var videoContainerOptions = {
+            error: onPeerConnectionFailure,
+            audioVolume: _audioVolume
           };
+
+          // This is a workaround for a bug in Chrome where a track disabled on
+          // the remote end doesn't fire loadedmetadata causing the subscriber to timeout
+          // https://jira.tokbox.com/browse/OPENTOK-15605
+          var browser = OT.$.browserVersion(),
+              tracks,
+              reenableVideoTrack = false;
+          if (!_stream.hasVideo && browser.browser === 'Chrome' && browser.version >= 35) {
+            tracks = webOTStream.getVideoTracks();
+            if(tracks.length > 0) {
+              tracks[0].enabled = false;
+              reenableVideoTrack = tracks[0];
+            }
+          }
+
+          _streamContainer = _container.bindVideo(webOTStream,
+                                              videoContainerOptions,
+                                              OT.$.bind(function(err) {
+            if (err) {
+              onPeerConnectionFailure(err.message || err, _peerConnection, 'VideoElement');
+              return;
+            }
+
+            // Continues workaround for https://jira.tokbox.com/browse/OPENTOK-15605
+            if (reenableVideoTrack != null && _properties.subscribeToVideo) {
+              reenableVideoTrack.enabled = true;
+            }
+
+            _streamContainer.orientation({
+              width: _stream.videoDimensions.width,
+              height: _stream.videoDimensions.height,
+              videoOrientation: _stream.videoDimensions.orientation
+            });
+
+            onLoaded.call(this, null);
+          }, this));
+
+          if (OT.$.hasCapabilities('webAudioCapableRemoteStream') && _audioLevelSampler) {
+            _audioLevelSampler.webOTStream = webOTStream;
+          }
 
           logAnalyticsEvent('createPeerConnection', 'StreamAdded', '', '');
           this.trigger('streamAdded', this);
@@ -15462,17 +19270,30 @@ OTHelpers.centerElement = function(element, width, height) {
 
           switch(event.changedProperty) {
             case 'videoDimensions':
-              _streamContainer.orientation = {
+              _streamContainer.orientation({
                 width: event.newValue.width,
                 height: event.newValue.height,
                 videoOrientation: event.newValue.orientation
-              };
+              });
+              break;
+
+            case 'videoDisableWarning':
+              _chrome.videoDisabledIndicator.setWarning(event.newValue);
+              this.dispatchEvent(new OT.VideoDisableWarningEvent(
+                event.newValue ? 'videoDisableWarning' : 'videoDisableWarningLifted'
+              ));
               break;
 
             case 'hasVideo':
               if(_container) {
-                _container.showPoster = !(_stream.hasVideo && _properties.subscribeToVideo);
+                var audioOnly = !(_stream.hasVideo && _properties.subscribeToVideo);
+                _container.audioOnly(audioOnly);
+                _container.showPoster(audioOnly);
               }
+              this.dispatchEvent(new OT.VideoEnabledChangedEvent(
+                _stream.hasVideo ? 'videoEnabled' : 'videoDisabled', {
+                reason: 'publishVideo'
+              }));
               break;
 
             case 'hasAudio':
@@ -15503,6 +19324,11 @@ OTHelpers.centerElement = function(element, width, height) {
           switch(key) {
             case 'nameDisplayMode':
               _chrome.name.setDisplayMode(value);
+              _chrome.backingBar.setNameMode(value);
+              break;
+
+            case 'videoDisabledDisplayMode':
+              _chrome.videoDisabledIndicator.setDisplayMode(value);
               break;
 
             case 'showArchiveStatus':
@@ -15510,23 +19336,31 @@ OTHelpers.centerElement = function(element, width, height) {
               break;
 
             case 'buttonDisplayMode':
-              // _chrome.muteButton.setDisplayMode(value);
+              _chrome.muteButton.setDisplayMode(value);
+              _chrome.backingBar.setMuteMode(value);
+              break;
+
+            case 'audioLevelDisplayMode':
+              _chrome.audioLevel.setDisplayMode(value);
+              break;
 
             case 'bugDisplayMode':
-              // _chrome.name.bugMode = value;
+              // bugDisplayMode can't be updated but is used by some partners
+
+            case 'backgroundImageURI':
+              _container.setBackgroundImageURI(value);
           }
         },
 
         _createChrome = function() {
+          
           if(this.getStyle('bugDisplayMode') === 'off') {
             logAnalyticsEvent('bugDisplayMode', 'createChrome', 'mode', 'off');
           }
-          _chrome = new OT.Chrome({
-            parent: _container.domElement
-          }).set({
 
+          var widgets = {
             backingBar: new OT.Chrome.BackingBar({
-              nameMode: this.getStyle('nameDisplayMode'),
+              nameMode: !_properties.name ? 'off' : this.getStyle('nameDisplayMode'),
               muteMode: chromeButtonMode.call(this, this.getStyle('showMuteButton'))
             }),
 
@@ -15549,8 +19383,28 @@ OTHelpers.centerElement = function(element, width, height) {
               show: this.getStyle('showArchiveStatus'),
               archiving: false
             })
+          };
 
-          }).on({
+          if(_audioLevelCapable) {
+            _audioLevelMeter = new OT.Chrome.AudioLevelMeter({
+              mode: this.getStyle('audioLevelDisplayMode')
+            });
+
+            var audioLevelTransformer = new OT.AudioLevelTransformer();
+            this.on('audioLevelUpdated', function(evt) {
+              _audioLevelMeter.setValue(audioLevelTransformer.transform(evt.audioLevel));
+            });
+
+            widgets.audioLevel = _audioLevelMeter;
+          }
+
+          widgets.videoDisabledIndicator = new OT.Chrome.VideoDisabledIndicator({
+            mode: this.getStyle('videoDisabledDisplayMode')
+          });
+
+          _chrome = new OT.Chrome({
+            parent: _container.domElement
+          }).set(widgets).on({
             muted: function() {
               muteAudio.call(this, true);
             },
@@ -15573,15 +19427,10 @@ OTHelpers.centerElement = function(element, width, height) {
         };
 
 
-    this.recordQOS = function() {
-      recordQOS();
-    };
-
-
     this.subscribe = function(stream) {
       OT.debug('OT.Subscriber: subscribe to ' + stream.id);
 
-      if (_state.subscribing) {
+      if (_state.isSubscribing()) {
         // @todo error
         OT.error('OT.Subscriber.Subscribe: Cannot subscribe, already subscribing.');
         return false;
@@ -15601,7 +19450,8 @@ OTHelpers.centerElement = function(element, width, height) {
         return false;
       }
 
-      _stream = stream;
+      this.stream = _stream = stream;
+      this.streamId = _stream.id;
       _stream.on({
         updated: streamUpdated,
         destroyed: streamDestroyed
@@ -15622,12 +19472,8 @@ OTHelpers.centerElement = function(element, width, height) {
       _properties.subscribeToVideo = OT.$.castToBoolean(_properties.subscribeToVideo, true);
 
       _container = new OT.WidgetView(targetElement, _properties);
-      _domId = _container.domId;
-
-      if(!_properties.subscribeToVideo && OT.$.browser() === 'Chrome') {
-        _subscribeAudioFalseWorkaround = true;
-        _properties.subscribeToVideo = true;
-      }
+      this.id = _domId = _container.domId();
+      this.element = _container.domElement;
 
       _startConnectingTime = OT.$.now();
 
@@ -15643,22 +19489,45 @@ OTHelpers.centerElement = function(element, width, height) {
           disconnected: onDisconnected,
           error: onPeerConnectionFailure,
           remoteStreamAdded: onRemoteStreamAdded,
-          remoteStreamRemoved: onRemoteStreamRemoved
+          remoteStreamRemoved: onRemoteStreamRemoved,
+          qos: recordQOS
         }, this);
 
         // initialize the peer connection AFTER we've added the event listeners
         _peerConnection.init();
+
+        if (OT.$.hasCapabilities('audioOutputLevelStat')) {
+          _audioLevelSampler = new OT.GetStatsAudioLevelSampler(_peerConnection, 'out');
+        } else if (OT.$.hasCapabilities('webAudioCapableRemoteStream')) {
+          _audioLevelSampler = new OT.AnalyserAudioLevelSampler(new window.AudioContext());
+        }
+
+        if(_audioLevelSampler) {
+          var subscriber = this;
+          // sample with interval to minimise disturbance on animation loop but dispatch the
+          // event with RAF since the main purpose is animation of a meter
+          _audioLevelRunner = new OT.IntervalRunner(function() {
+            _audioLevelSampler.sample(function(audioOutputLevel) {
+              if (audioOutputLevel !== null) {
+                OT.$.requestAnimationFrame(function() {
+                  subscriber.dispatchEvent(
+                    new OT.AudioLevelUpdatedEvent(audioOutputLevel));
+                });
+              }
+            });
+          }, 60);
+        }
       } else {
         logAnalyticsEvent('createPeerConnection', 'Attempt', '', '');
 
         var publisher = _session.getPublisherForStream(_stream);
-        if(!(publisher && publisher._.webRtcStream)) {
+        if(!(publisher && publisher._.webRtcStream())) {
           this.trigger('subscribeComplete', new OT.Error(null, 'InvalidStreamID'));
           return this;
         }
 
         // Subscribe to yourself edge-case
-        onRemoteStreamAdded.call(this, _session.getPublisherForStream(_stream)._.webRtcStream);
+        onRemoteStreamAdded.call(this, publisher._.webRtcStream());
       }
 
       logAnalyticsEvent('subscribe', 'Attempt', 'streamId', _stream.id);
@@ -15667,17 +19536,21 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     this.destroy = function(reason, quiet) {
+      if (_state.isDestroyed()) return;
 
       if(reason === 'streamDestroyed') {
-        if (_state.attemptingToSubscribe) {
+        if (_state.isAttemptingToSubscribe()) {
           // We weren't subscribing yet so the stream was destroyed before we setup
           // the PeerConnection or receiving the initial stream.
           this.trigger('subscribeComplete', new OT.Error(null, 'InvalidStreamID'));
         }
       }
 
-      clearInterval(_qosInterval);
-      _qosInterval = null;
+      _state.set('Destroyed');
+
+      if(_audioLevelRunner) {
+        _audioLevelRunner.stop();
+      }
 
       this.disconnect();
 
@@ -15689,16 +19562,18 @@ OTHelpers.centerElement = function(element, width, height) {
       if (_container) {
         _container.destroy();
         _container = null;
+        this.element = null;
       }
 
       if (_stream && !_stream.destroyed) {
         logAnalyticsEvent('unsubscribe', null, 'streamId', _stream.id);
       }
 
-      _domId = null;
-      _stream = null;
+      this.id = _domId = null;
+      this.stream = _stream = null;
+      this.streamId = null;
 
-      _session = null;
+      this.session =_session = null;
       _properties = null;
 
       if (quiet !== true) {
@@ -15708,7 +19583,7 @@ OTHelpers.centerElement = function(element, width, height) {
             this,
             reason
           ),
-          this.off.bind(this)
+          OT.$.bind(this.off, this)
         );
       }
 
@@ -15716,7 +19591,11 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     this.disconnect = function() {
-      _state.set('NotSubscribing');
+      if (!_state.isDestroyed() && !_state.isFailed()) {
+        // If we are already in the destroyed state then disconnect
+        // has been called after (or from within) destroy.
+        _state.set('NotSubscribing');
+      }
 
       if (_streamContainer) {
         _streamContainer.destroy();
@@ -15751,13 +19630,16 @@ OTHelpers.centerElement = function(element, width, height) {
       } else {
         if (_lastSubscribeToVideoReason === 'auto') {
           OT.info('Video has been re-enabled');
+          _chrome.videoDisabledIndicator.disableVideo(false);
         } else {
           OT.info('Video was not re-enabled because it was manually disabled');
           return;
         }
       }
       this.subscribeToVideo(active, 'auto');
-      this.dispatchEvent(new OT.Event(active ? 'videoEnabled' : 'videoDisabled'));
+      if(!active) {
+        _chrome.videoDisabledIndicator.disableVideo(true);
+      }
       logAnalyticsEvent('updateQuality', 'video', active ? 'videoEnabled' : 'videoDisabled', true);
     };
 
@@ -15781,13 +19663,13 @@ OTHelpers.centerElement = function(element, width, height) {
      * @return {String} The base-64 encoded string. Returns an empty string if there is no video.
      */
     this.getImgData = function() {
-      if (!this.subscribing) {
+      if (!this.isSubscribing()) {
         OT.error('OT.Subscriber.getImgData: Cannot getImgData before the Subscriber ' +
           'is subscribing.');
         return null;
       }
 
-      return _streamContainer.imgData;
+      return _streamContainer.imgData();
     };
 
     /**
@@ -15891,12 +19773,12 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     var muteAudio = function(_mute) {
-      _chrome.muteButton.muted = _mute;
+      _chrome.muteButton.muted(_mute);
 
       if(_mute === _properties.mute) {
         return;
       }
-      if (window.navigator.userAgent.toLowerCase().indexOf('chrome') >= 0) {
+      if(OT.$.browser() === 'Chrome' || TBPlugin.isInstalled()) {
         _properties.subscribeMute = _properties.muted = _mute;
         this.subscribeToAudio(_properties.subscribeToAudio);
       } else {
@@ -15910,6 +19792,12 @@ OTHelpers.centerElement = function(element, width, height) {
         }
       }
       _properties.mute = _properties.mute;
+    };
+
+    var reasonMap = {
+      auto: 'quality',
+      publishVideo: 'publishVideo',
+      subscribeToVideo: 'subscribeToVideo'
     };
 
 
@@ -15940,22 +19828,22 @@ OTHelpers.centerElement = function(element, width, height) {
     * @memberOf Subscriber
     */
     this.subscribeToVideo = function(pValue, reason) {
-      if(_subscribeAudioFalseWorkaround && pValue === true) {
-        // Turn off the workaround if they enable the video
-        _subscribeAudioFalseWorkaround = false;
-        return;
-      }
-
       var value = OT.$.castToBoolean(pValue, true);
 
       if(_container) {
-        _container.showPoster = !(value && _stream.hasVideo);
-        if(value && _container.video) {
-          _container.loading = value;
-          _container.video.whenTimeIncrements(function(){
-            _container.loading = false;
+        var audioOnly = !(value && _stream.hasVideo);
+        _container.audioOnly(audioOnly);
+        _container.showPoster(audioOnly);
+        if(value && _container.video()) {
+          _container.loading(value);
+          _container.video().whenTimeIncrements(function(){
+            _container.loading(false);
           }, this);
         }
+      }
+
+      if (_chrome && _chrome.videoDisabledIndicator) {
+        _chrome.videoDisabledIndicator.disableVideo(false);
       }
 
       if (_peerConnection) {
@@ -15970,68 +19858,35 @@ OTHelpers.centerElement = function(element, width, height) {
       _properties.subscribeToVideo = value;
       _lastSubscribeToVideoReason = reason;
 
+      if (reason !== 'loading') {
+        this.dispatchEvent(new OT.VideoEnabledChangedEvent(
+          value ? 'videoEnabled' : 'videoDisabled',
+          {
+            reason: reasonMap[reason] || 'subscribeToVideo'
+          }
+        ));
+      }
+
       return this;
     };
 
-    Object.defineProperties(this, {
-      id: {
-        get: function() { return _domId; },
-        enumerable: true
-      },
+    this.isSubscribing = function() {
+      return _state.isSubscribing();
+    };
 
-      element: {
-        get: function() { return _container.domElement; },
-        enumerable: true
-      },
+    this.isWebRTC = true;
 
-      widgetId: {
-        get: function() { return _widgetId; }
-      },
+    this.isLoading = function() {
+      return _container && _container.loading();
+    };
 
-      stream: {
-        get: function() { return _stream; },
-        enumerable: true
-      },
+    this.videoWidth = function() {
+      return _streamContainer.videoWidth();
+    };
 
-      streamId: {
-        get: function() {
-          if (!_stream) return null;
-          return _stream.id;
-        },
-        enumerable: true
-      },
-
-      targetElement: {
-        get: function() { return _streamContainer ? _streamContainer.domElement : null; }
-      },
-
-      subscribing: {
-        get: function() { return _state.subscribing; },
-        enumerable: true
-      },
-
-      isWebRTC: {
-        get: function() { return true; }
-      },
-
-      loading: {
-        get: function(){ return _container && _container.loading; }
-      },
-
-      session: {
-        get: function() { return _session; }
-      },
-
-      videoWidth: {
-        get: function() { return _streamContainer.videoWidth; },
-        enumerable: true
-      },
-
-      videoHeight: {
-        get: function() { return _streamContainer.videoHeight; },
-        enumerable: true
-      }
-    });
+    this.videoHeight = function() {
+      return _streamContainer.videoHeight();
+    };
 
     /**
     * Restricts the frame rate of the Subscriber's video stream, when you pass in
@@ -16041,8 +19896,10 @@ OTHelpers.centerElement = function(element, width, height) {
     * When the frame rate is restricted, the Subscriber video frame will update once or less per
     * second.
     * <p>
-    * This feature is only available in sessions that use the OpenTok media server, not in
-    * peer-to-peer sessions. In peer-to-peer sessions, calling this method has no effect.
+    * This feature is only available in sessions that use the OpenTok Media Router (sessions with
+    * the <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+    * set to routed), not in sessions with the media mode set to relayed. In relayed sessions,
+    * calling this method has no effect.
     * <p>
     * Restricting the subscriber frame rate has the following benefits:
     * <ul>
@@ -16077,6 +19934,7 @@ OTHelpers.centerElement = function(element, width, height) {
       if (typeof val !== 'boolean') {
         OT.error('OT.Subscriber.restrictFrameRate: expected a boolean value got a ' + typeof val);
       } else {
+        _frameRateRestricted = val;
         _stream.setRestrictFrameRate(val);
       }
       return this;
@@ -16094,19 +19952,84 @@ OTHelpers.centerElement = function(element, width, height) {
 
     _state = new OT.SubscribingState(stateChangeFailed);
 
+   /**
+   * Dispatched periodically to indicate the subscriber's audio level. The event is dispatched
+   * up to 60 times per second, depending on the browser. The <code>audioLevel</code> property
+   * of the event is audio level, from 0 to 1.0. See {@link AudioLevelUpdatedEvent} for more
+   * information.
+   * <p>
+   * The following example adjusts the value of a meter element that shows volume of the
+   * subscriber. Note that the audio level is adjusted logarithmically and a moving average
+   * is applied:
+   * <pre>
+   * var movingAvg = null;
+   * subscriber.on('audioLevelUpdated', function(event) {
+   *   if (movingAvg === null || movingAvg <= event.audioLevel) {
+   *     movingAvg = event.audioLevel;
+   *   } else {
+   *     movingAvg = 0.7 * movingAvg + 0.3 * event.audioLevel;
+   *   }
+   *
+   *   // 1.5 scaling to map the -30 - 0 dBm range to [0,1]
+   *   var logLevel = (Math.log(movingAvg) / Math.LN10) / 1.5 + 1;
+   *   logLevel = Math.min(Math.max(logLevel, 0), 1);
+   *   document.getElementById('subscriberMeter').value = logLevel;
+   * });
+   * </pre>
+   * <p>This example shows the algorithm used by the default audio level indicator displayed
+   * in an audio-only Subscriber.
+   *
+   * @name audioLevelUpdated
+   * @event
+   * @memberof Subscriber
+   * @see AudioLevelUpdatedEvent
+   */
+
 	/**
-	* Dispatched when the OpenTok media server stops sending video to the subscriber.
-	* This feature of the OpenTok media server has a subscriber drop the video stream
-	* when connectivity degrades. The subscriber continues to receive the audio stream,
-	* if there is one.
+	* Dispatched when the video for the subscriber is disabled.
 	* <p>
-	* If connectivity improves to support video again, the Subscriber object dispatches
-	* a videoEnabled event, and the Subscriber resumes receiving video.
+	* The <code>reason</code> property defines the reason the video was disabled. This can be set to
+	* one of the following values:
 	* <p>
-	* This feature is only available in sessions that use the OpenTok media server,
-	* not in peer-to-peer sessions.
 	*
-	* @see Event
+	* <ul>
+	*
+	*   <li><code>"publishVideo"</code> &mdash; The publisher stopped publishing video by calling
+	*   <code>publishVideo(false)</code>.</li>
+	*
+	*   <li><code>"quality"</code> &mdash; The OpenTok Media Router stopped sending video
+	*   to the subscriber based on stream quality changes. This feature of the OpenTok Media
+	*   Router has a subscriber drop the video stream when connectivity degrades. (The subscriber
+	*   continues to receive the audio stream, if there is one.)
+	*   <p>
+	*   Before sending this event, when the Subscriber's stream quality deteriorates to a level
+	*   that is low enough that the video stream is at risk of being disabled, the Subscriber
+	*   dispatches a <code>videoDisableWarning</code> event.
+	*   <p>
+	*   If connectivity improves to support video again, the Subscriber object dispatches
+	*   a <code>videoEnabled</code> event, and the Subscriber resumes receiving video.
+	*   <p>
+	*   By default, the Subscriber displays a video disabled indicator when a
+	*   <code>videoDisabled</code> event with this reason is dispatched and removes the indicator
+	*   when the <code>videoDisabled</code> event with this reason is dispatched. You can control
+	*   the display of this icon by calling the <code>setStyle()</code> method of the Subscriber,
+	*   setting the <code>videoDisabledDisplayMode</code> property(or you can set the style when
+	*   calling the <code>Session.subscribe()</code> method, setting the <code>style</code> property
+	*   of the <code>properties</code> parameter).
+	*   <p>
+	*   This feature is only available in sessions that use the OpenTok Media Router (sessions with
+	*   the <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+	*   set to routed), not in sessions with the media mode set to relayed.
+	*   </li>
+	*
+	*   <li><code>"subscribeToVideo"</code> &mdash; The subscriber started or stopped subscribing to
+	*   video, by calling <code>subscribeToVideo(false)</code>.
+	*   </li>
+	*
+	* </ul>
+	*
+	* @see VideoEnabledChangedEvent
+	* @see event:videoDisableWarning
 	* @see event:videoEnabled
 	* @name videoDisabled
 	* @event
@@ -16114,21 +20037,80 @@ OTHelpers.centerElement = function(element, width, height) {
 	*/
 
 	/**
-	* Dispatched when the OpenTok media server resumes sending video to the subscriber
+	* Dispatched when the OpenTok Media Router determines that the stream quality has degraded
+	* and the video will be disabled if the quality degrades more. If the quality degrades further,
+	* the Subscriber disables the video and dispatches a <code>videoDisabled</code> event.
+	* <p>
+	* By default, the Subscriber displays a video disabled warning indicator when this event
+	* is dispatched (and the video is disabled). You can control the display of this icon by
+	* calling the <code>setStyle()</code> method and setting the
+	* <code>videoDisabledDisplayMode</code> property (or you can set the style when calling
+	* the <code>Session.subscribe()</code> method and setting the <code>style</code> property
+	* of the <code>properties</code> parameter).
+	* <p>
+	* This feature is only available in sessions that use the OpenTok Media Router (sessions with
+	* the <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+	* set to routed), not in sessions with the media mode set to relayed.
+	*
+	* @see Event
+	* @see event:videoDisabled
+	* @see event:videoDisableWarningLifted
+	* @name videoDisableWarning
+	* @event
+	* @memberof Subscriber
+	*/
+
+	/**
+	* Dispatched when the OpenTok Media Router determines that the stream quality has improved
+	* to the point at which the video being disabled is not an immediate risk. This event is
+	* dispatched after the Subscriber object dispatches a <code>videoDisableWarning</code> event.
+	* <p>
+	* This feature is only available in sessions that use the OpenTok Media Router (sessions with
+	* the <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+	* set to routed), not in sessions with the media mode set to relayed.
+	*
+	* @see Event
+	* @see event:videoDisabled
+	* @see event:videoDisableWarning
+	* @name videoDisableWarningLifted
+	* @event
+	* @memberof Subscriber
+	*/
+
+	/**
+	* Dispatched when the OpenTok Media Router resumes sending video to the subscriber
 	* after video was previously disabled.
 	* <p>
-	* The OpenTok media server has a subscriber drop the video stream when connectivity
-	* degrades (and the Subscriber dispatches a videoDisabled event). When the connectivity
-	* improves to support video the Subscriber dispatches the videoEnabled event and
-	* video resumes.
+	* The <code>reason</code> property defines the reason the video was enabled. This can be set to
+	* one of the following values:
+	* <p>
+	*
+	* <ul>
+	*
+	*   <li><code>"publishVideo"</code> &mdash; The publisher started publishing video by calling
+	*   <code>publishVideo(true)</code>.</li>
+	*
+	*   <li><code>"quality"</code> &mdash; The OpenTok Media Router resumed sending video
+	*   to the subscriber based on stream quality changes. This feature of the OpenTok Media
+	*   Router has a subscriber drop the video stream when connectivity degrades and then resume
+	*   the video stream if the stream quality improves.
+	*   <p>
+	*   This feature is only available in sessions that use the OpenTok Media Router (sessions with
+	*   the <a href="http://tokbox.com/opentok/tutorials/create-session/#media-mode">media mode</a>
+	*   set to routed), not in sessions with the media mode set to relayed.
+	*   </li>
+	*
+	*   <li><code>"subscribeToVideo"</code> &mdash; The subscriber started or stopped subscribing to
+	*   video, by calling <code>subscribeToVideo(false)</code>.
+	*   </li>
+	*
+	* </ul>
+	*
 	* <p>
 	* To prevent video from resuming, in the <code>videoEnabled</code> event listener,
 	* call <code>subscribeToVideo(false)</code> on the Subscriber object.
-	* <p>
-	* This feature is only available in sessions that use the OpenTok media server,
-	* not in peer-to-peer sessions.
 	*
-	* @see Event
+	* @see VideoEnabledChangedEvent
 	* @see event:videoDisabled
 	* @name videoEnabled
 	* @event
@@ -16169,19 +20151,23 @@ OTHelpers.centerElement = function(element, width, height) {
     this.messagingURL = sessionJSON.messaging_url;
     this.symphonyAddress = sessionJSON.symphony_address;
 
-    this.p2pEnabled = sessionJSON.properties &&
+    this.p2pEnabled = !!(sessionJSON.properties &&
       sessionJSON.properties.p2p &&
       sessionJSON.properties.p2p.preference &&
-      sessionJSON.properties.p2p.preference.value === 'enabled';
+      sessionJSON.properties.p2p.preference.value === 'enabled');
   };
 
   // Retrieves Session Info for +session+. The SessionInfo object will be passed
   // to the +onSuccess+ callback. The +onFailure+ callback will be passed an error
   // object and the DOMEvent that relates to the error.
   OT.SessionInfo.get = function(session, onSuccess, onFailure) {
-    var sessionInfoURL = OT.properties.apiURLSSL + '/session/' + session.id + '?extended=true',
+    var sessionInfoURL = OT.properties.apiURL + '/session/' + session.id + '?extended=true',
+
+        browser = OT.$.browserVersion(),
 
         startTime = OT.$.now(),
+
+        options,
 
         validateRawSessionInfo = function(sessionInfo) {
           session.logEvent('Instrumentation', null, 'gsi', OT.$.now() - startTime);
@@ -16193,17 +20179,28 @@ OTHelpers.centerElement = function(element, width, height) {
           }
         };
 
-    session.logEvent('getSessionInfo', 'Attempt', 'api_url', OT.properties.apiURLSSL);
 
-    OT.$.getJSON(sessionInfoURL, {
-      headers: {
-        'X-TB-TOKEN-AUTH': session.token,
-        'X-TB-VERSION': 1
-      }
-    }, function(error, sessionInfo) {
+    if(browser.browser === 'IE' && browser.version < 10) {
+      sessionInfoURL = sessionInfoURL + '&format=json&token=' + encodeURIComponent(session.token) +
+                                        '&version=1&cache=' + OT.$.uuid();
+      options = {
+        xdomainrequest: true
+      };
+    }
+    else {
+      options = {
+        headers: {
+          'X-TB-TOKEN-AUTH': session.token,
+          'X-TB-VERSION': 1
+        }
+      };
+    }
+
+    session.logEvent('getSessionInfo', 'Attempt', 'api_url', OT.properties.apiURL);
+
+    OT.$.getJSON(sessionInfoURL, options, function(error, sessionInfo) {
       if(error) {
         var responseText = sessionInfo;
-        console.log('getJSON said error:', error);
         onGetErrorCallback(session, onFailure,
           new OT.Error(error.target && error.target.status || error.code, error.message ||
             'Could not connect to the OpenTok API Server.'), responseText);
@@ -16222,8 +20219,9 @@ OTHelpers.centerElement = function(element, width, height) {
   // Return the error in +jsonDocument+, if there is one. Otherwise it will return
   // false.
   parseErrorFromJSONDocument = function(jsonDocument) {
-    if(Array.isArray(jsonDocument)) {
-      var errors = jsonDocument.filter(function(node) {
+    if(OT.$.isArray(jsonDocument)) {
+
+      var errors = OT.$.filter(jsonDocument, function(node) {
         return node.error != null;
       });
 
@@ -16250,14 +20248,15 @@ OTHelpers.centerElement = function(element, width, height) {
   };
 
   onGetResponseCallback = function(session, onSuccess, rawSessionInfo) {
-    session.logEvent('getSessionInfo', 'Success', 'api_url', OT.properties.apiURLSSL);
+    session.logEvent('getSessionInfo', 'Success', 'api_url', OT.properties.apiURL);
 
     onSuccess( new OT.SessionInfo(rawSessionInfo) );
   };
 
   onGetErrorCallback = function(session, onFailure, error, responseText) {
     session.logEvent('Connect', 'Failure', 'errorMessage',
-      'GetSessionInfo:' + error.code + ':' + error.message + ':' + responseText);
+      'GetSessionInfo:' + (error.code || 'No code') + ':' + error.message + ':' +
+        (responseText || 'Empty responseText from API server'));
 
     onFailure(error, session);
   };
@@ -16291,14 +20290,13 @@ OTHelpers.centerElement = function(element, width, height) {
 	 * @property {Number} subscribe Specifies whether you can subscribe to streams
    * in the session (1) or not (0). Currently, this capability is available for all users on all
    * platforms.
-   * @property {Number} supportsWebRTC Whether the client supports WebRTC (1) or not (0).
 	 */
 	OT.Capabilities = function(permissions) {
-	    this.publish = permissions.indexOf('publish') !== -1 ? 1 : 0;
-	    this.subscribe = permissions.indexOf('subscribe') !== -1 ? 1 : 0;
-	    this.forceUnpublish = permissions.indexOf('forceunpublish') !== -1 ? 1 : 0;
-	    this.forceDisconnect = permissions.indexOf('forcedisconnect') !== -1 ? 1 : 0;
-	    this.supportsWebRTC = OT.$.supportsWebRTC() ? 1 : 0;
+	    this.publish = OT.$.arrayIndexOf(permissions, 'publish') !== -1 ? 1 : 0;
+	    this.subscribe = OT.$.arrayIndexOf(permissions, 'subscribe') !== -1 ? 1 : 0;
+	    this.forceUnpublish = OT.$.arrayIndexOf(permissions, 'forceunpublish') !== -1 ? 1 : 0;
+	    this.forceDisconnect = OT.$.arrayIndexOf(permissions, 'forcedisconnect') !== -1 ? 1 : 0;
+	    this.supportsWebRTC = OT.$.hasCapabilities('webrtc') ? 1 : 0;
 
       this.permittedTo = function(action) {
         return this.hasOwnProperty(action) && this[action] === 1;
@@ -16334,6 +20332,8 @@ OTHelpers.centerElement = function(element, width, height) {
  * <a href="/opentok/tutorials/create-session/">Session creation</a>.
  */
   OT.Session = function(apiKey, sessionId) {
+    OT.$.eventing(this);
+
     // Check that the client meets the minimum requirements, if they don't the upgrade
     // flow will be triggered.
     if (!OT.checkSystemRequirements()) {
@@ -16345,6 +20345,8 @@ OTHelpers.centerElement = function(element, width, height) {
       sessionId = apiKey;
       apiKey = null;
     }
+
+    this.id = this.sessionId = sessionId;
 
     var _initialConnection = true,
         _apiKey = apiKey,
@@ -16375,11 +20377,12 @@ OTHelpers.centerElement = function(element, width, height) {
         dispatchError;
 
 
-    OT.$.eventing(this);
+
     var setState = OT.$.statable(this, [
       'disconnected', 'connecting', 'connected', 'disconnecting'
     ], 'disconnected');
 
+    this.connection = null;
     this.connections = new OT.Collection();
     this.streams = new OT.Collection();
     this.archives = new OT.Collection();
@@ -16418,12 +20421,12 @@ OTHelpers.centerElement = function(element, width, height) {
       reset.call(this);
       disconnectComponents.call(this, reason);
 
-      var defaultAction = function() {
+      var defaultAction = OT.$.bind(function() {
         // Publishers handle preventDefault'ing themselves
         destroyPublishers.call(this, publicEvent.reason);
         // Subscriers don't, destroy 'em if needed
         if (!publicEvent.isDefaultPrevented()) destroySubscribers.call(this, publicEvent.reason);
-      }.bind(this);
+      }, this);
 
       this.dispatchEvent(publicEvent, defaultAction);
     };
@@ -16445,7 +20448,7 @@ OTHelpers.centerElement = function(element, width, height) {
       // Don't delete the connection if it's ours. This only happens when
       // we're about to receive a session disconnected and session disconnected
       // will also clean up our connection.
-      if (connection.id === _socket.id) return;
+      if (connection.id === _socket.id()) return;
 
       this.dispatchEvent(
         new OT.ConnectionEvent(
@@ -16472,6 +20475,10 @@ OTHelpers.centerElement = function(element, width, height) {
           propertyName = event.changedProperty,
           newValue = event.newValue;
 
+      if (propertyName === 'videoDisableWarning' || propertyName === 'audioDisableWarning') {
+        return; // These are not public properties, skip top level event for them.
+      }
+
       if (propertyName === 'orientation') {
         propertyName = 'videoDimensions';
         newValue = {width: newValue.width, height: newValue.height};
@@ -16491,18 +20498,18 @@ OTHelpers.centerElement = function(element, width, height) {
       // if the stream is one of ours we delegate handling
       // to the publisher itself.
       if(stream.connection.id === this.connection.id) {
-        OT.publishers.where({ streamId: stream.id }).forEach(function(publisher) {
+        OT.$.forEach(OT.publishers.where({ streamId: stream.id }), OT.$.bind(function(publisher) {
           publisher._.unpublishFromSession(this, reason);
-        }.bind(this));
+        }, this));
         return;
       }
 
       var event = new OT.StreamEvent('streamDestroyed', stream, reason, true);
 
-      var defaultAction = function() {
+      var defaultAction = OT.$.bind(function() {
         if (!event.isDefaultPrevented()) {
           // If we are subscribed to any of the streams we should unsubscribe
-          OT.subscribers.where({streamId: stream.id}).forEach(function(subscriber) {
+          OT.$.forEach(OT.subscribers.where({streamId: stream.id}), function(subscriber) {
             if (subscriber.session.id === this.id) {
               if(subscriber.stream) {
                 subscriber.destroy('streamDestroyed');
@@ -16512,7 +20519,7 @@ OTHelpers.centerElement = function(element, width, height) {
         } else {
           // @TODO Add a one time warning that this no longer cleans up the publisher
         }
-      }.bind(this);
+      }, this);
 
       this.dispatchEvent(event, defaultAction);
     };
@@ -16539,32 +20546,33 @@ OTHelpers.centerElement = function(element, width, height) {
 
     // Put ourselves into a pristine state
     reset = function() {
-      _token = null;
+      this.token = _token = null;
       setState('disconnected');
-
+      this.connection = null;
+      this.capabilities = new OT.Capabilities([]);
       this.connections.destroy();
       this.streams.destroy();
       this.archives.destroy();
     };
 
     disconnectComponents = function(reason) {
-      OT.publishers.where({session: this}).forEach(function(publisher) {
+      OT.$.forEach(OT.publishers.where({session: this}), function(publisher) {
         publisher.disconnect(reason);
       });
 
-      OT.subscribers.where({session: this}).forEach(function(subscriber) {
+      OT.$.forEach(OT.subscribers.where({session: this}), function(subscriber) {
         subscriber.disconnect();
       });
     };
 
     destroyPublishers = function(reason) {
-      OT.publishers.where({session: this}).forEach(function(publisher) {
+      OT.$.forEach(OT.publishers.where({session: this}), function(publisher) {
         publisher._.streamDestroyed(reason);
       });
     };
 
     destroySubscribers = function(reason) {
-      OT.subscribers.where({session: this}).forEach(function(subscriber) {
+      OT.$.forEach(OT.subscribers.where({session: this}), function(subscriber) {
         subscriber.destroy(reason);
       });
     };
@@ -16572,21 +20580,20 @@ OTHelpers.centerElement = function(element, width, height) {
     connectMessenger = function() {
       OT.debug('OT.Session: connecting to Raptor');
 
-      var socketUrl = OT.properties.messagingProtocol + '://' + this.sessionInfo.messagingServer +
-            ':' + OT.properties.messagingPort + '/rumorwebsocketsv2',
-          symphonyUrl = OT.properties.symphonyAddresss || 'symphony.' +
-            this.sessionInfo.messagingServer;
+      var socketUrl = this.sessionInfo.messagingURL,
+          symphonyUrl = OT.properties.symphonyAddresss || this.sessionInfo.symphonyAddress;
 
       _socket = new OT.Raptor.Socket(_widgetId, socketUrl, symphonyUrl,
         OT.SessionDispatcher(this));
 
       var analyticsPayload = [
-        socketUrl, navigator.userAgent, OT.properties.version,
+        socketUrl, OT.$.userAgent(), OT.properties.version,
         window.externalHost ? 'yes' : 'no'
       ];
 
-      _socket.connect(_token, this.sessionInfo, function(error, sessionState) {
+      _socket.connect(_token, this.sessionInfo, OT.$.bind(function(error, sessionState) {
         if (error) {
+          _socket = void 0;
           analyticsPayload.splice(0,0,error.message);
           this.logEvent('Connect', 'Failure',
             'reason|webSocketServerUrl|userAgent|sdkVersion|chromeFrame',
@@ -16598,11 +20605,16 @@ OTHelpers.centerElement = function(element, width, height) {
 
         OT.debug('OT.Session: Received session state from Raptor', sessionState);
 
+        this.connection = this.connections.get(_socket.id());
+        if(this.connection) {
+          this.capabilities = this.connection.permissions;
+        }
+
         setState('connected');
 
         this.logEvent('Connect', 'Success',
           'webSocketServerUrl|userAgent|sdkVersion|chromeFrame',
-          analyticsPayload.map(function(e) {
+          OT.$.map(analyticsPayload, function(e) {
             return e.replace('|', '\\|');
           }).join('|'), {connectionId: this.connection.id});
 
@@ -16629,34 +20641,39 @@ OTHelpers.centerElement = function(element, width, height) {
         }, this);
 
         this.dispatchEvent(
-          new OT.SessionConnectEvent(OT.Event.names.SESSION_CONNECTED), function() {
+          new OT.SessionConnectEvent(OT.Event.names.SESSION_CONNECTED), OT.$.bind(function() {
             this.connections._triggerAddEvents(); // { id: this.connection.id }
             this.streams._triggerAddEvents(); // { id: this.stream.id }
             this.archives._triggerAddEvents();
-          }.bind(this)
+          }, this)
         );
 
-      }.bind(this));
+      }, this));
     };
 
     getSessionInfo = function() {
       if (this.is('connecting')) {
         OT.SessionInfo.get(
           this,
-          onSessionInfoResponse.bind(this),
-          function(error) {
+          OT.$.bind(onSessionInfoResponse, this),
+          OT.$.bind(function(error) {
             sessionConnectFailed.call(this, error.message +
               (error.code ? ' (' + error.code + ')' : ''), error.code);
-          }.bind(this)
+          }, this)
         );
       }
     };
 
     onSessionInfoResponse = function(sessionInfo) {
       if (this.is('connecting')) {
+        var overrides = OT.properties.sessionInfoOverrides;
         this.sessionInfo = sessionInfo;
+        if (overrides != null && typeof overrides === 'object') {
+          this.sessionInfo = OT.$.defaults(overrides, this.sessionInfo);
+          console.log('is', this.sessionInfo);
+        }
         if (this.sessionInfo.partnerId && this.sessionInfo.partnerId !== _apiKey) {
-          _apiKey = this.sessionInfo.partnerId;
+          this.apiKey = _apiKey = this.sessionInfo.partnerId;
 
           var reason = 'Authentication Error: The API key does not match the token or session.';
 
@@ -16671,13 +20688,13 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
     // Check whether we have permissions to perform the action.
-    permittedTo = function(action) {
+    permittedTo = OT.$.bind(function(action) {
       return this.capabilities.permittedTo(action);
-    }.bind(this);
+    }, this);
 
-    dispatchError = function(code, message, completionHandler) {
+    dispatchError = OT.$.bind(function(code, message, completionHandler) {
       OT.dispatchError(code, message, completionHandler, this);
-    }.bind(this);
+    }, this);
 
     this.logEvent = function(action, variation, payloadType, payload, options) {
       /* jshint camelcase:false */
@@ -16700,43 +20717,17 @@ OTHelpers.centerElement = function(element, width, height) {
     };
 
  /**
- * Connects to an OpenTok session. Pass your API key as the <code>apiKey</code> parameter.
- * You get an API key when you <a href="https://dashboard.tokbox.com/users/sign_in">sign up</a>
- * for an OpenTok account. Pass a token string as the <code>token</code> parameter. You generate
- * a token using the
- * <a href="/opentok/api/tools/documentation/api/server_side_libraries.html">OpenTok server-side
- * libraries</a> or the <a href="https://dashboard.tokbox.com/projects">Dashboard</a> page. For
- * more information, see <a href="/opentok/tutorials/create-token/">Connection token creation</a>.
+ * Connects to an OpenTok session.
  * <p>
- * Upon a successful connection, the Session object dispatches a <code>sessionConnected</code>
- * event. Call the <code>on()</code> method to set up an event handler to process this event before
- * calling other methods of the Session object.
- *  </p>
- *  <p>
- *    The Session object dispatches a <code>connectionCreated</code> event when other clients
- *    create connections to the session.
- *  </p>
- *  <p>
- *    The OT object dispatches an <code>exception</code> event if the session ID,
- *    API key, or token string are invalid. See <a href="ExceptionEvent.html">ExceptionEvent</a>
- *    and <a href="OT.html#on">OT.on()</a>.
- *  </p>
- *  <p>
- *    The application throws an error if the system requirements are not met
- *    (see <a href="OT.html#checkSystemRequirements">OT.checkSystemRequirements()</a>).
- *    The application also throws an error if the session has peer-to-peer streaming enabled
- *    and two clients are already connected to the session (see our
- *    <a href="/opentok/libraries/server/">server-side libraries</a>).
- *  </p>
- *
- * <p>
- *  With the peer-to-peer option enabled for a session, the session supports two connections.
- *  Without the peer-to-peer option enabled, the session supports up to four connections. On
- *  clients that attempt to a session that already has the maximum number of connections, the
- *  OT object dispatches an `exception` event (with the `code` property set to 1007). See
- *  <a href="/opentok/tutorials/create-session/">Session Creation documentation</a>.
+ *  Upon a successful connection, the completion handler (the second parameter of the method) is
+ *  invoked without an error object passed in. (If there is an error connecting, the completion
+ *  handler is invoked with an error object.) Make sure that you have successfully connected to the
+ *  session before calling other methods of the Session object.
  * </p>
- *
+ *  <p>
+ *    The Session object dispatches a <code>connectionCreated</code> event when any client
+ *    (including your own) connects to to the session.
+ *  </p>
  *
  *  <h5>
  *  Example
@@ -16788,8 +20779,10 @@ OTHelpers.centerElement = function(element, width, height) {
   *
   * @param {Function} completionHandler (Optional) A function to be called when the call to the
   * <code>connect()</code> method succeeds or fails. This function takes one parameter &mdash;
-  * <code>error</code>. On success, the <code>completionHandler</code> function is not passed any
-  * arguments. On error, the function is passed an <code>error</code> object parameter. The
+  * <code>error</code> (see the <a href="Error.html">Error</a> object).
+  * On success, the <code>completionHandler</code> function is not passed any
+  * arguments. On error, the function is passed an <code>error</code> object parameter
+  * (see the <a href="Error.html">Error</a> object). The
   * <code>error</code> object has two properties: <code>code</code> (an integer) and
   * <code>message</code> (a string), which identify the cause of the failure. The following
   * code adds a <code>completionHandler</code> when calling the <code>connect()</code> method:
@@ -16833,7 +20826,7 @@ OTHelpers.centerElement = function(element, width, height) {
 
       reset.call(this);
       setState('connecting');
-      _token = !OT.$.isFunction(token) && token;
+      this.token = _token = !OT.$.isFunction(token) && token;
 
       // Get a new widget ID when reconnecting.
       if (_initialConnection) {
@@ -16843,25 +20836,33 @@ OTHelpers.centerElement = function(element, width, height) {
       }
 
       if (completionHandler && OT.$.isFunction(completionHandler)) {
-        this.once('sessionConnected', completionHandler.bind(null, null));
+        this.once('sessionConnected', OT.$.bind(completionHandler, null, null));
         this.once('sessionConnectFailed', completionHandler);
       }
 
       if(_apiKey == null || OT.$.isFunction(_apiKey)) {
-        setTimeout(sessionConnectFailed.bind(this,
+        setTimeout(OT.$.bind(
+          sessionConnectFailed,
+          this,
           'API Key is undefined. You must pass an API Key to initSession.',
-          OT.ExceptionCodes.AUTHENTICATION_ERROR));
+          OT.ExceptionCodes.AUTHENTICATION_ERROR
+        ));
+
         return this;
       }
 
       if (!_sessionId) {
-        setTimeout(sessionConnectFailed.bind(this,
-            'SessionID is undefined. You must pass a sessionID to initSession.',
-          OT.ExceptionCodes.INVALID_SESSION_ID));
+        setTimeout(OT.$.bind(
+          sessionConnectFailed,
+          this,
+          'SessionID is undefined. You must pass a sessionID to initSession.',
+          OT.ExceptionCodes.INVALID_SESSION_ID
+        ));
+
         return this;
       }
 
-      _apiKey = _apiKey.toString();
+      this.apiKey = _apiKey = _apiKey.toString();
 
       // Ugly hack, make sure OT.APIKEY is set
       if (OT.APIKEY.length === 0) {
@@ -16869,7 +20870,7 @@ OTHelpers.centerElement = function(element, width, height) {
       }
 
       var analyticsPayload = [
-        navigator.userAgent, OT.properties.version,
+        OT.$.userAgent(), OT.properties.version,
         window.externalHost ? 'yes' : 'no'
       ];
       this.logEvent( 'Connect', 'Attempt',
@@ -16939,21 +20940,27 @@ OTHelpers.centerElement = function(element, width, height) {
   * @method #disconnect
   * @memberOf Session
   */
-    this.disconnect = function() {
+    var disconnect = OT.$.bind(function disconnect(drainSocketBuffer) {
       if (_socket && _socket.isNot('disconnected')) {
-        setState('disconnecting');
-        _socket.disconnect();
+        if (_socket.isNot('disconnecting')) {
+          setState('disconnecting');
+          _socket.disconnect(drainSocketBuffer);
+        }
       }
       else {
         reset.call(this);
       }
+    }, this);
+
+    this.disconnect = function(drainSocketBuffer) {
+      disconnect(drainSocketBuffer !== void 0 ? drainSocketBuffer : true);
     };
 
-    this.destroy = function(/*reason, quiet*/) {
+    this.destroy = function(reason) {
       this.streams.destroy();
       this.connections.destroy();
       this.archives.destroy();
-      this.disconnect();
+      disconnect(reason !== 'unloaded');
     };
 
  /**
@@ -17049,7 +21056,8 @@ OTHelpers.centerElement = function(element, width, height) {
   * @param {Function} completionHandler (Optional) A function to be called when the call to the
   * <code>publish()</code> method succeeds or fails. This function takes one parameter &mdash;
   * <code>error</code>. On success, the <code>completionHandler</code> function is not passed any
-  * arguments. On error, the function is passed an <code>error</code> object parameter. The
+  * arguments. On error, the function is passed an <code>error</code> object parameter
+  * (see the <a href="Error.html">Error</a> object). The
   * <code>error</code> object has two properties: <code>code</code> (an integer) and
   * <code>message</code> (a string), which identify the cause of the failure. Calling
   * <code>publish()</code> fails if the role assigned to your token is not "publisher" or
@@ -17114,7 +21122,7 @@ OTHelpers.centerElement = function(element, width, height) {
       }
 
       // If the user has passed in an ID of a element then we create a new publisher.
-      if (!publisher || typeof(publisher)==='string' || publisher.nodeType === Node.ELEMENT_NODE) {
+      if (!publisher || typeof(publisher)==='string' || OT.$.isElementNode(publisher)) {
         // Initiate a new Publisher with the new session credentials
         publisher = OT.initPublisher(publisher, properties);
 
@@ -17124,10 +21132,10 @@ OTHelpers.centerElement = function(element, width, height) {
         if ('session' in publisher && publisher.session && 'sessionId' in publisher.session) {
           // send a warning message that we can't publish again.
           if( publisher.session.sessionId === this.sessionId){
-            OT.warn('Cannot publish ' + publisher.guid + ' again to ' +
+            OT.warn('Cannot publish ' + publisher.guid() + ' again to ' +
               this.sessionId + '. Please call session.unpublish(publisher) first.');
           } else {
-            OT.warn('Cannot publish ' + publisher.guid + ' publisher already attached to ' +
+            OT.warn('Cannot publish ' + publisher.guid() + ' publisher already attached to ' +
               publisher.session.sessionId+ '. Please call session.unpublish(publisher) first.');
           }
         }
@@ -17336,7 +21344,12 @@ OTHelpers.centerElement = function(element, width, height) {
   *   appearance of user interface controls of the Subscriber. The <code>style</code> object
   *   includes the following properties:
   *     <ul>
-  *       <li><code>backgroundImageURI</code> (String) &mdash; A URI for an image to display as
+  *       <li><code>audioLevelDisplayMode</code> (String) &mdash; How to display the audio level
+  *       indicator. Possible values are: <code>"auto"</code> (the indicator is displayed when the
+  *       video is disabled), <code>"off"</code> (the indicator is not displayed), and
+  *       <code>"on"</code> (the indicator is always displayed).</li>
+  *
+  *       <li><p><code>backgroundImageURI</code> (String) &mdash; A URI for an image to display as
   *       the background image when a video is not displayed. (A video may not be displayed if
   *       you call <code>subscribeToVideo(false)</code> on the Subscriber object). You can pass an
   *       http or https URI to a PNG, JPEG, or non-animated GIF file location. You can also use the
@@ -17346,7 +21359,14 @@ OTHelpers.centerElement = function(element, width, height) {
   *       you could set the property to <code>"data:VBORw0KGgoAA..."</code>, where the portion of
   *       the string after <code>"data:"</code> is the result of a call to
   *       <code>Subscriber.getImgData()</code>. If the URL or the image data is invalid, the
-  *       property is ignored (the attempt to set the image fails silently).</li>
+  *       property is ignored (the attempt to set the image fails silently).
+  *       <p>
+  *       Note that in Internet Explorer 8 (using the OpenTok Plugin for Internet Explorer),
+  *       you cannot set the <code>backgroundImageURI</code> style to a string larger than
+  *       32&nbsp;kB. This is due to an IE 8 limitation on the size of URI strings. Due to this
+  *       limitation, you cannot set the <code>backgroundImageURI</code> style to a string obtained
+  *       with the <code>getImgData()</code> method.
+  *       </p></li>
   *
   *       <li><code>buttonDisplayMode</code> (String) &mdash; How to display the speaker controls
   *       Possible values are: <code>"auto"</code> (controls are displayed when the stream is first
@@ -17357,6 +21377,15 @@ OTHelpers.centerElement = function(element, width, height) {
   *       Possible values are: <code>"auto"</code> (the name is displayed when the stream is first
   *       displayed and when the user mouses over the display), <code>"off"</code> (the name is not
   *       displayed), and <code>"on"</code> (the name is always displayed).</li>
+  *
+  *       <li><code>videoDisabledDisplayMode</code> (String) &#151; Whether to display the video
+  *       disabled indicator and video disabled warning icons for a Subscriber. These icons
+  *       indicate that the video has been disabled (or is in risk of being disabled for
+  *       the warning icon) due to poor stream quality. This style only applies to the Subscriber
+  *       object. Possible values are: <code>"auto"</code> (the icons are automatically when the
+  *       displayed video is disabled or in risk of being disabled due to poor stream quality),
+  *       <code>"off"</code> (do not display the icons), and <code>"on"</code> (display the
+  *       icons). The default setting is <code>"auto"</code></li>
   *   </ul>
   *   </li>
   *
@@ -17581,36 +21610,35 @@ OTHelpers.centerElement = function(element, width, height) {
       return OT.publishers.where({streamId: streamId})[0];
     };
 
-
     // Private Session API: for internal OT use only
     this._ = {
       jsepCandidateP2p: function(streamId, subscriberId, candidate) {
         return _socket.jsepCandidateP2p(streamId, subscriberId, candidate);
-      }.bind(this),
+      },
 
       jsepCandidate: function(streamId, candidate) {
         return _socket.jsepCandidate(streamId, candidate);
-      }.bind(this),
+      },
 
       jsepOffer: function(streamId, offerSdp) {
         return _socket.jsepOffer(streamId, offerSdp);
-      }.bind(this),
+      },
 
       jsepOfferP2p: function(streamId, subscriberId, offerSdp) {
         return _socket.jsepOfferP2p(streamId, subscriberId, offerSdp);
-      }.bind(this),
+      },
 
       jsepAnswer: function(streamId, answerSdp) {
         return _socket.jsepAnswer(streamId, answerSdp);
-      }.bind(this),
+      },
 
       jsepAnswerP2p: function(streamId, subscriberId, answerSdp) {
         return _socket.jsepAnswerP2p(streamId, subscriberId, answerSdp);
-      }.bind(this),
+      },
 
       // session.on("signal", function(SignalEvent))
       // session.on("signal:{type}", function(SignalEvent))
-      dispatchSignal: function(fromConnection, type, data) {
+      dispatchSignal: OT.$.bind(function(fromConnection, type, data) {
         var event = new OT.SignalEvent(type, data, fromConnection);
         event.target = this;
 
@@ -17620,51 +21648,62 @@ OTHelpers.centerElement = function(element, width, height) {
 
         // signal an "signal:{type}" event" if there was a custom type
         if (type) this.dispatchEvent(event);
-      }.bind(this),
+      }, this),
 
       subscriberCreate: function(stream, subscriber, channelsToSubscribeTo, completion) {
         return _socket.subscriberCreate(stream.id, subscriber.widgetId,
           channelsToSubscribeTo, completion);
-      }.bind(this),
+      },
 
       subscriberDestroy: function(stream, subscriber) {
         return _socket.subscriberDestroy(stream.id, subscriber.widgetId);
-      }.bind(this),
+      },
 
       subscriberUpdate: function(stream, subscriber, attributes) {
         return _socket.subscriberUpdate(stream.id, subscriber.widgetId, attributes);
-      }.bind(this),
+      },
 
       subscriberChannelUpdate: function(stream, subscriber, channel, attributes) {
         return _socket.subscriberChannelUpdate(stream.id, subscriber.widgetId, channel.id,
           attributes);
-      }.bind(this),
+      },
 
-      streamCreate: function(name, orientation, encodedWidth, encodedHeight, hasAudio, hasVideo,
-        frameRate, completion) {
-        _socket.streamCreate(name, orientation, encodedWidth, encodedHeight, hasAudio, hasVideo,
-          frameRate, OT.Config.get('bitrates', 'min', OT.APIKEY),
-          OT.Config.get('bitrates', 'max', OT.APIKEY), completion);
-      }.bind(this),
+      streamCreate: OT.$.bind(function(name, orientation, encodedWidth, encodedHeight,
+                                                hasAudio, hasVideo,
+                                                frameRate, completion) {
+
+        _socket.streamCreate(
+          name,
+          orientation,
+          encodedWidth,
+          encodedHeight,
+          hasAudio,
+          hasVideo,
+          frameRate,
+          OT.Config.get('bitrates', 'min', OT.APIKEY),
+          OT.Config.get('bitrates', 'max', OT.APIKEY),
+          completion
+        );
+      }, this),
 
       streamDestroy: function(streamId) {
         _socket.streamDestroy(streamId);
-      }.bind(this),
+      },
 
       streamChannelUpdate: function(stream, channel, attributes) {
         _socket.streamChannelUpdate(stream.id, channel.id, attributes);
-      }.bind(this)
+      }
     };
 
 
  /**
-  * Sends a signal to each client or specified clients in the session. Specify a
-  * <code>connections</code> property of the <code>signal</code> parameter to limit the
-  * recipients of the signal; otherwise the signal is sent to each client connected to
+  * Sends a signal to each client or a specified client in the session. Specify a
+  * <code>to</code> property of the <code>signal</code> parameter to limit the signal to
+  * be sent to a specific client; otherwise the signal is sent to each client connected to
   * the session.
   * <p>
-  * The following example sends a signal of type "foo" with a specified data payload to all
-  * clients connected to the session:
+  * The following example sends a signal of type "foo" with a specified data payload ("hello")
+  * to all clients connected to the session:
   * <pre>
   * session.signal({
   *     type: "foo",
@@ -17672,7 +21711,7 @@ OTHelpers.centerElement = function(element, width, height) {
   *   },
   *   function(error) {
   *     if (error) {
-  *       console.log("signal error: " + error.reason);
+  *       console.log("signal error: " + error.message);
   *     } else {
   *       console.log("signal sent");
   *     }
@@ -17680,22 +21719,22 @@ OTHelpers.centerElement = function(element, width, height) {
   * );
   * </pre>
   * <p>
-  * Calling this method without limiting the set of recipient clients will result in
-  * multiple signals sent (one to each client in the session). For information on charges
-  * for signaling, see the <a href="http://tokbox.com/pricing">OpenTok
-  * pricing</a> page.
+  * Calling this method without specifying a recipient client (by setting the <code>to</code>
+  * property of the <code>signal</code> parameter) results in multiple signals sent (one to each
+  * client in the session). For information on charges for signaling, see the
+  * <a href="http://tokbox.com/pricing">OpenTok pricing</a> page.
   * <p>
-  * The following example sends a signal of type "foo" with a specified data payload to two
-  * specific clients connected to the session:
+  * The following example sends a signal of type "foo" with a data payload ("hello") to a
+  * specific client connected to the session:
   * <pre>
   * session.signal({
   *     type: "foo",
-  *     to: [connection1, connection2]; // connection1 and 2 are Connection objects
+  *     to: recipientConnection; // a Connection object
   *     data: "hello"
   *   },
   *   function(error) {
   *     if (error) {
-  *       console.log("signal error: " + error.reason);
+  *       console.log("signal error: " + error.message);
   *     } else {
   *       console.log("signal sent");
   *     }
@@ -17711,12 +21750,12 @@ OTHelpers.centerElement = function(element, width, height) {
   *
   * @param {Object} signal An object that contains the following properties defining the signal:
   * <ul>
-  *   <li><code>to</code> &mdash; (Array) An array of <a href="Connection.html">Connection</a>
-  *      objects, corresponding to clients that the message is to be sent to. If you do not
-  *      specify this property, the signal is sent to all clients connected to the session.</li>
   *   <li><code>data</code> &mdash; (String) The data to send. The limit to the length of data
   *     string is 8kB. Do not set the data string to <code>null</code> or
   *     <code>undefined</code>.</li>
+  *   <li><code>to</code> &mdash; (Connection) A <a href="Connection.html">Connection</a>
+  *      object corresponding to the client that the message is to be sent to. If you do not
+  *      specify this property, the signal is sent to all clients connected to the session.</li>
   *   <li><code>type</code> &mdash; (String) The type of the signal. You can use the type to
   *     filter signals when setting an event handler for the <code>signal:type</code> event
   *     (where you replace <code>type</code> with the type string). The maximum length of the
@@ -17740,10 +21779,11 @@ OTHelpers.centerElement = function(element, width, height) {
   *     <table style="width:100%">
   *         <tr>
   *           <td>400</td> <td>One of the signal properties &mdash; data, type, or to &mdash;
-  *                         is invalid. Or the data cannot be parsed as JSON.</td>
+  *                         is invalid.</td>
   *         </tr>
   *         <tr>
-  *           <td>404</td> <td>The to connection does not exist.</td>
+  *           <td>404</td> <td>The client specified by the to property is not connected to
+  *                        the session.</td>
   *         </tr>
   *         <tr>
   *           <td>413</td> <td>The type string exceeds the maximum length (128 bytes),
@@ -17754,16 +21794,12 @@ OTHelpers.centerElement = function(element, width, height) {
   *         </tr>
   *      </table>
   *   </li>
-  *   <li><code>reason</code> &mdash; (String) A description of the error.</li>
-  *   <li><code>signal</code> &mdash; (Object) An object with properties corresponding to the
-  *     values passed into the <code>signal()</code> method &mdash; <code>data</code>,
-  *     <code>to</code>, and <code>type</code>.
-  *   </li>
+  *   <li><code>message</code> &mdash; (String) A description of the error.</li>
   * </ul>
   *
   * <p>Note that the <code>completionHandler</code> success result (<code>error == null</code>)
   * indicates that the options passed into the <code>Session.signal()</code> method are valid
-  * and the signal was sent. It does <i>not</i> indicate that the signal was sucessfully
+  * and the signal was sent. It does <i>not</i> indicate that the signal was successfully
   * received by any of the intended recipients.
   *
   * @method #signal
@@ -18003,21 +22039,11 @@ OTHelpers.centerElement = function(element, width, height) {
       OT.warn('Fixme: Have not implemented session.getStateManager');
     };
 
-    OT.$.defineGetters(this, {
-      apiKey: function() { return _apiKey; },
-      token: function() { return _token; },
-      connected: function() { return this.is('connected'); },
-      connection: function() {
-        return _socket && _socket.id ? this.connections.get(_socket.id) : null;
-      },
-      sessionId: function() { return _sessionId; },
-      id: function() { return _sessionId; },
-      capabilities: function() {
-        var connection =  this.connection;
-        return connection ? connection.permissions : new OT.Capabilities([]);
-      }.bind(this)
-    }, true);
+    this.isConnected = function() {
+      return this.is('connected');
+    };
 
+    this.capabilities = new OT.Capabilities([]);
 
   /**
    * Dispatched when an archive recording of the session starts.
@@ -18040,7 +22066,7 @@ OTHelpers.centerElement = function(element, width, height) {
    */
 
   /**
-   * A new client, other than your own, has connected to the session.
+   * A new client (including your own) has connected to the session.
    * @name connectionCreated
    * @event
    * @memberof Session
@@ -18128,6 +22154,12 @@ OTHelpers.centerElement = function(element, width, height) {
 	 * <a href="Publisher.html#publishVideo">Publisher.publishVideo()</a>); or the
 	 * <code>videoDimensions</code> property of the Stream
 	 * object has changed (see <a href="Stream.html#"videoDimensions>Stream.videoDimensions</a>).
+	 * <p>
+	 * Note that a subscriber's video can be disabled or enabled for reasons other than the
+	 * publisher disabling or enabling it. A Subscriber object dispatches <code>videoDisabled</code>
+	 * and <code>videoEnabled</code> events in all conditions that cause the subscriber's stream
+	 * to be disabled or enabled.
+	 *
 	 * @name streamPropertyChanged
 	 * @event
 	 * @memberof Session
@@ -18137,6 +22169,8 @@ OTHelpers.centerElement = function(element, width, height) {
 	 * @see <a href="Stream.html#"hasAudio>Stream.hasAudio</a>
 	 * @see <a href="Stream.html#"hasVideo>Stream.hasVideo</a>
 	 * @see <a href="Stream.html#"videoDimensions>Stream.videoDimensions</a>
+	 * @see <a href="Subscriber.html#event:videoDisabled">Subscriber videoDisabled event</a>
+	 * @see <a href="Subscriber.html#event:videoEnabled">Subscriber videoEnabled event</a>
 	 */
 
 	/**
@@ -18208,6 +22242,251 @@ OTHelpers.centerElement = function(element, width, height) {
   };
 
 })(window);
+(function() {
+
+  var txt = function(text) {
+    return document.createTextNode(text);
+  };
+
+  var el = function(attr, children, tagName) {
+    var el = OT.$.createElement(tagName || 'div', attr, children);
+    el.on = OT.$.bind(OT.$.on, OT.$, el);
+    return el;
+  };
+
+  function DevicePickerController(opts) {
+    var destroyExistingPublisher,
+        publisher,
+        devicesById;
+
+    this.change = OT.$.bind(function() {
+      destroyExistingPublisher();
+
+      var settings;
+
+      this.pickedDevice = devicesById[opts.selectTag.value];
+
+      if(!this.pickedDevice) {
+        console.log('No device for', opts.mode, opts.selectTag.value);
+        return;
+      }
+
+      settings = {
+        insertMode: 'append',
+        name: this.pickedDevice.label,
+        audioSource: null,
+        videoSource: null,
+        width: 220,
+        height: 165
+      };
+
+      settings[opts.mode] = this.pickedDevice.deviceId;
+
+      console.log('initPublisher', opts.previewTag, settings);
+      var pub = OT.initPublisher(opts.previewTag, settings);
+
+      pub.on({
+        accessDialogOpened: function(event) {
+          event.preventDefault();
+        },
+        accessDialogClosed: function() {
+        },
+        accessAllowed: function() {
+        },
+        accessDenied: function(event) {
+          event.preventDefault();
+        }
+      });
+
+      publisher = pub;
+    }, this);
+
+    this.cleanup = destroyExistingPublisher = function() {
+      if(publisher) {
+        publisher.destroy();
+        publisher = void 0;
+      }
+    };
+
+    var disableSelector = function (opt, str) {
+      opt.innerHTML = '';
+      opt.appendChild(el({}, txt(str), 'option'));
+      opt.setAttribute('disabled', '');
+    };
+
+    var addDevice = function (device) {
+      devicesById[device.deviceId] = device;
+      return el({ value: device.deviceId }, txt(device.label), 'option');
+    };
+
+    this.setDeviceList = OT.$.bind(function (devices) {
+      opts.selectTag.innerHTML = '';
+      devicesById = {};
+      if(devices.length > 0) {
+        devices.map(addDevice).map(OT.$.bind(opts.selectTag.appendChild, opts.selectTag));
+        opts.selectTag.removeAttribute('disabled');
+      } else {
+        disableSelector(opts.selectTag, 'No devices');
+      }
+      this.change();
+    }, this);
+
+    this.setLoading = function() {
+      disableSelector(opts.selectTag, 'Loading...');
+    };
+
+    OT.$.on(opts.selectTag, 'change', this.change);
+  }
+
+  OT.HardwareSetup = function(targetElement, options, callback) {
+
+    var camera,
+        microphone,
+        setupDOM,
+        setState;
+
+    setState = OT.$.statable(this, ['getDevices', 'chooseDevices', 'destroyed'], 'getDevices');
+
+    this.audioSource = function() {
+      return microphone && microphone.pickedDevice;
+    };
+
+    this.videoSource = function() {
+      return camera && camera.pickedDevice;
+    };
+
+    this.destroy = OT.$.bind(function() {
+      if(this.is('destroyed')) {
+        return;
+      }
+      if(camera) {
+        camera.cleanup();
+      }
+      if(microphone) {
+        microphone.cleanup();
+      }
+      if(this.is('chooseDevices')) {
+        targetElement.parentNode.removeChild(targetElement);
+      }
+      setState('destroyed');
+    }, this);
+
+    if(targetElement == null) {
+      callback(new Error('You must provide a targetElement'));
+      return;
+    }
+
+    if(!OT.$.hasCapabilities('getMediaDevices')) {
+      callback(new Error('This browser does not support getMediaDevices APIs'));
+      return;
+    }
+
+    var camSelector,
+        camPreview,
+        micSelector,
+        micPreview,
+        container;
+
+    camSelector = el({ style: 'width: 100%' }, '', 'select');
+    camPreview = el({
+      style: 'background-color: #000; margin-left: 100px; width: 220px; height: 165px;'
+    }, ''),
+    micSelector = el({ style: 'width: 100%' }, '', 'select'),
+    micPreview = el({
+      style: 'background-color: #000; margin-left: 100px; width: 220px; height: 165px;'
+    }, '');
+
+    container = el({
+      id: 'OT_' + OT.$.uuid(),
+      style: 'border: 1px solid #000; padding: 10px; width: 320px;'
+    }, [
+      el({ style: 'padding: 0 0 10px; overflow: auto; text-align: right; ' }, [
+        el({ style: 'float: left; width: 90px; padding-right: 10px; line-height: 160%;' },
+          'Camera'),
+        el({ style: 'margin-left: 100px; ' }, camSelector),
+        camPreview
+      ]),
+      el({ style: 'overflow: auto; text-align: right;' }, [
+        el({ style: 'float: left; width: 90px; padding-right: 10px; line-height: 160%;' },
+          'Microphone'),
+        el({ style: 'margin-left: 100px; ' }, micSelector),
+        micPreview
+      ])
+    ]);
+
+    camera = new DevicePickerController({
+      selectTag: camSelector,
+      previewTag: camPreview,
+      mode: 'videoSource'
+    });
+
+    microphone = new DevicePickerController({
+      selectTag: micSelector,
+      previewTag: micPreview,
+      mode: 'audioSource'
+    });
+
+    camera.setLoading();
+    microphone.setLoading();
+
+    OT.getDevices(OT.$.bind(function(error, devices) {
+      if (error) {
+        callback(error);
+        return;
+      }
+
+      if(this.is('destroyed')) {
+        return; // They destroyed us before we got the devices, bail.
+      }
+
+      setupDOM();
+
+      camera.setDeviceList(devices.filter(function(device) {
+        return device.kind === 'videoinput';
+      }));
+
+      microphone.setDeviceList(devices.filter(function(device) {
+        return device.kind === 'audioinput';
+      }));
+
+      setState('chooseDevices');
+
+    }, this));
+
+    setupDOM = function() {
+      var insertMode = options.insertMode;
+      if(!(insertMode == null || insertMode === 'replace')) {
+        if(insertMode === 'append') {
+          targetElement.appendChild(container);
+          targetElement = container;
+        } else if(insertMode === 'before') {
+          targetElement.parentNode.insertBefore(container, targetElement);
+          targetElement = container;
+        } else if(insertMode === 'after') {
+          targetElement.parentNode.insertBefore(container, targetElement.nextSibling);
+          targetElement = container;
+        }
+      } else {
+        OT.$.emptyElement(targetElement);
+        if(targetElement.getAttribute('id') == null) {
+          targetElement.setAttribute('id', container.getAttribute('id'));
+        }
+        for(var key in container.style) {
+          targetElement.style[key] = container.style[key];
+        }
+        while(container.childNodes.length > 0) {
+          targetElement.appendChild(container.firstChild);
+        }
+      }
+    };
+
+  };
+
+  OT.initHardwareSetup = function(targetElement, options, callback) {
+    return new OT.HardwareSetup(targetElement, options, callback);
+  };
+
+})();
 !(function() {
   var style = document.createElement('link');
   style.type = 'text/css';
