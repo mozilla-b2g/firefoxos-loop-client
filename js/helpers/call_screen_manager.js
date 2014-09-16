@@ -236,7 +236,7 @@
                   } else {
                     _closeAttentionScreen();
                   }
-                  
+
                   // Create object to store
                   var callObject = {
                     date: attentionLoadedDate,
@@ -252,6 +252,24 @@
                     contactPhoto: null
                   };
 
+                  if (callscreenParams.feedback) {
+                    LazyLoader.load([
+                      '../js/helpers/feedback_client.js'
+                    ], function() {
+                      var url = callscreenParams.call.callUrl;
+                      if (url) {
+                        // We include the URL that the user clicked on to
+                        // initiate the call (without the call token) in the
+                        // "url" field. The key reason for doing so is that
+                        // it allows us to distinguish standalone feedback
+                        // from build-in client feedback.
+                        callscreenParams.feedback.url =
+                          url.substring(0, url.lastIndexOf('/'));
+                      }
+                      FeedbackClient.sendFeedback(callscreenParams.feedback);
+                    });
+                  }
+
                   ContactsHelper.find({
                     identities: params.identities
                   }, function(result) {
@@ -259,7 +277,7 @@
                   }, function() {
                     CallLog.addCall(callObject);
                   });
-                  
+
                   break;
               }
             } catch(e) {}

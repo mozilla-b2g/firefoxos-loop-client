@@ -412,12 +412,13 @@
         connected = true;
       }
 
-      function onCallEnded() {
+      function onCallEnded(feedback) {
         var params = {
           call: _call,
           duration: duration,
           connected: connected,
-          video: _isVideoCall
+          video: _isVideoCall,
+          feedback: feedback
         };
 
         if (error) {
