@@ -375,11 +375,12 @@
     notifyPeerBusy: function() {
       TonePlayerHelper.stop();
       CallScreenUI.setCallStatus('busy');
+      CallManager.terminate();
       TonePlayerHelper.playBusy(_isSpeakerEnabled).then(
         function onplaybackcompleted() {
           TonePlayerHelper.stop();
           TonePlayerHelper.releaseResources();
-          CallManager.stop();
+          CallManager.leaveCall();
       });
     },
     notifyPeerReject: function() {
