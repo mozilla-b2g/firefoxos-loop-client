@@ -37,7 +37,7 @@
               case 'call':
                 LazyLoader.load(
                   [
-                    '../libs/tokbox/v2.2.6/js/TB.js',
+                    '../libs/tokbox/v2.2.9.1/js/TB.js',
                     '../libs/opentok.js',
                     '../js/helpers/audio_competing_helper.js',
                     '../js/helpers/call_progress_helper.js',
