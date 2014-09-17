@@ -55,7 +55,12 @@
     );
   }
 
+  function _onsharedurl() {
+    UrlMetrics.recordSharedUrl();
+  }
+
   var _;
+
   var Controller = {
     init: function () {
 
@@ -171,7 +176,10 @@
           url: url
         }
       });
-      activity.onsuccess = onsuccess;
+      activity.onsuccess = function() {
+        onsuccess && onsuccess();
+        _onsharedurl();
+      };
       activity.onerror = onerror;
     },
 
@@ -185,7 +193,10 @@
           body: _('shareMessage') + ' ' + url
         }
       });
-      activity.onsuccess = onsuccess;
+      activity.onsuccess = function() {
+        onsuccess && onsuccess();
+        _onsharedurl();
+      };
       activity.onerror = onerror;
     },
 
@@ -200,6 +211,7 @@
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      _onsharedurl();
     },
 
     getUrlByToken: function(token, callback) {

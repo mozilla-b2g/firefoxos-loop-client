@@ -287,7 +287,8 @@
 
                   if (callscreenParams.feedback) {
                     LazyLoader.load([
-                      '../js/helpers/feedback_client.js'
+                      '../js/helpers/metrics.js',
+                      '../js/helpers/feedback.js'
                     ], function() {
                       var url = callscreenParams.call.callUrl;
                       if (url) {
@@ -299,7 +300,7 @@
                         callscreenParams.feedback.url =
                           url.substring(0, url.lastIndexOf('/'));
                       }
-                      FeedbackClient.sendFeedback(callscreenParams.feedback);
+                      Feedback.send(callscreenParams.feedback);
                     });
                   }
 
