@@ -240,6 +240,7 @@
                   if (callscreenParams.error && callscreenParams.error.reason) {
                     switch (callscreenParams.error.reason) {
                       case 'gum':
+                      case 'failed':
                         _closeAttentionScreen();
                         // If there is any error, as gUM permission, let's show
                         // to the user asap.

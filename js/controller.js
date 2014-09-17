@@ -252,7 +252,9 @@
         case 'gum':
           alert(_('cameraPermission'));
           break;
-
+        case 'failed':
+          alert(_('failed'));
+          break;
       }
     }
   };

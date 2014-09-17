@@ -249,6 +249,10 @@
       // Set the callback function to be called on peer ending the call.
       CallManager.onpeerended = this.notifyCallEnded;
 
+      // Set the callback function to be called when going offline during the
+      // call.
+      CallManager.oncallfailed = this.notifyCallFailed;
+
       // Use status bar in the call screen
       window.onresize = function() {
         if (_feedbackClose && typeof _feedbackClose === 'function') {
@@ -332,6 +336,10 @@
           break;
         case 'ended':
           _callStatusInfo.textContent = _('ended');
+          document.body.dataset.callStatus = 'ended';
+          break;
+        case 'failed':
+          _callStatusInfo.textContent = _('failed');
           document.body.dataset.callStatus = 'ended';
           break;
       }
@@ -472,6 +480,19 @@
           TonePlayerHelper.stop();
           TonePlayerHelper.releaseResources();
           CallManager.leaveCall(error);
+      });
+    },
+    notifyCallFailed: function() {
+      TonePlayerHelper.stop();
+      CallScreenUI.setCallStatus('failed');
+      CallManager.terminate();
+      TonePlayerHelper.playEnded(_isSpeakerEnabled).then(
+        function onplaybackcompleted() {
+          TonePlayerHelper.stop();
+          TonePlayerHelper.releaseResources();
+          CallManager.leaveCall({
+            reason: 'failed'
+          });
       });
     },
     abortCall: function() {
