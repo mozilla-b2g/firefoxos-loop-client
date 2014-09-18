@@ -59,6 +59,17 @@
                   }
                 );
                 break;
+              case 'abort':
+                LazyLoader.load(
+                  [
+                    '../js/helpers/tone_player_helper.js',
+                    'js/call_screen_ui.js'
+                  ],
+                  function onCallScreen() {
+                    CallScreenUI.abortCall();
+                  }
+                );
+                break;
             }
             ControllerCommunications.send(answer);
           } catch(e) {}
