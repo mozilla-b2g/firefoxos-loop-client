@@ -57,15 +57,21 @@
 
       // Once all basics are loaded, we are goint to lazy load the rest of functions needed
       // for handling the UI.
+      var files = [
+        '../js/helpers/tone_player_helper.js',
+        '../js/helpers/audio_competing_helper.js',
+        'js/countdown.js',
+        'js/ringer.js',
+        'js/call_manager.js',
+        'js/call_screen_ui.js'
+      ];
+
+      if (Config.performanceLog.enabled) {
+        files.push('../js/helpers/performance_log_helper.js');
+      }
+
       LazyLoader.load(
-        [
-          '../js/helpers/tone_player_helper.js',
-          '../js/helpers/audio_competing_helper.js',
-          'js/countdown.js',
-          'js/ringer.js',
-          'js/call_manager.js',
-          'js/call_screen_ui.js'
-        ],
+        files,
         function onCallScreen() {
           CallScreenUI.init(
             callParams.video && callParams.video === 'true',

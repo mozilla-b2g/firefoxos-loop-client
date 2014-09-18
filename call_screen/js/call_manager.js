@@ -1,6 +1,9 @@
 (function(exports) {
   'use strict';
 
+  var _perfDebug = Config.performanceLog.enabled;
+  var _perfBranch = 'CallScreen';
+
   var _call = null;
   var _session;
   var _publisher;
@@ -67,6 +70,10 @@
    */
   function _handleCallProgress(callProgressHelper) {
     var state = callProgressHelper && callProgressHelper.state || 'unknown';
+
+    _perfDebug && PerfLog.log(_perfBranch, 'Call progress ' + state +
+      ' received through websocket');
+
     switch(state) {
       case 'alerting':
         if (!_callee) {
@@ -76,9 +83,16 @@
           _isCalleeUnavailable = false;
           return;
         }
+        _perfDebug && PerfLog.log(_perfBranch,
+          'We send "accept" event through websocket');
         callProgressHelper.accept();
         break;
       case 'connecting':
+        _perfDebug && PerfLog.log(_perfBranch,
+          'Peer hanged up. "connecting" event received');
+        _perfDebug && PerfLog.log(_perfBranch,
+          'We send "mediaUp" event through websocket');
+        _perfDebug && PerfLog.milestone(_perfBranch, 'Peer hanged up');
         callProgressHelper.mediaUp();
         break;
       case 'connected':
@@ -87,6 +101,8 @@
         // remote stream is still available. In order to have a better UX, we
         // show a "Connecting"-like message in the screen that will be removed
         // once the remote media is successfully aquired.
+        _perfDebug && PerfLog.log(_perfBranch,
+          'Setting visual call status to "connecting"');
         CallScreenUI.setCallStatus('connecting');
         break;
       case 'error':
@@ -157,6 +173,9 @@
       if (_call) {
         return;
       }
+
+      _perfDebug && PerfLog.startTracing(_perfBranch);
+
       AudioCompetingHelper.init();
       _call = params.call;
       _isVideoCall = params.video && params.video != 'false';
@@ -204,6 +223,8 @@
 
     join: function(isVideoCall, frontCamera) {
 
+      _perfDebug && PerfLog.log(_perfBranch, 'CallManager.join');
+
       _isVideoCall = isVideoCall || _isVideoCall;
       AudioCompetingHelper.clearListeners();
       AudioCompetingHelper.addListener('mozinterruptbegin', _hold);
@@ -229,6 +250,9 @@
           if (event.stream && event.stream.streamId !== _subscriber.stream.streamId) {
             return;
           }
+
+          _perfDebug && PerfLog.log(_perfBranch, 'streamPropertyChanged ' + event.changedProperty);
+
           switch(event.changedProperty) {
             case 'hasVideo':
               CallScreenUI.updateRemoteVideo(event.newValue);
@@ -241,6 +265,7 @@
         },
         // Fired when a new peer is connected to the session.
         connectionCreated: function(event) {
+          _perfDebug && PerfLog.log(_perfBranch, 'connectionCreated');
           _peersInSession += 1;
         },
         // Fired when an existing peer is disconnected from the session.
@@ -253,6 +278,38 @@
         },
         // Fired when a peer publishes the media stream.
         streamCreated: function(event) {
+          if (_perfDebug) {
+            PerfLog.log(_perfBranch, 'We got the notification about the ' +
+                        'remote stream creation');
+            PerfLog.log(_perfBranch, 'Subscribing to remote stream');
+            PerfLog.milestone(_perfBranch, 'Remote stream created');
+            var container = document.getElementById('fullscreen-video');
+            var observer = new MutationObserver(function(mutations) {
+              mutations.forEach(function(mutation) {
+                if (mutation.type == 'childList') {
+                  var listening = false;
+                  for (var i = 0, l = mutation.addedNodes.length; i < l; i++) {
+                    var remoteVideo = container.querySelector('video');
+                    if (!remoteVideo || listening) {
+                      continue;
+                    }
+                    listening = true;
+                    observer.disconnect();
+                    var oncanplaythrough = function() {
+                      remoteVideo.removeEventListener('canplaythrough',
+                                                      oncanplaythrough);
+                      PerfLog.log(_perfBranch, 'Remote video is playing');
+                    }
+                    remoteVideo.addEventListener('canplaythrough',
+                                                 oncanplaythrough);
+                  };
+                }
+              });
+            });
+            var config = { attributes: false, childList: true, characterData: false };
+            observer.observe(container, config);
+          }
+
           // As we don't have multi party calls yet there will be only one peer.
           _peersConnection = event.stream.connection;
           _subscriber =
@@ -271,6 +328,8 @@
             );
           _subscriber.on({
             loaded: function() {
+              _perfDebug && PerfLog.log(_perfBranch,
+                'Received "loaded" event from remote stream');
               CallScreenUI.setCallStatus('connected');
             }
           });
@@ -310,6 +369,9 @@
           console.log('Session connect error ' + e.message);
           return;
         }
+
+        _perfDebug && PerfLog.log(_perfBranch, 'Session onconnect');
+
          _publisher = _session.publish(
           'local-video',
           {
@@ -326,18 +388,32 @@
             if (ee) {
               console.log('Session publish error ' + ee.message);
             }
+
+            _perfDebug && PerfLog.log(_perfBranch, 'Session onpublish');
+
             var container =  document.querySelector('.OT_publisher');
             if (!container) {
               return;
             }
 
-            container.querySelector('video').addEventListener('canplay', function() {
+            var localVideo = container.querySelector('video');
+            var oncanplay = function() {
+              localVideo.removeEventListener('canplay', oncanplay);
               CallScreenUI.removeFakeVideo();
-            });
+            };
+            localVideo.addEventListener('canplay', oncanplay);
+
+            if (_perfDebug) {
+              var onplaying = function() {
+                localVideo.removeEventListener('playing', onplaying);
+                _perfDebug && PerfLog.log(_perfBranch, 'Local video playing');
+              };
+              localVideo.addEventListener('playing', onplaying);
+            }
+
             _publishersInSession += 1;
         });
       });
-
 
       _handleCallProgress(_callProgressHelper);
       _callProgressHelper.onstatechange = function onStateChange(evt) {
@@ -392,6 +468,8 @@
     },
 
     terminate: function() {
+      PerfLog.stopTracing(_perfBranch);
+
       if (_callProgressHelper) {
         _handleCallTermination();
       }
