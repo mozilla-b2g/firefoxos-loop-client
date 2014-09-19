@@ -129,6 +129,16 @@
           }), '*');
         }
 
+        function _abortCall() {
+          if (!attention) {
+            return;
+          }
+          attention.postMessage(JSON.stringify({
+            id: 'controller',
+            message: 'abort'
+          }), '*');
+        }
+
         // Now it's time to send to the attention the info regarding the
         // call object
         switch(type) {
@@ -145,6 +155,7 @@
                   _postCall(type, call, params.identities, params.frontCamera, params.video);
                 },
                 function onFallback() {
+                  _abortCall();
                   // Get URL to share and show prompt
                   CallHelper.generateCallUrl(params.identities[0],
                     function onCallUrlSuccess(result) {

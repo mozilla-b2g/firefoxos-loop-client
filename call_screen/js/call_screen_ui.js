@@ -459,6 +459,10 @@
           TonePlayerHelper.releaseResources();
           CallManager.leaveCall(error);
       });
+    },
+    abortCall: function() {
+      TonePlayerHelper.stop();
+      TonePlayerHelper.releaseResources();
     }
   };
 
