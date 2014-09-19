@@ -636,7 +636,7 @@
   }
 
   function _getExpiration(timestamp, revoked) {
-    return revoked ? 'Revoked' : (Utils.getRevokeDate(timestamp) || 'Expired');
+    return revoked ? _('revoked') : (Utils.getRevokeDate(timestamp) || _('expired'));
   }
 
   function _createUrlDOM(rawUrl) {
