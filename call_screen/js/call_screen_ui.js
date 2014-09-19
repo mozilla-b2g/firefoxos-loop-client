@@ -8,6 +8,8 @@
   var _isSpeakerEnabled = true;
   var _isMicEnabled = true;
 
+  var _gUMFailed = false;
+
   var _feedbackClose;
 
   var _; // l10n
@@ -31,7 +33,7 @@
   }
 
   var CallScreenUI = {
-    init: function(isVideoCall, frontCamera) {
+    init: function(isIncoming, isVideoCall, frontCamera) {
       if (_initialized) {
         return;
       }
@@ -44,7 +46,7 @@
 
       TonePlayerHelper.init('telephony');
 
-      var mode = frontCamera ? 'user':'environment';
+      var mode = frontCamera ? 'user' : 'environment';
       var cameraConstraint = {facingMode: mode, require: ['facingMode']};
 
       // Cache the rest of elements
@@ -78,10 +80,14 @@
           }
         },
         function(err) {
+          console.log("An error occured! " + err);
+          if (isIncoming) {
+            _gUMFailed = true;
+            return;
+          }
           _hangUp({
             reason: 'gum'
           });
-          console.log("An error occured! " + err);
         }
       );
 
@@ -102,6 +108,12 @@
       function _answer(isVideo) {
         _isVideoEnabled = isVideo;
         Ringer.stop();
+        if (_gUMFailed) {
+          _hangUp({
+            reason: 'gum'
+          });
+          return;
+        }
         CallScreenUI.setCallStatus('connecting');
         CallManager.join(isVideo, frontCamera);
         CallScreenUI.updateLocalVideo(isVideo);
@@ -454,7 +466,7 @@
     notifyCallEnded: function(error) {
       TonePlayerHelper.stop();
       CallScreenUI.setCallStatus('ended');
-      CallManager.terminate();
+      CallManager.terminate(error);
       TonePlayerHelper.playEnded(_isSpeakerEnabled).then(
         function onplaybackcompleted() {
           TonePlayerHelper.stop();

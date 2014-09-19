@@ -118,13 +118,16 @@
    * Helper function. Handles call progress protocol state changes when
    * terminating the call.
    */
-  function _handleCallTermination() {
+  function _handleCallTermination(error) {
+    var reason;
     switch (_callProgressHelper.state) {
       case 'unknown':
       case 'init':
       case 'alerting':
         if (_callee) {
-          _callProgressHelper.terminate('reject', function() {
+          reason =
+            (error && (error.reason === 'gum')) ? 'media-fail' : 'reject';
+          _callProgressHelper.terminate(reason, function() {
             _callProgressHelper = null;
           });
         } else {
@@ -134,7 +137,7 @@
         }
         break;
       case 'terminated':
-        var reason = _callProgressHelper.reason;
+        reason = _callProgressHelper.reason;
 
         _callProgressHelper.finish();
         _callProgressHelper = null;
@@ -156,6 +159,9 @@
             } else {
               _onpeercancel();
             }
+            break;
+          case 'media-fail':
+            _onpeerended();
             break;
           default:
             break;
@@ -467,11 +473,11 @@
       _onpeerended = onpeerended;
     },
 
-    terminate: function() {
+    terminate: function(error) {
       PerfLog.stopTracing(_perfBranch);
 
       if (_callProgressHelper) {
-        _handleCallTermination();
+        _handleCallTermination(error);
       }
 
       try {
