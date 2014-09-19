@@ -9,6 +9,22 @@ html, body {
   overflow-y: hidden !important;
 }
 
+.screen-disabled-workaround {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: none;
+  
+  background: black;
+  
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.screen-disabled-workaround.on {
+  display: block;
+}
+
 .panel {
   width: 100%;
   height: 100%;

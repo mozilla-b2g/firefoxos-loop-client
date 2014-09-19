@@ -33,6 +33,15 @@
         callParams[keyValue[0]] = decodeURIComponent(keyValue[1]);
       }
 
+      var _fakeScreenDisabledPanel = document.getElementById('fake-disabled-screen');
+      window.addEventListener('userproximity', function onProximityEvent(event) {
+        if (event.near) {
+          _fakeScreenDisabledPanel.classList.add('on');
+        } else {
+          _fakeScreenDisabledPanel.classList.remove('on');
+        }
+      });
+
       // Update the layout of the HTML based on the dataset
       document.body.dataset.callStatus = callParams.layout;
 
