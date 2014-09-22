@@ -12,12 +12,13 @@
 
   var TONE_TIMEOUT = 5000;
 
-  var DIAL_TONE = '../../resources/media/tones/dial.mp3';
-  var RINGBACK_TONE = '../../resources/media/tones/ringback.mp3';
-  var BUSY_TONE = '../../resources/media/tones/busy.mp3';
+  var DIAL_TONE = '../../resources/media/tones/dial.wav';
+  var RINGBACK_TONE = '../../resources/media/tones/ringback.wav';
+  var CONNECTED_TONE = '../../resources/media/tones/connected.wav';
+  var BUSY_TONE = '../../resources/media/tones/busy.wav';
   var HOLD_TONE = '../../resources/media/tones/hold.mp3';
-  var FAILED_TONE = '../../resources/media/tones/failed.mp3';
-  var ENDED_TONE = '../../resources/media/tones/ended.mp3';
+  var FAILED_TONE = '../../resources/media/tones/failed.wav';
+  var ENDED_TONE = '../../resources/media/tones/ended.wav';
 
   function _playTone(src, isSpeaker, cb) {
     debug && console.log('Playing tone with channel ' + _audioElement.mozAudioChannelType);
@@ -74,6 +75,19 @@
     playRingback: function tph_playRingback(isSpeaker) {
       _audioElement.loop = true;
       _playTone(RINGBACK_TONE, isSpeaker);
+    },
+
+    playConnected: function tph_playFailed(isSpeaker) {
+      _audioElement.loop = false;
+      return new Promise(function(resolve, reject) {
+        var timeout = window.setTimeout(resolve, TONE_TIMEOUT);
+        _audioElement.addEventListener('ended', function onplaybackcompleted() {
+          _audioElement.removeEventListener('ended', onplaybackcompleted);
+          window.clearTimeout(timeout);
+          resolve();
+        });
+        _playTone(CONNECTED_TONE, isSpeaker);
+      });
     },
 
     playBusy: function tph_playBusy(isSpeaker) {

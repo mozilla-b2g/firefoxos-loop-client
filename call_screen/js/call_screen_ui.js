@@ -289,6 +289,8 @@
           document.body.dataset.callStatus = 'connected';
           break;
         case 'connected':
+          TonePlayerHelper.stop();
+          TonePlayerHelper.playConnected();
           _perfDebug && PerfLog.log(_perfBranch, 'Countdown start counting');
           _perfDebug && PerfLog.milestone(_perfBranch, 'Countdown');
           Countdown.start();
