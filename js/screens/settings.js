@@ -3,7 +3,7 @@
 
   var _settingsPanel, _closeSettingsButton, _logoutSettingsButton,
       _cleanCallsButton, _cleanUrlsButton, _videoDefaultSettings,
-      _commitHashTag, _cameraDefaultSettings;
+      _commitHashTag, _cameraDefaultSettings, _loggedAs;
 
   var _isVideoDefault = true;
   var _isFrontCameraDefault = true;
@@ -30,27 +30,110 @@
       _isSingleCamera = false;
     },
     init: function s_init(identity) {
-      document.getElementById('settings-logout-identity').innerHTML =
-        navigator.mozL10n.get(
-          'loggedInAs',
-          {
-            username: identity || navigator.mozL10n.get('unknown')
-          }
-        );
-      
-      if (_settingsPanel) {
-        return;
-      }
-      _ = navigator.mozL10n.get;
-      _settingsPanel = document.getElementById('settings-panel');
-      _closeSettingsButton = document.getElementById('settings-close-button');
-      _logoutSettingsButton = document.getElementById('settings-logout-button');
-      _cleanCallsButton = document.getElementById('settings-clean-calls-button');
-      _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
-      _videoDefaultSettings = document.getElementById('video-default-setting');
-      _cameraDefaultSettings = document.getElementById('camera-default-setting');
-      _commitHashTag = document.getElementById('settings-commit-hash-tag');
+      if (!_settingsPanel) {
+        // Cache mozL10n functionality
+        _ = navigator.mozL10n.get;
+        // Cache DOM elements
+        _loggedAs = document.getElementById('settings-logout-identity');
+        _settingsPanel = document.getElementById('settings-panel');
+        _closeSettingsButton = document.getElementById('settings-close-button');
+        _logoutSettingsButton = document.getElementById('settings-logout-button');
+        _cleanCallsButton = document.getElementById('settings-clean-calls-button');
+        _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
+        _videoDefaultSettings = document.getElementById('video-default-setting');
+        _cameraDefaultSettings = document.getElementById('camera-default-setting');
+        _commitHashTag = document.getElementById('settings-commit-hash-tag');
 
+        // Add listeners just once
+        _cleanCallsButton.addEventListener(
+          'click',
+          function() {
+            var options = new OptionMenu({
+              // TODO Change with l10n string when ready
+              section: _('deleteAllConfirmation'),
+              type: 'confirm',
+              items: [
+                {
+                  name: 'Delete',
+                  l10nId: 'delete',
+                  method: function() {
+                    CallLog.cleanCalls();
+                    Settings.hide();
+                  },
+                  params: []
+                },
+                {
+                  name: 'Cancel',
+                  l10nId: 'cancel'
+                }
+              ]
+            });
+            options.show();
+          }.bind(this)
+        );
+
+        _cleanUrlsButton.addEventListener(
+          'click',
+           function() {
+            var options = new OptionMenu({
+              type: 'action',
+              items: [
+                {
+                  name: 'Clean just revoked URLs',
+                  l10nId: 'cleanJustRevoked',
+                  method: function() {
+                    CallLog.cleanRevokedUrls();
+                    Settings.hide();
+                  },
+                  params: []
+                },
+                {
+                  name: 'Clean all',
+                  l10nId: 'cleanAll',
+                  method: function() {
+                    CallLog.cleanUrls();
+                    Settings.hide();
+                  },
+                  params: []
+                },
+                {
+                  name: 'Cancel',
+                  l10nId: 'cancel'
+                }
+              ]
+            });
+            options.show();
+          }.bind(this)
+        );
+
+        _closeSettingsButton.addEventListener(
+          'click',
+           this.hide.bind(this)
+        );
+
+        _logoutSettingsButton.addEventListener(
+          'click',
+          function onLogout() {
+            LoadingOverlay.show(_('loggingOut'));
+            Controller.logout();
+          }.bind(this)
+        );
+      }
+      
+      // Set the value taking into account the identity
+      _loggedAs.innerHTML = _(
+        'loggedInAs',
+        {
+          username: identity || _('unknown')
+        }
+      );
+
+      // Set the commit based on the version
+      if (_commitHashTag && Version.id) {
+        _commitHashTag.textContent = Version.id || _('unknown');
+      }
+
+      // Set the value of the default mode (video/audio)
       asyncStorage.getItem(
         VIDEO_SETTING,
         function onSettingRetrieved(isVideoDefault) {
@@ -75,84 +158,7 @@
         }
       );
 
-      _cleanCallsButton.addEventListener(
-        'click',
-        function() {
-          var options = new OptionMenu({
-            // TODO Change with l10n string when ready
-            section: _('deleteAllConfirmation'),
-            type: 'confirm',
-            items: [
-              {
-                name: 'Delete',
-                l10nId: 'delete',
-                method: function() {
-                  CallLog.cleanCalls();
-                  Settings.hide();
-                },
-                params: []
-              },
-              {
-                name: 'Cancel',
-                l10nId: 'cancel'
-              }
-            ]
-          });
-          options.show();
-        }.bind(this)
-      );
-
-      _cleanUrlsButton.addEventListener(
-        'click',
-         function() {
-          var options = new OptionMenu({
-            type: 'action',
-            items: [
-              {
-                name: 'Clean just revoked URLs',
-                l10nId: 'cleanJustRevoked',
-                method: function() {
-                  CallLog.cleanRevokedUrls();
-                  Settings.hide();
-                },
-                params: []
-              },
-              {
-                name: 'Clean all',
-                l10nId: 'cleanAll',
-                method: function() {
-                  CallLog.cleanUrls();
-                  Settings.hide();
-                },
-                params: []
-              },
-              {
-                name: 'Cancel',
-                l10nId: 'cancel'
-              }
-            ]
-          });
-          options.show();
-        }.bind(this)
-      );
-
-      _closeSettingsButton.addEventListener(
-        'click',
-         this.hide.bind(this)
-      );
-
-      _logoutSettingsButton.addEventListener(
-        'click',
-        function onLogout() {
-          LoadingOverlay.show(_('loggingOut'));
-          Controller.logout();
-        }.bind(this)
-      );
-
-      if (_commitHashTag && Version.id) {
-        _commitHashTag.textContent = Version.id || _('unknown');
-      }
-
+      // Set the value of the default camera if needed
       if (!navigator.mozCameras && navigator.mozCameras.getListOfCameras().length < 2) {
         _isSingleCamera = true;
         _cameraDefaultSettings.parentNode.parentNode.style.display = 'none';
