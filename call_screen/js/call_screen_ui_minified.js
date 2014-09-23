@@ -83,6 +83,7 @@
         files,
         function onCallScreen() {
           CallScreenUI.init(
+            callParams.layout && callParams.layout === 'incoming',
             callParams.video && callParams.video === 'true',
             callParams.frontCamera && callParams.frontCamera === 'true'
           );
