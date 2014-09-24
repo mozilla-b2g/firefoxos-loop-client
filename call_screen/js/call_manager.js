@@ -394,6 +394,7 @@
           {
             width: 400,
             height:300,
+            mirror: frontCamera && (frontCamera != 'false'),
             style:{
               nameDisplayMode: 'off',
               buttonDisplayMode: 'off',
