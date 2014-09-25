@@ -194,7 +194,10 @@
           },
           credentials: _hawkCredentials
         },
-        onsuccess,
+        function(result) {
+          _callback(onsuccess, [result]);
+          UrlMetrics.recordGeneratedUrl();
+        },
         onerror
       );
     },
