@@ -375,9 +375,9 @@ body[data-call-status='remotehold'] #counter {
   width: 100%;
   box-sizing: border-box;
   padding: .5rem 3rem;
-  overflow: hidden !important;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  /* overflow: hidden !important; */
+  /* white-space: nowrap; */
+  /* text-overflow: ellipsis; */
   text-align: center;
   z-index: 10;
   transform: translateY(24rem);

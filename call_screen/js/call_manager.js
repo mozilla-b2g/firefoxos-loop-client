@@ -23,6 +23,7 @@
   var _onpeercancel = function noop() {};
   var _onpeerunavailable = function noop() {};
   var _onpeerended = function noop() {};
+  var _oncallfailed = function noop() {};
   var _publishAudio = true;
   var _publishVideo = true;
   var _subscribeToAudio = true;
@@ -277,6 +278,12 @@
         // Fired when an existing peer is disconnected from the session.
         connectionDestroyed: function(event) {
           _peersInSession -= 1;
+          if ((_peersInSession === 1) &&
+              (event.reason === 'networkDisconnected')) {
+            // The network connection terminated abruptly (for example, the
+            // client lost their internet connection).
+            _oncallfailed();
+          }
           if (_peersInSession === 1) {
             // We are alone in the session now so lets disconnect.
             _onpeerended();
@@ -421,6 +428,8 @@
         });
       });
 
+
+      window.addEventListener('offline', _oncallfailed);
       _handleCallProgress(_callProgressHelper);
       _callProgressHelper.onstatechange = function onStateChange(evt) {
         _handleCallProgress(_callProgressHelper);
@@ -473,8 +482,14 @@
       _onpeerended = onpeerended;
     },
 
+    set oncallfailed(oncallfailed) {
+      _oncallfailed = oncallfailed;
+    },
+
     terminate: function(error) {
       PerfLog.stopTracing(_perfBranch);
+
+      window.removeEventListener('offline', _oncallfailed);
 
       if (_callProgressHelper) {
         _handleCallTermination(error);
@@ -518,7 +533,7 @@
         ControllerCommunications.send(hangoutMessage);
       }
 
-      if (connected) {
+      if (connected && !error) {
         if (CallScreenUI.isStatusBarShown()) {
           onCallEnded();
         } else {
