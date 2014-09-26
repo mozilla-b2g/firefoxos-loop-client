@@ -13,6 +13,7 @@
     [
       {
         name: 'Lorem ipsum',
+        class: 'lorem',
         l10nId: 'lorem',
         l10nArgs: 'ipsum',
         method: function optionMethod(param1, param2) {
@@ -125,6 +126,9 @@ var OptionMenu = function(options) {
     } else {
       // no l10n or name, just empty item, don't add to the menu
       return;
+    }
+    if (item.class) {
+      button.className = item.class;
     }
     menu.appendChild(button);
     // Add a mapping from the button object

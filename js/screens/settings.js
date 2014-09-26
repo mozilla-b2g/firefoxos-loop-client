@@ -55,6 +55,7 @@
               items: [
                 {
                   name: 'Delete',
+                  class: 'danger',
                   l10nId: 'delete',
                   method: function() {
                     CallLog.cleanCalls();
@@ -119,7 +120,7 @@
           }.bind(this)
         );
       }
-      
+
       // Set the value taking into account the identity
       _loggedAs.innerHTML = _(
         'loggedInAs',
