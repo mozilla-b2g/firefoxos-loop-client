@@ -49,7 +49,7 @@
         LazyLoader.load(
           ['js/ringer.js'],
           function onRingerLoaded() {
-            Ringer.play();
+            Ringer.play(callParams.vibrate);
           }
         );
       } else {
