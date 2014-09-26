@@ -26,6 +26,7 @@
   var _oncallfailed = function noop() {};
   var _publishAudio = true;
   var _publishVideo = true;
+  var _useSpeaker = true;
   var _subscribeToAudio = true;
   var _subscribeToVideo = true;
   var _isVideoCall = false;
@@ -185,7 +186,7 @@
 
       AudioCompetingHelper.init();
       _call = params.call;
-      _isVideoCall = params.video && params.video != 'false';
+      _useSpeaker = _isVideoCall = params.video && params.video != 'false';
       _callee = params.type === 'incoming' ? true : false;
       _callProgressHelper = new CallProgressHelper(_call.callId,
                                                    _call.progressURL,
@@ -217,6 +218,7 @@
         _speakerManager = new window.MozSpeakerManager();
       }
       _speakerManager.forcespeaker = isSpeakerOn;
+      _useSpeaker = isSpeakerOn;
     },
 
     toggleMic: function(isMicOn) {
@@ -349,9 +351,11 @@
           _publishersInSession += 1;
           // Update the UI with the remote video status
           CallScreenUI.updateRemoteVideo(event.stream.hasVideo);
+          
           // Toggle local video
-          CallManager.toggleVideo(isVideoCall);
-          CallManager.toggleSpeaker(isVideoCall);
+          CallManager.toggleVideo(_publishVideo);
+          CallManager.toggleMic(_publishAudio);
+          CallManager.toggleSpeaker(_useSpeaker);
         },
         // Fired when a peer stops publishing the media stream.
         streamDestroyed: function(event) {
