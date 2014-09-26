@@ -67,6 +67,9 @@
           // Show your own stream as part of the GUM wizard
           _fakeLocalVideo = document.createElement('video');
           _fakeLocalVideo.className = 'fake-local-video';
+          if (frontCamera) {
+            _fakeLocalVideo.style.transform = 'rotateY(180deg)';
+          }
           _fakeLocalVideo.muted = true;
           _fakeLocalVideo.mozSrcObject = stream;
           _localVideo.appendChild(_fakeLocalVideo);
