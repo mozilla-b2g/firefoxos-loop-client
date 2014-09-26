@@ -538,7 +538,9 @@
         ControllerCommunications.send(hangoutMessage);
       }
 
-      if (connected && !error) {
+      if (error && error.reason) {
+        onCallEnded();
+      } else if (connected) {
         if (CallScreenUI.isStatusBarShown()) {
           onCallEnded();
         } else {
