@@ -256,6 +256,7 @@
     },
 
     logout: function() {
+      Activities.clear();
       AccountHelper.logout();
     },
 
