@@ -92,8 +92,27 @@
                   name: 'Clean all',
                   l10nId: 'cleanAll',
                   method: function() {
-                    CallLog.cleanUrls();
-                    Settings.hide();
+                    var doubleConfirmation = new OptionMenu({
+                      section: _('deleteAllUrlsConfirmation'),
+                      type: 'confirm',
+                      items: [
+                        {
+                          name: 'Delete',
+                          class: 'danger',
+                          l10nId: 'delete',
+                          method: function() {
+                            CallLog.cleanUrls();
+                            Settings.hide();
+                          },
+                          params: []
+                        },
+                        {
+                          name: 'Cancel',
+                          l10nId: 'cancel'
+                        }
+                      ]
+                    });
+                    doubleConfirmation.show();
                   },
                   params: []
                 },
@@ -193,6 +212,7 @@
       if (!_settingsPanel) {
         return;
       }
+
       _settingsPanel.classList.add('show');
     },
     hide: function s_hide() {

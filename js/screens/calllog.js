@@ -82,6 +82,7 @@
             items: [
               {
                 name: 'Delete',
+                class: 'danger',
                 l10nId: 'delete',
                 method: function() {
                   deleteElement();
