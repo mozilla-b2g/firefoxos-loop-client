@@ -24,7 +24,6 @@
       return this;
     },
     start: function(element) {
-      _reset();
       _counterTimer = setInterval(function() {
         ++_counter;
         var minutes = _beautify(Math.floor(_counter/60));
