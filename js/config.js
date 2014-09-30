@@ -17,7 +17,10 @@ Config = {
     telemetry: {
       serverUrl: 'https://fxos.telemetry.mozilla.org/submit/telemetry'
     }
-  }
+  },
+  // This parameters defaults to false
+  // (don't allow unsecure connections) if undefined
+  allowUnsecure: false
 };
 
 window.OTProperties = {
