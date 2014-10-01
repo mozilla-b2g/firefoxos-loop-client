@@ -15,6 +15,7 @@
     <link rel="stylesheet" type="text/css" href="style/bb/headers.css">
     <link rel="stylesheet" type="text/css" href="style/bb/confirm.css">
     <link rel="stylesheet" type="text/css" href="style/bb/buttons.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/toolbars.css">
     <link rel="stylesheet" type="text/css" href="libs/components/gaia-layout/style.css">
 
     <link rel="stylesheet" type="text/css" href="style/share.css">
@@ -43,9 +44,6 @@
     <script defer src="libs/sjcl.min.js"></script>
     <script defer src="libs/token.js"></script>
     <script defer src="libs/uuid.js"></script>
-
-    <script defer src="libs/components/gaia-component-utils/index.js"></script>
-    <script defer src="libs/components/gaia-toolbar/script.js"></script>
 
     <script defer src="js/helpers/contacts_helper.js"></script>
     <script defer src="js/helpers/action_log_db.js"></script>
@@ -209,9 +207,9 @@
         </div>
       </section>
       </button>
-      <gaia-toolbar>
+      <div role="toolbar">
         <button id="call-from-loop" class="icon-user"></button>
-      </gaia-toolbar>
+      </div>
     </section>
     <section id="contact-detail-panel" class="panel main">
       Contact detail
