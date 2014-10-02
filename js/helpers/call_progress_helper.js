@@ -8,7 +8,7 @@
 'use strict';
 
 (function(exports) {
-  var debug = false;
+  var debug = true;
 
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
@@ -46,13 +46,14 @@
     this._ws = new WebSocket(Utils.getSecureURL(progressURL));
     this._onstatechange = null;
     this._onerror = null;
+    this._onreadyExternal = null;
 
     this._messageQueue;
 
     var that = this;
     this._ws.onmessage = function onWSMessage(evt) {
       var message = JSON.parse(evt.data);
-
+      
       debug && console.log("onmessage " + JSON.stringify(message));
 
       switch (message.messageType) {
@@ -122,7 +123,14 @@
       this._onerror = onerror;
     },
 
+    set onready(onready) {
+      this._onreadyExternal = onready;
+    },
+
     _onready: function cph_onready() {
+      if (typeof this._onreadyExternal === 'function') {
+        this._onreadyExternal();
+      }
       if (!this._messageQueue) {
         return;
       }

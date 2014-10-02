@@ -71,7 +71,12 @@
    * @param {Object} callProgressHelper CallProgressHelper object.
    */
   function _handleCallProgress(callProgressHelper) {
-    var state = callProgressHelper && callProgressHelper.state || 'unknown';
+    var state = callProgressHelper && callProgressHelper.state;
+    console.log('Handling call progress. State is ' + state);
+
+    if (!state) {
+      return;
+    }
 
     _perfDebug && PerfLog.log(_perfBranch, 'Call progress ' + state +
       ' received through websocket');
@@ -88,6 +93,7 @@
         _perfDebug && PerfLog.log(_perfBranch,
           'We send "accept" event through websocket');
         callProgressHelper.accept();
+        CallScreenUI.setCallStatus('calling');
         break;
       case 'connecting':
         _perfDebug && PerfLog.log(_perfBranch,
@@ -111,7 +117,17 @@
       case 'terminated':
         CallManager.terminate();
         break;
+      case 'half-connected':
+        // Dont do anything
+        break;
+      case 'init':
+        CallScreenUI.setCallStatus('calling');
+        break;
       default:
+        // Edge case, but if we arrive here we need to close
+        // the call
+        CallManager.terminate();
+        CallManager.leaveCall();
         break;
     }
   }
@@ -121,8 +137,9 @@
    * terminating the call.
    */
   function _handleCallTermination(error) {
-    var reason;
-    switch (_callProgressHelper.state) {
+    var reason, state = _callProgressHelper.state;
+    console.log('Handling call termination. State is ' + state);
+    switch (state) {
       case 'unknown':
       case 'init':
       case 'alerting':
@@ -145,6 +162,7 @@
         _callProgressHelper = null;
 
         if (!reason) {
+          CallManager.leaveCall();
           return;
         }
         switch (reason) {
@@ -166,6 +184,9 @@
             _onpeerended();
             break;
           default:
+            // Edge case, but if we are here we need to close
+            // the call screen
+            CallManager.leaveCall();
             break;
         }
         break;
@@ -195,9 +216,16 @@
         _handleCallProgress(_callProgressHelper);
       };
 
+      _callProgressHelper.onstatechange = function onStateChange(evt) {
+        _handleCallProgress(_callProgressHelper);
+      };
+
+      _callProgressHelper.onready = function onready(evt) {
+        _handleCallProgress(_callProgressHelper);
+      };
+
       if (params.type === 'outgoing') {
         CallManager.join(_isVideoCall, params.frontCamera);
-        CallScreenUI.setCallStatus('calling');
       } else {
         CallScreenUIMinified.updateIdentityInfo(params.identities);
       }
@@ -435,10 +463,7 @@
 
 
       window.addEventListener('offline', _oncallfailed);
-      _handleCallProgress(_callProgressHelper);
-      _callProgressHelper.onstatechange = function onStateChange(evt) {
-        _handleCallProgress(_callProgressHelper);
-      };
+      
     },
 
     set onhold(onhold) {
@@ -508,6 +533,8 @@
     },
 
     leaveCall: function(error) {
+      // Ensure ringer to stop
+      Ringer.stop();
       // Stop the countdown
       var duration = Countdown.stop();
       var connected = false;
