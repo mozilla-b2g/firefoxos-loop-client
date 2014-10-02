@@ -133,9 +133,28 @@
 
         _logoutSettingsButton.addEventListener(
           'click',
-          function onLogout() {
-            LoadingOverlay.show(_('loggingOut'));
-            Controller.logout();
+          function() {
+            var options = new OptionMenu({
+              section: _('logOutMessage'),
+              type: 'confirm',
+              items: [
+                {
+                  name: 'Delete',
+                  class: 'danger',
+                  l10nId: 'logOut',
+                  method: function onLogout() {
+                    LoadingOverlay.show(_('loggingOut'));
+                    Controller.logout();
+                  }.bind(this),
+                  params: []
+                },
+                {
+                  name: 'Cancel',
+                  l10nId: 'cancel'
+                }
+              ]
+            });
+            options.show();
           }.bind(this)
         );
       }
