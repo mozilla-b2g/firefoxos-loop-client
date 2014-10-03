@@ -54,7 +54,7 @@
 
   function _request(options, onsuccess, onerror, skipRetry) {
     var req = new XMLHttpRequest({mozSystem: true});
-    req.open(options.method, options.url, true);
+    req.open(options.method, Utils.getSecureURL(options.url), true);
     req.setRequestHeader('Content-Type', 'application/json');
     req.responseType = 'json';
     req.timeout = TIMEOUT;

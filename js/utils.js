@@ -141,6 +141,18 @@
      */
     log: function u_log(s) {
       DEBUG && console.log(s);
+    },
+
+    /**
+     * If config.allowUnsecure is true return the same value received by
+     * parameter. Otherwise return the url upgrading the protocol to the
+     * secure version (wss for ws and https for http)
+     */
+    getSecureURL: function u_getSecureURL(url) {
+      if (Config.allowUnsecure) {
+        return url;
+      }
+      return url.replace(/^(http|ws):\/\//i,"$1s:\/\/");
     }
   };
 

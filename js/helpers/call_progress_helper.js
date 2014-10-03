@@ -43,7 +43,7 @@
     this._reason = 'unknown';
     this._callId = callId;
     this._token = token;
-    this._ws = new WebSocket(progressURL);
+    this._ws = new WebSocket(Utils.getSecureURL(progressURL));
     this._onstatechange = null;
     this._onerror = null;
 
