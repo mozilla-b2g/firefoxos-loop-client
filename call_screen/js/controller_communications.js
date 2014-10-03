@@ -37,6 +37,7 @@
               case 'call':
                 var files = [
                   '../js/config.js',
+                  '../js/utils.js',
                   '../libs/tokbox/v2.2.9.1/js/TB.js',
                   '../libs/opentok.js',
                   '../js/helpers/audio_competing_helper.js',
