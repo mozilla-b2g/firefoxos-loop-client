@@ -323,6 +323,8 @@
 
   function _rejectCall(call) {
     LazyLoader.load([
+      '../js/config.js',
+      '../js/utils.js',
       '../js/helpers/call_progress_helper.js'
     ], function() {
       var callProgressHelper = new CallProgressHelper(call.callId,
