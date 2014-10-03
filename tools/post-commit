@@ -2,7 +2,7 @@
 
 version=$(git rev-parse --short HEAD)
 
-if [ -a .commit ]
+if [ -f .commit ]
     then
     rm .commit
 
