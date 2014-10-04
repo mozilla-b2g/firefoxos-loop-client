@@ -22,12 +22,12 @@
       var cameraConstraints = {facingMode: mode, require: ['facingMode']};
 
       navigator.mozGetUserMedia(
-	 {
-	   video: cameraConstraints,
-	   audio: true
-	 },
-	 resolve,
-	 reject
+        {
+          video: cameraConstraints,
+          audio: true
+        },
+        resolve,
+        reject
       );
     });
   }
@@ -116,6 +116,11 @@
       });
     }
 
+    AudioCompetingHelper.init();
+    // Lets compete for audio as soon as possible. That way GSM/CDMA calls
+    // might be active will be set on hold.
+    AudioCompetingHelper.compete();
+
     // Launch the Attention
     var host = document.location.host;
     var protocol = document.location.protocol;
@@ -127,6 +132,9 @@
     _onAttentionLoaded(
       attention,
       function onLoaded() {
+
+        AudioCompetingHelper.leaveCompetition();
+
         // Function to post data from the server
         function _postCall(type, call, identities, frontCamera, video) {
           if (!attention) {
