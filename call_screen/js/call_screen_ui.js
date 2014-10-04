@@ -32,27 +32,41 @@
     this.description = description;
   }
 
+  function _enableSpeakerButton() {
+    _settingsButtonSpeaker.addEventListener(
+      'mousedown',
+      function onSettingsClick(e) {
+        _settingsButtonSpeaker.classList.toggle('setting-enabled');
+        _isSpeakerEnabled = !_isSpeakerEnabled;
+        CallManager.toggleSpeaker(_isSpeakerEnabled);
+      }
+    );
+  }
+
   var CallScreenUI = {
     init: function(isIncoming, isVideoCall, frontCamera) {
       if (_initialized) {
         return;
       }
+      _initialized = true;
 
       _perfDebug && PerfLog.log(_perfBranch, 'CallScreenUI.init');
 
+      // Start rest of helpers
+      TonePlayerHelper.init('telephony');
+      Countdown.init();
       _ = navigator.mozL10n.get;
 
-      _initialized = true;
-
-      TonePlayerHelper.init('telephony');
-
+      // Update global params of the call
       var mode = frontCamera ? 'user' : 'environment';
       var cameraConstraint = {facingMode: mode, require: ['facingMode']};
-
+      _isVideoEnabled = _isSpeakerEnabled = isVideoCall && isVideoCall != 'false';
+      
       // Cache the rest of elements
       _localVideo = document.getElementById('local-video');
 
-      // Ask for the Stream
+      // Ask for the Stream in order to ensure the fake video while opentok
+      // is booting
       _perfDebug && PerfLog.log(_perfBranch, 'Requesting fake video via gUM');
       navigator.mozGetUserMedia(
         {
@@ -173,16 +187,7 @@
         }
       );
 
-      function _enableSpeakerButton() {
-        _settingsButtonSpeaker.addEventListener(
-          'mousedown',
-          function onSettingsClick(e) {
-            _settingsButtonSpeaker.classList.toggle('setting-enabled');
-            _isSpeakerEnabled = !_isSpeakerEnabled;
-            CallManager.toggleSpeaker(_isSpeakerEnabled);
-          }
-        );
-      }
+      
 
       _resumeButton = document.getElementById('resume-button');
       // Resume button. On click resume the call.
@@ -194,24 +199,14 @@
         }
       );
 
-      // Update UI taking into account if the call is a video call or not
-      _isVideoEnabled = _isSpeakerEnabled = isVideoCall && isVideoCall != 'false';
+      // Update the status of the UI & Tones properly
       if (document.body.dataset.callStatus === 'outgoing') {
-        TonePlayerHelper.playDialing(_isSpeakerEnabled, _enableSpeakerButton);
-        CallScreenUI.updateLocalVideo(_isVideoEnabled);
-        if (_isVideoEnabled) {
-          _settingsButtonSpeaker.classList.add('setting-enabled');
-          _settingsButtonVideo.classList.remove('setting-disabled');
-        } else {
-          _settingsButtonSpeaker.classList.remove('setting-enabled');
-          _settingsButtonVideo.classList.add('setting-disabled');
-        }
+        CallScreenUI.setCallStatus('dialing');
       } else {
         _enableSpeakerButton();
       }
-
-      Countdown.init();
-
+      
+      // Load rest of the resources needed
       LazyLoader.load(
         [
           '../style/bb/progress_activity.css',
@@ -296,18 +291,46 @@
       _perfDebug && PerfLog.log(_perfBranch, 'CallScreenUI.setCallStatus ' + state);
 
       switch(state) {
-        case 'calling':
-          TonePlayerHelper.stop();
-          TonePlayerHelper.playRingback(_isSpeakerEnabled);
+        case 'dialing':
+          // Fist step of the call. During this period we can not
+          // ensure that the protocol is working (websocket), so we disable the
+          // hangout button
+          _hangupButton.disabled = true;
+          // Play 'dialing' tone and update the UI taking into account
+          // the preferences of the call.
+          TonePlayerHelper.playDialing(_isSpeakerEnabled, _enableSpeakerButton);
+          CallScreenUI.updateLocalVideo(_isVideoEnabled);
+          if (_isVideoEnabled) {
+            _settingsButtonSpeaker.classList.add('setting-enabled');
+            _settingsButtonVideo.classList.remove('setting-disabled');
+          } else {
+            _settingsButtonSpeaker.classList.remove('setting-enabled');
+            _settingsButtonVideo.classList.add('setting-disabled');
+          }
           _callStatusInfo.textContent = _('calling');
           document.body.dataset.callStatus = 'outgoing';
           break;
+        case 'calling':
+          // Once we are in this step, the status of the protocol is 'alerting',
+          // so we need to play a ringback tone (same as GSM).
+
+          // Enable the button. Now when tapping 'hangup' we can terminate the
+          // call accordingly through the protocol.
+          _hangupButton.disabled = false;
+          // Play ringback tone
+          TonePlayerHelper.stop();
+          TonePlayerHelper.playRingback(_isSpeakerEnabled);
+          break;
         case 'connecting':
+          // The other side has answered the call, so we need just to wait until
+          // both streams will be published
           TonePlayerHelper.stop();
           _callStatusInfo.textContent = _('connecting');
-          document.body.dataset.callStatus = 'connected';
+          document.body.dataset.callStatus = 'connecting';
           break;
         case 'connected':
+          // Both sides are publishing. This event is controlled by OpenTok and
+          // has no relation with the 'connected' event of the Loop Protocol
           TonePlayerHelper.stop();
           TonePlayerHelper.playConnected();
           _perfDebug && PerfLog.log(_perfBranch, 'Countdown start counting');

@@ -81,6 +81,11 @@ h1, h2, h3 {
   background: #d74345;
 }
 
+#hang-up[disabled] {
+  pointer-events: none;
+  background: #ccc;
+}
+
 #hang-up span {
   background-position: 0rem -16rem;
 }
@@ -395,7 +400,9 @@ body[data-call-status='remotehold'] #call-status-info{
   transform: translateY(27rem);
 }
 
-body[data-call-status='connecting'] #resume-button {
+body[data-call-status='connecting'] #resume-button,
+body[data-call-status='connecting'] #answer-video,
+body[data-call-status='connecting'] #answer {
   display: none;
 }
 

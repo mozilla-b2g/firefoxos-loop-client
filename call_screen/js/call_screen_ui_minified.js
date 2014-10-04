@@ -130,4 +130,4 @@
 
 }(this));
 
-CallScreenUIMinified.init();
+window.addEventListener('localized', CallScreenUIMinified.init);
