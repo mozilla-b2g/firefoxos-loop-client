@@ -351,7 +351,7 @@
           _publishersInSession += 1;
           // Update the UI with the remote video status
           CallScreenUI.updateRemoteVideo(event.stream.hasVideo);
-          
+
           // Toggle local video
           CallManager.toggleVideo(_publishVideo);
           CallManager.toggleMic(_publishAudio);
@@ -536,6 +536,8 @@
           params: params
         };
         ControllerCommunications.send(hangoutMessage);
+
+        _call = {};
       }
 
       if (error && error.reason) {
@@ -549,9 +551,6 @@
       } else {
         onCallEnded();
       }
-
-      // Clean the call
-      _call = {};
 
       if (!AudioCompetingHelper) {
         return;
