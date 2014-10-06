@@ -1,4 +1,4 @@
-/* -*- Mode: js; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
+/* -*- Mode: js2; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
 'use strict';
@@ -6,7 +6,7 @@
 (function(exports) {
   var DEBUG = true;
 
-  //change default path for gaia-component-utils  
+  //change default path for gaia-component-utils
   window.packagesBaseUrl = 'libs/components/';
 
   function _beautify(value) {
@@ -128,6 +128,9 @@
      * @return {Object} Claim object.
      */
     parseClaimAssertion: function u_parseClaimAssertion(assertion) {
+      if (!assertion) {
+        return null;
+      }
       var unpacked = this.unpackAssertion(assertion);
 
       return unpacked.claim ?

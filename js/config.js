@@ -20,7 +20,10 @@ Config = {
   },
   // This parameters defaults to false
   // (don't allow unsecure connections) if undefined
-  allowUnsecure: false
+  allowUnsecure: false,
+  offline: {
+    signInDelay: 60 * 1000 // 1 min
+  }
 };
 
 window.OTProperties = {
