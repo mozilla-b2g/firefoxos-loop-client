@@ -30,7 +30,10 @@
   var _subscribeToAudio = true;
   var _subscribeToVideo = true;
   var _isVideoCall = false;
-  var _peersConnection = null;
+  //var _peersConnection = null;
+  var _subscribersConnection = null;
+  var _subscribersStream = null;
+  var pc = null;
 
   /**
    * Send the signal given as the parameter to the remote party.
@@ -38,10 +41,10 @@
    * @param {Object} data The object containing the signal to send.
    */
   function _sendSignaling(data) {
-    if (data && _session && _peersConnection) {
+    if (data && _session && _subscribersConnection) {
       _session.signal(
         {
-          to: _peersConnection,
+          to: _subscribersConnection,
           data: JSON.stringify(data)
         }
       );
@@ -326,7 +329,10 @@
           }
 
           // As we don't have multi party calls yet there will be only one peer.
-          _peersConnection = event.stream.connection;
+          _subscribersConnection = event.stream.connection;
+          _subscribersStream = event.stream;
+          console.log('_subscribersConnection is ' + JSON.stringify(_subscribersConnection));
+          console.log('_subscribersStream is ' + JSON.stringify(event.stream));
           _subscriber =
             _session.subscribe(
               event.stream,
@@ -346,6 +352,36 @@
               _perfDebug && PerfLog.log(_perfBranch,
                 'Received "loaded" event from remote stream');
               CallScreenUI.setCallStatus('connected');
+		      console.log('llamando a ot.peerconnections.get');
+			  console.log('_subscribersConnection ' + JSON.stringify(_subscribersConnection));
+			  console.log('_subscribers.streamid ' + _subscribersStream.streamId);
+			  pc = OT.PeerConnections.get(_subscribersConnection, _subscribersStream.streamId);		
+              if (pc) {
+			    console.log('OT.PeerConnections.get() success');
+				if (pc.answerSDP) {
+				  console.log('Answer available');
+				  var description;
+				  var codecName;
+				  description = pc.answerSDP;
+				  if (description.indexOf('a=rtpmap:126 H264') != -1 || description.indexOf('a=rtpmap:97 H264') != -1) {
+					codecName = 'H264';
+				  }
+				  else if (description.indexOf('a=rtpmap:120 VP8') != -1) {
+					codecName = 'VP8';
+				  }
+				  else {
+					codecName = 'Unknown';
+				  }
+				  console.log("Video Codec used: " + codecName);
+				  if (description.indexOf('a=rtpmap:109 opus') != -1) {
+					codecName = 'OPUS';
+				  }
+				  else {
+					codecName = 'Unknown';
+				  }
+				  console.log("Audio Codec used: " + codecName);
+				}
+		      }			  
             }
           });
           _publishersInSession += 1;
@@ -360,7 +396,8 @@
         // Fired when a peer stops publishing the media stream.
         streamDestroyed: function(event) {
           // As we don't have multi party calls yet there will be only one peer.
-          _peersConnection = null;
+          _subscribersConnection = null;
+          _subscribersStream = null;
           _publishersInSession -= 1;
         },
         // Fired when a signal is received.

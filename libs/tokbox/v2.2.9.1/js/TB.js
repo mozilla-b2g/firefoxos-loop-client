@@ -15229,9 +15229,17 @@ waitForDomReady();
         _iceProcessor = new IceCandidateProcessor(),
         _offer,
         _answer,
+	_offerSDP,
+	_answerSDP,
         _state = 'new',
         _messageDelegates = [];
-
+	
+    Object.defineProperty(this, 'answerSDP', { get: function() {
+		return _answerSDP; }
+	});
+	Object.defineProperty(this, 'offerSDP', { get: function() {
+		return _offerSDP; }
+	});
 
     OT.$.eventing(this);
 
@@ -15468,6 +15476,8 @@ waitForDomReady();
               reportError
             );
           });
+	  _offerSDP = message.content.sdp;
+	  OT.log('este es el mensaje oferta ' + _offerSDP);
         },
 
         processAnswer = function(message) {
@@ -15488,7 +15498,8 @@ waitForDomReady();
 
           _iceProcessor.setPeerConnection(_peerConnection);
           _iceProcessor.processPending();
-
+          _answerSDP = message.content.sdp;	
+	  OT.log('este es el mensaje respuesta ' + _answerSDP);	
           qos.startCollecting(_peerConnection);
         },
 
@@ -15916,6 +15927,27 @@ waitForDomReady();
 	    }
 	  }
           return statsString;
+        },
+		dumpCodecStat = function dumpCodecStat(stat) {
+		  var statsString = '';
+		  if (stat.payloadType !== undefined ||
+		      stat.codec !== undefined ||
+			  stat.clockRate !== undefined ||
+			  stat.channels !== undefined) {
+		    if (stat.payloadType !== undefined) {
+		      statsString += "payloadType: " + stat.payloadType;
+		    }
+		    if (stat.codec !== undefined) {
+		      statsString += "codec: " + stat.codec;
+		    }
+		    if (stat.clockRate !== undefined) {
+		      statsString += "clockRate: " + stat.clockRate;
+		    }
+		    if (stat.channels !== undefined) {
+		      statsString += "channels: " + stat.channels;
+		    }
+		  }
+		  return statsString;
         };
 
     peerConnection.getStats(null, function(stats) {
@@ -16075,6 +16107,16 @@ waitForDomReady();
           delete _peerConnections[key];
         }
       }
+    },
+	
+    get: function(remoteConnection, streamId) {
+      var key = remoteConnection.id + '_' + streamId,
+          ref = _peerConnections[key];
+
+      if (!ref) {
+        return null;
+      }
+      return ref.pc;
     }
   };
 
