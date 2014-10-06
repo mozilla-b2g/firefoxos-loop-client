@@ -269,7 +269,10 @@
                             _closeAttentionScreen();
                           }
                         );
-                        break;
+                        // We don't need to record this as a call cause we
+                        // already recording it as a shared URL, so we bail
+                        // out here.
+                        return;
                       default:
                         _closeAttentionScreen();
                         break;
