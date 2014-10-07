@@ -135,11 +135,116 @@
 
         AudioCompetingHelper.leaveCompetition();
 
+        function _listenToCallScreenMessages() {
+          window.addEventListener(
+            'message',
+            function onHandShakingEvent(event) {
+              try {
+                var messageFromCallScreen = JSON.parse(event.data);
+                if (messageFromCallScreen.id != 'call_screen') {
+                  return;
+                }
+                switch(messageFromCallScreen.message) {
+                  case 'hangout':
+                    // Stop listener
+                    window.removeEventListener('message', onHandShakingEvent);
+
+                    // Create CALL object
+                    var callscreenParams = messageFromCallScreen.params;
+
+                    if (callscreenParams.error &&
+                        callscreenParams.error.reason) {
+                      switch (callscreenParams.error.reason) {
+                        case 'gum':
+                        case 'failed':
+                          _closeAttentionScreen();
+                          // If there is any error, as gUM permission, let's
+                          // show to the user asap.
+                          Controller.showError(callscreenParams.error.reason);
+                          break;
+                        case 'unavailable':
+                          // Get URL to share and show prompt
+                          CallHelper.generateCallUrl(params.identities[0],
+                            function onCallUrlSuccess(result) {
+                              Share.show(result,
+                                         params.identities,
+                                         'unavailable',
+                                         _closeAttentionScreen);
+                            },
+                            function(e) {
+                              console.error(
+                                'Unable to retrieve link to share ' + e
+                              );
+                              _closeAttentionScreen();
+                            }
+                          );
+                          // We don't need to record this as a call cause we
+                          // already recording it as a shared URL, so we bail
+                          // out here.
+                          return;
+                        default:
+                          _closeAttentionScreen();
+                          break;
+                      }
+                    } else {
+                      _closeAttentionScreen();
+                    }
+
+                    // Create object to store
+                    var callObject = {
+                      date: new Date(),
+                      identities: params.identities || [],
+                      video: params.video || callscreenParams.video || false,
+                      type: type,
+                      connected: callscreenParams.connected,
+                      duration: callscreenParams.duration,
+                      url: callscreenParams.call.callUrl || null,
+                      urlToken: callscreenParams.call.callToken || null,
+                      contactId: null,
+                      contactPrimaryInfo: null,
+                      contactPhoto: null
+                    };
+
+                    if (callscreenParams.feedback) {
+                      LazyLoader.load([
+                        '../js/helpers/metrics.js',
+                        '../js/helpers/feedback.js'
+                      ], function() {
+                        var url = callscreenParams.call.callUrl;
+                        if (url) {
+                          // We include the URL that the user clicked on to
+                          // initiate the call (without the call token) in the
+                          // "url" field. The key reason for doing so is that
+                          // it allows us to distinguish standalone feedback
+                          // from build-in client feedback.
+                          callscreenParams.feedback.url =
+                            url.substring(0, url.lastIndexOf('/'));
+                        }
+                        Feedback.send(callscreenParams.feedback);
+                      });
+                    }
+
+                    ContactsHelper.find({
+                      identities: params.identities
+                    }, function(result) {
+                      CallLog.addCall(callObject, result);
+                    }, function() {
+                      CallLog.addCall(callObject);
+                    });
+
+                    break;
+                }
+              } catch(e) {}
+            }
+          );
+        }
+
         // Function to post data from the server
         function _postCall(type, call, identities, frontCamera, video) {
           if (!attention) {
             return;
           }
+          _listenToCallScreenMessages();
           attention.postMessage(JSON.stringify({
             id: 'controller',
             message: 'call',
@@ -226,108 +331,6 @@
             });
             break;
         }
-
-        var attentionLoadedDate = new Date();
-        window.addEventListener(
-          'message',
-          function onHandShakingEvent(event) {
-            try {
-              var messageFromCallScreen = JSON.parse(event.data);
-              if (messageFromCallScreen.id != 'call_screen') {
-                debug && console.log('CallScreen: PostMessage not from CallScreen');
-                return;
-              }
-              switch(messageFromCallScreen.message) {
-                case 'hangout':
-                  // Stop listener
-                  window.removeEventListener('message', onHandShakingEvent);
-
-                  // Create CALL object
-                  var callscreenParams = messageFromCallScreen.params;
-
-                  if (callscreenParams.error && callscreenParams.error.reason) {
-                    switch (callscreenParams.error.reason) {
-                      case 'gum':
-                      case 'failed':
-                        _closeAttentionScreen();
-                        // If there is any error, as gUM permission, let's show
-                        // to the user asap.
-                        Controller.showError(callscreenParams.error.reason);
-                        break;
-                      case 'unavailable':
-                        // Get URL to share and show prompt
-                        CallHelper.generateCallUrl(params.identities[0],
-                          function onCallUrlSuccess(result) {
-                            Share.show(
-                              result, params.identities, 'unavailable', _closeAttentionScreen
-                            );
-                          },
-                          function(e) {
-                            console.error(
-                              'Unable to retrieve link to share ' + e
-                            );
-                            _closeAttentionScreen();
-                          }
-                        );
-                        // We don't need to record this as a call cause we
-                        // already recording it as a shared URL, so we bail
-                        // out here.
-                        return;
-                      default:
-                        _closeAttentionScreen();
-                        break;
-                    }
-                  } else {
-                    _closeAttentionScreen();
-                  }
-
-                  // Create object to store
-                  var callObject = {
-                    date: attentionLoadedDate,
-                    identities: params.identities || [],
-                    video: params.video || callscreenParams.video || false,
-                    type: type,
-                    connected: callscreenParams.connected,
-                    duration: callscreenParams.duration,
-                    url: callscreenParams.call.callUrl || null,
-                    urlToken: callscreenParams.call.callToken || null,
-                    contactId: null,
-                    contactPrimaryInfo: null,
-                    contactPhoto: null
-                  };
-
-                  if (callscreenParams.feedback) {
-                    LazyLoader.load([
-                      '../js/helpers/metrics.js',
-                      '../js/helpers/feedback.js'
-                    ], function() {
-                      var url = callscreenParams.call.callUrl;
-                      if (url) {
-                        // We include the URL that the user clicked on to
-                        // initiate the call (without the call token) in the
-                        // "url" field. The key reason for doing so is that
-                        // it allows us to distinguish standalone feedback
-                        // from build-in client feedback.
-                        callscreenParams.feedback.url =
-                          url.substring(0, url.lastIndexOf('/'));
-                      }
-                      Feedback.send(callscreenParams.feedback);
-                    });
-                  }
-
-                  ContactsHelper.find({
-                    identities: params.identities
-                  }, function(result) {
-                    CallLog.addCall(callObject, result);
-                  }, function() {
-                    CallLog.addCall(callObject);
-                  });
-
-                  break;
-              }
-            } catch(e) {}
-          }
-        );
       }
     );
   }
