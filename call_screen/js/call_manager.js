@@ -83,6 +83,7 @@
           // means the callee party will be alerted as well so the callee party
           // is available.
           _isCalleeUnavailable = false;
+          CallScreenUI.setCallStatus('calling');
           return;
         }
         _perfDebug && PerfLog.log(_perfBranch,
@@ -195,9 +196,12 @@
         _handleCallProgress(_callProgressHelper);
       };
 
+      _callProgressHelper.onready = function onError(evt) {
+        _handleCallProgress(_callProgressHelper);
+      };
+
       if (params.type === 'outgoing') {
         CallManager.join(_isVideoCall, params.frontCamera);
-        CallScreenUI.setCallStatus('calling');
       } else {
         CallScreenUIMinified.updateIdentityInfo(params.identities);
       }
