@@ -8,7 +8,7 @@
 'use strict';
 
 (function(exports) {
-  var debug = false;
+  var debug = true;
 
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
@@ -46,6 +46,7 @@
     this._ws = new WebSocket(Utils.getSecureURL(progressURL));
     this._onstatechange = null;
     this._onerror = null;
+    this._onreadyExternal = function foo() {};
 
     this._messageQueue;
 
@@ -122,7 +123,14 @@
       this._onerror = onerror;
     },
 
+    set onready(onready) {
+      this._onreadyExternal = onready;
+    },
+
     _onready: function cph_onready() {
+
+      this._onreadyExternal();
+
       if (!this._messageQueue) {
         return;
       }

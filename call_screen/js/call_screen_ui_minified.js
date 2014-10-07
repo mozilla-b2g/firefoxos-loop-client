@@ -42,12 +42,10 @@
         }
       });
 
-      // Update the layout of the HTML based on the dataset
-      document.body.dataset.callStatus = callParams.layout;
-
       // Based on the type of the call, we are going to render the maximum
       // info available
       if (callParams.layout === 'incoming') {
+        document.body.dataset.callStatus = 'incoming';
         LazyLoader.load(
           ['js/ringer.js'],
           function onRingerLoaded() {
@@ -55,10 +53,11 @@
           }
         );
       } else {
+        document.body.dataset.callStatus = 'dialing';
         if (callParams.token) {
           _callStatusInfo.textContent = _('retrieving');
         } else {
-          _callStatusInfo.textContent = _('calling');
+          _callStatusInfo.textContent = _('dialing');
           var identities = callParams.identities.split(',');
           CallScreenUIMinified.updateIdentityInfo(identities);
         }
@@ -130,4 +129,4 @@
 
 }(this));
 
-CallScreenUIMinified.init();
+window.addEventListener('localized', CallScreenUIMinified.init);
