@@ -328,7 +328,8 @@
                   }
                 );
               }
-            });
+            },
+            _listenToCallScreenMessages);
             break;
         }
       }
