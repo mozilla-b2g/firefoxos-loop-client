@@ -4,34 +4,32 @@
   var _sharePanel, _closeButton, _shareOthers, _shareSMS,
       _shareEmail, _contactName, _urlshown, _shareInfo,
       _shareInfoPhoto, _sharingReason;
-  var _contact, _url, _urlObject;
+  
+  var _contact, _url, _urlObject, _identities = [];
+  var _tels = [], _mails = [];
 
   var _; // l10n
 
   function _generateUrlObject() {
-    var phones = _contact.tel || [];
-    var emails = _contact.email || [];
-    var candidates = phones.concat(emails);
-    var identities = [];
     var expirationDate = new Date(+_urlObject.expiresAt * 1000);
     var tokenTmp = _url.split('/');
     var token = tokenTmp[tokenTmp.length - 1];
-    
-    for (var i = 0, l = candidates.length; i < l; i++) {
-      identities.push(candidates[i].value);
-    }
+    var contactId = _contact ? _contact.id : null;
+    var contactPrimaryInfo = _contact ? _contact.name[0] : _identities[0];
 
-    return {
+    var objectToStore = {
       date: new Date(),
-      identities: identities,
+      identities: _identities,
       url: _url,
       urlToken: token,
       expiration: expirationDate,
       revoked: false,
-      contactId: _contact.id,
-      contactPrimaryInfo: _contact.name[0],
+      contactId: contactId,
+      contactPrimaryInfo: contactPrimaryInfo,
       contactPhoto: null
     };
+
+    return objectToStore;
   }
 
   function _newSMS(id) {
@@ -64,9 +62,9 @@
     for (var i = 0; i < identities.length; i++) {
       items.push(
         {
-          name: identities[i].value,
+          name: identities[i],
           method: newCB,
-          params: [identities[i].value]
+          params: [identities[i]]
         }
       );
     }
@@ -130,11 +128,11 @@
     _shareSMS.addEventListener(
       'click',
       function sendThroughSMS() {
-        if (_contact.tel.length === 1) {
-          _newSMS(_contact.tel[0].value);
+        if (_tels.length === 1) {
+          _newSMS(_tels[0]);
           return;
         }
-        _newFromArray(_contact.tel, _newSMS);
+        _newFromArray(_tels, _newSMS);
       }
     );
 
@@ -142,78 +140,126 @@
     _shareEmail.addEventListener(
       'click',
       function sendThroughEmail() {
-        if (_contact.email.length === 1) {
-          _newMail(_contact.email[0].value);
+        if (_mails.length === 1) {
+          _newMail(_mails[0]);
           return;
         }
-        _newFromArray(_contact.email, _newMail);
+        _newFromArray(_mails, _newMail);
       }
     );
   }
 
-  function _render(contact, url, sharingReason) {
-    if (!contact.tel || !contact.tel.length) {
+
+  function _renderOptions(identities) {
+
+    // Classify the identities taking into account the group
+    for (var i = 0, l = identities.length; i < l; i++) {
+      if (identities[i].indexOf('@') === -1) {
+        _tels.push(identities[i]);
+      } else {
+        _mails.push(identities[i]);
+      }
+    }
+
+    // Show the right set of options
+    if (_tels.length === 0) {
       _shareSMS.style.display = 'none';
     } else {
       _shareSMS.style.display = 'block';
     }
 
-    if (!contact.email || !contact.email.length) {
+    if (_mails.length === 0) {
       _shareEmail.style.display = 'none';
     } else {
       _shareEmail.style.display = 'block';
     }
+  }
 
-    _contactName.textContent = contact.name[0];
+  function _getIdentities(contact) {
+    var phones = contact.tel || [];
+    var emails = contact.email || [];
+    var candidates = phones.concat(emails);
+    var identities = [];
+
+    for (var i = 0, l = candidates.length; i < l; i++) {
+      identities.push(candidates[i].value);
+    }
+    return identities;
+  }
+  
+  function _render(identities, url, sharingReason) {
+    _identities = identities;
+    // Firsf of all we update the basics, the reason and
+    // the info related with URL and identities
     _sharingReason.textContent = _(sharingReason);
+    _contactName.textContent = identities[0];
     _urlshown.textContent = url;
 
-    ContactsHelper.find({
-      contactId: contact.id
-    }, function(result) {
-      if (result.contacts[0].photo && result.contacts[0].photo.length > 0) {
-        var url = URL.createObjectURL(result.contacts[0].photo[0]);
-        var urlString = 'url(' + url + ')';
-        _shareInfoPhoto.style.backgroundImage = urlString;
-        _shareInfo.classList.remove('has-no-photo');
-      } else {
+    // Now we update with the contacts info if available
+    ContactsHelper.find(
+      {
+        identities: identities
+      },
+      function onContact(result) {
+        var _contact = result.contacts[0];
+        // Update the name
+        _contactName.textContent = _contact.name[0];
+        // Update the photo
+        if (_contact.photo && _contact.photo.length > 0) {
+          var url = URL.createObjectURL(_contact.photo[0]);
+          var urlString = 'url(' + url + ')';
+          _shareInfoPhoto.style.backgroundImage = urlString;
+          _shareInfo.classList.remove('has-no-photo');
+        } else {
+          _shareInfo.classList.add('has-no-photo');
+        }
+        // Render options from contact
+        _renderOptions(_getIdentities(_contact));
+      },
+      function onFallback() {
         _shareInfo.classList.add('has-no-photo');
+        _renderOptions(identities);
       }
-    });
+    );
   }
-    
 
   var Share = {
     show: function s_show(urlObject, identities, sharingReason, callback) {
+      // Init listeners
       _init();
+
+      // Init global vars
       _urlObject = urlObject;
       _url = urlObject.callUrl;
-      ContactsHelper.find(
-        {
-          identities: identities
-        },
-        function onContact(result) {
-          _contact = result.contacts[0];
-          _render(_contact, _url, sharingReason);
-          
-          _sharePanel.addEventListener('transitionend', function shown() {
-            _sharePanel.removeEventListener('transitionend', shown);
-            if (typeof callback === 'function') {
-              callback();
-            }
-          });
-          _sharePanel.classList.add('show');
-          
-        },
-        function() {
-          
+
+      // Render the UI
+      _render(identities, _url, sharingReason);
+
+      // Show the panel and execute the callback when shown.
+      _sharePanel.addEventListener(
+        'transitionend',
+        function onTransition() {
+          if (typeof callback === 'function') {
+            callback();
+          }
         }
       );
+      _sharePanel.classList.add('show');
     },
     hide: function s_hide() {
-      _sharePanel.classList.remove('show');
+      // Clean vars
       _contact = null;
       _url = null;
+      _tels = [];
+      _mails = [];
+      _identities = null;
+
+      // Clean UI
+      _shareSMS.style.display = 'none';
+      _shareEmail.style.display = 'none';
+
+      // Hide panel
+      _sharePanel.classList.remove('show');
     }
   };
 
