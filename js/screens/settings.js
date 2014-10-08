@@ -232,6 +232,14 @@
       }
 
       _settingsPanel.classList.add('show');
+      Settings.onShown();
+    },
+    /*
+     * This method is performed once settings view is displayed
+     */
+    onShown: function s_onShown() {
+      _cleanCallsButton.disabled = CallLog.callsSectionEmpty;
+      _cleanUrlsButton.disabled = CallLog.urlsSectionEmpty;
     },
     hide: function s_hide() {
       if (!_settingsPanel) {

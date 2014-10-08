@@ -1055,6 +1055,14 @@
     clean: function() {
       _clearCalls();
       _clearUrls();
+    },
+
+    get urlsSectionEmpty() {
+      return _isUrlsSectionEmpty;
+    },
+
+    get callsSectionEmpty() {
+      return _isCallsSectionEmpty;
     }
   };
 
