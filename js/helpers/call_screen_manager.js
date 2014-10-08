@@ -252,7 +252,7 @@
               type: type,
               call: call,
               identities: identities,
-              video: video || null,
+              video: video,
               frontCamera: frontCamera || false
             }
           }), '*');
@@ -320,7 +320,8 @@
                   params.video,
                   function(call, calleeFriendlyName) {
                     params.identities = [calleeFriendlyName];
-                    _postCall(type, call, params.identities, params.video);
+                    _postCall(type, call, params.identities, params.frontCamera,
+                              params.video);
                   },
                   function() {
                     console.error('Unable to connect');
