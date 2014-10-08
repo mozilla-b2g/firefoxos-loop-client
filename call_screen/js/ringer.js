@@ -4,8 +4,13 @@
   var TONE = '../resources/media/ringtones/ringtone.mp3';
 
   var _ringtone;
+  var _speakerManager;
 
   function _init() {
+    if (!_speakerManager) {
+      _speakerManager = new window.MozSpeakerManager();
+    }
+    _speakerManager.forcespeaker = true;
     _ringtone = new Audio();
     _ringtone.src = TONE;
     _ringtone.mozAudioChannelType = 'ringer';
