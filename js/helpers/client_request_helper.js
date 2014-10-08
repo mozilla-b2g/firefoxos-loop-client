@@ -195,7 +195,7 @@
         },
         function(result) {
           _callback(onsuccess, [result]);
-          UrlMetrics.recordGeneratedUrl();
+          Telemetry.recordGeneratedUrl();
         },
         onerror
       );

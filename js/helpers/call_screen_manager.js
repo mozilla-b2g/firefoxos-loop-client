@@ -58,7 +58,7 @@
       _onloaded();
     };
 
-    
+
 
     // Workaround while the bug is being fixed
     window.addEventListener(
@@ -112,7 +112,7 @@
       switch(messageFromCallScreen.message) {
         case 'close':
           // Close the attention screen
-          _closeAttentionScreen();  
+          _closeAttentionScreen();
           break;
         case 'feedback':
           // Close the attention screen
@@ -138,7 +138,7 @@
               Feedback.send(feedbackParams.feedback);
             });
           }
-          
+
           break;
         case 'hangout':
           // Create CALL object
@@ -213,11 +213,12 @@
             cleanCallParams();
           });
 
+          Telemetry.recordCallDuration(callObject.duration);
           break;
       }
     } catch(e) {}
   }
-  
+
   var attention;
   function _closeAttentionScreen() {
     if (!attention) {
@@ -404,7 +405,7 @@
         // Close the current call and launch the new one
         _closeAttentionScreen();
       }
-      
+
       if (type !== 'incoming') {
         // If we are already on a call, we shouldn't allow calling another user
         // until we have a proper multi-party feature in place.

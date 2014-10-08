@@ -11,14 +11,37 @@
                           24 * 60 * 60 * 1000; // 1 day
   const SAFE_TIME = 0.1 * 60 * 1000; // 1 min
 
-  const SHARED_URL = 'shared';
-  const GENERATED_URL = 'generated';
-  const LAST_REPORT = 'telemetry-urls-last-report';
+  // We record the number of shared and published URLs.
+  const SHARED_URLS = 'sharedUrls';
+  const GENERATED_URLS = 'generatedUrls';
+  // The number of logins with MobileID and FxA.
+  const MOBILEID_LOGINS = 'mobileIdLogins';
+  const FXA_LOGINS = 'fxaLogins';
+  // The number of calls made with each ID.
+  const OUTGOING_CALLS_WITH_MOBILEID = 'outgoingCallsWithMobileId';
+  const OUTGOING_CALLS_WITH_FXA = 'outgoingCallsWithFxA';
+  const INCOMING_CALLS_WITH_MOBILEID = 'incomingCallsWithMobileId';
+  const INCOMING_CALLS_WITH_FXA = 'incomingCallsWithFxA';
+  // The source of the calls.
+  const CALLS_FROM_CONTACT_DETAILS = 'callsFromContactDetails';
+  const CALLS_FROM_CONTACT_PICKER = 'callsFromContactPicker';
+  const CALLS_FROM_CALL_LOG = 'callsFromCallLog';
+  const CALLS_FROM_URL = 'callsFromUrl';
+  // The duration of the calls.
+  const CALLS_DURATION = 'callsDuration';
+  // The network type used for the call.
+  // We only care about cellular or wifi.
+  const CALLS_WITH_CELLULAR = 'callsWithCellular';
+  const CALLS_WITH_WIFI = 'callsWithWifi';
+
+  const LAST_REPORT = 'telemetry-last-report';
 
   const THROTTLE_DELAY = 10 * 1000; // 10 sec
 
-  // Report versions.
-  const URL_REPORT_VERSION = 1;
+  const REPORT_VERSION = 1;
+
+  var _updateLock = null;
+  var _updateQueue = [];
 
   function _getReportUrl(report) {
     if (!report) {
@@ -37,29 +60,28 @@
    * https://github.com/mozilla/telemetry-server/blob/master/telemetry/telemetry_schema.json
    */
   function TelemetryReport(version) {
-    this.ver = version;
+    this.ver = REPORT_VERSION;
     this.info = {
       reason: 'loop',
       appName: 'FirefoxOS',
       appUpdateChannel: 'default',
       appBuildID: Version.id || 'unknown',
       appVersion: Config.version || 'unknown'
-    }
+    };
+
+    [GENERATED_URLS, SHARED_URLS, MOBILEID_LOGINS, FXA_LOGINS,
+     CALLS_FROM_CONTACT_DETAILS, CALLS_FROM_CONTACT_PICKER,
+     CALLS_FROM_CALL_LOG, CALLS_FROM_URL, CALLS_WITH_CELLULAR,
+     CALLS_WITH_WIFI, OUTGOING_CALLS_WITH_MOBILEID,
+     OUTGOING_CALLS_WITH_FXA, INCOMING_CALLS_WITH_MOBILEID,
+     INCOMING_CALLS_WITH_FXA].forEach((type) => {
+       this[type] = 0;
+    });
+    this[CALLS_DURATION] = [];
   }
 
-  function TelemetryUrlMetricsReport(generatedUrls, sharedUrls) {
-    TelemetryReport.call(this, URL_REPORT_VERSION);
-    // Report format version.
-    this.generatedUrls = generatedUrls || 0;
-    this.sharedUrls = sharedUrls || 0;
-  }
-
-  TelemetryUrlMetricsReport.prototype = {
-    __proto__: TelemetryReport.prototype
-  };
-
-  function UrlMetrics() {
-    Metrics.call(this, 'telemetry-urls');
+  function Telemetry() {
+    Metrics.call(this, 'telemetry');
 
     var self = this;
     // Schedule the next transmission to the telemetry servers.
@@ -102,55 +124,113 @@
     });
   }
 
-  UrlMetrics.prototype = {
+  Telemetry.prototype = {
     __proto__: Metrics.prototype,
 
-    /**
-     * So far we only need to report the number of urls generated and shared
-     * independently of its date. This can be done in a single report that will
-     * contain an incremental number for each kind of url and will be sent
-     * periodically to the telemetry servers.
-     */
-    _updateReport: function(type) {
+    _updateReport: function(type, value) {
+
+      if (_updateLock) {
+        _updateQueue.push({
+          type: type,
+          value: value
+        })
+        return;
+      }
+
+      _updateLock = true;
+
+      var self = this;
+
       this.get(function(report) {
         if (Array.isArray(report)) {
           report = report[0] || null;
         }
 
-        if (!report ||
-            report.sharedUrls == undefined ||
-            report.generatedUrls == undefined) {
-          report = new TelemetryUrlMetricsReport();
+        if (!report) {
+          report = new TelemetryReport();
         }
 
-        if (!this.uuid) {
-          this.uuid = report.uuid;
+        if (report[type] == undefined) {
+          throw new Error('Unknown metric type ' + type);
         }
 
-        switch(type) {
-          case GENERATED_URL:
-            report.generatedUrls++;
-            break;
-          case SHARED_URL:
-            report.sharedUrls++;
-            break;
-          default:
-            throw new Error('Unknow report type');
-        }
+        (report[type].push && report[type].push(value)) || report[type]++;
 
-        this.save(report);
-      }.bind(this));
+        self.save(report, function() {
+          _updateLock = false;
+          for (var i = 0, l = _updateQueue.length; i < l; i++) {
+            var update = _updateQueue.shift();
+            self._updateReport(update.type, update.value);
+          }
+        });
+      });
     },
 
     recordGeneratedUrl: function() {
-      this._updateReport(GENERATED_URL);
+      this._updateReport(GENERATED_URLS);
     },
 
     recordSharedUrl: function() {
-      this._updateReport(SHARED_URL)
+      this._updateReport(SHARED_URLS)
+    },
+
+    recordMobileIdLogin: function() {
+      this._updateReport(MOBILEID_LOGINS);
+    },
+
+    recordFxALogin: function() {
+      this._updateReport(FXA_LOGINS);
+    },
+
+    recordOutgoingCallWithMobileId: function() {
+      this._updateReport(OUTGOING_CALLS_WITH_MOBILEID);
+    },
+
+    recordOutgoingCallWithFxA: function() {
+      this._updateReport(OUTGOING_CALLS_WITH_FXA);
+    },
+
+    recordIncomingCallWithMobileId: function() {
+      this._updateReport(INCOMING_CALLS_WITH_MOBILEID);
+    },
+
+    recordIncomingCallWithFxA: function() {
+      this._updateReport(INCOMING_CALLS_WITH_FXA);
+    },
+
+    recordCallFromContactDetails: function() {
+      this._updateReport(CALLS_FROM_CONTACT_DETAILS);
+    },
+
+    recordCallFromContactPicker: function() {
+      this._updateReport(CALLS_FROM_CONTACT_PICKER);
+    },
+
+    recordCallFromCallLog: function() {
+      this._updateReport(CALLS_FROM_CALL_LOG);
+    },
+
+    recordCallFromUrl: function() {
+      this._updateReport(CALLS_FROM_URL);
+    },
+
+    recordCallWithCellular: function() {
+      this._updateReport(CALLS_WITH_CELLULAR);
+    },
+
+    recordCallWithWifi: function() {
+      this._updateReport(CALLS_WITH_WIFI);
+    },
+
+    recordCallDuration: function(duration) {
+      if (duration === undefined || duration === null) {
+        return;
+      }
+      this._updateReport(CALLS_DURATION, duration);
     }
+
   };
 
-  exports.UrlMetrics = new UrlMetrics();
+  exports.Telemetry = new Telemetry();
 
 })(this);
