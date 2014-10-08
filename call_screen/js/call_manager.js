@@ -411,6 +411,9 @@
               console.log('Session publish error ' + ee.message);
             }
 
+            // Once published we set the video properly according our setting
+            CallManager.toggleVideo(_publishVideo);
+
             _perfDebug && PerfLog.log(_perfBranch, 'Session onpublish');
 
             var container =  document.querySelector('.OT_publisher');
