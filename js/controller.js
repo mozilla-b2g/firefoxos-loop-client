@@ -50,7 +50,8 @@
       'incoming',
       {
         version: version,
-        frontCamera: Settings.isFrontalCamera
+        frontCamera: Settings.isFrontalCamera,
+        vibrate: Settings.shouldVibrate
       }
     );
   }

@@ -1,6 +1,6 @@
 {
   "name": "gaia-layout",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "https://github.com/gaia-components/gaia-layout",
   "authors": [
     "The Gaia Team"
@@ -11,13 +11,13 @@
     "node_modules",
     "bower_components"
   ],
-  "_release": "0.1.4",
+  "_release": "0.1.5",
   "_resolution": {
     "type": "version",
-    "tag": "v0.1.4",
-    "commit": "bd769581eb5c9c48a341eab0ed0d65a526233485"
+    "tag": "v0.1.5",
+    "commit": "f3d8bb32954100d084114371d50c1890703591be"
   },
   "_source": "git://github.com/gaia-components/gaia-layout.git",
-  "_target": "~0.1.4",
+  "_target": "~0.1.5",
   "_originalSource": "gaia-components/gaia-layout"
 }

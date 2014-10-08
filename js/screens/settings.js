@@ -3,32 +3,54 @@
 
   var _settingsPanel, _closeSettingsButton, _logoutSettingsButton,
       _cleanCallsButton, _cleanUrlsButton, _videoDefaultSettings,
-      _commitHashTag, _cameraDefaultSettings, _loggedAs;
+      _commitHashTag, _cameraDefaultSettings, _loggedAs, _vibrateSettings;
 
-  var _isVideoDefault = true;
-  var _isFrontCameraDefault = true;
-  var _isSingleCamera = false;
-  const VIDEO_SETTING = 'video-default';
-  const CAMERA_SETTING = 'camera-default';
+  const SETTINGS_ITEM = 'settings';
+
+  const _SETTING_DEFAULTS = {
+    video: true,
+    frontCamera: true,
+    vibrate: true
+  };
+
+  var _settingValues = {};
+
+  function _setVisualSettingValues() {
+    _videoDefaultSettings.value = _settingValues.video;
+    _cameraDefaultSettings.value = _settingValues.frontCamera;
+    _vibrateSettings.checked =  _settingValues.vibrate;
+  };
+
+  function _settingHandler() {
+    // Retrieve current values of the settings
+    _settingValues.video =
+      _videoDefaultSettings.options[
+        _videoDefaultSettings.selectedIndex
+      ].value;
+    _settingValues.frontCamera =
+      _cameraDefaultSettings.options[
+        _cameraDefaultSettings.selectedIndex
+      ].value;
+    _settingValues.vibrate = _vibrateSettings.checked;
+    asyncStorage.setItem(SETTINGS_ITEM, _settingValues);
+  };
 
   var _;
   var Settings = {
-    get isVideoDefault() {
-      return _isVideoDefault;
-    },
     reset: function s_clear() {
-      asyncStorage.setItem(
-        VIDEO_SETTING,
-        true
-      );
-      asyncStorage.setItem(
-        CAMERA_SETTING,
-        true
-      );
-      _isVideoDefault = true;
-      _isFrontCameraDefault = true;
-      _isSingleCamera = false;
+      var settingNames = Object.keys(_SETTING_DEFAULTS);
+      settingNames.forEach(function(settingName) {
+        _settingValues[settingName] = _SETTING_DEFAULTS[settingName];
+      });
+
+      if (!navigator.mozCameras &&
+          navigator.mozCameras.getListOfCameras().length < 2) {
+        _settingValues.frontCamera = false;
+      }
+
+      asyncStorage.setItem(SETTINGS_ITEM, _settingValues);
     },
+
     init: function s_init(identity) {
       if (!_settingsPanel) {
         // Cache mozL10n functionality
@@ -43,6 +65,7 @@
         _videoDefaultSettings = document.getElementById('video-default-setting');
         _cameraDefaultSettings = document.getElementById('camera-default-setting');
         _commitHashTag = document.getElementById('settings-commit-hash-tag');
+        _vibrateSettings = document.getElementById('vibrate-setting');
 
         // Add listeners just once
         _cleanCallsButton.addEventListener(
@@ -172,64 +195,41 @@
       }
 
       // Set the value of the default mode (video/audio)
+      // Set settings values.
+      // Currently video/audio, camera front/back and vibration mode
       asyncStorage.getItem(
-        VIDEO_SETTING,
-        function onSettingRetrieved(isVideoDefault) {
-          if (isVideoDefault === null) {
+        SETTINGS_ITEM,
+        function onSettingRetrieved(settingValues) {
+          if (!settingValues) {
             Settings.reset();
           } else {
-            _isVideoDefault = isVideoDefault;
+            _settingValues = settingValues;
           }
-          _videoDefaultSettings.value = _isVideoDefault;
+          _setVisualSettingValues(settingValues);
+
           _videoDefaultSettings.addEventListener(
-            'change',
-            function() {
-              _isVideoDefault = _videoDefaultSettings.options[
-                _videoDefaultSettings.selectedIndex
-              ].value;
-              asyncStorage.setItem(
-                VIDEO_SETTING,
-                _isVideoDefault
-              );
-            }
-          );
+            'change', _settingHandler);
+          _vibrateSettings.addEventListener(
+            'change', _settingHandler);
+
+          // Set the value of the default camera if needed
+          if (!navigator.mozCameras &&
+              navigator.mozCameras.getListOfCameras().length < 2) {
+            _settingValues.frontCamera = false;
+            _cameraDefaultSettings.parentNode.parentNode.style.display = 'none';
+          } else {
+            _cameraDefaultSettings.addEventListener(
+              'change', _settingHandler);
+          }
         }
       );
-
-      // Set the value of the default camera if needed
-      if (!navigator.mozCameras && navigator.mozCameras.getListOfCameras().length < 2) {
-        _isSingleCamera = true;
-        _cameraDefaultSettings.parentNode.parentNode.style.display = 'none';
-      } else {
-        asyncStorage.getItem(
-          CAMERA_SETTING,
-          function onSettingRetrieved(isFrontCamera) {
-            if (isFrontCamera === null) {
-              Settings.reset();
-            } else {
-              _isFrontCameraDefault = isFrontCamera;
-            }
-            _cameraDefaultSettings.value = _isFrontCameraDefault;
-            _cameraDefaultSettings.addEventListener(
-              'change',
-              function() {
-                _isFrontCameraDefault = _cameraDefaultSettings.options[
-                  _cameraDefaultSettings.selectedIndex
-                ].value;
-                asyncStorage.setItem(
-                  CAMERA_SETTING,
-                  _isFrontCameraDefault
-                );
-              }
-            );
-          }
-        );
-      }
     },
+
     show: function s_show() {
       if (!_settingsPanel) {
         return;
       }
+      document.getElementById('settings-container').scrollTop = 0;
 
       _settingsPanel.classList.add('show');
       Settings.onShown();
@@ -247,8 +247,14 @@
       }
       _settingsPanel.classList.remove('show');
     },
+    get isVideoDefault() {
+      return _settingValues.video;
+    },
     get isFrontalCamera() {
-      return _isSingleCamera ? false : _isFrontCameraDefault;
+      return _settingValues.frontCamera;
+    },
+    get shouldVibrate() {
+      return _settingValues.vibrate;
     }
   };
 

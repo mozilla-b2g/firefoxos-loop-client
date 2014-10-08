@@ -269,7 +269,7 @@
         </menu>
         <h1 data-l10n-id="settingsTitle"></h1>
       </header>
-      <section class="gaia-list fit scroll">
+      <section id="settings-container" class="gaia-list fit scroll">
         <ul>
           <li class="vbox">
             <p data-l10n-id="defaultCallMode"></p>
@@ -288,6 +288,13 @@
                 <option value="false" data-l10n-id="back"></option>
               </select>
             </span>
+          </li>
+          <li class="active">
+            <label class="pack-switch vbox">
+              <input type="checkbox" id="vibrate-setting" checked></input>
+              <span data-l10n-id="vibrationMode">Vibrate</span>
+              <p class="explanation" data-l10n-id="vibrationModeDetails">on incoming calls</p>
+            </label>
           </li>
           <li>
             <button id="settings-clean-calls-button" data-l10n-id="cleanAllCalls"></button>
