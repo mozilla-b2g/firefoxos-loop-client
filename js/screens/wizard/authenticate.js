@@ -5,8 +5,12 @@
 
   function _onButtonClick(id) {
     if (!navigator.onLine) {
-      // TODO: localize
-      alert(navigator.mozL10n.get('noConnection'));
+      LazyLoader.load([
+        'js/screens/error_screen.js'
+      ], function() {
+        var _ = navigator.mozL10n.get;
+        OfflineScreen.show(_('noConnection'));
+      });
       return;
     }
     Controller.authenticate(id);
