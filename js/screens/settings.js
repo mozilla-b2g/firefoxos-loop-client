@@ -49,10 +49,13 @@
           'click',
           function() {
             var options = new OptionMenu({
-              // TODO Change with l10n string when ready
               section: _('deleteAllConfirmation'),
               type: 'confirm',
               items: [
+                {
+                  name: 'Cancel',
+                  l10nId: 'cancel'
+                },
                 {
                   name: 'Delete',
                   class: 'danger',
@@ -62,10 +65,6 @@
                     Settings.hide();
                   },
                   params: []
-                },
-                {
-                  name: 'Cancel',
-                  l10nId: 'cancel'
                 }
               ]
             });
@@ -97,6 +96,10 @@
                       type: 'confirm',
                       items: [
                         {
+                          name: 'Cancel',
+                          l10nId: 'cancel'
+                        },
+                        {
                           name: 'Delete',
                           class: 'danger',
                           l10nId: 'delete',
@@ -105,10 +108,6 @@
                             Settings.hide();
                           },
                           params: []
-                        },
-                        {
-                          name: 'Cancel',
-                          l10nId: 'cancel'
                         }
                       ]
                     });
@@ -139,18 +138,18 @@
               type: 'confirm',
               items: [
                 {
+                  name: 'Cancel',
+                  l10nId: 'cancel'
+                },
+                {
                   name: 'Delete',
-                  class: 'danger',
+                  class: 'recommend',
                   l10nId: 'logOut',
                   method: function onLogout() {
                     LoadingOverlay.show(_('loggingOut'));
                     Controller.logout();
                   }.bind(this),
                   params: []
-                },
-                {
-                  name: 'Cancel',
-                  l10nId: 'cancel'
                 }
               ]
             });

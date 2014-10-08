@@ -18,7 +18,7 @@
 
   var callsRenderedIndex = 0;
   var urlsRenderedIndex = 0;
-  
+
   /**
    * Function for rendering an option prompt given a list
    * of options
@@ -71,7 +71,7 @@
           function deleteElement() {
             _deleteUrls([new Date(+element.id)]);
           }
-          
+
           if (isRevoked) {
             deleteElement();
             return;
@@ -81,6 +81,10 @@
             type: 'confirm',
             items: [
               {
+                name: 'Cancel',
+                l10nId: 'cancel'
+              },
+              {
                 name: 'Delete',
                 class: 'danger',
                 l10nId: 'delete',
@@ -88,10 +92,6 @@
                   deleteElement();
                 },
                 params: []
-              },
-              {
-                name: 'Cancel',
-                l10nId: 'cancel'
               }
             ]
           });
