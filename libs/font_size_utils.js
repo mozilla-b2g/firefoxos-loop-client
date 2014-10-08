@@ -349,7 +349,7 @@
     },
 
     _initHeaderFormatting: function() {
-      if (navigator.mozL10n) {
+      if (navigator.mozL10n && navigator.mozL10n.once) {
         // When l10n is ready, register all displayed headers for formatting.
         navigator.mozL10n.once(function() {
           this._registerHeadersInSubtree(document.body);
