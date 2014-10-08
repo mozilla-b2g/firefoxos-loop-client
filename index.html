@@ -28,8 +28,9 @@
     <link rel="stylesheet" type="text/css" href="style/wizard.css">
     <link rel="stylesheet" type="text/css" href="style/splash_screen.css">
 
-    <link rel="resource" type="application/l10n" href="locales/locales.ini">
-    <link rel="resource" type="application/l10n" href="locales/date.ini">
+    <link rel="manifest" href="manifest.webapp">
+    <link rel="localization" href="locales/loop.{locale}.properties">
+    <link rel="localization" href="locales/date/date.{locale}.properties">
 
     <script defer src="js/config.js"></script>
     <script defer src="js/version.js"></script>
@@ -74,6 +75,7 @@
     <script defer src="js/screens/calllog.js"></script>
     <script defer src="js/screens/share.js"></script>
     <script defer src="js/screens/settings.js"></script>
+    <script defer src="js/branding.js"></script>
 
     <script defer src="js/boot.js"></script>
   </head>
@@ -104,7 +106,7 @@
       <section id="wizard-tutorial-section"  class="wizard-section vbox current">
         <header id="wizard-tutorial-header">
           <p data-l10n-id="welcome"></p>
-          <p data-l10n-id="serviceName"></p>
+          <p data-service-name></p>
         </header>
         <ul id="wizard-tutorial-slideshow" class="fit">
           <li class="wizard-tutorial-step">
@@ -155,12 +157,12 @@
       <section id="wizard-login" class="wizard-section vbox">
         <header>
           <p data-l10n-id="startUsing"></p>
-          <p data-l10n-id="serviceName"></p>
+          <p data-service-name></p>
           <p data-l10n-id="todayWizard"></p>
         </header>
         <footer class="gaia-footer vbox">
           <p>
-            <span data-l10n-id="byProceeding"><span><br/>
+            <span data-l10n-id="byProceeding"></span><br/>
             <a data-url="http://www.mozilla.com" data-title="ToS" data-webview="true" data-l10n-id="termsOfService"></a>
           </p>
           <button id="authenticate-msisdn-button" class="wizard-button" data-l10n-id="usePhone">
@@ -175,7 +177,7 @@
         <menu type="toolbar">
           <a id="open-settings-button"><span class="icon icon-settings"></span></a>
         </menu>
-        <h1 data-l10n-id="serviceName"></h1>
+        <h1 data-service-name></h1>
       </header>
       <section id="calllog-container" class="vbox fit">
         <nav>
@@ -304,7 +306,7 @@
           </li>
           <li class="vbox">
             <p data-l10n-id="version"></p>
-            <p id="settings-commit-hash-tag"></p>
+            <p id="settings-commit-hash-tag" data-l10n-id="unknown"></p>
           </li>
         </ul>
       </section>
