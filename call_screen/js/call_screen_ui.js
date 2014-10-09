@@ -392,7 +392,8 @@
         }
       );
 
-      document.getElementById('rate-feedback-button').addEventListener(
+      var rateFeedbackButton = document.getElementById('rate-feedback-button');
+      rateFeedbackButton.addEventListener(
         'click',
         function onRate() {
           if (typeof callback === 'function') {
@@ -406,6 +407,13 @@
 
             callback(new Feedback(false /* happy */, description));
           }
+        }
+      );
+
+      document.querySelector('.fq-options ul').addEventListener('click', 
+        function onClick() {
+          var numberChecked = _feedback.querySelectorAll(':checked').length;
+          rateFeedbackButton.disabled = numberChecked === 0;
         }
       );
 
