@@ -9,6 +9,9 @@
   // any incoming call with the 'busy' state and forbiding any outgoing call
   // until we support multi-party calls.
   var _inCall = false;
+  var _callType = null;
+  var _params = null;
+  var _isWaitingFeedback = false;
 
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
@@ -55,9 +58,7 @@
       _onloaded();
     };
 
-    attention.onunload = function() {
-      _inCall = false;
-    };
+    
 
     // Workaround while the bug is being fixed
     window.addEventListener(
@@ -97,14 +98,135 @@
     _fakeLoaded();
   }
 
-  var attention;
+  function cleanCallParams() {
+    _callType = null;
+    _params = null;
+  }
 
+  function onHandShakingEvent(event) {
+    try {
+      var messageFromCallScreen = JSON.parse(event.data);
+      if (messageFromCallScreen.id != 'call_screen') {
+        return;
+      }
+      switch(messageFromCallScreen.message) {
+        case 'close':
+          // Close the attention screen
+          _closeAttentionScreen();  
+          break;
+        case 'feedback':
+          // Close the attention screen
+          _closeAttentionScreen();
+
+          // Send feedback to server
+          var feedbackParams = messageFromCallScreen.params;
+          if (feedbackParams.feedback) {
+            LazyLoader.load([
+              '../js/helpers/metrics.js',
+              '../js/helpers/feedback.js'
+            ], function() {
+              var url = feedbackParams.call.callUrl;
+              if (url) {
+                // We include the URL that the user clicked on to
+                // initiate the call (without the call token) in the
+                // "url" field. The key reason for doing so is that
+                // it allows us to distinguish standalone feedback
+                // from build-in client feedback.
+                feedbackParams.feedback.url =
+                  url.substring(0, url.lastIndexOf('/'));
+              }
+              Feedback.send(feedbackParams.feedback);
+            });
+          }
+          
+          break;
+        case 'hangout':
+          // Create CALL object
+          var callscreenParams = messageFromCallScreen.params;
+          if (callscreenParams.error &&
+              callscreenParams.error.reason) {
+            switch (callscreenParams.error.reason) {
+              case 'gum':
+              case 'failed':
+                _closeAttentionScreen();
+                // If there is any error, as gUM permission, let's
+                // show to the user asap.
+                Controller.showError(callscreenParams.error.reason);
+                break;
+              case 'unavailable':
+                // Get URL to share and show prompt
+                CallHelper.generateCallUrl(_params.identities[0],
+                  function onCallUrlSuccess(result) {
+                    Share.show(result,
+                               _params.identities,
+                               'unavailable',
+                               _closeAttentionScreen);
+                  },
+                  function(e) {
+                    console.error(
+                      'Unable to retrieve link to share ' + e
+                    );
+                    _closeAttentionScreen();
+                  }
+                );
+                // We don't need to record this as a call cause we
+                // already recording it as a shared URL, so we bail
+                // out here.
+                return;
+              default:
+                _closeAttentionScreen();
+                break;
+            }
+          } else {
+            if (!callscreenParams.connected) {
+              _closeAttentionScreen();
+            } else {
+              _isWaitingFeedback = true;
+            }
+          }
+
+          // Create object to store
+          var callObject = {
+            date: new Date(),
+            identities: _params.identities || [],
+            video: _params.video || callscreenParams.video || false,
+            type: _callType,
+            connected: callscreenParams.connected,
+            duration: callscreenParams.duration,
+            url: callscreenParams.call.callUrl || null,
+            urlToken: callscreenParams.call.callToken || null,
+            contactId: null,
+            contactPrimaryInfo: null,
+            contactPhoto: null
+          };
+
+          // Add object & update the UI
+          ContactsHelper.find({
+            identities: _params.identities
+          }, function(result) {
+            CallLog.addCall(callObject, result);
+            cleanCallParams();
+          }, function() {
+            CallLog.addCall(callObject);
+            cleanCallParams();
+          });
+
+          break;
+      }
+    } catch(e) {}
+  }
+  
+  var attention;
   function _closeAttentionScreen() {
     if (!attention) {
       return;
     }
     attention.close();
     attention = null;
+    _inCall = false;
+    _isWaitingFeedback = false;
+    // Stop listener
+    window.removeEventListener('message', onHandShakingEvent);
   }
 
   function _launchAttention(type, params, incomingCall, contact) {
@@ -120,6 +242,10 @@
     // Lets compete for audio as soon as possible. That way GSM/CDMA calls
     // might be active will be set on hold.
     AudioCompetingHelper.compete();
+
+    // Cache params needed from the call
+    _callType = type;
+    _params = params;
 
     // Launch the Attention
     var host = document.location.host;
@@ -138,104 +264,7 @@
         function _listenToCallScreenMessages() {
           window.addEventListener(
             'message',
-            function onHandShakingEvent(event) {
-              try {
-                var messageFromCallScreen = JSON.parse(event.data);
-                if (messageFromCallScreen.id != 'call_screen') {
-                  return;
-                }
-                switch(messageFromCallScreen.message) {
-                  case 'hangout':
-                    // Stop listener
-                    window.removeEventListener('message', onHandShakingEvent);
-
-                    // Create CALL object
-                    var callscreenParams = messageFromCallScreen.params;
-
-                    if (callscreenParams.error &&
-                        callscreenParams.error.reason) {
-                      switch (callscreenParams.error.reason) {
-                        case 'gum':
-                        case 'failed':
-                          _closeAttentionScreen();
-                          // If there is any error, as gUM permission, let's
-                          // show to the user asap.
-                          Controller.showError(callscreenParams.error.reason);
-                          break;
-                        case 'unavailable':
-                          // Get URL to share and show prompt
-                          CallHelper.generateCallUrl(params.identities[0],
-                            function onCallUrlSuccess(result) {
-                              Share.show(result,
-                                         params.identities,
-                                         'unavailable',
-                                         _closeAttentionScreen);
-                            },
-                            function(e) {
-                              console.error(
-                                'Unable to retrieve link to share ' + e
-                              );
-                              _closeAttentionScreen();
-                            }
-                          );
-                          // We don't need to record this as a call cause we
-                          // already recording it as a shared URL, so we bail
-                          // out here.
-                          return;
-                        default:
-                          _closeAttentionScreen();
-                          break;
-                      }
-                    } else {
-                      _closeAttentionScreen();
-                    }
-
-                    // Create object to store
-                    var callObject = {
-                      date: new Date(),
-                      identities: params.identities || [],
-                      video: params.video || callscreenParams.video || false,
-                      type: type,
-                      connected: callscreenParams.connected,
-                      duration: callscreenParams.duration,
-                      url: callscreenParams.call.callUrl || null,
-                      urlToken: callscreenParams.call.callToken || null,
-                      contactId: null,
-                      contactPrimaryInfo: null,
-                      contactPhoto: null
-                    };
-
-                    if (callscreenParams.feedback) {
-                      LazyLoader.load([
-                        '../js/helpers/metrics.js',
-                        '../js/helpers/feedback.js'
-                      ], function() {
-                        var url = callscreenParams.call.callUrl;
-                        if (url) {
-                          // We include the URL that the user clicked on to
-                          // initiate the call (without the call token) in the
-                          // "url" field. The key reason for doing so is that
-                          // it allows us to distinguish standalone feedback
-                          // from build-in client feedback.
-                          callscreenParams.feedback.url =
-                            url.substring(0, url.lastIndexOf('/'));
-                        }
-                        Feedback.send(callscreenParams.feedback);
-                      });
-                    }
-
-                    ContactsHelper.find({
-                      identities: params.identities
-                    }, function(result) {
-                      CallLog.addCall(callObject, result);
-                    }, function() {
-                      CallLog.addCall(callObject);
-                    });
-
-                    break;
-                }
-              } catch(e) {}
-            }
+            onHandShakingEvent
           );
         }
 
@@ -352,6 +381,13 @@
 
   var CallScreenManager = {
     launch: function(type, params) {
+      // TODO Modify this in multiconference when adding a new peer
+      // to the conversation
+      if (_isWaitingFeedback) {
+        // Close the current call and launch the new one
+        _closeAttentionScreen();
+      }
+      
       if (type !== 'incoming') {
         // If we are already on a call, we shouldn't allow calling another user
         // until we have a proper multi-party feature in place.

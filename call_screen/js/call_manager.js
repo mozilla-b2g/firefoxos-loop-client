@@ -523,13 +523,13 @@
         connected = true;
       }
 
-      function onCallEnded(feedback) {
+      function sendParams(message, feedback) {
         var params = {
           call: _call,
           duration: duration,
           connected: connected,
           video: _isVideoCall,
-          feedback: feedback
+          feedback: feedback || null
         };
 
         if (error) {
@@ -537,26 +537,46 @@
         }
 
         // Send result to the Controller
-        var hangoutMessage = {
+        var message = {
           id: 'call_screen',
-          message: 'hangout',
+          message: message,
           params: params
         };
-        ControllerCommunications.send(hangoutMessage);
 
         _call = {};
+
+        ControllerCommunications.send(message);
       }
 
-      if (error && error.reason) {
-        onCallEnded();
-      } else if (connected) {
+      // Send hangout message to Controller
+      sendParams('hangout');
+
+      // Shield against weird states. If we have no action in
+      // 10 seconds, we close the attention screen. This was
+      // requested by UX.
+      var shieldErrorTimeout = setTimeout(function() {
+        sendParams('close');
+      }, 10000);
+
+      // If the call was connected and there is no error
+      // we wait for the feedback to send it to the controller.
+      if (connected && (!error || !error.reason)) {
         if (CallScreenUI.isStatusBarShown()) {
-          onCallEnded();
+          clearTimeout(shieldErrorTimeout);
+          sendParams('close');
         } else {
-          CallScreenUI.showFeedback(onCallEnded);
+          CallScreenUI.showFeedback(function onFeedback(feedback) {
+            clearTimeout(shieldErrorTimeout);
+            if (!feedback) {
+              sendParams('close');
+            } else {
+              sendParams('feedback', feedback);
+            }
+          });
         }
       } else {
-        onCallEnded();
+        clearTimeout(shieldErrorTimeout);
+        sendParams('close');
       }
 
       if (!AudioCompetingHelper) {
