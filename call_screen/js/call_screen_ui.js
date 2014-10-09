@@ -9,6 +9,7 @@
   var _isMicEnabled = true;
 
   var _gUMFailed = false;
+  var _stream = null;
 
   var _feedbackClose;
 
@@ -72,6 +73,7 @@
           audio: true
         },
         function onStreamReady(stream) {
+          _stream = stream;
           _perfDebug && PerfLog.log(_perfBranch,
                         'Showing fake video');
           var progress = _localVideo.querySelector('progress');
@@ -452,6 +454,7 @@
       CallScreenUI.setCallStatus('hold');
     },
     removeFakeVideo: function() {
+      _stream.stop();
       _perfDebug && PerfLog.log(_perfBranch, 'removeFakeVideo');
       try {
         _localVideo && _fakeLocalVideo && _localVideo.removeChild(_fakeLocalVideo);

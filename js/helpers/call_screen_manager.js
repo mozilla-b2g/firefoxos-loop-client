@@ -29,7 +29,10 @@
           video: cameraConstraints,
           audio: true
         },
-        resolve,
+        function(stream) {
+          stream.stop();
+          resolve();
+        },
         reject
       );
     });
