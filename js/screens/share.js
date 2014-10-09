@@ -49,10 +49,15 @@
   function _newMail(id) {
     Controller.sendUrlByEmail(
       id,
-      _url
+      _url,
+      function onEmailShared() {
+        CallLog.addUrl(_generateUrlObject());
+        Share.hide();
+      },
+      function onError(error) {
+        // TODO Do we need to show something to the user?
+      }
     );
-    CallLog.addUrl(_generateUrlObject());
-    Share.hide();
   }
 
   function _newFromArray(identities, newCB) {
