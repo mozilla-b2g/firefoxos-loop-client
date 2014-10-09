@@ -36,6 +36,7 @@
   };
 
   var _;
+  var _identity;
   var Settings = {
     reset: function s_clear() {
       var settingNames = Object.keys(_SETTING_DEFAULTS);
@@ -52,6 +53,7 @@
     },
 
     init: function s_init(identity) {
+      _identity = identity;
       if (!_settingsPanel) {
         // Cache mozL10n functionality
         _ = navigator.mozL10n.get;
@@ -181,18 +183,10 @@
         );
       }
 
-      // Set the value taking into account the identity
-      _loggedAs.innerHTML = _(
-        'loggedInAs',
-        {
-          username: identity || _('unknown')
-        }
-      );
-
-      // Set the commit based on the version
-      if (_commitHashTag && Version.id) {
-        _commitHashTag.textContent = Version.id || _('unknown');
-      }
+      this.localize();
+      // In this point the code is localized, but we want to listen new change
+      // in language in order to update it properly.
+      window.addEventListener('localized', this.localize.bind(this));
 
       // Set the value of the default mode (video/audio)
       // Set settings values.
@@ -223,6 +217,23 @@
           }
         }
       );
+    },
+
+    localize: function s_localize() {
+      // Set the value taking into account the identity
+      if (_loggedAs) {
+        _loggedAs.innerHTML = _(
+          'loggedInAs',
+          {
+            username: _identity || _('unknown')
+          }
+        );
+      }
+
+      // Set the commit based on the version
+      if (_commitHashTag && Version.id) {
+        _commitHashTag.textContent = Version.id || _('unknown');
+      }
     },
 
     show: function s_show() {
