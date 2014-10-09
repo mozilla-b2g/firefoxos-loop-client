@@ -235,78 +235,97 @@
     window.removeEventListener('message', onHandShakingEvent);
   }
 
-  function _launchAttention(type, params, incomingCall, contact) {
-    // Retrieve the params and pass them as part of the URL
+  function _generateAttentionParams(type, params, callback) {
+
     var attentionParams = 'layout=' + type;
-    if (params) {
-      Object.keys(params).forEach(function(key) {
-        attentionParams += '&' + key + '=' + encodeURIComponent(params[key]);
-      });
+
+    if (!params) {
+      return attentionParams;
     }
 
-    AudioCompetingHelper.init();
-    // Lets compete for audio as soon as possible. That way GSM/CDMA calls
-    // might be active will be set on hold.
-    AudioCompetingHelper.compete();
+    var values = [];
+    var keys = [];
+    keys = Object.keys(params);
+    for(var i = 0, lKeys = keys.length; i < lKeys; i++) {
+      values[i] = params[keys[i]];
+    }
 
-    // Cache params needed from the call
-    _callType = type;
-    _params = params;
+    Promise.all(values).then( (resolvedValues) => {
+      // Retrieve the params and pass them as part of the URL
+      for (i = 0, lKeys = keys.length; i < lKeys; i++) {
+        attentionParams +=
+              '&' + keys[i] + '=' + encodeURIComponent(resolvedValues[i]);
+      }
+      callback(attentionParams);
+    });
+  };
 
-    // Launch the Attention
-    var host = document.location.host;
-    var protocol = document.location.protocol;
-    var urlBase = protocol + '//' + host +
-      '/call_screen/call.html?' + attentionParams;
-    attention = window.open(urlBase, 'call_screen', 'attention');
+  function _launchAttention(type, params, incomingCall, contact) {
 
-    // Enable handshaking with the Call Screen
-    _onAttentionLoaded(
-      attention,
-      function onLoaded() {
+    _generateAttentionParams(type, params, function(attentionParams) {
+      AudioCompetingHelper.init();
+      // Lets compete for audio as soon as possible. That way GSM/CDMA calls
+      // might be active will be set on hold.
+      AudioCompetingHelper.compete();
 
-        AudioCompetingHelper.leaveCompetition();
+      // Cache params needed from the call
+      _callType = type;
+      _params = params;
 
-        function _listenToCallScreenMessages() {
-          window.addEventListener(
-            'message',
-            onHandShakingEvent
-          );
-        }
+      // Launch the Attention
+      var host = document.location.host;
+      var protocol = document.location.protocol;
+      var urlBase = protocol + '//' + host +
+            '/call_screen/call.html?' + attentionParams;
+      attention = window.open(urlBase, 'call_screen', 'attention');
 
-        // Function to post data from the server
-        function _postCall(type, call, identities, frontCamera, video) {
-          if (!attention) {
-            return;
+      // Enable handshaking with the Call Screen
+      _onAttentionLoaded(
+        attention,
+        function onLoaded() {
+
+          AudioCompetingHelper.leaveCompetition();
+
+          function _listenToCallScreenMessages() {
+            window.addEventListener(
+              'message',
+              onHandShakingEvent
+            );
           }
-          _listenToCallScreenMessages();
-          attention.postMessage(JSON.stringify({
-            id: 'controller',
-            message: 'call',
-            params: {
-              type: type,
-              call: call,
-              identities: identities,
-              video: video,
-              frontCamera: frontCamera || false
+
+          // Function to post data from the server
+          function _postCall(type, call, identities, frontCamera, video) {
+            if (!attention) {
+              return;
             }
-          }), '*');
-        }
-
-        function _abortCall(error) {
-          if (!attention) {
-            return;
+            _listenToCallScreenMessages();
+            attention.postMessage(JSON.stringify({
+              id: 'controller',
+              message: 'call',
+              params: {
+                type: type,
+                call: call,
+                identities: identities,
+                video: video,
+                frontCamera: frontCamera || false
+              }
+            }), '*');
           }
-          attention.postMessage(JSON.stringify({
-            id: 'controller',
-            message: 'abort',
-            error: error
-          }), '*');
-        }
 
-        // Now it's time to send to the attention the info regarding the
-        // call object
-        switch(type) {
+          function _abortCall(error) {
+            if (!attention) {
+              return;
+            }
+            attention.postMessage(JSON.stringify({
+              id: 'controller',
+              message: 'abort',
+              error: error
+            }), '*');
+          }
+
+          // Now it's time to send to the attention the info regarding the
+          // call object
+          switch(type) {
           case 'incoming':
             // Call was retrieved previously in order to accelerate the UI
             _postCall(type, incomingCall, params.identities, params.frontCamera);
@@ -382,9 +401,10 @@
             },
             _listenToCallScreenMessages);
             break;
+          }
         }
-      }
-    );
+      );
+    });
   }
 
   function _rejectCall(call) {
