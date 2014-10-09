@@ -201,18 +201,21 @@
       activity.onerror = onerror;
     },
 
-    sendUrlByEmail: function (id, url) {
-      debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
-      var a = document.createElement('a');
-      var params = 'mailto:' + id + '?subject=Firefox Hello' +
-        '&body= '+ _('shareMessage') + ' ' + url;
-
-      a.href = params;
-      a.classList.add('hide');
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      _onsharedurl();
+    sendUrlByEmail: function (id, url, onsuccess, onerror) {
+      debug && console.log('Loop web URL for email ' + url + ' to ' + id);
+      var activity = new MozActivity({
+        name: 'new',
+        data: {
+          type: 'mail',
+          url: 'mailto:' + id + '?subject=Firefox Hello' +
+               '&body= '+ _('shareMessage') + ' ' + url
+        }
+      });
+      activity.onsuccess = function() {
+        onsuccess && onsuccess();
+        _onsharedurl();
+      };
+      activity.onerror = onerror;
     },
 
     getUrlByToken: function(token, callback) {
