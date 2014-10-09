@@ -468,7 +468,7 @@
       _updateCall(rawCall);
     } else {
       // Append to DOM
-      _appendCall(rawCall);
+      _appendCall(rawCall, true /* isFirstPaint */);
     }
     // Go to the next position of the cursor
     callsCursor.continue();
@@ -517,7 +517,7 @@
     return callElement;
   }
 
-  function _appendCall(call) {
+  function _appendCall(call, isFirstPaint) {
     if (!call) {
       return;
     }
@@ -532,7 +532,7 @@
     var group = _getGroup('calls', call.date);
     var element = _createCallDOM(call);
     callsRenderedIndex++;
-    if (callsRenderedIndex > CHUNK_SIZE) {
+    if (isFirstPaint && callsRenderedIndex > CHUNK_SIZE) {
       element.classList.add('hidden');
     }
     // Append to the right position
@@ -630,7 +630,7 @@
       _updateUrl(rawUrl);
     } else {
       // Append to DOM
-      _appendUrl(rawUrl);
+      _appendUrl(rawUrl, true /* isFirstPaint */);
     }
     // Go to the next position of the cursor
     urlsCursor.continue();
@@ -665,7 +665,7 @@
     return urlElement;
   }
 
-  function _appendUrl(rawUrl) {
+  function _appendUrl(rawUrl, isFirstPaint) {
     if (!rawUrl) {
       return;
     }
@@ -679,7 +679,7 @@
     var group = _getGroup('urls', rawUrl.date);
     var element = _createUrlDOM(rawUrl);
     urlsRenderedIndex++;
-    if (urlsRenderedIndex > CHUNK_SIZE) {
+    if (isFirstPaint && urlsRenderedIndex > CHUNK_SIZE) {
       element.classList.add('hidden');
     }
     // Append to the right position
