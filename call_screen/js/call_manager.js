@@ -187,7 +187,6 @@
 
       AudioCompetingHelper.init();
       _call = params.call;
-      _useSpeaker = _isVideoCall = params.video && params.video != 'false';
       _callee = params.type === 'incoming' ? true : false;
       _callProgressHelper = new CallProgressHelper(_call.callId,
                                                    _call.progressURL,
@@ -201,7 +200,7 @@
       };
 
       if (params.type === 'outgoing') {
-        CallManager.join(_isVideoCall, params.frontCamera);
+        CallManager.join(params.video, params.frontCamera);
       } else {
         CallScreenUIMinified.updateIdentityInfo(params.identities);
       }
@@ -218,6 +217,9 @@
     },
 
     toggleSpeaker: function(isSpeakerOn) {
+      if (!isSpeakerOn) {
+        isSpeakerOn = false;
+      }
       if (!_speakerManager) {
         _speakerManager = new window.MozSpeakerManager();
       }
@@ -238,7 +240,7 @@
 
       _perfDebug && PerfLog.log(_perfBranch, 'CallManager.join');
 
-      _isVideoCall = isVideoCall || _isVideoCall;
+      _useSpeaker = _isVideoCall = isVideoCall && isVideoCall != 'false';
       AudioCompetingHelper.clearListeners();
       AudioCompetingHelper.addListener('mozinterruptbegin', _hold);
       AudioCompetingHelper.compete();
