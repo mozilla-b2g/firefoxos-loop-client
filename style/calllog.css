@@ -122,8 +122,8 @@ section[role="region"] > header:first-child .icon-settings {
   color: #bc1515;
 }
 
-#calls-section .url {
-  margin-left: 1rem;
+#calls-section .retry-count {
+  flex: 0.4
 }
 
 #urls-section .url {
