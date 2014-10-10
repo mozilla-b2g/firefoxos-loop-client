@@ -618,6 +618,10 @@ body[data-local-video="off"] .local-bubble{
   display: block;
 }
 
+#rate-feedback-button[disabled] {
+  opacity: .5;
+}
+
 body[data-feedback='true'] #feedback {
   display: flex;
 }
