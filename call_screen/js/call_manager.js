@@ -31,6 +31,7 @@
   var _subscribeToVideo = true;
   var _isVideoCall = false;
   var _peersConnection = null;
+  var _acm = navigator.mozAudioChannelManager;
 
   /**
    * Send the signal given as the parameter to the remote party.
@@ -63,6 +64,21 @@
     _onhold();
     _sendSignaling({messageType: 'progress', state: 'held'});
     AudioCompetingHelper.leaveCompetition();
+  }
+
+  function _onHeadPhonesChange() {
+    if (_acm.headphones && _useSpeaker) {
+      CallScreenUI.toggleSpeakerButton();
+      CallManager.toggleSpeaker();
+    }
+  }
+
+  function _handleHeadPhonesChange() {
+    _acm && _acm.addEventListener('headphoneschange', _onHeadPhonesChange);
+  }
+
+  function _removeHeadPhonesChangeHandler() {
+    _acm && _acm.removeEventListener('headphoneschange', _onHeadPhonesChange);
   }
 
   /**
@@ -442,6 +458,8 @@
       _callProgressHelper.onstatechange = function onStateChange(evt) {
         _handleCallProgress(_callProgressHelper);
       };
+
+      _handleHeadPhonesChange();
     },
 
     set onhold(onhold) {
@@ -498,6 +516,7 @@
       PerfLog.stopTracing(_perfBranch);
 
       window.removeEventListener('offline', _oncallfailed);
+      _removeHeadPhonesChangeHandler();
 
       if (_callProgressHelper) {
         _handleCallTermination(error);

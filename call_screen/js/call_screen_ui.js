@@ -33,15 +33,16 @@
     this.description = description;
   }
 
+  function toggleSpeakerButton() {
+    _settingsButtonSpeaker.classList.toggle('setting-enabled');
+    _isSpeakerEnabled = !_isSpeakerEnabled;
+  }
+
   function _enableSpeakerButton() {
-    _settingsButtonSpeaker.addEventListener(
-      'mousedown',
-      function onSettingsClick(e) {
-        _settingsButtonSpeaker.classList.toggle('setting-enabled');
-        _isSpeakerEnabled = !_isSpeakerEnabled;
-        CallManager.toggleSpeaker(_isSpeakerEnabled);
-      }
-    );
+    _settingsButtonSpeaker.addEventListener('mousedown', function onClick() {
+      toggleSpeakerButton();
+      CallManager.toggleSpeaker(_isSpeakerEnabled);
+    });
   }
 
 
@@ -542,7 +543,8 @@
       }
       TonePlayerHelper.stop();
       TonePlayerHelper.releaseResources();
-    }
+    },
+    toggleSpeakerButton: toggleSpeakerButton
   };
 
   exports.CallScreenUI = CallScreenUI;
