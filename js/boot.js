@@ -5,10 +5,7 @@ window.addEventListener('load', function load() {
   // TODO Add LazyLoading
   // TODO If it's an incoming call, I launch it before rendering the app
   Controller.init();
-
-  LazyLoader.load('js/helpers/language_manager.js', () => {
-    LanguageManager.init();
-  });
+  Branding.init();
 
   // Headers have to be properly resized and centered, we emmit a lazyload event
   LazyLoader.load('libs/font_size_utils.js', () => {

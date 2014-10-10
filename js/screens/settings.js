@@ -183,6 +183,13 @@
         );
       }
 
+      // Set the commit based on the version
+      var id = Version.id;
+      if (_commitHashTag && id) {
+        _commitHashTag.removeAttribute('data-l10n-id');
+        _commitHashTag.textContent = id;
+      }
+
       this.localize();
       // In this point the code is localized, but we want to listen new change
       // in language in order to update it properly.
@@ -225,14 +232,9 @@
         _loggedAs.innerHTML = _(
           'loggedInAs',
           {
-            username: _identity || _('unknown')
+            username: _identity || _('unknownUser')
           }
         );
-      }
-
-      // Set the commit based on the version
-      if (_commitHashTag && Version.id) {
-        _commitHashTag.textContent = Version.id || _('unknown');
       }
     },
 

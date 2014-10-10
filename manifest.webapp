@@ -43,6 +43,16 @@
       "returnValue": true
     }
   },
+  "locales": {
+    "en-US": {
+      "name": "Firefox Hello",
+      "description": "Firefox Hello"
+    },
+    "es": {
+      "name": "Firefox Hello",
+      "description": "Firefox Hello"
+    }
+  },
   "default_locale": "en-US",
   "icons": {
     "84": "/style/images/icons/Icon_Hello@1.png",
