@@ -354,7 +354,7 @@
     }, 'readonly', [aObjectStore]);
   }
 
-  function _updateRecord(aCallback, aObjectStore, aIndex, aRecord) {
+  function _updateRecord(aCallback, aObjectStore, aFilter, aRecord) {
     _checkCallback(aCallback);
 
     if (!_isValidRecord(aObjectStore, aRecord)) {
@@ -362,44 +362,39 @@
       return;
     }
 
-    _newTxn(function(error, txn, store) {
+    var onRecord = function(error, record) {
       if (error) {
         aCallback(error);
         return;
       }
 
-      var count = 0;
-      var req;
-      if (aIndex) {
-        if (!store.indexNames.contains(aIndex)) {
-          aCallback('INVALID_INDEX_NAME');
-          return;
-        }
-        req = store.index(aIndex).openCursor();
-      } else {
-        req = store.openCursor();
+      if (!record) {
+        aCallback('NOT_FOUND');
+        return;
       }
 
-      req.onsuccess = function onsuccess(event) {
-        var cursor = event.target.result;
-        if (!cursor) {
-          aCallback(null, count);
+      _newTxn(function(error, txn, store) {
+        if (error) {
+          aCallback(error);
           return;
         }
 
-        var record = cursor.value;
-        Object.keys(aRecord).forEach(function(key) {
+        Object.keys(aRecord).forEach((key) => {
           record[key] = aRecord[key];
         });
 
-        cursor.update(record);
-        count++;
-        cursor.continue();
-      };
-      req.onerror = function onerror(event) {
-        aCallback(event.target.error.name);
-      };
-    }, 'readwrite', [aObjectStore]);
+        var req = store.put(record);
+        req.onsuccess = function() {
+          aCallback();
+        };
+        req.onerror = function(e) {
+          console.error('Record not updated', e);
+          aCallback();
+        };
+      }, 'readwrite', [aObjectStore]);
+    };
+
+    _getRecord(onRecord, aObjectStore, aFilter);
   }
 
   function _clearObjectStore(aCallback, aObjectStore) {
@@ -811,8 +806,13 @@
       });
     },
 
-    revokeUrl: function(aCallback, aUrlCreationDate) {
-      _updateRecord(aCallback, _dbUrlStore, null, { revoked: true });
+    revokeUrl: function(aCallback, aToken) {
+      _updateRecord(aCallback, _dbUrlStore, {
+        index: {
+          name: 'urlToken',
+          value: aToken
+        }
+      }, { revoked: true });
     },
 
     deleteCalls: function(aCallback, aCalls) {

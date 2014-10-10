@@ -247,7 +247,7 @@
                 callback();
               }
             },
-            date
+            token
           );
         },
         function onError(e) {
