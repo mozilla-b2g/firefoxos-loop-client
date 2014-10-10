@@ -122,6 +122,9 @@
     },
 
     playEnded: function tph_playEnded(isSpeaker) {
+      if (!_audioElement) {
+        return;
+      }
       _audioElement.loop = false;
       return new Promise(function(resolve, reject) {
         var timeout = window.setTimeout(resolve, TONE_TIMEOUT);
