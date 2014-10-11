@@ -290,7 +290,7 @@
               (event.reason === 'networkDisconnected')) {
             // The network connection terminated abruptly (for example, the
             // client lost their internet connection).
-            _oncallfailed();
+            _oncallfailed({reason: 'networkDisconnected'});
           }
           if (_peersInSession === 1) {
             // We are alone in the session now so lets disconnect.
@@ -320,7 +320,7 @@
                       remoteVideo.removeEventListener('canplaythrough',
                                                       oncanplaythrough);
                       PerfLog.log(_perfBranch, 'Remote video is playing');
-                    }
+                    };
                     remoteVideo.addEventListener('canplaythrough',
                                                  oncanplaythrough);
                   };

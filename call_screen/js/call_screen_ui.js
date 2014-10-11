@@ -360,8 +360,16 @@
           _callStatusInfo.textContent = _('ended');
           document.body.dataset.callStatus = 'ended';
           break;
-        case 'failed':
-          _callStatusInfo.textContent = _('failed');
+        case 'networkDisconnected':
+          _callStatusInfo.textContent = _('networkDisconnected');
+          document.body.dataset.callStatus = 'ended';
+          break;
+        case 'offline':
+          _callStatusInfo.textContent = _('offline');
+          document.body.dataset.callStatus = 'ended';
+          break;
+        case 'genericServerError':
+          _callStatusInfo.textContent = _('genericServerError');
           document.body.dataset.callStatus = 'ended';
           break;
       }
@@ -512,20 +520,22 @@
           CallManager.leaveCall(error);
       });
     },
-    notifyCallFailed: function() {
+    notifyCallFailed: function(error) {
       TonePlayerHelper.stop();
-      CallScreenUI.setCallStatus('failed');
-      CallManager.terminate();
+      CallScreenUI.setCallStatus(error.reason);
+      CallManager.terminate(error);
       TonePlayerHelper.playEnded(_isSpeakerEnabled).then(
         function onplaybackcompleted() {
           TonePlayerHelper.stop();
           TonePlayerHelper.releaseResources();
-          CallManager.leaveCall({
-            reason: 'failed'
-          });
+          CallManager.leaveCall(error);
       });
     },
-    abortCall: function() {
+    abortCall: function(error) {
+      if (error && error.reason) {
+        this.notifyCallFailed(error);
+        return;
+      }
       TonePlayerHelper.stop();
       TonePlayerHelper.releaseResources();
     }

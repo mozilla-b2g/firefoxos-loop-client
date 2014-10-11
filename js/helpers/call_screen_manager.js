@@ -147,7 +147,9 @@
               callscreenParams.error.reason) {
             switch (callscreenParams.error.reason) {
               case 'gum':
-              case 'failed':
+              case 'networkDisconnected':
+              case 'offline':
+              case 'genericServerError':
                 _closeAttentionScreen();
                 // If there is any error, as gUM permission, let's
                 // show to the user asap.
@@ -287,13 +289,14 @@
           }), '*');
         }
 
-        function _abortCall() {
+        function _abortCall(error) {
           if (!attention) {
             return;
           }
           attention.postMessage(JSON.stringify({
             id: 'controller',
-            message: 'abort'
+            message: 'abort',
+            error: error
           }), '*');
         }
 
@@ -318,7 +321,12 @@
                               params.video);
                   },
                   function onFallback() {
-                    _abortCall();
+                    if (!navigator.onLine) {
+                      _listenToCallScreenMessages();
+                      _abortCall({reason: 'offline'});
+                      return;
+                    }
+                    _abortCall(null);
                     // Get URL to share and show prompt
                     CallHelper.generateCallUrl(params.identities[0],
                       function onCallUrlSuccess(result) {
@@ -339,11 +347,18 @@
                       },
                       function(e) {
                         console.error('Unable to retrieve link to share ' + e);
-                        _closeAttentionScreen();
+                        _listenToCallScreenMessages();
+                        _abortCall({reason: 'genericServerError'});
+                        return;
                       }
                     );
                 });
               } else {
+		if (!navigator.onLine) {
+		  _listenToCallScreenMessages();
+		  _abortCall({reason: 'offline'});
+		  return;
+		}
                 CallHelper.callUrl(
                   params.token,
                   params.video,
@@ -354,7 +369,9 @@
                   },
                   function() {
                     console.error('Unable to connect');
-                    _closeAttentionScreen();
+		    _listenToCallScreenMessages();
+		    _abortCall({reason: 'genericServerError'});
+		    return;
                   }
                 );
               }
