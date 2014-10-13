@@ -1,4 +1,4 @@
-/* -*- Mode: js; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
+/* -*- Mode: js2; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
 /* exported AccountHelper */
@@ -9,6 +9,7 @@
   'use strict';
 
   const LOOP_CHANNEL_NAME = 'loop';
+  const SIGNIN_DELAY = Config.offline.signInDelay || 60 * 1000; // 1 min
 
   var debug = true;
   var _cachedAccount;
@@ -22,6 +23,68 @@
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
     }
+  }
+
+  /**
+   * Helper function. Execute the function given as a param when online.
+   *
+   * @param {Function} callback Callback function to be called once the devices
+   *                            goes online.
+   */
+  function _execOnOnline(callback) {
+    if (!navigator.onLine) {
+      window.addEventListener('online', function onOnline() {
+        window.removeEventListener('online', onOnline);
+        _callback(callback);
+      });
+    } else {
+      _callback(callback);
+    }
+  }
+
+  /**
+   * Helper function. Try to sign the user in.
+   *
+   * @param {Function} onSignInSuccess Callback function to be called once the
+   *                                   sign process successes.
+   * @param {Function} onSignInError Callback function to be called once the
+   *                                 sign process fails.
+   */
+  function _signIn(onSignInSuccess, onSignInError) {
+    _registerPush(_onnotification).then(
+      function onRegistered(endpoint) {
+        ClientRequestHelper.signIn(
+          _cachedAccount.credentials,
+          endpoint,
+          onSignInSuccess,
+          onSignInError
+        );
+    }).catch(function onError(error) {
+      _callback(onSignInError, [error]);
+    });
+  }
+
+  /**
+   * Helper function. Keep trying to sign the user untill the sign in process
+   * successes.
+   *
+   * @param {Function} onSignedIn Callback function to be called once the
+   *                              sign process successes.
+   */
+  function _keepTryingSignIn(onSignedIn) {
+    var timeout = null;
+    _signIn(onSignedIn, function onSignedInError(signedInError) {
+      timeout = window.setTimeout(function() {
+        _keepTryingSignIn(onSignedIn);
+      }, SIGNIN_DELAY);
+    });
+    window.addEventListener('offline', function onOffline() {
+      window.removeEventListener('offline', onOffline);
+      clearTimeout(timeout);
+      _execOnOnline(function() {
+        _keepTryingSignIn(SimplePush.start);
+      });
+    });
   }
 
   /**
@@ -116,6 +179,22 @@
     // If it was a FxA account let's check
     AccountHelper.getAccount(function(account) {
       if (account && account.id && account.id.type === 'fxa') {
+        if (!navigator.onLine) {
+          _execOnOnline(function() {
+            _isIdCheckNeeded = true;
+            navigator.mozId && navigator.mozId.request(
+              {
+                oncancel: _onloginerror
+              }
+            );
+          });
+          _cachedAccount = account;
+          _isLogged = true;
+          _isIdFlowRunning = false;
+          _dispatchEvent('onlogin', {identity: account.id.value});
+          return;
+        }
+
         debug && console.log('New FxA email ' +
                              assertionParsed['fxa-verifiedEmail']);
         debug && console.log('Previous FxA email ' + account.id.value);
@@ -173,7 +252,15 @@
       },
       onlogin: _onlogin,
       onlogout: _onlogout,
-      onerror: _onloginerror
+      onerror: function(err) {
+        var errorName = JSON.parse(err).name;
+        if (errorName !== 'OFFLINE') {
+          _onloginerror();
+          return;
+        }
+        debug && console.log('FxA: OFFLINE error');
+        _onlogin(null);
+      }
     };
 
     navigator.mozId && navigator.mozId.watch(callbacks);
@@ -331,8 +418,6 @@
      *                             signed in.
      * @param {Function} onerror Function to be called in case of any error. An
      *                           error object is passed as parameter.
-     * @param {Function} onnotification Function to be called once the device
-     *                                  receives a simple push notification.
      */
     signIn: function signIn(onsuccess, onerror) {
       debug && console.log('AccountHelper: signIn');
@@ -347,22 +432,17 @@
             _callback(onerror, [new Error('Unable to sign in. Sing up first')]);
             return;
           }
-          // If we have a valid account, let's register it
-          _registerPush(_onnotification).then(function onRegistered(endpoint) {
-            ClientRequestHelper.signIn(
-              account.credentials,
-              endpoint,
-              function onRegisterSuccess() {
-                // Keep a cached version of the account
-                _cachedAccount = account;
-                // Start the Push notifications
-                SimplePush.start();
-                _callback(onsuccess, [account.id.value]);
-              },
-              onerror
-            );
-          }).catch(function onError(error) {
-            _callback(onerror, [error]);
+
+          // Keep a cached version of the account
+          _cachedAccount = account;
+          _callback(onsuccess, [account.id.value]);
+
+          function _signInRetry() {
+            _keepTryingSignIn(SimplePush.start);
+          }
+          
+          _execOnOnline(function() {
+            _signIn(SimplePush.start, _signInRetry);
           });
         },
         onerror
@@ -395,7 +475,7 @@
       _isIdCheckNeeded = false;
       _isLogged = false;
       _isIdFlowRunning = false;
-      
+
       if (!_cachedAccount) {
         return;
       }
