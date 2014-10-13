@@ -389,7 +389,7 @@
         };
         req.onerror = function(e) {
           console.error('Record not updated', e);
-          aCallback();
+          aCallback(e);
         };
       }, 'readwrite', [aObjectStore]);
     };
