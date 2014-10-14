@@ -239,6 +239,15 @@
     },
 
     revokeUrl: function (token, date, callback) {
+      if (!navigator.onLine) {
+        LazyLoader.load([
+          'js/screens/error_screen.js'
+        ], function() {
+          var _ = navigator.mozL10n.get;
+          OfflineScreen.show(_('noConnection'));
+        });
+        return;
+      }
       ClientRequestHelper.revokeUrl(
         token,
         function onDeleted() {
@@ -258,6 +267,12 @@
         },
         function onError(e) {
           console.error('Error when revoking URL in server: ' + e);
+          LazyLoader.load([
+            'js/screens/error_screen.js'
+          ], function() {
+            var _ = navigator.mozL10n.get;
+            ErrorScreen.show(_('genericServerError'));
+          });
         }
       );
     },
