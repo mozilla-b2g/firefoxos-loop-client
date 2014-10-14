@@ -272,8 +272,8 @@
         case 'gum':
           alert(_('cameraPermission'));
           break;
-        case 'failed':
-          alert(_('failed'));
+        default:
+          alert(_(reason));
           break;
       }
     }

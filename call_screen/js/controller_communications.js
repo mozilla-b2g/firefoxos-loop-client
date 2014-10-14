@@ -67,7 +67,7 @@
                     'js/call_screen_ui.js'
                   ],
                   function onCallScreen() {
-                    CallScreenUI.abortCall();
+                    CallScreenUI.abortCall(messageFromController.error);
                   }
                 );
                 break;
