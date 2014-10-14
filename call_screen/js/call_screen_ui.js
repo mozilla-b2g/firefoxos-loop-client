@@ -34,18 +34,39 @@
     this.description = description;
   }
 
-  function toggleSpeakerButton() {
+  function _toggleSpeakerButton() {
     _settingsButtonSpeaker.classList.toggle('setting-enabled');
     _isSpeakerEnabled = !_isSpeakerEnabled;
   }
 
   function _enableSpeakerButton() {
     _settingsButtonSpeaker.addEventListener('mousedown', function onClick() {
-      toggleSpeakerButton();
+      _toggleSpeakerButton();
       CallManager.toggleSpeaker(_isSpeakerEnabled);
     });
   }
 
+  function _setHeadphonesPresent(status) {
+    var _headphonesPresent = !!status;
+    // What we should do on a headphone change is:
+    // Removal (!_headphonesPresent)
+    //  - If the call is audio, removing the headphones should leave the
+    //    speaker on the same status it was.
+    //  - If the call is video, removing the headphones should turn ON the
+    //    speaker
+    // Insertion (_headphonesPresent)
+    //  - If the call is audio, then inserting the headphones should
+    //    disable the speaker if it was enabled.
+    //  - If the call is video, then inserting the headphones should
+    //    disable the speaker if it was enabled.
+    if ((!_headphonesPresent && _isVideoEnabled && !_isSpeakerEnabled) ||
+        (_headphonesPresent && _isSpeakerEnabled)) {
+      // According to the previous description, in those two cases we have
+      // to change the speaker status
+      _toggleSpeakerButton();
+      CallManager.toggleSpeaker(_isSpeakerEnabled);
+    }
+  }
 
   var CallScreenUI = {
     init: function(isIncoming, isVideoCall, frontCamera) {
@@ -204,6 +225,11 @@
         _isVideoEnabled = _isSpeakerEnabled =
           isVideoCall && isVideoCall != 'false';
       }
+
+      // Set the initial headphone state (and modify the speaker state
+      // accordingly)
+      _setHeadphonesPresent(CallManager.headphonesPresent);
+
       if (document.body.dataset.callStatus === 'dialing') {
         // Update the status of the UI & Tones properly
         CallScreenUI.setCallStatus('dialing');
@@ -270,6 +296,11 @@
         }
       };
     },
+
+    set headphonesPresent(status) {
+      _setHeadphonesPresent(status);
+    },
+
     isStatusBarShown: function() {
       return document.body.classList.contains('status-bar');
     },
@@ -286,7 +317,7 @@
           // the preferences of the call.
           TonePlayerHelper.playDialing(_isSpeakerEnabled, _enableSpeakerButton);
           CallScreenUI.updateLocalVideo(_isVideoEnabled);
-          if (_isVideoEnabled) {
+          if (_isSpeakerEnabled) {
             _settingsButtonSpeaker.classList.add('setting-enabled');
             _settingsButtonVideo.classList.remove('setting-disabled');
           } else {
@@ -531,7 +562,7 @@
       TonePlayerHelper.stop();
       TonePlayerHelper.releaseResources();
     },
-    toggleSpeakerButton: toggleSpeakerButton,
+
     startRotationHandler: function() {
       LazyLoader.load(
         [

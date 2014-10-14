@@ -67,10 +67,7 @@
   }
 
   function _onHeadPhonesChange() {
-    if (_acm.headphones && _useSpeaker) {
-      CallScreenUI.toggleSpeakerButton();
-      CallManager.toggleSpeaker();
-    }
+    CallScreenUI.headphonesPresent = _acm.headphones;
   }
 
   function _handleHeadPhonesChange() {
@@ -471,6 +468,10 @@
 
     set onpeerresume(onpeerresume) {
       _onpeerresume = onpeerresume;
+    },
+
+    get headphonesPresent() {
+      return _acm && _acm.headphones;
     },
 
     resume: function() {
