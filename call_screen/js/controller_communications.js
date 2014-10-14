@@ -12,7 +12,7 @@
         'message',
         function(event) {
           // We need to ensure we are receiving from the same origin
-          if (event.origin !== 'app://loop.services.mozilla.com') {
+          if (event.origin !== window.location.origin) {
             return;
           }
           // As OpenTok is using window.postMessage in the same
