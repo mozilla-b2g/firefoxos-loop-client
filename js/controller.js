@@ -60,10 +60,33 @@
         vibrate: Settings.shouldVibrate
       }
     );
+    _oncall(true /* isIncoming */);
   }
 
   function _onsharedurl() {
-    UrlMetrics.recordSharedUrl();
+    Telemetry.recordSharedUrl();
+  }
+
+  function _oncall(isIncoming) {
+    AccountHelper.getAccount(function(account) {
+      if (!account || !account.id || !account.id.type) {
+        return;
+      }
+
+      if (account.id.type === 'fxa') {
+        isIncoming ? Telemetry.recordIncomingCallWithFxA()
+                   : Telemetry.recordOutgoingCallWithFxA();
+      } else if (account.id.type === 'msisdn') {
+        isIncoming ? Telemetry.recordIncomingCallWithMobileId()
+                   : Telemetry.recordOutgoingCallWithMobileId();
+      }
+    });
+
+    if (navigator.connection && navigator.connection.type == 'cellular') {
+      Telemetry.recordCallWithCellular();
+    } else if (navigator.connection && navigator.connection.type == 'wifi') {
+      Telemetry.recordCallWithWifi();
+    }
   }
 
   var _;
@@ -100,6 +123,7 @@
 
       activity.onsuccess = function() {
         Controller.callContact(activity.result, Settings.isVideoDefault);
+        Telemetry.recordCallFromContactPicker();
       };
 
       activity.onerror = function() {
@@ -117,6 +141,7 @@
           frontCamera: Settings.isFrontalCamera
         }
       );
+      _oncall();
     },
 
     callContact: function(contact, isVideoCall) {
@@ -172,6 +197,8 @@
           frontCamera: Settings.isFrontalCamera
         }
       );
+
+      _oncall();
     },
 
     shareUrl: function (url, onsuccess, onerror) {

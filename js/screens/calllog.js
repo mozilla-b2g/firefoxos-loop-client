@@ -956,6 +956,7 @@
 
           var identities = callElement.dataset.identities.split(',');
           Controller.callIdentities(identities, null, callElement.dataset.isVideo);
+          Telemetry.recordCallFromCallLog();
         }
       )
 

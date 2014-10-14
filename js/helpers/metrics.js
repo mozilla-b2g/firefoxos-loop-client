@@ -73,9 +73,9 @@
       window.asyncStorage.getItem(this._type, callback);
     },
 
-    save: function(reports) {
+    save: function(reports, callback) {
       DEBUG && console.log('Saving reports ' + JSON.stringify(reports));
-      window.asyncStorage.setItem(this._type, reports);
+      window.asyncStorage.setItem(this._type, reports, callback);
     },
 
     transmit: function(reports, serverUrl, throttleDelay, ondone) {
