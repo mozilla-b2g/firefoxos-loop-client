@@ -20,6 +20,21 @@ html {
   background: white;
 }
 
+.dialog {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 300;
+  opacity: 1;
+}
+
+.dialog.show {
+  display: block;
+}
+
 .main {
   -webkit-transform: translateX(100%);
   transform: translateX(100%);
@@ -55,4 +70,9 @@ button::-moz-focus-inner {
 .skin-comms .bb-tablist[data-type="filter"] > li > button[aria-selected="true"] {
   color: #00adad;
   border-bottom: 0.3rem solid #00adad;
+}
+
+form[role="dialog"][data-type="confirm"] section button {
+  margin-left: -1.5rem;
+  width: calc(100% + 3rem)
 }

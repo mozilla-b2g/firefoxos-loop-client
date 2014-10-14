@@ -34,6 +34,12 @@
   }
 
   function _onloginerror(event) {
+    LazyLoader.load([
+      'js/screens/error_screen.js'
+    ], function() {
+      var _ = navigator.mozL10n.get;
+      ErrorScreen.show(_('genericServerError'));
+    });
     Wizard.init(false /* isFirstUse */);
     _hideSplash();
     LoadingOverlay.hide();

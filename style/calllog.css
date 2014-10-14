@@ -61,7 +61,8 @@
 }
 
 /* Icons */
-section[role="region"] > header:first-child .icon-settings {
+section[role="region"] > header:first-child .icon-settings,
+form[role="dialog"][data-type="confirm"] button.icon:before {
   background-image: url(images/ico_settings.png);
 }
 
@@ -142,7 +143,8 @@ section[role="region"] > header:first-child .icon-settings {
 
 @media (min--moz-device-pixel-ratio: 1.5) {
 
-  section[role="region"] > header:first-child .icon-settings {
+  section[role="region"] > header:first-child .icon-settings,
+  form[role="dialog"][data-type="confirm"] button.icon:before {
     background-image: url(images/ico_settings@1.5x.png);
   }
 
@@ -173,7 +175,8 @@ section[role="region"] > header:first-child .icon-settings {
 
 @media (min--moz-device-pixel-ratio: 2) {
 
-  section[role="region"] > header:first-child .icon-settings {
+  section[role="region"] > header:first-child .icon-settings,
+  form[role="dialog"][data-type="confirm"] button.icon:before {
     background-image: url(images/ico_settings@2x.png);
   }
   .call-type-icon {
@@ -203,8 +206,9 @@ section[role="region"] > header:first-child .icon-settings {
 
 @media (min--moz-device-pixel-ratio: 2.25) {
 
-  section[role="region"] > header:first-child .icon-settings {
-    background-image: url(ico_images/settings@2.25x.png);
+  section[role="region"] > header:first-child .icon-settings,
+  form[role="dialog"][data-type="confirm"] button.icon:before {
+    background-image: url(images/ico_settings@2.25x.png);
   }
 
   .call-type-icon {
