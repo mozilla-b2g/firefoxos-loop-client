@@ -479,8 +479,6 @@
     callElement.id = call.date.getTime();
     callElement.dataset.timestampIndex = call.date.getTime();
     callElement.dataset.contactId = call.contactId;
-    callElement.dataset.isVideo =
-      call.video && call.video != 'false' ? true : false;
     callElement.dataset.identities = call.identities;
     if (call.urlToken) {
       callElement.dataset.urlToken = call.urlToken;
@@ -492,8 +490,11 @@
     var icon;
     if (call.type === 'incoming' && !call.connected) {
       icon = 'missed';
+      callElement.dataset.missedCall = true;
     } else {
       icon = call.type + '-' + (call.video && call.video != 'false' ? 'video':'audio')
+      callElement.dataset.isVideo =
+        call.video && call.video != 'false' ? true : false;
     }
 
     if (!call.url) {
@@ -955,7 +956,11 @@
           }
 
           var identities = callElement.dataset.identities.split(',');
-          Controller.callIdentities(identities, null, callElement.dataset.isVideo);
+          var isVideo = callElement.dataset.isVideo;
+          if (callElement.dataset.missedCall) {
+            isVideo = Settings.isVideoDefault;
+          }
+          Controller.callIdentities(identities, null, isVideo);
           Telemetry.recordCallFromCallLog();
         }
       )
