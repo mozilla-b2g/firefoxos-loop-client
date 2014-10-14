@@ -394,8 +394,8 @@
         }
 
         _perfDebug && PerfLog.log(_perfBranch, 'Session onconnect');
-
-         _publisher = _session.publish(
+        CallScreenUI.removeFakeVideo();
+        _publisher = _session.publish(
           'local-video',
           {
             width: 400,
@@ -424,12 +424,6 @@
             }
 
             var localVideo = container.querySelector('video');
-            var oncanplay = function() {
-              localVideo.removeEventListener('canplay', oncanplay);
-              CallScreenUI.removeFakeVideo();
-            };
-            localVideo.addEventListener('canplay', oncanplay);
-
             if (_perfDebug) {
               var onplaying = function() {
                 localVideo.removeEventListener('playing', onplaying);
