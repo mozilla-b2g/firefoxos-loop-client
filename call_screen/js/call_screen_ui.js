@@ -355,6 +355,7 @@
         case 'unavailable':
           _hangupButton.removeEventListener('mousedown', _hangUp);
           _callStatusInfo.textContent = _('unavailable');
+          document.body.dataset.callStatus = 'unavailable';
           break;
         case 'ended':
           _callStatusInfo.textContent = _('ended');
