@@ -96,7 +96,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
 
 [role="toolbar"] .icon-user {
-  background-image: url(images/Ico_Contacttoolbar_40x80.png);
+  background: url(images/Ico_Contacttoolbar_40x80.png) center 0 no-repeat;
 }
 
 [role="toolbar"] .icon-user:active {
