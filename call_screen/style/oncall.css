@@ -14,9 +14,9 @@ html, body {
   height: 100%;
   position: absolute;
   display: none;
-  
+
   background: black;
-  
+
   z-index: 1000;
   pointer-events: auto;
 }
@@ -283,7 +283,7 @@ h1, h2, h3 {
   bottom: 2.5rem !important;
   left: calc(50% - 3.75rem) !important;
   z-index: 10;
-  
+
   border-radius: 3.75rem !important;
   overflow: hidden !important;
 }
@@ -386,6 +386,7 @@ body[data-call-status='remotehold'] #counter {
 body[data-call-status='dialing'] #call-status-info,
 body[data-call-status='outgoing'] #call-status-info,
 body[data-call-status='connecting'] #call-status-info,
+body[data-call-status='unavailable'] #call-status-info,
 body[data-call-status='hold'] #call-status-info,
 body[data-call-status='remotehold'] #call-status-info,
 body[data-call-status='ended'] #call-status-info {
@@ -409,25 +410,27 @@ body[data-call-status='dialing'] #answer,
 body[data-call-status='dialing'] #call-settings-video,
 body[data-call-status='dialing'] #call-settings-speaker,
 body[data-call-status='dialing'] #call-settings-mute,
-body[data-call-status='dialing'] #hang-up {
+body[data-call-status='dialing'] #hang-up,
+body[data-call-status='unavailable'] #resume-button,
+body[data-call-status='unavailable'] #answer-video,
+body[data-call-status='unavailable'] #answer,
+body[data-call-status='unavailable'] #call-settings-video,
+body[data-call-status='unavailable'] #call-settings-speaker,
+body[data-call-status='unavailable'] #call-settings-mute,
+body[data-call-status='unavailable'] #hang-up {
   display: none;
 }
 
-
-@keyframes vibrate {
-  0% { transform: rotate(0deg); }
-  20% { transform: rotate(-10deg); }
-  40% { transform: rotate(0deg); }
-  60% { transform: rotate(10deg); }
-  80% { transform: rotate(0deg); }
-  100% { transform: rotate(0deg); }
+body[data-call-status='dialing'] #call-status-info,
+body[data-call-status='connecting'] #call-status-info,
+body[data-call-status='outgoing'] #call-status-info {
+  animation: animateFade 2s infinite;
 }
 
-body[data-call-status='dialing'] .remote-bubble,
-body[data-call-status='dialing'] .remote-bubble-shadow {
-  animation-duration: 1s;
-  animation-name: vibrate;
-  animation-iteration-count: infinite;
+@keyframes animateFade {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.2; }
+  100% { opacity: 1; }
 }
 
 /*
@@ -707,7 +710,8 @@ body[data-feedback='true'] #feedback {
  * STATES of the app
  * - data-settings: true/false
  *   Show/Hide the buttons. We need to use combined with 'no-transition' style
- * - data-call-status: connecting/connected/hold/feedback
+ * - data-call-status: dialing/connecting/connected/unavailable/
+ *                     hold/remotehold/ended/feedback
  *   Show the layout according to the status of the call
  */
 
