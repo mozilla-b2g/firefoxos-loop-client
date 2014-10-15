@@ -1,0 +1,11 @@
+{
+  "device": {
+    "names": [
+      "ALCATELOneTouch6015X",
+      "Mozilla"
+    ]
+  },
+  "os": {
+    "minimumMajorVersion": 32
+  }
+}
