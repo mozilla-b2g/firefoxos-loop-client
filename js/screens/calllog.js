@@ -1048,14 +1048,14 @@
       }, callObject, contactInfo);
    },
 
-    addUrl: function(urlObject) {
-      ActionLogDB.addUrl(function(error) {
+    addUrl: function(urlObject, contactInfo) {
+      ActionLogDB.addUrl(function(error, urlObject) {
         if (error) {
           console.error('ERROR when storing the URL ' + error);
         }
-      }, urlObject);
-      _appendUrl(urlObject);
-      _changeSection('urls');
+        _appendUrl(urlObject);
+        _changeSection('urls');
+      }, urlObject, contactInfo);
     },
     clean: function() {
       _clearCalls();

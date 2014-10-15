@@ -5,7 +5,7 @@
       _shareEmail, _contactName, _urlshown, _shareInfo,
       _shareInfoPhoto, _sharingReason;
   
-  var _contact, _url, _urlObject, _identities = [];
+  var _contact, _contactInfo, _url, _urlObject, _identities = [];
   var _tels = [], _mails = [];
 
   var _; // l10n
@@ -37,7 +37,7 @@
       id,
       _url,
       function onSMSShared() {
-        CallLog.addUrl(_generateUrlObject());
+        CallLog.addUrl(_generateUrlObject(), _contactInfo);
         Share.hide();
       },
       function onError() {
@@ -51,7 +51,7 @@
       id,
       _url
     );
-    CallLog.addUrl(_generateUrlObject());
+    CallLog.addUrl(_generateUrlObject(), _contactInfo);
     Share.hide();
   }
 
@@ -115,7 +115,7 @@
         Controller.shareUrl(
           _url,
           function onShared() {
-            CallLog.addUrl(_generateUrlObject());
+            CallLog.addUrl(_generateUrlObject(), _contactInfo);
             Share.hide();
           },
           function onError() {
@@ -201,7 +201,8 @@
         identities: identities
       },
       function onContact(result) {
-        var _contact = result.contacts[0];
+        _contactInfo = result;
+        _contact = result.contacts[0];
         // Update the name
         _contactName.textContent = _contact.name[0];
         // Update the photo
@@ -253,6 +254,7 @@
       _tels = [];
       _mails = [];
       _identities = null;
+      _contactInfo = null;
 
       // Clean UI
       _shareSMS.style.display = 'none';
