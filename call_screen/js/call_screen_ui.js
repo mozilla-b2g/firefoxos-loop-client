@@ -12,6 +12,7 @@
   var _stream = null;
 
   var _feedbackClose;
+  var _orientationHandler;
 
   var _; // l10n
 
@@ -268,22 +269,6 @@
           document.body.classList.add('status-bar');
         }
       };
-
-
-      // // Canceling orientation by now. This will be part of the
-      // // nice to have features.
-      // LazyLoader.load(
-      //   [
-      //     '../libs/orientation_vendor.js'
-      //   ],
-      //   function() {
-      //     OrientationHandler.on('orientation', function(event) {
-      //       document.body.dataset.rotation = event;
-      //     });
-      //     OrientationHandler.start();
-      //   }
-      // );
-
     },
     isStatusBarShown: function() {
       return document.body.classList.contains('status-bar');
@@ -336,6 +321,7 @@
           _perfDebug && PerfLog.milestone(_perfBranch, 'Countdown');
           Countdown.start();
           document.body.dataset.callStatus = 'connected';
+          CallScreenUI.startRotationHandler();
           break;
         case 'hold':
           document.body.dataset.callStatus = 'hold';
@@ -363,6 +349,7 @@
         case 'ended':
           _callStatusInfo.textContent = _('ended');
           document.body.dataset.callStatus = 'ended';
+          CallScreenUI.stopRotationHandler();
           break;
         case 'networkDisconnected':
           _callStatusInfo.textContent = _('networkDisconnected');
@@ -425,7 +412,7 @@
         }
       );
 
-      document.querySelector('.fq-options ul').addEventListener('click', 
+      document.querySelector('.fq-options ul').addEventListener('click',
         function onClick() {
           var numberChecked = _feedback.querySelectorAll(':checked').length;
           rateFeedbackButton.disabled = numberChecked === 0;
@@ -544,7 +531,25 @@
       TonePlayerHelper.stop();
       TonePlayerHelper.releaseResources();
     },
-    toggleSpeakerButton: toggleSpeakerButton
+    toggleSpeakerButton: toggleSpeakerButton,
+    startRotationHandler: function() {
+      LazyLoader.load(
+        [
+        '../libs/orientation_vendor.js'
+        ],
+        function() {
+          _orientationHandler = OrientationHandler;
+          _orientationHandler.on('orientation', function(event) {
+            document.body.dataset.rotation = event;
+          });
+          _orientationHandler.start();
+        }
+      );
+    },
+    stopRotationHandler: function() {
+      _orientationHandler && _orientationHandler.stop();
+      document.body.dataset.rotation = '0';
+    }
   };
 
   exports.CallScreenUI = CallScreenUI;

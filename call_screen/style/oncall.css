@@ -339,22 +339,21 @@ h1, h2, h3 {
   z-index: 10;
 }
 
+#call-info {
+  display: flex;
+  text-align: center;
+  transform: translateY(24rem);
+  z-index: 10;
+  justify-content: center;
+}
+
 #counter {
   display: none;
   color: #80e7e3;
   font-weight: normal;
-  position: absolute;
-  width: 100%;
   font-size: 1.9rem;
   font-style: italic;
-  box-sizing: border-box;
-  padding: .5rem 3rem;
-  overflow: hidden !important;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  text-align: center;
-  transform: translateY(23rem);
-  z-index: 10;
+  padding: 0 0.5rem;
   -moz-font-feature-settings: 'tnum';
   font-feature-settings: 'tnum';
 }
@@ -367,20 +366,12 @@ body[data-call-status='remotehold'] #counter {
 
 #call-status-info {
   display: none;
-  position: absolute;
   color: white;
   font-size: 1.7rem;
   font-style: italic;
   font-weight: 300;
-  width: 100%;
   box-sizing: border-box;
-  padding: .5rem 3rem;
-  /* overflow: hidden !important; */
-  /* white-space: nowrap; */
-  /* text-overflow: ellipsis; */
-  text-align: center;
-  z-index: 10;
-  transform: translateY(24rem);
+  padding: 0 0.5rem;
 }
 
 body[data-call-status='dialing'] #call-status-info,
@@ -391,11 +382,6 @@ body[data-call-status='hold'] #call-status-info,
 body[data-call-status='remotehold'] #call-status-info,
 body[data-call-status='ended'] #call-status-info {
   display: block;
-}
-
-body[data-call-status='hold'] #call-status-info,
-body[data-call-status='remotehold'] #call-status-info{
-  transform: translateY(27rem);
 }
 
 body[data-call-status='connecting'] #resume-button,
@@ -472,11 +458,13 @@ body.status-bar #call-bar {
  * Call types
  */
 
-body[data-local-video="on"] .local-bubble{
+body[data-local-video="on"] .local-bubble,
+body[data-local-video="on"] .local-bubble-shadow {
   display: block;
 }
 
-body[data-local-video="off"] .local-bubble{
+body[data-local-video="off"] .local-bubble,
+body[data-local-video="off"] .local-bubble-shadow {
   display: none;
 }
 
@@ -681,7 +669,6 @@ body[data-feedback='true'] #feedback {
 
 #fullscreen-mask {
   z-index: 5;
-  background-image: url(images/gradient.png);
   background-size: auto 100%;
   top: 0;
   left: 0;
@@ -783,8 +770,9 @@ body[data-call-status='ended'] .local-bubble-shadow {
   display: none;
 }
 
-body[data-call-status='connected'][data-remote-video="on"] #counter {
-  transform: translateY(7rem);
+body[data-call-status='connected'][data-remote-video="on"][data-rotation="0"] #call-info,
+body[data-call-status='connected'][data-remote-video="on"][data-rotation="180"] #call-info {
+  transform: translateY(8rem);
 }
 
 body[data-call-status='connected'][data-remote-video="on"] .remote-bubble,
@@ -808,6 +796,100 @@ body[data-remote-video="on"] #fullscreen-image {
   display: none;
 }
 
+
+/*
+  Landscape layout
+*/
+
+body[data-rotation="90"] .panel,
+body[data-rotation="270"] .panel {
+  transform: rotate(270deg) translate(-100%, 0);
+  transform-origin: 0 0;
+  width: 100vh;
+  height: 100vw;
+}
+
+body[data-rotation="270"] .panel {
+  transform: rotate(90deg) translate(0, -100%);
+}
+
+body[data-rotation="90"] #contact-name-details,
+body[data-rotation="270"] #contact-name-details {
+  top: 1.5rem;
+  padding: 0 1.5rem;
+}
+
+body[data-rotation="90"] #call-info,
+body[data-rotation="270"] #call-info{
+  transform: translateY(4.5rem);
+}
+
+body[data-rotation="90"] #fullscreen-video .OT_video-container video,
+body[data-rotation="270"] #fullscreen-video .OT_video-container video {
+  width: 100% !important;
+}
+
+body[data-rotation="90"] #hang-up,
+body[data-rotation="270"] #hang-up {
+  bottom: 1.5rem;
+  left: 1.5rem;
+}
+
+body[data-rotation="90"] #call-settings-video,
+body[data-rotation="270"] #call-settings-video {
+  bottom: 8rem;
+  left: 1.5rem;
+}
+
+body[data-rotation="90"] #call-settings-mute,
+body[data-rotation="270"] #call-settings-mute {
+  bottom: 14.5rem;
+  left: 1.5rem;
+}
+
+body[data-rotation="90"] #call-settings-speaker,
+body[data-rotation="270"] #call-settings-speaker {
+  bottom: 21rem;
+  left: 1.5rem;
+}
+
+body[data-rotation="90"] #call-settings-video:active,
+body[data-rotation="270"] #call-settings-video:active,
+body[data-rotation="90"] #call-settings-mute:active,
+body[data-rotation="270"] #call-settings-mute:active,
+body[data-rotation="90"] #call-settings-speaker:active,
+body[data-rotation="270"] #call-settings-speaker:active {
+  transform: translate(-0.8rem, 0.8rem);
+}
+
+body[data-rotation="90"] .local-bubble-shadow,
+body[data-rotation="270"] .local-bubble-shadow {
+  left: unset;
+  right: 1.5rem;
+}
+
+body[data-rotation="90"] #local-video,
+body[data-rotation="270"] #local-video {
+  right: 1.5rem !important;
+  bottom: 1.5rem !important;
+  left: unset !important;
+  transform: rotate(90deg)
+}
+
+body[data-rotation="270"] #local-video {
+  left: unset !important;
+  right: 1.5rem !important;
+  transform: rotate(270deg)
+}
+
+body[data-rotation="90"] #resume-button,
+body[data-rotation="270"] #resume-button  {
+  right: unset;
+  bottom: 1.5rem;
+  left: calc(50% - 9.5rem);
+}
+
+
 /*
   MEDIA QUERIES FOR device-pixel-ratio
 */
@@ -823,7 +905,7 @@ body[data-remote-video="on"] #fullscreen-image {
   }
 
   .local-bubble-shadow {
-    background-image: url(images/small_shadow@1.5x.png);
+    background-image: url(images/small_shadow@1.5.png);
   }
 
   .action-button span,
