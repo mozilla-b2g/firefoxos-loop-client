@@ -5,12 +5,37 @@
       _cleanCallsButton, _cleanUrlsButton, _videoDefaultSettings,
       _commitHashTag, _cameraDefaultSettings, _loggedAs, _vibrateSettings;
 
+  var _initialized = false;
+
   const SETTINGS_ITEM = 'settings';
 
   const _SETTING_DEFAULTS = {
     video: true,
     frontCamera: true,
     vibrate: true
+  };
+
+  // In some cases (for example when Loop is launched from scratch to attend an
+  // incoming call) the app can try to use the settings values before they've
+  // been retrieved from the database.
+  // So we just set up a set of promises and will return those promises until
+  // the moment when the values are actually retrieved. At that point the
+  // promises will be resolved with the correct values
+  // We need to store the resolve functions for the promises, so they can be
+  // fulfilled at a later point
+  var _settingResolvers = {
+  };
+
+  var _settingPromises = {
+    video: new Promise(function(resolve, reject) {
+      _settingResolvers.video = resolve;
+    }),
+    frontCamera: new Promise(function(resolve, reject) {
+      _settingResolvers.frontCamera = resolve;
+    }),
+    vibrate: new Promise(function(resolve, reject) {
+      _settingResolvers.vibrate = resolve;
+    })
   };
 
   var _settingValues = {};
@@ -49,11 +74,18 @@
         _settingValues.frontCamera = false;
       }
 
-      asyncStorage.setItem(SETTINGS_ITEM, _settingValues);
+      asyncStorage.setItem(SETTINGS_ITEM, _settingValues, function() {
+        _setVisualSettingValues();
+      });
     },
 
-    init: function s_init(identity) {
-      _identity = identity;
+    init: function s_init() {
+      if (_initialized) {
+        return;
+      }
+
+      _initialized = true;
+
       if (!_settingsPanel) {
         // Cache mozL10n functionality
         _ = navigator.mozL10n.get;
@@ -190,7 +222,6 @@
         _commitHashTag.textContent = id;
       }
 
-      this.localize();
       // In this point the code is localized, but we want to listen new change
       // in language in order to update it properly.
       window.addEventListener('localized', this.localize.bind(this));
@@ -205,8 +236,14 @@
             Settings.reset();
           } else {
             _settingValues = settingValues;
+            _setVisualSettingValues(settingValues);
           }
-          _setVisualSettingValues(settingValues);
+
+          // At this point we already have the current settings values
+          // and therefore we can resolve the promise
+          Object.keys(_settingValues).forEach( (key) => {
+            _settingResolvers[key](_settingValues[key]);
+          });
 
           _videoDefaultSettings.addEventListener(
             'change', _settingHandler);
@@ -260,14 +297,29 @@
       }
       _settingsPanel.classList.remove('show');
     },
+
+    // TODO implement in https://bugzilla.mozilla.org/show_bug.cgi?id=1083136
+    // create a Settings.load just for retrieving the values from async storage,
+    // and Settings.render(identity) for updating the UI
+    updateIdentity: function(ident) {
+      _identity = ident;
+      this.localize();
+    },
+
     get isVideoDefault() {
-      return _settingValues.video;
+      return _settingValues.video !== undefined ?
+               _settingValues.video :
+               _settingPromises.video;
     },
     get isFrontalCamera() {
-      return _settingValues.frontCamera;
+      return _settingValues.frontCamera !== undefined ?
+               _settingValues.frontCamera :
+               _settingPromises.frontCamera;
     },
     get shouldVibrate() {
-      return _settingValues.vibrate;
+      return _settingValues.vibrate !== undefined ?
+               _settingValues.vibrate :
+               _settingPromises.vibrate;
     }
   };
 

@@ -877,9 +877,6 @@
       // Show the section
       document.body.dataset.layout = 'calllog';
 
-      // Initialize Settings
-      Settings.init(identity);
-
       if (_initialized) {
         return;
       }

@@ -18,6 +18,9 @@
       log.error('Unexpected malformed onlogin event');
       return;
     }
+
+    Settings.updateIdentity(event.detail.identity);
+
     CallLog.init(event.detail.identity);
     _hideSplash();
     LoadingOverlay.hide();
@@ -89,6 +92,11 @@
     init: function () {
 
       _ = navigator.mozL10n.get;
+
+      // We need to anticipate the recovery of the setting values
+      // so that when we need the values the promise will be already
+      // accomplished
+      Settings.init();
 
       window.addEventListener('onauthentication', _onauthentication);
       window.addEventListener('onlogin', _onlogin);
