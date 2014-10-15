@@ -3,7 +3,7 @@
 'use strict';
 
 (function(exports) {
-  var debug = true;
+  var debug = Config.debug;
 
   // Global flag to indicate that we are in a call and so we will be rejecting
   // any incoming call with the 'busy' state and forbiding any outgoing call

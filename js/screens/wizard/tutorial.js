@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
 
-  var debug = false;
+  var debug = Config.debug;
 
   var wizardHeader, wizardPanel, wizardTutorial, progressBar;
   var wizardWorld, wizardMainPins, wizardPins, wizardDottedLine, wizardLogin;

@@ -11,7 +11,7 @@
   const LOOP_CHANNEL_NAME = 'loop';
   const SIGNIN_DELAY = Config.offline.signInDelay || 60 * 1000; // 1 min
 
-  var debug = true;
+  var debug = Config.debug;
   var _cachedAccount;
   var _isLogged = false;
   var _isIdFlowRunning = false;

@@ -5,7 +5,7 @@
 
 (function(exports) {
 
-  const DEBUG = true;
+  const DEBUG = Config.debug;
 
   const TIMEOUT = Config.metrics.timeout || 20 * 1000; // 20 seconds
   const RETRY_INTERVAL = Config.metrics.retryInterval ||

@@ -13,7 +13,7 @@
 'use strict';
 
 (function(exports) {
-  var debug = true;
+  var debug = Config.debug;
   var SERVER_URL = Config.server_url;
   var TIMEOUT = 15000;
 

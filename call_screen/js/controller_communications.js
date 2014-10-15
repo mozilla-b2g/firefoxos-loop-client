@@ -1,7 +1,7 @@
 
 (function(exports) {
   'use strict';
-  var debug = true;
+  var debug = Config.debug;
   var controllerWindow;
 
   var ControllerCommunications = {

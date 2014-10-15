@@ -4,7 +4,7 @@
 'use strict';
 
 (function(exports) {
-  const DEBUG = true;
+  const DEBUG = Config.debug;
 
   const TELEMETRY_SERVER_URL = Config.metrics.telemetry.serverUrl;
   const REPORT_INTERVAL = Config.metrics.telemetry.reportInterval ||
