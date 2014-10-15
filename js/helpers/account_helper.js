@@ -161,7 +161,15 @@
           identity: assertionParsed['fxa-verifiedEmail'] ||
                     assertionParsed['verifiedMSISDN']
         });
-      }, _onloginerror);
+      }, function onError() {
+        LazyLoader.load([
+          'js/screens/error_screen.js'
+        ], function() {
+          var _ = navigator.mozL10n.get;
+          ErrorScreen.show(_('genericServerError'));
+          _onloginerror();
+        });
+      });
       return;
     }
 
