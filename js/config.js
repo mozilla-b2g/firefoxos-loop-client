@@ -7,8 +7,8 @@ Config = {
   //   Prod: 'https://loop.services.mozilla.com'
   server_url: 'https://loop.services.mozilla.com',
   performanceLog: {
-    enabled: true,
-    persistent: true
+    enabled: false,
+    persistent: false
   },
   metrics: {
     enabled: true,
