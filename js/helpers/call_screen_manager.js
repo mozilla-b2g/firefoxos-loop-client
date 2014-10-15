@@ -240,7 +240,8 @@
     var attentionParams = 'layout=' + type;
 
     if (!params) {
-      return attentionParams;
+      callback(attentionParams);
+      return;
     }
 
     var values = [];
