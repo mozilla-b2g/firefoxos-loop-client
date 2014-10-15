@@ -5,7 +5,7 @@
 'use strict';
 
 (function(exports) {
-  var debug = true;
+  var debug = Config.debug;
   var _audioElement = null;
   var _channel = null;
   var _speakerManager = null;

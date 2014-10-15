@@ -4,7 +4,7 @@
 'use strict';
 
 (function(exports) {
-  var DEBUG = true;
+  var DEBUG = Config.debug;
 
   //change default path for gaia-component-utils
   window.packagesBaseUrl = 'libs/components/';

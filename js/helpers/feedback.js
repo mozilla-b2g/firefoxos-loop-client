@@ -4,7 +4,7 @@
 'use strict';
 
 (function(exports) {
-  const DEBUG = true;
+  const DEBUG = Config.debug;
 
   const PRODUCT = 'Loop';
   const PLATFORM = 'Firefox OS';

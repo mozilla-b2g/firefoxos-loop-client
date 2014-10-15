@@ -4,8 +4,7 @@
 'use strict';
 
 (function (exports) {
-  // Default should be 'false'.
-  var debug = false;
+  var debug = Config.debug;
 
   // Private handler for handling the cache of channels & endpoints
   // previously registered

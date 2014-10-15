@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
 
-  var debug = true;
+  var debug = Config.debug;
 
   function _hideSplash() {
     setTimeout(SplashScreen.hide, 1000);

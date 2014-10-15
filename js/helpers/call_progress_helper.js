@@ -8,7 +8,7 @@
 'use strict';
 
 (function(exports) {
-  var debug = true;
+  var debug = Config.debug;
 
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
