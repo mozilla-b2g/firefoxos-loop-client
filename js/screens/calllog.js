@@ -757,7 +757,9 @@
   }
 
   function _updateContactInfo(aElement, aContact) {
-    var primaryInfo = aElement.querySelector('.primary-info > p');
+    // '.primary-info > p' -> Calls in call log | '.primary-info' -> Shared URLs
+    var primaryInfo = aElement.querySelector('.primary-info > p') || 
+                      aElement.querySelector('.primary-info');
 
     if (aContact) {
       var identities = [];
