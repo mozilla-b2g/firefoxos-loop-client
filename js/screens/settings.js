@@ -191,7 +191,7 @@
           'click',
           function() {
             var options = new OptionMenu({
-              section: _('logOutMessage'),
+              section: Branding.getTranslation('logOutMessage'),
               type: 'confirm',
               items: [
                 {

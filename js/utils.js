@@ -48,10 +48,14 @@
       var currentMs = (new Date()).getTime();
       var diff = time - currentMs;
 
-      if (diff <= 0) {
-        return null;
+      var args = {
+        value: 0
+      };
+
+      if (diff > 0) {
+        args.value = Math.round(diff/86400000);
       }
-      return Math.round(diff/86400000) + ' ' + navigator.mozL10n.get('daysLeft');
+      return navigator.mozL10n.get('daysLeft', args);
     },
     getHeaderDate: function ut_giveHeaderDate(time) {
       var _ = navigator.mozL10n.get;
@@ -71,10 +75,13 @@
         );
       }
 
-      return dayDiff === 0 && _('today') ||
-        dayDiff === 1 && _('yesterday') ||
-        dayDiff < 6 && this.date.format.localeFormat(this.date.shared, '%A') ||
-        this.date.format.localeFormat(this.date.shared, '%x');
+      if (dayDiff < 6) {
+        return _('days-ago-long', {
+          value: dayDiff
+        });
+      } else {
+        return this.date.format.localeFormat(this.date.shared, '%x');
+      }
     },
     /**
      * Helper function. Check whether the id parameter is a phone number.
