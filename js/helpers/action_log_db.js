@@ -790,7 +790,10 @@
      *       Object holding the information about the new URL to be stored in
      *       the DB.
      */
-    addUrl: function(aCallback, aUrl) {
+    addUrl: function(aCallback, aUrl, aContactInfo) {
+      if (aContactInfo && aContactInfo.contactIds) {
+        aUrl = _addContactInfoToRecord(aUrl, aContactInfo);
+      }
       _addRecord(aCallback, _dbUrlStore, aUrl);
     },
 
