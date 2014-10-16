@@ -6,6 +6,8 @@
 
   function noop() {}
 
+  var _ = navigator.mozL10n.get;
+
   function _findById(id, onsuccessCB, onerrorCB) {
     var options = {
       filterBy: ['id'],
@@ -115,6 +117,33 @@
     }
   }
 
+  function getPrimaryInfo(contact) {
+    var out = _getValue(contact, 'name');
+
+    if (!out.length) {
+      out = _getValue(contact, 'email');
+      if (!out.length) {
+        out = _getValue(contact, 'tel');
+        if (!out.length) {
+          out = _('unknown');
+        }
+      }
+    }
+
+    return out
+  }
+
+  function _getValue(contact, field) {
+    var out = '';
+
+    if (Array.isArray(contact[field]) && contact[field][0]) {
+      out = contact[field][0].value || contact[field][0];
+      out.trim();
+    }
+
+    return out;
+  }
+
   var ContactsHelper = {
     /**
      * Search for contacts given a contact identifier or a list of identities.
@@ -166,7 +195,9 @@
           onerrorCB
         )
       }
-    }
+    },
+
+    getPrimaryInfo: getPrimaryInfo
   };
 
   exports.ContactsHelper = ContactsHelper;
