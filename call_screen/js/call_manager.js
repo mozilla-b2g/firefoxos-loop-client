@@ -513,7 +513,7 @@
     },
 
     terminate: function(error) {
-      PerfLog.stopTracing(_perfBranch);
+      _perfDebug && PerfLog.stopTracing(_perfBranch);
 
       window.removeEventListener('offline', _oncallfailed);
       _removeHeadPhonesChangeHandler();
