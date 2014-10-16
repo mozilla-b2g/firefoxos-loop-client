@@ -148,7 +148,7 @@
 
     callContact: function(contact, isVideoCall) {
       if (!AccountHelper.logged) {
-        alert(_('notLoggedIn'));
+        alert(Branding.getTranslation('notLoggedIn'));
         return;
       }
 
@@ -182,7 +182,7 @@
 
     callUrl: function(token, isVideoCall) {
       if (!AccountHelper.logged) {
-        alert(_('notLoggedIn'));
+        alert(Branding.getTranslation('notLoggedIn'));
         return;
       }
 
@@ -314,7 +314,7 @@
     showError: function(reason) {
       switch(reason) {
         case 'gum':
-          alert(_('cameraPermission'));
+          alert(Branding.getTranslation('cameraPermission'));
           break;
         default:
           alert(_(reason));

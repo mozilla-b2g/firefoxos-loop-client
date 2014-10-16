@@ -97,7 +97,7 @@
     <section id="error-screen" class="dialog">
       <form role="dialog" data-type="confirm">
 	<section>
-	  <h1 data-service-name></h1>
+	  <h1 data-branding-service-name></h1>
 	  <p id="error-message"></p>
 	</section>
 	<menu>
@@ -116,8 +116,7 @@
       -->
       <section id="wizard-tutorial-section"  class="wizard-section vbox current">
         <header id="wizard-tutorial-header">
-          <p data-l10n-id="welcome"></p>
-          <p data-service-name></p>
+          <p data-branding-service-name="welcome"></p>
         </header>
         <ul id="wizard-tutorial-slideshow" class="fit">
           <li class="wizard-tutorial-step">
@@ -167,14 +166,11 @@
       </section>
       <section id="wizard-login" class="wizard-section vbox">
         <header>
-          <p data-l10n-id="startUsing"></p>
-          <p data-service-name></p>
-          <p data-l10n-id="todayWizard"></p>
+          <p data-branding-service-name="startUsing"></p>
         </header>
         <footer class="gaia-footer vbox">
           <p>
-            <span data-l10n-id="byProceeding"></span><br/>
-            <a data-url="http://www.mozilla.com" data-title="ToS" data-webview="true" data-l10n-id="termsOfService"></a>
+            <a id="termsOfService" data-url="http://www.mozilla.com" data-title="ToS" data-webview="true"></a>
           </p>
           <button id="authenticate-msisdn-button" class="wizard-button" data-l10n-id="usePhone">
           </button>
@@ -188,7 +184,7 @@
         <menu type="toolbar">
           <a id="open-settings-button"><span class="icon icon-settings"></span></a>
         </menu>
-        <h1 data-service-name></h1>
+        <h1 data-branding-service-name></h1>
       </header>
       <section id="calllog-container" class="vbox fit">
         <nav>
@@ -237,7 +233,7 @@
         <div class="share-contact-photo"></div>
         <div class="share-contact-details">
           <p id="contact-name-to-share" class="share-contact-details-primary"></p>
-          <p id="sharing-reason" class="share-contact-details-secondary" data-l10n-id="notAUser"></p>
+          <p id="sharing-reason" class="share-contact-details-secondary"></p>
         </div>
       </section>
       <section class="share-explanation" data-l10n-id="noProblem">

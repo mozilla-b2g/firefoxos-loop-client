@@ -46,6 +46,7 @@
                   'js/countdown.js',
                   'js/ringer.js',
                   'js/call_manager.js',
+                  '../js/branding.js',
                   'js/call_screen_ui.js'
                 ];
 
@@ -64,6 +65,7 @@
                 LazyLoader.load(
                   [
                     '../js/helpers/tone_player_helper.js',
+                    '../js/branding.js',
                     'js/call_screen_ui.js'
                   ],
                   function onCallScreen() {

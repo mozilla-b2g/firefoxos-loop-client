@@ -191,7 +191,7 @@
     _identities = identities;
     // Firsf of all we update the basics, the reason and
     // the info related with URL and identities
-    _sharingReason.textContent = _(sharingReason);
+    _sharingReason.textContent = Branding.getTranslation(sharingReason);
     _contactName.textContent = identities[0];
     _urlshown.textContent = url;
 

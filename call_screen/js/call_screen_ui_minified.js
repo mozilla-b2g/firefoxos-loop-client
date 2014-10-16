@@ -71,6 +71,7 @@
         'js/countdown.js',
         'js/ringer.js',
         'js/call_manager.js',
+        '../js/branding.js',
         'js/call_screen_ui.js'
       ];
 
