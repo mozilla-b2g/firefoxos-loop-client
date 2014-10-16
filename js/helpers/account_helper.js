@@ -26,7 +26,7 @@
   }
 
   /**
-   * Helper function. Execute the function given as a param when online.
+   * Execute the function given as a param when online.
    *
    * @param {Function} callback Callback function to be called once the devices
    *                            goes online.
@@ -43,7 +43,26 @@
   }
 
   /**
-   * Helper function. Try to sign the user in.
+   * Execute the function given as a param when the document is visible.
+   *
+   * @param {Function} callback Callback function to be called once the document
+   *                            is visible.
+   */
+  function _execOnDocumentVisible(callback) {
+    if (document.hidden) {
+      document.addEventListener('visibilitychange', function onChange() {
+        if (!document.hidden) {
+          document.removeEventListener('visibilitychange', onChange);
+          _callback(callback);
+        }
+      });
+    } else {
+      _callback(callback);
+    }
+  }
+
+  /**
+   * Try to sign the user in.
    *
    * @param {Function} onSignInSuccess Callback function to be called once the
    *                                   sign process successes.
@@ -65,17 +84,31 @@
   }
 
   /**
-   * Helper function. Keep trying to sign the user untill the sign in process
-   * successes.
+   * Keep trying to sign the user until the sign in process successes.
    *
+   * @param {Numeric} retryCount  Sign in counter.
    * @param {Function} onSignedIn Callback function to be called once the
    *                              sign process successes.
    */
-  function _keepTryingSignIn(onSignedIn) {
+  function _keepTryingSignIn(retryCount, onSignedIn) {
     var timeout = null;
+
+    debug && console.log('Sign in again. Attempts ' + retryCount);
+    if (retryCount <= 0) {
+      debug && console.log('Unable to sign the user in. No more attemps.');
+      LazyLoader.load([
+        'js/screens/error_screen.js'
+      ], function() {
+        var _ = navigator.mozL10n.get;
+        ErrorScreen.show(_('genericServerError'));
+        Controller.logout();
+      });
+      return;
+    }
+
     _signIn(onSignedIn, function onSignedInError(signedInError) {
       timeout = window.setTimeout(function() {
-        _keepTryingSignIn(onSignedIn);
+        _keepTryingSignIn(--retryCount, onSignedIn);
       }, SIGNIN_DELAY);
     });
     window.addEventListener('offline', function onOffline() {
@@ -85,10 +118,20 @@
         _keepTryingSignIn(SimplePush.start);
       });
     });
+    document.addEventListener('visibilitychange', function onChange() {
+      if (!document.hidden) {
+        return;
+      }
+      document.removeEventListener('visibilitychange', onChange);
+      clearTimeout(timeout);
+      _execOnDocumentVisible(function() {
+        _keepTryingSignIn(--retryCount, SimplePush.start);
+      });
+    });
   }
 
   /**
-    * Helper function. Return the identifier in the assertion.
+    * Return the identifier in the assertion.
     *
     * @param {Object} assertion Assertion object.
     *
@@ -448,11 +491,24 @@
           _callback(onsuccess, [account.id.value]);
 
           function _signInRetry() {
-            _keepTryingSignIn(SimplePush.start);
+            _keepTryingSignIn(Config.offline.maxSignInAttempts,
+                              SimplePush.start);
           }
-          
+
           _execOnOnline(function() {
-            _signIn(SimplePush.start, _signInRetry);
+            _signIn(SimplePush.start, function(error) {
+              if (error && (error.code === 401) && (error.errno === 110)) {
+                LazyLoader.load([
+                  'js/screens/error_screen.js'
+                ], function() {
+                  var _ = navigator.mozL10n.get;
+                  ErrorScreen.show(_('signInFail'));
+                  Controller.logout();
+                });
+                return;
+              }
+              _signInRetry();
+            });
           });
         },
         onerror
