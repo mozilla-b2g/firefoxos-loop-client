@@ -23,7 +23,8 @@ Config = {
   // (don't allow unsecure connections) if undefined
   allowUnsecure: false,
   offline: {
-    signInDelay: 60 * 1000 // 1 min
+    signInDelay: 60 * 1000, // 1 min
+    maxSignInAttempts: 3 // Max number of sign in attempts before logging out.
   }
 };
 

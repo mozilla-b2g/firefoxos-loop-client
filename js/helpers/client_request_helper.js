@@ -92,7 +92,7 @@
         // Getting a second 401 means that our credentials are incorrect and
         // so we need new ones.
         debug && console.log('ERROR 401: ' + JSON.stringify(req.response));
-        _callback(onerror);
+        _callback(onerror, [req.response]);
         return;
       }
 
