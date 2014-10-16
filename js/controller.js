@@ -19,7 +19,7 @@
       return;
     }
 
-    Settings.updateIdentity(event.detail.identity);
+    Settings.render(event.detail.identity);
 
     CallLog.init(event.detail.identity);
     _hideSplash();
@@ -96,7 +96,7 @@
       // We need to anticipate the recovery of the setting values
       // so that when we need the values the promise will be already
       // accomplished
-      Settings.init();
+      Settings.load();
 
       window.addEventListener('onauthentication', _onauthentication);
       window.addEventListener('onlogin', _onlogin);

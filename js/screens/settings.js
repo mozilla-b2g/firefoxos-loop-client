@@ -6,6 +6,7 @@
       _commitHashTag, _cameraDefaultSettings, _loggedAs, _vibrateSettings;
 
   var _initialized = false;
+  var _rendered = false;
 
   const SETTINGS_ITEM = 'settings';
 
@@ -41,6 +42,7 @@
   var _settingValues = {};
 
   function _setVisualSettingValues() {
+    _loadDOMElements();
     _videoDefaultSettings.value = _settingValues.video;
     _cameraDefaultSettings.value = _settingValues.frontCamera;
     _vibrateSettings.checked =  _settingValues.vibrate;
@@ -60,8 +62,27 @@
     asyncStorage.setItem(SETTINGS_ITEM, _settingValues);
   };
 
+  function _loadDOMElements() {
+    if (!_settingsPanel) {
+      // Cache mozL10n functionality
+      _ = navigator.mozL10n.get;
+      // Cache DOM elements
+      _loggedAs = document.getElementById('settings-logout-identity');
+      _settingsPanel = document.getElementById('settings-panel');
+      _closeSettingsButton = document.getElementById('settings-close-button');
+      _logoutSettingsButton = document.getElementById('settings-logout-button');
+      _cleanCallsButton = document.getElementById('settings-clean-calls-button');
+      _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
+      _videoDefaultSettings = document.getElementById('video-default-setting');
+      _cameraDefaultSettings = document.getElementById('camera-default-setting');
+      _commitHashTag = document.getElementById('settings-commit-hash-tag');
+      _vibrateSettings = document.getElementById('vibrate-setting');
+    }
+  }
+
   var _;
   var _identity;
+
   var Settings = {
     reset: function s_clear() {
       var settingNames = Object.keys(_SETTING_DEFAULTS);
@@ -79,152 +100,11 @@
       });
     },
 
-    init: function s_init() {
+    load: function s_load() {
       if (_initialized) {
         return;
       }
-
       _initialized = true;
-
-      if (!_settingsPanel) {
-        // Cache mozL10n functionality
-        _ = navigator.mozL10n.get;
-        // Cache DOM elements
-        _loggedAs = document.getElementById('settings-logout-identity');
-        _settingsPanel = document.getElementById('settings-panel');
-        _closeSettingsButton = document.getElementById('settings-close-button');
-        _logoutSettingsButton = document.getElementById('settings-logout-button');
-        _cleanCallsButton = document.getElementById('settings-clean-calls-button');
-        _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
-        _videoDefaultSettings = document.getElementById('video-default-setting');
-        _cameraDefaultSettings = document.getElementById('camera-default-setting');
-        _commitHashTag = document.getElementById('settings-commit-hash-tag');
-        _vibrateSettings = document.getElementById('vibrate-setting');
-
-        // Add listeners just once
-        _cleanCallsButton.addEventListener(
-          'click',
-          function() {
-            var options = new OptionMenu({
-              section: _('deleteAllConfirmation'),
-              type: 'confirm',
-              items: [
-                {
-                  name: 'Cancel',
-                  l10nId: 'cancel'
-                },
-                {
-                  name: 'Delete',
-                  class: 'danger',
-                  l10nId: 'delete',
-                  method: function() {
-                    CallLog.cleanCalls();
-                    Settings.hide();
-                  },
-                  params: []
-                }
-              ]
-            });
-            options.show();
-          }.bind(this)
-        );
-
-        _cleanUrlsButton.addEventListener(
-          'click',
-           function() {
-            var options = new OptionMenu({
-              type: 'action',
-              items: [
-                {
-                  name: 'Clean just revoked URLs',
-                  l10nId: 'cleanJustRevoked',
-                  method: function() {
-                    CallLog.cleanRevokedUrls();
-                    Settings.hide();
-                  },
-                  params: []
-                },
-                {
-                  name: 'Clean all',
-                  l10nId: 'cleanAll',
-                  method: function() {
-                    var doubleConfirmation = new OptionMenu({
-                      section: _('deleteAllUrlsConfirmation'),
-                      type: 'confirm',
-                      items: [
-                        {
-                          name: 'Cancel',
-                          l10nId: 'cancel'
-                        },
-                        {
-                          name: 'Delete',
-                          class: 'danger',
-                          l10nId: 'delete',
-                          method: function() {
-                            CallLog.cleanUrls();
-                            Settings.hide();
-                          },
-                          params: []
-                        }
-                      ]
-                    });
-                    doubleConfirmation.show();
-                  },
-                  params: []
-                },
-                {
-                  name: 'Cancel',
-                  l10nId: 'cancel'
-                }
-              ]
-            });
-            options.show();
-          }.bind(this)
-        );
-
-        _closeSettingsButton.addEventListener(
-          'click',
-           this.hide.bind(this)
-        );
-
-        _logoutSettingsButton.addEventListener(
-          'click',
-          function() {
-            var options = new OptionMenu({
-              section: Branding.getTranslation('logOutMessage'),
-              type: 'confirm',
-              items: [
-                {
-                  name: 'Cancel',
-                  l10nId: 'cancel'
-                },
-                {
-                  name: 'Delete',
-                  class: 'recommend',
-                  l10nId: 'logOut',
-                  method: function onLogout() {
-                    LoadingOverlay.show(_('loggingOut'));
-                    Controller.logout();
-                  }.bind(this),
-                  params: []
-                }
-              ]
-            });
-            options.show();
-          }.bind(this)
-        );
-      }
-
-      // Set the commit based on the version
-      var id = Version.id;
-      if (_commitHashTag && id) {
-        _commitHashTag.removeAttribute('data-l10n-id');
-        _commitHashTag.textContent = id;
-      }
-
-      // In this point the code is localized, but we want to listen new change
-      // in language in order to update it properly.
-      window.addEventListener('localized', this.localize.bind(this));
 
       // Set the value of the default mode (video/audio)
       // Set settings values.
@@ -236,7 +116,6 @@
             Settings.reset();
           } else {
             _settingValues = settingValues;
-            _setVisualSettingValues(settingValues);
           }
 
           // At this point we already have the current settings values
@@ -245,22 +124,159 @@
             _settingResolvers[key](_settingValues[key]);
           });
 
-          _videoDefaultSettings.addEventListener(
-            'change', _settingHandler);
-          _vibrateSettings.addEventListener(
-            'change', _settingHandler);
-
-          // Set the value of the default camera if needed
           if (!navigator.mozCameras &&
               navigator.mozCameras.getListOfCameras().length < 2) {
             _settingValues.frontCamera = false;
-            _cameraDefaultSettings.parentNode.parentNode.style.display = 'none';
-          } else {
-            _cameraDefaultSettings.addEventListener(
-              'change', _settingHandler);
           }
         }
       );
+    },
+
+    render: function s_init(identity) {
+      _identity = identity;
+
+      if (_rendered) {
+        return;
+      }
+
+      _rendered = true;
+
+      _loadDOMElements();
+
+      _setVisualSettingValues();
+      _videoDefaultSettings.addEventListener('change', _settingHandler);
+      _vibrateSettings.addEventListener('change', _settingHandler);
+      // Set the value of the default camera if needed
+      if (!navigator.mozCameras &&
+          navigator.mozCameras.getListOfCameras().length < 2) {
+        _cameraDefaultSettings.parentNode.parentNode.style.display = 'none';
+      } else {
+        _cameraDefaultSettings.addEventListener('change', _settingHandler);
+      }
+
+      // Add listeners just once
+      _cleanCallsButton.addEventListener(
+        'click',
+        function() {
+          var options = new OptionMenu({
+            section: _('deleteAllConfirmation'),
+            type: 'confirm',
+            items: [
+              {
+                name: 'Cancel',
+                l10nId: 'cancel'
+              },
+              {
+                name: 'Delete',
+                class: 'danger',
+                l10nId: 'delete',
+                method: function() {
+                  CallLog.cleanCalls();
+                  Settings.hide();
+                },
+                params: []
+              }
+            ]
+          });
+          options.show();
+        }.bind(this)
+      );
+
+      _cleanUrlsButton.addEventListener(
+        'click',
+        function() {
+          var options = new OptionMenu({
+            type: 'action',
+            items: [
+              {
+                name: 'Clean just revoked URLs',
+                l10nId: 'cleanJustRevoked',
+                method: function() {
+                  CallLog.cleanRevokedUrls();
+                  Settings.hide();
+                },
+                params: []
+              },
+              {
+                name: 'Clean all',
+                l10nId: 'cleanAll',
+                method: function() {
+                  var doubleConfirmation = new OptionMenu({
+                    section: _('deleteAllUrlsConfirmation'),
+                    type: 'confirm',
+                    items: [
+                      {
+                        name: 'Cancel',
+                        l10nId: 'cancel'
+                      },
+                      {
+                        name: 'Delete',
+                        class: 'danger',
+                        l10nId: 'delete',
+                        method: function() {
+                          CallLog.cleanUrls();
+                          Settings.hide();
+                        },
+                        params: []
+                      }
+                    ]
+                  });
+                  doubleConfirmation.show();
+                },
+                params: []
+              },
+              {
+                name: 'Cancel',
+                l10nId: 'cancel'
+              }
+            ]
+          });
+          options.show();
+        }.bind(this)
+      );
+
+      _closeSettingsButton.addEventListener(
+        'click',
+         this.hide.bind(this)
+      );
+      _logoutSettingsButton.addEventListener(
+        'click',
+        function() {
+          var options = new OptionMenu({
+            section: Branding.getTranslation('logOutMessage'),
+            type: 'confirm',
+            items: [
+              {
+                name: 'Cancel',
+                l10nId: 'cancel'
+              },
+              {
+                name: 'Delete',
+                class: 'recommend',
+                l10nId: 'logOut',
+                method: function onLogout() {
+                  LoadingOverlay.show(_('loggingOut'));
+                  Controller.logout();
+                }.bind(this),
+                params: []
+              }
+            ]
+          });
+          options.show();
+        }.bind(this)
+      );
+
+      // Set the commit based on the version
+      var id = Version.id;
+      if (_commitHashTag && id) {
+        _commitHashTag.removeAttribute('data-l10n-id');
+        _commitHashTag.textContent = id;
+      }
+
+      this.localize();
+      // In this point the code is localized, but we want to listen new change
+      // in language in order to update it properly.
+      window.addEventListener('localized', this.localize.bind(this));
     },
 
     localize: function s_localize() {
@@ -296,14 +312,6 @@
         return;
       }
       _settingsPanel.classList.remove('show');
-    },
-
-    // TODO implement in https://bugzilla.mozilla.org/show_bug.cgi?id=1083136
-    // create a Settings.load just for retrieving the values from async storage,
-    // and Settings.render(identity) for updating the UI
-    updateIdentity: function(ident) {
-      _identity = ident;
-      this.localize();
     },
 
     get isVideoDefault() {
