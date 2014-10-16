@@ -6,6 +6,7 @@ window.addEventListener('load', function load() {
   // TODO If it's an incoming call, I launch it before rendering the app
   Controller.init();
   Branding.init();
+  window.addEventListener('localized', Branding.init);
 
   // Headers have to be properly resized and centered, we emmit a lazyload event
   LazyLoader.load('libs/font_size_utils.js', () => {
