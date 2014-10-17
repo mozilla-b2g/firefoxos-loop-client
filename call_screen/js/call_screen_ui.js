@@ -373,6 +373,7 @@
         case 'reject':
           _hangupButton.removeEventListener('mousedown', _hangUp);
           _callStatusInfo.textContent = _('declined');
+          document.body.dataset.callStatus = 'ended';
           break;
         case 'unavailable':
           _hangupButton.removeEventListener('mousedown', _hangUp);
@@ -383,6 +384,10 @@
           _callStatusInfo.textContent = _('ended');
           document.body.dataset.callStatus = 'ended';
           CallScreenUI.stopRotationHandler();
+          break;
+        case 'ending':
+          _callStatusInfo.textContent = _('ending');
+          document.body.dataset.callStatus = 'ended';
           break;
         case 'networkDisconnected':
           _callStatusInfo.textContent = _('networkDisconnected');
@@ -501,7 +506,8 @@
           TonePlayerHelper.stop();
           TonePlayerHelper.releaseResources();
           CallManager.leaveCall();
-      });
+        }
+      );
     },
     notifyPeerReject: function() {
       TonePlayerHelper.stop();
@@ -512,12 +518,14 @@
           TonePlayerHelper.stop();
           TonePlayerHelper.releaseResources();
           CallManager.leaveCall();
-      });
+        }
+      );
     },
     notifyPeerCancel: function() {
       Ringer.stop();
       TonePlayerHelper.stop();
       TonePlayerHelper.releaseResources();
+
       CallManager.terminate();
       CallManager.leaveCall();
     },
@@ -536,14 +544,18 @@
     },
     notifyCallEnded: function(error) {
       TonePlayerHelper.stop();
-      CallScreenUI.setCallStatus('ended');
-      CallManager.terminate(error);
-      TonePlayerHelper.playEnded(_isSpeakerEnabled).then(
-        function onplaybackcompleted() {
-          TonePlayerHelper.stop();
-          TonePlayerHelper.releaseResources();
-          CallManager.leaveCall(error);
-      });
+      CallScreenUI.setCallStatus('ending');
+      CallManager.terminate(error).then(
+        function onTerminated() {
+          CallScreenUI.setCallStatus('ended');
+          TonePlayerHelper.playEnded(_isSpeakerEnabled).then(
+            function onplaybackcompleted() {
+              TonePlayerHelper.stop();
+              TonePlayerHelper.releaseResources();
+              CallManager.leaveCall(error);
+          });
+        }
+      );
     },
     notifyCallFailed: function(error) {
       TonePlayerHelper.stop();
