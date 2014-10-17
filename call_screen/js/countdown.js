@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
 
-  var _countdownUI;
+  var _countdownElements;
   var _counter = 0;
   var _counterTimer;
 
@@ -19,7 +19,7 @@
 
   var Countdown = {
     init: function () {
-      _countdownUI = document.getElementById('counter');
+      _countdownElements = document.querySelectorAll('.counter');
       _reset();
       return this;
     },
@@ -28,7 +28,10 @@
         ++_counter;
         var minutes = _beautify(Math.floor(_counter/60));
         var seconds = _beautify(Math.floor(_counter%60));
-        _countdownUI.textContent = minutes + ':' + seconds;
+        var len = _countdownElements.length;
+        for (var i = 0; i < len; i++) {
+          _countdownElements[i].textContent = minutes + ':' + seconds;
+        }
       }, 1000);
     },
     stop: function() {

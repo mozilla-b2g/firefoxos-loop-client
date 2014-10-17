@@ -17,8 +17,8 @@
   var _; // l10n
 
   var _hangupButton, _answerAudioButton, _answerVideoButton,
-      _settingsButtonVideo, _settingsButtonMute,
-      _settingsButtonSpeaker, _resumeButton, _callStatusInfo,
+      _settingsButtonVideo, _settingsButtonMute, _callBarMicro, _callBarVideo,
+      _settingsButtonSpeaker, _resumeButton, _callStatusInfoElements,
       _fakeLocalVideo, _localVideo, _feedback;
 
   var _initialized = false;
@@ -65,6 +65,14 @@
       // to change the speaker status
       _toggleSpeakerButton();
       CallManager.toggleSpeaker(_isSpeakerEnabled);
+    }
+  }
+
+  function updateStatusInfo(status) {
+    var str = _(status);
+    var len = _callStatusInfoElements.length;
+    for (var i = 0; i < len; i++) {
+      _callStatusInfoElements[i].textContent = str;
     }
   }
 
@@ -162,9 +170,11 @@
         if (isVideo) {
           _settingsButtonSpeaker.classList.add('setting-enabled');
           _settingsButtonVideo.classList.remove('setting-disabled');
+          _callBarVideo.classList.remove('disabled');
         } else {
           _settingsButtonSpeaker.classList.remove('setting-enabled');
           _settingsButtonVideo.classList.add('setting-disabled');
+          _callBarVideo.classList.add('disabled');
         }
       }
 
@@ -186,6 +196,8 @@
       _settingsButtonSpeaker = document.getElementById('call-settings-speaker');
       _settingsButtonVideo = document.getElementById('call-settings-video');
       _settingsButtonMute = document.getElementById('call-settings-mute');
+      _callBarMicro = document.querySelector('#call-bar .micro-info');
+      _callBarVideo = document.querySelector('#call-bar .video-info');
 
       _settingsButtonVideo.addEventListener(
         'mousedown',
@@ -193,6 +205,7 @@
           _isVideoEnabled = !_isVideoEnabled;
           // Change the status of the video
           _settingsButtonVideo.classList.toggle('setting-disabled');
+          _callBarVideo.classList.toggle('disabled');
           CallScreenUI.updateLocalVideo(
             _isVideoEnabled,
             function onUIUpdated() {
@@ -207,6 +220,7 @@
         'mousedown',
         function onSettingsClick(e) {
           _settingsButtonMute.classList.toggle('setting-disabled');
+          _callBarMicro.classList.toggle('disabled');
           _isMicEnabled = !_isMicEnabled;
           CallManager.toggleMic(_isMicEnabled);
         }
@@ -307,8 +321,8 @@
       return document.body.classList.contains('status-bar');
     },
     setCallStatus: function(state) {
-      if (!_callStatusInfo) {
-        _callStatusInfo = document.getElementById('call-status-info');
+      if (!_callStatusInfoElements) {
+        _callStatusInfoElements = document.querySelectorAll('.call-status-info');
       }
 
       _perfDebug && PerfLog.log(_perfBranch, 'CallScreenUI.setCallStatus ' + state);
@@ -322,11 +336,13 @@
           if (_isSpeakerEnabled) {
             _settingsButtonSpeaker.classList.add('setting-enabled');
             _settingsButtonVideo.classList.remove('setting-disabled');
+            _callBarVideo.classList.remove('disabled');
           } else {
             _settingsButtonSpeaker.classList.remove('setting-enabled');
             _settingsButtonVideo.classList.add('setting-disabled');
+            _callBarVideo.classList.add('disabled');
           }
-          _callStatusInfo.textContent = _('dialing');
+          updateStatusInfo('dialing');
           document.body.dataset.callStatus = 'dialing';
           break;
         case 'calling':
@@ -335,14 +351,14 @@
           // Play ringback tone
           TonePlayerHelper.stop();
           TonePlayerHelper.playRingback(_isSpeakerEnabled);
-          _callStatusInfo.textContent = _('calling');
+          updateStatusInfo('calling');
           document.body.dataset.callStatus = 'outgoing';
           break;
         case 'connecting':
           // The other side has answered the call, so we need just to wait until
           // both streams will be published
           TonePlayerHelper.stop();
-          _callStatusInfo.textContent = _('connecting');
+          updateStatusInfo('connecting');
           document.body.dataset.callStatus = 'connecting';
           break;
         case 'connected':
@@ -358,47 +374,47 @@
           break;
         case 'hold':
           document.body.dataset.callStatus = 'hold';
-          _callStatusInfo.textContent = _('onHold');
+          updateStatusInfo('onHold');
           break;
         case 'remotehold':
           document.body.dataset.callStatus = 'remotehold';
-          _callStatusInfo.textContent = _('onHold');
+          updateStatusInfo('onHold');
           break;
         case 'busy':
           // Show the state for the time being.
           // Bug 1054417 - [Loop] Implement 'busy' call screen
           _hangupButton.removeEventListener('mousedown', _hangUp);
-          _callStatusInfo.textContent = _('busy');
+          updateStatusInfo('busy');
           break;
         case 'reject':
           _hangupButton.removeEventListener('mousedown', _hangUp);
-          _callStatusInfo.textContent = _('declined');
+          updateStatusInfo('declined');
           document.body.dataset.callStatus = 'ended';
           break;
         case 'unavailable':
           _hangupButton.removeEventListener('mousedown', _hangUp);
-          _callStatusInfo.textContent = _('unavailable');
+          updateStatusInfo('unavailable');
           document.body.dataset.callStatus = 'unavailable';
           break;
         case 'ended':
-          _callStatusInfo.textContent = _('ended');
+          updateStatusInfo('ended');
           document.body.dataset.callStatus = 'ended';
           CallScreenUI.stopRotationHandler();
           break;
         case 'ending':
-          _callStatusInfo.textContent = _('ending');
+          updateStatusInfo('ending');
           document.body.dataset.callStatus = 'ended';
           break;
         case 'networkDisconnected':
-          _callStatusInfo.textContent = _('networkDisconnected');
+          updateStatusInfo('networkDisconnected');
           document.body.dataset.callStatus = 'ended';
           break;
         case 'offline':
-          _callStatusInfo.textContent = _('offline');
+          updateStatusInfo('offline');
           document.body.dataset.callStatus = 'ended';
           break;
         case 'genericServerError':
-          _callStatusInfo.textContent = _('genericServerError');
+          updateStatusInfo('genericServerError');
           document.body.dataset.callStatus = 'ended';
           break;
       }
