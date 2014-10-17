@@ -797,10 +797,7 @@
       // updated contact information.
       aElement.dataset.identities = identities;
       aElement.dataset.contactId = aContact.id;
-      primaryInfo.textContent = aContact.name ? aContact.name[0] :
-                                aContact.email ? aContact.email[0].value :
-                                aContact.tel ? aContact.tel[0].value :
-                                _('unknown');
+      primaryInfo.textContent = ContactsHelper.getPrimaryInfo(aContact);
     } else {
       primaryInfo.textContent = aElement.dataset.identities || _('unknown');
     }
