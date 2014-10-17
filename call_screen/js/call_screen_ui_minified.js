@@ -105,12 +105,11 @@
               }
               // We don't want to show the whole list of contacts in the call screen
               // so we just take the first one.
-              _title.textContent = result.contacts[0].name[0];
+              var contact = result.contacts[0];
+              _title.textContent = ContactsHelper.getPrimaryInfo(contact);
 
-              if (result.contacts[0] &&
-                  result.contacts[0].photo &&
-                  result.contacts[0].photo[0]) {
-                var url = URL.createObjectURL(result.contacts[0].photo[0]);
+              if (contact && contact.photo && contact.photo[0]) {
+                var url = URL.createObjectURL(contact.photo[0]);
                 var urlString = 'url(' + url + ')';
                 _remoteVideo.innerHTML = '';
                 _remoteVideo.style.backgroundImage = urlString;
