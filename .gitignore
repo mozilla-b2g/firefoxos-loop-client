@@ -3,3 +3,5 @@ node_modules
 .tmp
 test/js/*
 test/index.html
+app/js/version.js
+application.zip

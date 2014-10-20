@@ -25,6 +25,10 @@
     "grunt-contrib-clean": "~0.6.0",
     "grunt-contrib-connect": "~0.8.0",
     "grunt-mocha": "~0.4.11",
-    "grunt-html-build": "~0.3.2"
+    "grunt-html-build": "~0.3.2",
+    "grunt-firefoxos": "~0.1.1",
+    "grunt-git-describe": "~2.3.2",
+    "grunt-bower-task": "~0.4.0",
+    "grunt-contrib-compress": "~0.12.0"
   }
 }
