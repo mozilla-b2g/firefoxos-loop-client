@@ -284,20 +284,20 @@ h1, h2, h3 {
   left: calc(50% - 3.75rem) !important;
   z-index: 10;
 
-  border-radius: 3.75rem !important;
+  border-radius: 50% !important;
   overflow: hidden !important;
 }
 
 .local-bubble-shadow {
-  height: 8rem;
-  width: 8rem;
+  height: 6.7rem;
+  width: 6.7rem;
 
   position: absolute;
   bottom: 2rem;
-  left: calc(50% - 4rem);
+  left: calc(50% - 2.5rem);
   z-index: 10;
-  background-image: url(images/small_shadow@1x.png);
-  background-size: 8rem 8rem;
+  background-image: url(images/small_shadow.png);
+  background-size: 6.7rem;
   background-repeat: no-repeat;
   z-index: 5;
 }
@@ -868,15 +868,13 @@ body[data-rotation="270"] .local-bubble-shadow {
 
 body[data-rotation="90"] #local-video,
 body[data-rotation="270"] #local-video {
-  right: 1.5rem !important;
-  bottom: 1.5rem !important;
+  right: 2rem !important;
+  bottom: 2.5rem !important;
   left: unset !important;
   transform: rotate(90deg)
 }
 
 body[data-rotation="270"] #local-video {
-  left: unset !important;
-  right: 1.5rem !important;
   transform: rotate(270deg)
 }
 
@@ -903,7 +901,7 @@ body[data-rotation="270"] #resume-button  {
   }
 
   .local-bubble-shadow {
-    background-image: url(images/small_shadow@1.5.png);
+    background-image: url(images/small_shadow@1.5x.png);
   }
 
   .action-button span,
