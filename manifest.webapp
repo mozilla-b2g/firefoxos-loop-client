@@ -8,20 +8,50 @@
     "url": "https://github.com/mozilla-b2g/gaia"
   },
   "permissions": {
-    "moz-attention":{},
-    "audio-capture": {},
-    "moz-audio-channel-ringer":{},
-    "moz-audio-channel-telephony":{},
-    "camera":{},
-    "contacts":{ "access": "readonly" },
-    "mobileid": {},
-    "push":{},
-    "speaker-control": {},
-    "moz-firefox-accounts": {},
-    "systemXHR":{},
-    "video-capture": {},
-    "mobilenetwork": {},
-    "device-storage:sdcard": { "access": "readwrite" }
+    "moz-attention": {
+      "description": "Allow Firefox Hello to place the call screen within an attention screen that is able to turn on and unlock the screen and is placed on top of any other screen when a call is made or received"
+    },
+    "audio-capture": {
+      "description": "Share with Firefox Hello the audio obtained through the microphone"
+    },
+    "moz-audio-channel-ringer": {
+      "description": "Allow Firefox Hello to play a ring tone when an incoming call is received"
+    },
+    "moz-audio-channel-telephony": {
+      "description": "Allow Firefox Hello to route the audio call through the telephony channel. This permission is required to be able to switch between Firefox Hello and GSM calls"
+    },
+    "camera": {
+      "description": "Give Firefox Hello control to toggle between the front and rear cameras in your device if they are available"
+    },
+    "contacts": { 
+      "access": "readonly",
+      "description": "Allow Firefox Hello to read the contacts information stored in the device"
+    },
+    "mobileid": {
+      "description": "Allow Firefox Hello to obtain your phone number"
+    },
+    "push": {
+      "description": "Allow Firefox Hello to receive push notifications for incoming calls"
+    },
+    "speaker-control": {
+      "description": "Allow Firefox Hello to enable and disable the device's speaker during a call"
+    },
+    "moz-firefox-accounts": {
+      "description": "Share your Firefox Account email with Firefox Hello"
+    },
+    "systemXHR": {
+      "description": "Allow Firefox Hello to make requests to external services such as the Firefox Hello server"
+    },
+    "video-capture": {
+      "description": "Share with Firefox Hello the video stream captured through the camera(s)"
+    },
+    "mobilenetwork": {
+      "description": "Allow Firefox Hello to obtain information about your mobile connection such as you Mobile Country Code to be able to prepopulate the Mobile Identity dialog"
+    },
+    "device-storage:sdcard": {
+      "access": "readwrite",
+      "description": "Allow Firefox Hello to store information in the SD card"
+    }
   },
   "messages": [
      { "push": "/index.html" }
