@@ -393,10 +393,6 @@ body[data-call-status='connecting'] #answer {
 body[data-call-status='dialing'] #resume-button,
 body[data-call-status='dialing'] #answer-video,
 body[data-call-status='dialing'] #answer,
-body[data-call-status='dialing'] #call-settings-video,
-body[data-call-status='dialing'] #call-settings-speaker,
-body[data-call-status='dialing'] #call-settings-mute,
-body[data-call-status='dialing'] #hang-up,
 body[data-call-status='unavailable'] #resume-button,
 body[data-call-status='unavailable'] #answer-video,
 body[data-call-status='unavailable'] #answer,
@@ -464,7 +460,9 @@ body[data-local-video="on"] .local-bubble-shadow {
 }
 
 body[data-local-video="off"] .local-bubble,
-body[data-local-video="off"] .local-bubble-shadow {
+body[data-local-video="off"] .local-bubble-shadow,
+body[data-call-status='unavailable'] #local-video,
+body[data-call-status='unavailable'] .local-bubble-shadow {
   display: none;
 }
 
