@@ -204,7 +204,7 @@
         _contactInfo = result;
         _contact = result.contacts[0];
         // Update the name
-        _contactName.textContent = _contact.name[0];
+        _contactName.textContent = ContactsHelper.getPrimaryInfo(_contact);
         // Update the photo
         if (_contact.photo && _contact.photo.length > 0) {
           var url = URL.createObjectURL(_contact.photo[0]);
