@@ -106,7 +106,7 @@
               // We don't want to show the whole list of contacts in the call screen
               // so we just take the first one.
               var contact = result.contacts[0];
-              _title.textContent = ContactsHelper.getPrimaryInfo(contact);
+              _title.textContent = ContactsHelper.prettyPrimaryInfo(contact);
 
               if (contact && contact.photo && contact.photo[0]) {
                 var url = URL.createObjectURL(contact.photo[0]);
