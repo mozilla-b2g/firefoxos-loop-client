@@ -5,6 +5,9 @@
   var _perfBranch = 'CallScreen';
 
   var _call = null;
+  var _isCallTerminated = false;
+  var _wasAlerting = false;
+  var _isCallManagerInitialized = false;
   var _session;
   var _publisher;
   var _subscriber;
@@ -33,6 +36,8 @@
   var _peersConnection = null;
   var _acm = navigator.mozAudioChannelManager;
 
+  const TIMEOUT_SHIELD = 5000;
+
   /**
    * Send the signal given as the parameter to the remote party.
    *
@@ -47,6 +52,10 @@
         }
       );
     }
+  }
+
+  function _dispatchNetworkError() {
+    _oncallfailed({reason: 'networkDisconnected'});
   }
 
   /**
@@ -78,6 +87,7 @@
     _acm && _acm.removeEventListener('headphoneschange', _onHeadPhonesChange);
   }
 
+  
   /**
    * Helper function. Handles call progress protocol state changes.
    *
@@ -85,12 +95,12 @@
    */
   function _handleCallProgress(callProgressHelper) {
     var state = callProgressHelper && callProgressHelper.state || 'unknown';
-
     _perfDebug && PerfLog.log(_perfBranch, 'Call progress ' + state +
       ' received through websocket');
 
     switch(state) {
       case 'alerting':
+        _wasAlerting = true;
         if (!_callee) {
           // If we are the caller party and the alerting state is reached it
           // means the callee party will be alerted as well so the callee party
@@ -99,6 +109,7 @@
           CallScreenUI.setCallStatus('calling');
           return;
         }
+        
         _perfDebug && PerfLog.log(_perfBranch,
           'We send "accept" event through websocket');
         callProgressHelper.accept();
@@ -123,8 +134,18 @@
         break;
       case 'error':
       case 'terminated':
-        CallManager.terminate();
-        break;
+        if (_wasAlerting) {
+          CallManager.terminate();
+        } else {
+          _callProgressHelper.onstatechange = null;
+          CallManager.terminate().then(function() {
+            if (_callee) {
+              CallManager.leaveCall();
+              Ringer.stop();
+            }
+          });
+        }
+       break;
       default:
         break;
     }
@@ -148,13 +169,13 @@
           });
         } else {
           _callProgressHelper.terminate('cancel', function() {
+            _callProgressHelper.finish();
             _callProgressHelper = null;
           });
         }
         break;
       case 'terminated':
         reason = _callProgressHelper.reason;
-
         _callProgressHelper.finish();
         _callProgressHelper = null;
 
@@ -204,11 +225,23 @@
       _callProgressHelper = new CallProgressHelper(_call.callId,
                                                    _call.progressURL,
                                                    _call.websocketToken);
+
+      if (_isCallTerminated) {
+        _callProgressHelper.onready = function onReady(evt) {
+          window.dispatchEvent(new CustomEvent('callmanager-initialized'));
+        };
+        
+        _isCallTerminated = false;
+        return;
+      }
+
       _callProgressHelper.onerror = function onError(evt) {
         _handleCallProgress(_callProgressHelper);
       };
-
-      _callProgressHelper.onready = function onError(evt) {
+      
+      _callProgressHelper.onready = function onReady(evt) {
+        _isCallManagerInitialized = true;
+        window.dispatchEvent(new CustomEvent('callmanager-initialized'));
         _handleCallProgress(_callProgressHelper);
       };
 
@@ -302,7 +335,7 @@
               (event.reason === 'networkDisconnected')) {
             // The network connection terminated abruptly (for example, the
             // client lost their internet connection).
-            _oncallfailed({reason: 'networkDisconnected'});
+            _dispatchNetworkError();
           }
           if (_peersInSession === 1) {
             // We are alone in the session now so lets disconnect.
@@ -449,7 +482,7 @@
       });
 
 
-      window.addEventListener('offline', _oncallfailed);
+      window.addEventListener('offline', _dispatchNetworkError);
       _handleCallProgress(_callProgressHelper);
       _callProgressHelper.onstatechange = function onStateChange(evt) {
         _handleCallProgress(_callProgressHelper);
@@ -513,20 +546,51 @@
     },
 
     terminate: function(error) {
-      _perfDebug && PerfLog.stopTracing(_perfBranch);
+      return new Promise(function(resolve, reject) {
+        _perfDebug && PerfLog.stopTracing(_perfBranch);
 
-      window.removeEventListener('offline', _oncallfailed);
-      _removeHeadPhonesChangeHandler();
+        window.removeEventListener('offline', _dispatchNetworkError);
+        _removeHeadPhonesChangeHandler();
 
-      if (_callProgressHelper) {
-        _handleCallTermination(error);
-      }
+        function _resolvePromise(error) {
+          _callProgressHelper && _handleCallTermination(error);
+          resolve();
+        }
 
-      try {
-        _session.disconnect();
-      } catch(e) {
-        console.log('Session is not available to disconnect ' + e);
-      }
+        function _waitForInitialized() {
+          var secureTimeout = setTimeout(
+            function() {
+              _resolvePromise(error);
+            },
+            TIMEOUT_SHIELD
+          );
+          window.addEventListener(
+            'callmanager-initialized',
+            function onInitialized() {
+              clearTimeout(secureTimeout);
+              window.removeEventListener('callmanager-initialized', onInitialized);
+              _resolvePromise(error);
+            }
+          );
+        }
+
+        if (_callProgressHelper) {
+          if (_isCallManagerInitialized) {
+            _resolvePromise(error);
+          } else {
+            _waitForInitialized(error);
+          }
+        } else {
+          _isCallTerminated = true;
+          _waitForInitialized(error);
+        }
+
+        try {
+          _session.disconnect();
+        } catch(e) {
+          console.log('Session is not available to disconnect ' + e);
+        }
+      });
     },
 
     leaveCall: function(error) {
