@@ -348,24 +348,26 @@ h1, h2, h3 {
 }
 
 #counter {
-  display: none;
-  color: #80e7e3;
+  font-style: italic;
   font-weight: normal;
   font-size: 1.9rem;
-  font-style: italic;
   padding: 0 0.5rem;
+}
+
+.counter {
+  display: none;
+  color: #80e7e3;
   -moz-font-feature-settings: 'tnum';
   font-feature-settings: 'tnum';
 }
 
-body[data-call-status='connected'] #counter,
-body[data-call-status='hold'] #counter,
-body[data-call-status='remotehold'] #counter {
+body[data-call-status='connected'] .counter,
+body[data-call-status='hold'] .counter,
+body[data-call-status='remotehold'] .counter {
   display: block;
 }
 
 #call-status-info {
-  display: none;
   color: white;
   font-size: 1.7rem;
   font-style: italic;
@@ -374,13 +376,17 @@ body[data-call-status='remotehold'] #counter {
   padding: 0 0.5rem;
 }
 
-body[data-call-status='dialing'] #call-status-info,
-body[data-call-status='outgoing'] #call-status-info,
-body[data-call-status='connecting'] #call-status-info,
-body[data-call-status='unavailable'] #call-status-info,
-body[data-call-status='hold'] #call-status-info,
-body[data-call-status='remotehold'] #call-status-info,
-body[data-call-status='ended'] #call-status-info {
+.call-status-info {
+  display: none;
+}
+
+body[data-call-status='dialing'] .call-status-info,
+body[data-call-status='outgoing'] .call-status-info,
+body[data-call-status='connecting'] .call-status-info,
+body[data-call-status='unavailable'] .call-status-info,
+body[data-call-status='hold'] .call-status-info,
+body[data-call-status='remotehold'] .call-status-info,
+body[data-call-status='ended'] .call-status-info {
   display: block;
 }
 
@@ -403,9 +409,9 @@ body[data-call-status='unavailable'] #hang-up {
   display: none;
 }
 
-body[data-call-status='dialing'] #call-status-info,
-body[data-call-status='connecting'] #call-status-info,
-body[data-call-status='outgoing'] #call-status-info {
+body[data-call-status='dialing'] .call-status-info,
+body[data-call-status='connecting'] .call-status-info,
+body[data-call-status='outgoing'] .call-status-info {
   animation: animateFade 2s infinite;
 }
 
@@ -430,21 +436,76 @@ body[data-call-status='outgoing'] #call-status-info {
  */
 
 #call-bar {
-  text-align: center;
   line-height: 4rem;
-  font-size: 2rem;
+  font-size: 1.7rem;
   color: white;
-  font-weight: 300;
+  font-weight: 400;
   display: none;
   position: absolute;
   z-index: 100;
   width: 100%;
   bottom: 0;
   left: 0;
-  background: green;
+  background-color: #424242;
   height: 4rem;
+  background-image: url(images/ico_callstatusbar.png);
+  background-size: 2rem;
+  background-position: 0.5rem 1rem;
+  background-repeat: no-repeat;
 }
 
+#call-bar .title {
+  float: left;
+  padding-left: 3rem;
+}
+
+/* This is the "Firefox" string */
+#call-bar .title span:first-child {
+  font-weight: 500;
+}
+
+#call-bar > span {
+  float: right;
+}
+
+#call-bar .counter,
+#call-bar .call-status-info {
+  padding-right: 1.5rem;
+}
+
+#call-bar .icon {
+  display: none;
+  background-image: url(images/callstatusbar_sprite.png);
+  background-repeat: no-repeat;
+  margin-top: .5rem;
+  width: 2.4rem;
+  height: 3rem;
+  background-size: 2.4rem 15rem;
+}
+
+#call-bar .micro-info.disabled {
+  background-position: 0rem -6rem; 
+}
+
+#call-bar .video-info.disabled {
+  background-position: 0rem -12rem;
+}
+
+#call-bar .on-hold-info {
+  background-position: 0rem 0rem;
+}
+
+body[data-call-status='connected'] #call-bar .micro-info.disabled,
+body[data-call-status='connected'] #call-bar .video-info.disabled,
+body[data-call-status='hold'] #call-bar .on-hold-info,
+body[data-call-status='remotehold'] #call-bar .on-hold-info {
+  display: block;
+}
+
+body[data-call-status='hold'] #call-bar .call-status-info,
+body[data-call-status='remotehold'] #call-bar .call-status-info {
+  display: none;
+}
 
 body.status-bar #call-bar {
   display: block;
@@ -909,6 +970,14 @@ body[data-rotation="270"] #resume-button  {
     background-size: 12.8rem;
     background-image: url(images/CallSprite@1.5x.png);
   }
+
+  #call-bar {
+    background-image: url(images/ico_callstatusbar@1.5x.png);
+  }
+
+  #call-bar .icon {
+    background-image: url(images/callstatusbar_sprite@1.5x.png);
+  }
 }
 
 @media (min--moz-device-pixel-ratio: 2) {
@@ -930,6 +999,14 @@ body[data-rotation="270"] #resume-button  {
     background-size: 12.8rem;
     background-image: url(images/CallSprite@2x.png);
   }
+
+  #call-bar {
+    background-image: url(images/ico_callstatusbar@2x.png);
+  }
+
+  #call-bar .icon {
+    background-image: url(images/callstatusbar_sprite@2x.png);
+  }
 }
 
 @media (min--moz-device-pixel-ratio: 2.25) {
@@ -950,5 +1027,13 @@ body[data-rotation="270"] #resume-button  {
   .feedback-icon {
     background-size: 12.8rem;
     background-image: url(images/CallSprite@2.25x.png);
+  }
+
+  #call-bar {
+    background-image: url(images/ico_callstatusbar@2.25x.png);
+  }
+
+  #call-bar .icon {
+    background-image: url(images/callstatusbar_sprite@2.25x.png);
   }
 }
