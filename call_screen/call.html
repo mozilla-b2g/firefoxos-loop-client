@@ -26,8 +26,8 @@
     <div class="panel">
       <h1 id="contact-name-details"></h1>
       <div id="call-info">
-        <h2 id="counter"></h2>
-        <h3 id="call-status-info"></h3>
+        <h2 id="counter" class="counter"></h2>
+        <h3 id="call-status-info" class="call-status-info"></h3>
       </div>
       <div class="local-bubble-shadow">
       </div>
@@ -122,7 +122,13 @@
         </footer>
       </section>
     </div>
-    <footer id="call-bar" data-branding-service-name="callBar">
+    <footer id="call-bar">
+      <span class="title" data-branding-service-name="callBar" data-branding-html-markup></span>
+      <span class="counter"></span>
+      <span class="call-status-info"></span>
+      <span class="on-hold-info icon"></span>
+      <span class="micro-info icon"></span>
+      <span class="video-info icon"></span>
     </footer>
   </body>
 </html>
