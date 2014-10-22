@@ -200,6 +200,7 @@
             duration: callscreenParams.duration,
             url: callscreenParams.call.callUrl || null,
             urlToken: callscreenParams.call.callToken || null,
+            revoked: false,
             contactId: null,
             contactPrimaryInfo: null,
             contactPhoto: null
