@@ -23,7 +23,7 @@
     "camera": {
       "description": "Give Firefox Hello control to toggle between the front and rear cameras in your device if they are available"
     },
-    "contacts": { 
+    "contacts": {
       "access": "readonly",
       "description": "Allow Firefox Hello to read the contacts information stored in the device"
     },
@@ -79,6 +79,10 @@
       "description": "Firefox Hello"
     },
     "es": {
+      "name": "Firefox Hello",
+      "description": "Firefox Hello"
+    },
+    "it": {
       "name": "Firefox Hello",
       "description": "Firefox Hello"
     }
