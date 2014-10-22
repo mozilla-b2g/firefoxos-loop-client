@@ -462,10 +462,7 @@
     if (!contact) {
       return aRecord;
     }
-    aRecord.contactPrimaryInfo = contact.name ? contact.name[0] :
-                                 contact.email ? contact.email[0].value :
-                                 contact.tel ? contact.tel[0].value :
-                                 null;
+    aRecord.contactPrimaryInfo = ContactsHelper.getPrimaryInfo(contact);
     aRecord.contactPhoto = contact.photo ? contact.photo[0] : null;
     var identities = [];
     ['tel', 'email'].forEach(function(field) {

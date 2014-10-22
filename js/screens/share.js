@@ -15,7 +15,8 @@
     var tokenTmp = _url.split('/');
     var token = tokenTmp[tokenTmp.length - 1];
     var contactId = _contact ? _contact.id : null;
-    var contactPrimaryInfo = _contact ? _contact.name[0] : _identities[0];
+    var contactPrimaryInfo = ContactsHelper.getPrimaryInfo(_contact) ||
+                             _identities[0];
 
     var objectToStore = {
       date: new Date(),
@@ -204,7 +205,7 @@
         _contactInfo = result;
         _contact = result.contacts[0];
         // Update the name
-        _contactName.textContent = ContactsHelper.getPrimaryInfo(_contact);
+        _contactName.textContent = ContactsHelper.prettyPrimaryInfo(_contact);
         // Update the photo
         if (_contact.photo && _contact.photo.length > 0) {
           var url = URL.createObjectURL(_contact.photo[0]);

@@ -118,19 +118,28 @@
   }
 
   function getPrimaryInfo(contact) {
-    var out = _getValue(contact, 'name');
+    var out = null;
 
+    if (!contact) {
+      return out;
+    }
+
+    out = _getValue(contact, 'name');
     if (!out.length) {
       out = _getValue(contact, 'email');
       if (!out.length) {
         out = _getValue(contact, 'tel');
         if (!out.length) {
-          out = _('unknown');
+          out = null;
         }
       }
     }
 
     return out
+  }
+
+  function prettyPrimaryInfo(contact) {
+    return getPrimaryInfo(contact) || _('unknown');
   }
 
   function _getValue(contact, field) {
@@ -197,7 +206,9 @@
       }
     },
 
-    getPrimaryInfo: getPrimaryInfo
+    getPrimaryInfo: getPrimaryInfo,
+
+    prettyPrimaryInfo: prettyPrimaryInfo
   };
 
   exports.ContactsHelper = ContactsHelper;

@@ -501,7 +501,7 @@
       callElement.innerHTML = _templateNoUrlCalls.interpolate({
         iconName: icon,
         type: call.type,
-        primary: call.contactPrimaryInfo || call.identities[0],
+        primary: call.contactPrimaryInfo || call.identities[0] || _('unknown'),
         time: datePretty,
         duration: durationPretty
       });
@@ -509,7 +509,7 @@
       callElement.innerHTML = _templateUrlCalls.interpolate({
         iconName: icon,
         type: call.type,
-        primary: call.contactPrimaryInfo || call.identities[0],
+        primary: call.contactPrimaryInfo || call.identities[0] || _('unknown'),
         link: call.url,
         time: datePretty,
         duration: durationPretty
@@ -797,7 +797,7 @@
       // updated contact information.
       aElement.dataset.identities = identities;
       aElement.dataset.contactId = aContact.id;
-      primaryInfo.textContent = ContactsHelper.getPrimaryInfo(aContact);
+      primaryInfo.textContent = ContactsHelper.prettyPrimaryInfo(aContact);
     } else {
       primaryInfo.textContent = aElement.dataset.identities || _('unknown');
     }
