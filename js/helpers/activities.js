@@ -8,17 +8,48 @@
   var _isLogged = false;
   var _currentActivity = null;
 
+  var _optionLog = null;
+
+  function _showOptionMenu() {
+    _optionLog = new OptionMenu({
+      section:  Branding.getTranslation('notLoggedIn'),
+      type: 'confirm',
+      items: [
+        {
+          name: 'Cancel',
+          l10nId: 'cancel',
+          method: function onCancel() {
+            window.close();
+          },
+          params: []
+        },
+        {
+          name: 'logIn',
+          l10nId:'logIn',
+          class: 'recommend',
+          method: function onLogIn() {
+            _optionLog.hide();
+            _optionLog = null;
+          }
+        }
+      ]
+    });
+    _optionLog.show();
+  }
+
   function _handleActivity(activity) {
     // Cache the activity
     _currentActivity = activity;
 
     // If we are already logged, we can execute the activity right away.
-    // Otherwise, we need to wait until a valid login is available. At
-    // that point we'll handle the cached _currentActivity.
+    // Otherwise, we need to show a message and wait until a valid login is
+    // available. At that point we'll handle the cached _currentActivity.
     if (_isLogged) {
       _executeActivity();
-      return;
+    } else {
+      _showOptionMenu();
     }
+    return;
   }
 
   function _executeActivity() {
@@ -69,7 +100,18 @@
         'onlogin',
         function onLogged() {
           _isLogged = true;
+          if (_optionLog !== null) {
+            _optionLog.hide();
+            _optionLog = null;
+          }
           _executeActivity();
+        }
+      );
+
+      window.addEventListener(
+        'onlogout',
+        function onLogout() {
+          _isLogged = false;
         }
       );
 
