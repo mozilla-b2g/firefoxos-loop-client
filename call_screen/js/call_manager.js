@@ -336,6 +336,7 @@
             // The network connection terminated abruptly (for example, the
             // client lost their internet connection).
             _dispatchNetworkError();
+            return;
           }
           if (_peersInSession === 1) {
             // We are alone in the session now so lets disconnect.
