@@ -10,6 +10,7 @@ module.exports = function(grunt) {
     'grunt-contrib-compress',
     'grunt-contrib-connect',
     'grunt-contrib-copy',
+    'grunt-contrib-jshint',
     'grunt-bower-task',
     'grunt-firefoxos',
     'grunt-git-describe',
@@ -130,11 +131,21 @@ module.exports = function(grunt) {
         appId: 'loop.services.mozilla.org',
         zip: 'application.zip'
       }
+    },
+
+    jshint: {
+      options: {
+        jshintrc: '.jshintrc'
+      },
+      all: [
+        'app/js/*.js'
+      ]
     }
 
   });
 
   grunt.registerTask('test', 'Launch tests in shell with PhantomJS', [
+    'jshint',
     'clean:server',
     'clean:preTest',
     'htmlbuild',
@@ -153,6 +164,7 @@ module.exports = function(grunt) {
   });
 
   grunt.registerTask('build', 'Build app for dev', [
+    'jshint',
     'bower:install',
     'saveRevision',
     'compress:release',
@@ -160,6 +172,7 @@ module.exports = function(grunt) {
   ]);
 
   grunt.registerTask('release', 'Build app for release', [
+    'jshint',
     'clean',
     'bower:install',
     'saveRevision',

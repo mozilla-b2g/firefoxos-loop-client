@@ -1,6 +1,8 @@
 /* -*- Mode: js2; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- /
 /* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 
+/* global Config */
+
 'use strict';
 
 (function(exports) {
@@ -162,9 +164,9 @@
       if (Config.allowUnsecure) {
         return url;
       }
-      return url.replace(/^(http|ws):\/\//i,"$1s:\/\/");
+      return url.replace(/^(http|ws):\/\//i,'$1s:\/\/');
     }
   };
 
   exports.Utils = Utils;
-}(this));
+}(window));

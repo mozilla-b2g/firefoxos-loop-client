@@ -1,3 +1,4 @@
+/* global CompatibilityChecker, Controller, Branding, LazyLoader */
 'use strict';
 
 window.addEventListener('load', function load() {

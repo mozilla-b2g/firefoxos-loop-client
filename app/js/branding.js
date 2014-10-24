@@ -1,12 +1,12 @@
 'use strict';
 
 (function(exports) {
-  
+
   var _name = 'Firefox Hello';
 
   var _htmlName = '';
   _name.split(' ').forEach(function(str) {
-    _htmlName = _htmlName + '<span>' + str + ' </span>'
+    _htmlName = _htmlName + '<span>' + str + ' </span>';
   });
 
   function getName(asHTMLMarkup) {
@@ -55,4 +55,4 @@
   };
 
   exports.Branding = Branding;
-}(this));
+}(window));
