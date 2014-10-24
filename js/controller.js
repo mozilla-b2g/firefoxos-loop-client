@@ -267,7 +267,7 @@
       );
     },
 
-    revokeUrl: function (token, date, callback) {
+    revokeUrl: function (token, callback) {
       if (!navigator.onLine) {
         LazyLoader.load([
           'js/screens/error_screen.js'
@@ -279,23 +279,13 @@
       }
       ClientRequestHelper.revokeUrl(
         token,
-        function onDeleted() {
-          ActionLogDB.revokeUrl(
-            function(error) {
-              if (error) {
-                console.error('Error when deleting calls from DB ' + error.name);
-                return;
-              }
-
-              if (typeof callback === 'function') {
-                callback();
-              }
-            },
-            token
-          );
-        },
+        callback,
         function onError(e) {
           console.error('Error when revoking URL in server: ' + e);
+          if (e === 'Not Found') {
+            callback(e);
+            return;
+          }
           LazyLoader.load([
             'js/screens/error_screen.js'
           ], function() {

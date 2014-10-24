@@ -52,7 +52,19 @@
           name: 'Revoke',
           l10nId: 'revoke',
           method: function(element) {
-            _revokeUrl(element, element.dataset.urlToken, new Date(+element.id));
+            var token = element.dataset.urlToken;
+            Controller.revokeUrl(token, function onRevoked() {
+              ActionLogDB.revokeUrl(function(error) {
+                if (error) {
+                  console.error('Error revoking an URL from DB ' + error.name);
+                  return;
+                }
+
+                var revokedElement = element.querySelector('[data-revoked]');
+                revokedElement.dataset.revoked = true;
+                revokedElement.textContent = _('revoked');
+              }, token);
+            });
           },
           params: [element]
         }
@@ -161,23 +173,26 @@
       );
     }
 
-    if (element.dataset.urlToken) {
+    if (element.dataset.urlToken && element.dataset.revoked !== 'true') {
       // Delete single item
       items.push(
         {
           name: 'Revoke',
           l10nId: 'revoke',
           method: function(element) {
-            Controller.getUrlByToken(
-              element.dataset.urlToken,
-              function onUrl(urlObject) {
-                _revokeUrl(
-                  element,
-                  urlObject.urlToken,
-                  urlObject.date
-                );
-              }
-            );
+            var token = element.dataset.urlToken;
+            Controller.revokeUrl(token, function onRevoked() {
+              ActionLogDB.revokeUrlFromCall(function(error) {
+                if (error) {
+                  console.error('Error revoking an URL for a call from DB ' +
+                                 error);
+                  return;
+                }
+
+                element.dataset.revoked = true;
+                element.querySelector('.url').textContent = _('revoked');
+              }, new Date(+element.id));
+            });
           },
           params: [element]
         }
@@ -480,6 +495,7 @@
     callElement.dataset.timestampIndex = call.date.getTime();
     callElement.dataset.contactId = call.contactId;
     callElement.dataset.identities = call.identities;
+    callElement.dataset.revoked = call.revoked;
     if (call.urlToken) {
       callElement.dataset.urlToken = call.urlToken;
     }
@@ -510,7 +526,7 @@
         iconName: icon,
         type: call.type,
         primary: call.contactPrimaryInfo || call.identities[0],
-        link: call.url,
+        link: call.revoked ? _('revoked') : call.url,
         time: datePretty,
         duration: durationPretty
       });
@@ -601,19 +617,6 @@
       ids
     );
     _deleteElementsFromGroup(ids, 'urls');
-  }
-
-  function _revokeUrl(element, token, date) {
-    Controller.revokeUrl(
-      token,
-      date,
-      function onRevoked() {
-        var revokeElement = element.querySelector('[data-revoked]');
-        revokeElement.dataset.revoked = true;
-        revokeElement.textContent = _('revoked');
-      }
-    )
-
   }
 
   function _renderUrls(error, urlsCursor, update) {

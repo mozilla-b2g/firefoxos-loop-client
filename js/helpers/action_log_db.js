@@ -18,6 +18,7 @@
  *   duration: <Number> // miliseconds
  *   url: <string>,
  *   urlToken: <string>,
+ *   revoked: <Boolean>,
  *   contactId: [<string>],
  *   contactPrimaryInfo: <string>,
  *   contactPhoto: blob
@@ -57,6 +58,7 @@
       'duration',
       'url',
       'urlToken',
+      'revoked',
       'contactId',
       'contactPrimaryInfo',
       'contactPhoto'
@@ -320,8 +322,7 @@
     if (!aFilter ||
         (!aFilter.key && !aFilter.index) ||
         (aFilter.key && aFilter.index) ||
-        (aFilter.index && !aFilter.index.name || !aFilter.index.value) ||
-        (aFilter.key && !aFilter.value)) {
+        (aFilter.index && (!aFilter.index.name || !aFilter.index.value))) {
       aCallback('INVALID_FILTER');
       return;
     }
@@ -816,6 +817,10 @@
           value: aToken
         }
       }, { revoked: true });
+    },
+
+    revokeUrlFromCall: function(aCallback, aDate) {
+      _updateRecord(aCallback, _dbCallStore, { key: aDate }, { revoked: true });
     },
 
     deleteCalls: function(aCallback, aCalls) {
