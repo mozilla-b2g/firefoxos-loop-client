@@ -1,1 +1,5 @@
 .commit
+node_modules
+.tmp
+test/js/*
+test/index.html

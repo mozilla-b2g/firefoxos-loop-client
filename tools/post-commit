@@ -6,7 +6,7 @@ if [ -f .commit ]
     then
     rm .commit
 
-    echo 'Version = { id: version };' | sed "s/version/\'${version}\'/g" > js/version.js
-    git add js/version.js
+    echo 'Version = { id: version };' | sed "s/version/\'${version}\'/g" > app/js/version.js
+    git add app/js/version.js
     git commit -m "Bump up version" --no-verify
 fi
