@@ -803,6 +803,7 @@
       aElement.dataset.contactId = aContact.id;
       primaryInfo.textContent = ContactsHelper.getPrimaryInfo(aContact);
     } else {
+      aElement.dataset.contactId = null;
       primaryInfo.textContent = aElement.dataset.identities || _('unknown');
     }
   }
