@@ -1,3 +1,9 @@
+/* global Config, SplashScreen, Wizard, Settings, CallLog,
+   LoadingOverlay, Settings, CallScreenManager, Telemetry,
+   AccountHelper, Activities, Branding, MozActivity,
+   ClientRequestHelper, ActionLogDB, OfflineScreen,
+   LazyLoader, ErrorScreen */
+
 (function(exports) {
   'use strict';
 
@@ -15,7 +21,7 @@
 
   function _onlogin(event) {
     if (!event.detail || !event.detail.identity) {
-      log.error('Unexpected malformed onlogin event');
+      console.error('Unexpected malformed onlogin event');
       return;
     }
 
@@ -168,8 +174,8 @@
       }
 
       var tels = contact.tel || [];
-      for (var i = 0; i < tels.length; i++) {
-        identities.push(tels[i].value);
+      for (var j = 0; j < tels.length; j++) {
+        identities.push(tels[j].value);
       }
 
       if (identities.length === 0) {
