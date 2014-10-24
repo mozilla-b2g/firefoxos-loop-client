@@ -84,7 +84,7 @@
 
       _perfDebug && PerfLog.log(_perfBranch, 'CallScreenUI.init');
 
-      Branding.init();
+      Branding.naming();
 
       _ = navigator.mozL10n.get;
 

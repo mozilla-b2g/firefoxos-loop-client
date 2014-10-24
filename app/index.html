@@ -25,7 +25,6 @@
     <link rel="stylesheet" type="text/css" href="style/calllog.css">
     <link rel="stylesheet" type="text/css" href="style/main.css">
     <link rel="stylesheet" type="text/css" href="style/transitions.css">
-    <link rel="stylesheet" type="text/css" href="style/wizard.css">
     <link rel="stylesheet" type="text/css" href="style/splash_screen.css">
 
     <link rel="manifest" href="manifest.webapp">
@@ -62,10 +61,6 @@
     <script defer src="js/helpers/client_request_helper.js"></script>
     <script defer src="js/helpers/metrics.js"></script>
     <script defer src="js/helpers/telemetry.js"></script>
-
-    <script defer src="js/screens/wizard/authenticate.js"></script>
-    <script defer src="js/screens/wizard/tutorial.js"></script>
-    <script defer src="js/screens/wizard/wizard.js"></script>
 
     <script defer src="js/controller.js"></script>
 
@@ -110,12 +105,8 @@
     <!--
       Every relevant screen which have it own 'panel'
     -->
-    <section id="wizard-panel" data-step="0" class="panel main">
+    <section id="wizard-panel" data-step="0" class="panel main hide">
       <!--
-        Wizard is based on 3 well differentiated sections:
-        - Tutorial > "wizard-tutorial-section"
-        - Authenticate > "wizard-authenticate-section"
-      -->
       <section id="wizard-tutorial-section"  class="wizard-section vbox current">
         <header id="wizard-tutorial-header">
           <p data-branding-service-name="welcome"></p>
@@ -180,6 +171,7 @@
           </button>
         </footer>
       </section>
+      -->
     </section>
     <section id="calllog-panel" class="panel main vbox skin-comms" role="region">
       <header>
