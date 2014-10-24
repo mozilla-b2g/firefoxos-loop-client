@@ -123,6 +123,10 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   color: #bc1515;
 }
 
+.calllog-section li[data-revoked="true"] .url {
+  font-style: italic;
+}
+
 #calls-section .retry-count {
   flex: 0.4
 }
