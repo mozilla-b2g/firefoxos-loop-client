@@ -29,7 +29,8 @@
     // We add 'Cancel' as default one
     items.push(
       {
-        name: 'Cancel'
+        name: 'Cancel',
+        l10nId: 'cancel'
       }
     );
 
