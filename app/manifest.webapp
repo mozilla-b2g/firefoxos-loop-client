@@ -85,7 +85,10 @@
     "it": {
       "name": "Firefox Hello",
       "description": "Firefox Hello"
-    }
+    },
+    "ru": {
+      "name": "Firefox Hello",
+      "description": "Firefox Hello"
   },
   "default_locale": "en-US",
   "icons": {
