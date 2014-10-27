@@ -263,12 +263,9 @@
   };
 
   function _launchAttention(type, params, incomingCall, contact) {
-
     _generateAttentionParams(type, params, function(attentionParams) {
-      AudioCompetingHelper.init();
-      // Lets compete for audio as soon as possible. That way GSM/CDMA calls
-      // might be active will be set on hold.
-      AudioCompetingHelper.compete();
+      AudioCompetingHelper.leaveCompetition();
+      AudioCompetingHelper.destroy();
 
       // Cache params needed from the call
       _callType = type;
@@ -285,8 +282,6 @@
       _onAttentionLoaded(
         attention,
         function onLoaded() {
-
-          AudioCompetingHelper.leaveCompetition();
 
           function _listenToCallScreenMessages() {
             window.addEventListener(
@@ -424,6 +419,9 @@
 
   var CallScreenManager = {
     launch: function(type, params) {
+      AudioCompetingHelper.init();
+      AudioCompetingHelper.compete();
+
       // TODO Modify this in multiconference when adding a new peer
       // to the conversation
       if (_isWaitingFeedback) {
@@ -437,6 +435,8 @@
         // Bug 1058628 - Do not allow make a call while there is another one in
         // place
         if (_inCall) {
+          AudioCompetingHelper.leaveCompetition();
+          AudioCompetingHelper.destroy();
           return;
         }
         _launchAttention(type, params);
@@ -491,6 +491,8 @@
         },
         function onerror(e) {
           debug && console.error('Error: ClientRequestHelper.getCalls ' + e);
+          AudioCompetingHelper.leaveCompetition();
+          AudioCompetingHelper.destroy();
         }
       );
     },
