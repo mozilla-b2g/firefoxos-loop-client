@@ -50,8 +50,9 @@
     }
   }
 
-  function onConfirmed() {
+  function onConfirmed(callback) {
     document.cookie = 'compatibility=confirmed';
+    callback && callback();
   }
 
   function isConfirmed() {
@@ -60,40 +61,44 @@
 
   exports.CompatibilityChecker = {
     check: function() {
-      if (isConfirmed()) {
-        return;
-      }
+      return new Promise((resolve, reject) => {
+        if (isConfirmed()) {
+          resolve();
+          return;
+        }
 
-      LazyLoader.getJSON('compatibility.json').then((conf) => {
-        // Check device
-        var matching = false;
+        LazyLoader.getJSON('compatibility.json').then((conf) => {
+          // Check device
+          var matching = false;
 
-        var deviceNames = conf.device.names;
-        var length = deviceNames.length;
-        for (var i = 0; i < length; i++) {
-          matching = userAgent.contains(deviceNames[i]);
-          if (matching) {
-            break;
+          var deviceNames = conf.device && conf.device.names;
+          deviceNames = deviceNames || [];
+          var length = deviceNames.length;
+          for (var i = 0; i < length; i++) {
+            matching = userAgent.contains(deviceNames[i]);
+            if (matching) {
+              break;
+            }
           }
-        }
 
-        if (!matching) {
-          handleError('notCompatibleDevice');
-          return;
-        }
+          if (!matching) {
+            handleError('notCompatibleDevice');
+            return;
+          }
 
-        // Check operating system version
-        var majorVersion = getVersion().major;
-        // No message if we aren't able to know the version
-        if (majorVersion !== null &&
-            majorVersion < conf.os.minimumMajorVersion) {
-          handleError('oldOSVersion');
-          return;
-        }
-        onConfirmed();
-      }, (error) => {
-        onConfirmed();
-        console.error('Error parsing compatibility JSON file', error);
+          // Check operating system version
+          var majorVersion = getVersion().major;
+          // No message if we aren't able to know the version
+          if (majorVersion !== null &&
+              majorVersion < conf.os.minimumMajorVersion) {
+            handleError('oldOSVersion');
+            return;
+          }
+          onConfirmed(resolve);
+        }, (error) => {
+          onConfirmed(resolve);
+          console.error('Error parsing compatibility JSON file', error);
+        });
       });
     }
   };
