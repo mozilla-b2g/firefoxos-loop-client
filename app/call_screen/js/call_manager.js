@@ -36,6 +36,11 @@
   var _peersConnection = null;
   var _acm = navigator.mozAudioChannelManager;
 
+  var _bluetooth = new BluetoothHelper();
+  var _btHeadphonePresent = false;
+  var _btHeadphoneConnected = false;
+  var _btHeadphoneShouldReconnect = false;
+
   const TIMEOUT_SHIELD = 5000;
 
   /**
@@ -83,11 +88,51 @@
     _acm && _acm.addEventListener('headphoneschange', _onHeadPhonesChange);
   }
 
+  function _handleBTHeadphonesChange(evt) {
+    _btHeadphonePresent = evt.status;
+    CallScreenUI.headphonesPresent = _acm.headphones || _btHeadphonePresent;
+  }
+
   function _removeHeadPhonesChangeHandler() {
     _acm && _acm.removeEventListener('headphoneschange', _onHeadPhonesChange);
   }
 
-  
+  function _handleBTScoChange(evt) {
+    _btHeadphoneConnected = evt.status;
+    if (!_btHeadphoneConnected && _btHeadphoneShouldReconnect) {
+      _bluetooth.connectSco();
+    }
+    // Set this to false unconditionally so we don't do this twice by error.
+    _btHeadphoneShouldReconnect = false;
+  }
+
+  // Automatically connects or disconnects the BT connection based on
+  // the values of _useSpeaker, _btHeadphoneConnected and _btHeadphonePresent
+  function _setBTOutput() {
+    if (!_btHeadphonePresent) {
+      return;
+    }
+    // We need to do some magic here...
+    if (!_useSpeaker) {
+      // In this case, we want to use the BT headset. Since there seems to
+      // be some problem when the headset was already connected, let's
+      // try reconnecting
+      if (_btHeadphoneConnected) {
+        _bluetooth.disconnectSco(function () {
+          // Bluetooth stack works... interestingly. Some times at this point
+          // we're not really disconnected yet. And some times we are...
+          _btHeadphoneShouldReconnect = true;
+          _bluetooth.connectSco();
+        });
+      } else {
+        _bluetooth.connectSco();
+      }
+    } else if (_btHeadphoneConnected) {
+      _bluetooth.disconnectSco();
+    }
+  }
+
+
   /**
    * Helper function. Handles call progress protocol state changes.
    *
@@ -109,7 +154,7 @@
           CallScreenUI.setCallStatus('calling');
           return;
         }
-        
+
         _perfDebug && PerfLog.log(_perfBranch,
           'We send "accept" event through websocket');
         callProgressHelper.accept();
@@ -229,7 +274,7 @@
         _callProgressHelper.onready = function onReady(evt) {
           window.dispatchEvent(new CustomEvent('callmanager-initialized'));
         };
-        
+
         _isCallTerminated = false;
         return;
       }
@@ -237,7 +282,7 @@
       _callProgressHelper.onerror = function onError(evt) {
         _handleCallProgress(_callProgressHelper);
       };
-      
+
       _callProgressHelper.onready = function onReady(evt) {
         _isCallManagerInitialized = true;
         window.dispatchEvent(new CustomEvent('callmanager-initialized'));
@@ -270,6 +315,7 @@
       }
       _speakerManager.forcespeaker = isSpeakerOn;
       _useSpeaker = isSpeakerOn;
+      _setBTOutput();
     },
 
     toggleMic: function(isMicOn) {
@@ -400,6 +446,9 @@
               _perfDebug && PerfLog.log(_perfBranch,
                 'Received "loaded" event from remote stream');
               CallScreenUI.setCallStatus('connected');
+              // At this point, it should be safe to reconnect the BT headset. Unfortunately
+              // this is not always true...
+              setTimeout(_setBTOutput, 5000);
             }
           });
           _publishersInSession += 1;
@@ -492,6 +541,27 @@
       };
 
       _handleHeadPhonesChange();
+
+      _bluetooth.isScoConnected((connected) => {
+        _btHeadphoneConnected = connected;
+      });
+
+      var initWithAudio = !_useSpeaker;
+      _bluetooth.getConnectedDevicesByProfile(
+        _bluetooth.profiles.HFP,
+        (result) => {
+          var btHeadphonesConnected = !!(result && result.length > 0);
+          _handleBTHeadphonesChange({status: btHeadphonesConnected});
+          // If the speaker is off (which should happen only when
+          // the call is audio)
+          if (initWithAudio && btHeadphonesConnected) {
+            _bluetooth.connectSco();
+          }
+        }
+      );
+
+      _bluetooth.onhfpstatuschanged = _handleBTHeadphonesChange;
+      _bluetooth.onscostatuschanged = _handleBTScoChange;
     },
 
     set onhold(onhold) {
@@ -508,6 +578,10 @@
 
     get headphonesPresent() {
       return _acm && _acm.headphones;
+    },
+
+    get btHeadphonesPresent() {
+      return _btHeadphonePresent;
     },
 
     resume: function() {
@@ -541,7 +615,12 @@
     },
 
     set onpeerended(onpeerended) {
-      _onpeerended = onpeerended;
+      _onpeerended = function() {
+        if (_btHeadphonePresent && _btHeadphoneConnected) {
+          _bluetooth.disconnectSco();
+        }
+        onpeerended();
+      };
     },
 
     set oncallfailed(oncallfailed) {
@@ -595,8 +674,8 @@
         }
 
         if (AudioCompetingHelper) {
-	  AudioCompetingHelper.leaveCompetition();
-	  AudioCompetingHelper.destroy();
+	        AudioCompetingHelper.leaveCompetition();
+	        AudioCompetingHelper.destroy();
         }
       });
     },

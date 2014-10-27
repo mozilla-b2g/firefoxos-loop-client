@@ -244,7 +244,8 @@
 
       // Set the initial headphone state (and modify the speaker state
       // accordingly)
-      _setHeadphonesPresent(CallManager.headphonesPresent);
+      _setHeadphonesPresent(CallManager.headphonesPresent ||
+                            CallManager.btHeadphonesPresent);
 
       if (document.body.dataset.callStatus === 'dialing') {
         // Update the status of the UI & Tones properly

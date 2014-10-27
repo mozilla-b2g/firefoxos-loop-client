@@ -40,6 +40,7 @@
                   '../js/utils.js',
                   '../libs/tokbox/v2.2.9.1/js/TB.js',
                   '../libs/opentok.js',
+                  '../js/helpers/bluetooth_helper.js',
                   '../js/helpers/audio_competing_helper.js',
                   '../js/helpers/call_progress_helper.js',
                   '../js/helpers/tone_player_helper.js',
