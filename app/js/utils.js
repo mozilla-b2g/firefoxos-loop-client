@@ -77,7 +77,7 @@
 
       if (dayDiff < 6) {
         return _('days-ago-long', {
-          value: dayDiff
+          value: Math.round(dayDiff)
         });
       } else {
         return this.date.format.localeFormat(this.date.shared, '%x');
