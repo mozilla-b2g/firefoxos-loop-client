@@ -219,7 +219,6 @@
 
       _perfDebug && PerfLog.startTracing(_perfBranch);
 
-      AudioCompetingHelper.init();
       _call = params.call;
       _callee = params.type === 'incoming' ? true : false;
       _callProgressHelper = new CallProgressHelper(_call.callId,
@@ -287,7 +286,8 @@
       _perfDebug && PerfLog.log(_perfBranch, 'CallManager.join');
 
       _useSpeaker = _isVideoCall = isVideoCall && isVideoCall != 'false';
-      AudioCompetingHelper.clearListeners();
+
+      AudioCompetingHelper.init();
       AudioCompetingHelper.addListener('mozinterruptbegin', _hold);
       AudioCompetingHelper.compete();
 
@@ -591,6 +591,11 @@
         } catch(e) {
           console.log('Session is not available to disconnect ' + e);
         }
+
+        if (AudioCompetingHelper) {
+	  AudioCompetingHelper.leaveCompetition();
+	  AudioCompetingHelper.destroy();
+        }
       });
     },
 
@@ -658,12 +663,6 @@
         clearTimeout(shieldErrorTimeout);
         sendParams('close');
       }
-
-      if (!AudioCompetingHelper) {
-        return;
-      }
-      AudioCompetingHelper.leaveCompetition();
-      AudioCompetingHelper.destroy();
     }
   };
 
