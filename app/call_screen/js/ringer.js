@@ -10,8 +10,7 @@
   const _VIBRATE_INTERVAL = 600;
 
   function _init() {
-    _ringtone = new Audio();
-    _ringtone.src = TONE;
+    _ringtone = new Audio(TONE);
     _ringtone.mozAudioChannelType = 'ringer';
     _ringtone.loop = true;
   }
