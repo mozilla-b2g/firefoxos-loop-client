@@ -81,6 +81,10 @@
     "es": {
       "name": "Firefox Hello",
       "description": "Firefox Hello"
+    },
+    "de": {
+      "name": "Firefox Hello",
+      "description": "Firefox Hello"
     }
   },
   "default_locale": "en-US",
