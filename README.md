@@ -24,11 +24,11 @@ At the moment we have a few Grunt tasks. Let's see them.
 #### build
 
 ```
-  $ grunt biuld
+  $ grunt build
 ```
 
-This the one a regular dev should use. It biulds the app and push it onto the
-device (no WebIDE usage is involved).
+This the one a regular dev, user, tester o QA guy should use. It builds the app
+and push it onto the device (no WebIDE usage is involved).
 
 #### release
 
@@ -36,13 +36,12 @@ device (no WebIDE usage is involved).
   $ grunt release
 ```
 
-This the one a regular user, tester or QA guys dev should use. It biulds the app
-and push it onto the device (no WebIDE usage is involved).
+This is the task that builds the app for releasing it.
 
 #### test
 
 ```
-  $ grunt release
+  $ grunt test
 ```
 
 This is the task we have for unit testing. It launches tests in shell with

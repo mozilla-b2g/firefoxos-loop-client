@@ -164,8 +164,7 @@ module.exports = function(grunt) {
     'bower:install',
     'saveRevision',
     'test',
-    'compress:release',
-    'ffospush:app'
+    'compress:release'
   ]);
 
   grunt.registerTask('default', ['build']);
