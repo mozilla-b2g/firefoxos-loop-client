@@ -7,10 +7,14 @@ var mountFolder = function (connect, dir) {
 module.exports = function(grunt) {
   [
     'grunt-contrib-clean',
-    'grunt-contrib-copy',
+    'grunt-contrib-compress',
     'grunt-contrib-connect',
-    'grunt-mocha',
-    'grunt-html-build'
+    'grunt-contrib-copy',
+    'grunt-bower-task',
+    'grunt-firefoxos',
+    'grunt-git-describe',
+    'grunt-html-build',
+    'grunt-mocha'
   ].forEach(grunt.loadNpmTasks);
 
   grunt.initConfig({
@@ -50,6 +54,9 @@ module.exports = function(grunt) {
       ],
       postTest: [
         'src/'
+      ],
+      app: [
+        'application.zip'
       ]
     },
 
@@ -86,7 +93,45 @@ module.exports = function(grunt) {
           js: 'app/js/*.js',
         }
       }
+    },
+
+    'git-describe': {
+      options: {
+        prop: 'meta.revision'
+      },
+      me: {}
+    },
+
+    bower: {
+      install: {
+        options: {
+          targetDir: 'app/libs/components/',
+          verbose: true,
+          copy: false
+        }
+      }
+    },
+
+    compress: {
+      release: {
+        options: {
+          archive: 'application.zip',
+        },
+        files: [{
+          cwd: 'app',
+          expand: true,
+          src: '**/*'
+        }]
+      }
+    },
+
+    ffospush: {
+      app: {
+        appId: 'loop.services.mozilla.org',
+        zip: 'application.zip'
+      }
     }
+
   });
 
   grunt.registerTask('test', 'Launch tests in shell with PhantomJS', [
@@ -99,4 +144,28 @@ module.exports = function(grunt) {
     'mocha'
   ]);
 
+  grunt.registerTask('saveRevision', function() {
+    grunt.event.once('git-describe', function (rev) {
+      grunt.file.write('app/js/version.js', 'Version = { id: \'' +
+        rev.object + '\' }');
+    });
+    grunt.task.run('git-describe');
+  });
+
+  grunt.registerTask('build', 'Build app for dev', [
+    'bower:install',
+    'saveRevision',
+    'compress:release',
+    'ffospush:app'
+  ]);
+
+  grunt.registerTask('release', 'Build app for release', [
+    'clean',
+    'bower:install',
+    'saveRevision',
+    'test',
+    'compress:release'
+  ]);
+
+  grunt.registerTask('default', ['build']);
 };
