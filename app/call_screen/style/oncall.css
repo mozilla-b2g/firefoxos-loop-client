@@ -736,19 +736,10 @@ body[data-feedback='true'] #feedback {
 
 #fullscreen-video .OT_video-container {
   display: block !important;
-  background: #424242 !important;
-  position: relative !important;
-  width: 100% !important;
-  height: 100% !important;
-  left: 0 !important;
 }
 
 #fullscreen-video .OT_video-container video{
   display: block !important;
-  position: absolute !important;
-  height: 100% !important;
-  width: auto !important;
-  left: 0 !important;
 }
 
 
