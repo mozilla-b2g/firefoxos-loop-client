@@ -34,7 +34,6 @@
         }
       ]
     });
-    _optionLog.show();
   }
 
   function _handleActivity(activity) {

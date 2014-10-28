@@ -125,7 +125,6 @@
                 }
               ]
             });
-            options.show();
           }.bind(this)
         );
 
@@ -168,7 +167,6 @@
                         }
                       ]
                     });
-                    doubleConfirmation.show();
                   },
                   params: []
                 },
@@ -178,7 +176,6 @@
                 }
               ]
             });
-            options.show();
           }.bind(this)
         );
 
@@ -210,7 +207,6 @@
                 }
               ]
             });
-            options.show();
           }.bind(this)
         );
       }

@@ -38,7 +38,6 @@
       type: 'action',
       items: items
     });
-    options.show();
   }
 
   function _showUrlSecondaryMenu(element) {
@@ -108,7 +107,6 @@
               }
             ]
           });
-          options.show();
         },
         params: [element]
       }
