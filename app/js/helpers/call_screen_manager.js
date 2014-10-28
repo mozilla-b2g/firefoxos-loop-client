@@ -357,12 +357,16 @@
                           'notAUser',
                           function onShareScreen() {
                             _closeAttentionScreen();
-                            TonePlayerHelper.init('telephony');
-                            TonePlayerHelper.playFailed(speaker).then(
-                              function onplaybackcompleted() {
-                                TonePlayerHelper.stop();
-                                TonePlayerHelper.releaseResources();
-                            });
+                            LazyLoader.load('js/helpers/tone_player_helper.js',
+                              function onTonePlayerLoaded() {
+                                TonePlayerHelper.init('telephony');
+                                TonePlayerHelper.playFailed(speaker).then(
+                                  function onplaybackcompleted() {
+                                    TonePlayerHelper.stop();
+                                    TonePlayerHelper.releaseResources();
+                                });
+                              }
+                            );
                         });
                       },
                       function(e) {
