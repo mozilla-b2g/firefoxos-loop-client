@@ -4,7 +4,9 @@
   var debug = Config.debug;
 
   function _hideSplash() {
-    setTimeout(SplashScreen.hide, 1000);
+    setTimeout(function() {
+      SplashScreen && SplashScreen.hide();
+    }, 1000);
   }
 
   function _initWizard(isFirstUse) {

@@ -1,28 +1,17 @@
-(function(exports) {
-  'use strict';
+'use strict';
 
-  var splashPanel;
+var SplashScreen = {
+  hide: function s_hide() {
+    var splashPanel = document.getElementById('splash-screen');
 
-  var SplashScreen = {
-    init: function w_init() {
-      if (splashPanel) {
-        return;
-      }
-      splashPanel = document.getElementById('splash-screen');
-    },
-    show: function s_show() {
-      splashPanel.classList.add('show');
-    },
-    hide: function s_hide() {
-      splashPanel.addEventListener('transitionend', function onTransitionEd() {
-        splashPanel.removeEventListener('transitionend', onTransitionEd);
-        splashPanel.classList.remove('show');
-      });
-      splashPanel.classList.add('invisible');
-    }
-  };
+    splashPanel.addEventListener('transitionend', function onTransitionEnd() {
+      splashPanel.removeEventListener('transitionend', onTransitionEnd);
+      splashPanel.parentNode.removeChild(splashPanel);
+      var splashScreenSheet = document.getElementById('splash-screen-stylesheet');
+      splashScreenSheet.parentNode.removeChild(splashScreenSheet);
+      SplashScreen = null;
+    });
 
-  exports.SplashScreen = SplashScreen;
-}(this));
-
-SplashScreen.init();
+    splashPanel.classList.add('invisible');
+  }
+};
