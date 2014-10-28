@@ -15,6 +15,7 @@
 (function(exports) {
   var debug = Config.debug;
   var SERVER_URL = Config.server_url;
+  var CHANNEL = Config.channel;
   var TIMEOUT = 15000;
 
   /** HAWK credentials */
@@ -297,6 +298,7 @@
         body: {
           calleeId: calleeId,
           callType: isVideoCall ? 'audio-video' : 'audio',
+          channel: CHANNEL,
           mcc: mcc
         },
         credentials: _hawkCredentials
