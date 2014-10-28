@@ -10,6 +10,7 @@
   var _errorMessage;
 
   function _init() {
+    LazyLoader.load('style/bb/confirm.css');
     _screen = document.getElementById('error-screen');
     _errorMessage = document.getElementById('error-message');
     var ok = document.getElementById('error-screen-ok');

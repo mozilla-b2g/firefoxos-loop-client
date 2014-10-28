@@ -80,7 +80,6 @@
       type: 'action',
       items: items
     });
-    options.show();
   }
 
 
