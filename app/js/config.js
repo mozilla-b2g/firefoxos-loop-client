@@ -25,7 +25,8 @@ Config = {
   offline: {
     signInDelay: 60 * 1000, // 1 min
     maxSignInAttempts: 3 // Max number of sign in attempts before logging out.
-  }
+  },
+  maxVersionCheckAttempts: 3 // Max number of retries checking version.
 };
 
 window.OTProperties = {

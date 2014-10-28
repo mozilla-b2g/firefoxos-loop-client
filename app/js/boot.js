@@ -2,7 +2,11 @@
 
 window.addEventListener('load', function load() {
   window.removeEventListener('load', load);
-  CompatibilityChecker.check();
+  CompatibilityChecker.check().then(() => {
+    LazyLoader.load('js/update_checker.js', () => {
+      UpdateChecker.check();
+    });
+  });
   // TODO Add LazyLoading
   // TODO If it's an incoming call, I launch it before rendering the app
   Controller.init();
