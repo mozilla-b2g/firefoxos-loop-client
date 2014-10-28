@@ -7,10 +7,22 @@
     setTimeout(SplashScreen.hide, 1000);
   }
 
+  function _initWizard(isFirstUse) {
+    return new Promise((resolve, reject) => {
+      LazyLoader.load(['style/wizard.css',
+                       'js/screens/wizard/authenticate.js',
+                       'js/screens/wizard/tutorial.js',
+                       'js/screens/wizard/wizard.js'], () => {
+        Wizard.init(isFirstUse, resolve, reject);
+      });
+    });
+  }
+
   function _onauthentication(event) {
-    Wizard.init(event.detail.firstRun);
-    _hideSplash();
-    window.removeEventListener('onauthentication', _onauthentication);
+    _initWizard(event.detail.firstRun).then(() => {
+      _hideSplash();
+      window.removeEventListener('onauthentication', _onauthentication);
+    });
   }
 
   function _onlogin(event) {
@@ -27,19 +39,21 @@
   }
 
   function _onlogout() {
-    Wizard.init(false);
-    _hideSplash();
-    Settings.reset();
-    setTimeout(function() {
-      LoadingOverlay.hide();
-      Settings.hide();
-    }, 500);
+    _initWizard(false).then(() => {
+      _hideSplash();
+      Settings.reset();
+      setTimeout(function() {
+        LoadingOverlay.hide();
+        Settings.hide();
+      }, 500);
+    });
   }
 
   function _onloginerror(event) {
-    Wizard.init(false /* isFirstUse */);
-    _hideSplash();
-    LoadingOverlay.hide();
+    _initWizard(false /* isFirstUse */).then(() => {
+      _hideSplash();
+      LoadingOverlay.hide();
+    });
   }
 
   /**

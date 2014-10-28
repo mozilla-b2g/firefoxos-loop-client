@@ -135,6 +135,8 @@
     });
   };
 
+  Template.extract = extract;
+
   exports.Template = Template;
 
 }(this));

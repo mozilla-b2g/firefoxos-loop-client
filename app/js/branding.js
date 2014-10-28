@@ -29,8 +29,9 @@
                                       'brandingHtmlMarkup' in element.dataset);
   }
 
-  function init() {
-    var elements = document.querySelectorAll('[data-branding-service-name]');
+  function naming(container) {
+    container = container || document;
+    var elements = container.querySelectorAll('[data-branding-service-name]');
     var length = elements.length;
     for (var i = 0; i < length; i++) {
       var element = elements[i];
@@ -43,8 +44,9 @@
   }
 
   var Branding = {
-    init: function b_init() {
-      mozL10n.readyState === 'complete' ? init() : mozL10n.ready(init);
+    naming: function b_naming(container) {
+      mozL10n.readyState === 'complete' ? naming(container) :
+                                    mozL10n.ready(naming.bind(null, container));
     },
 
     get name() {
