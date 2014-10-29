@@ -400,6 +400,33 @@
               _perfDebug && PerfLog.log(_perfBranch,
                 'Received "loaded" event from remote stream');
               CallScreenUI.setCallStatus('connected');
+              if (_perfDebug) {
+                var meanFPS = 0;
+                var videoWidth = 640;
+                var videoHeight = 480;
+                var previousMozFrames = 0;
+                var videoTags = document.getElementsByTagName('video');
+                const MEAN_ELEMENTS = 16;
+                const TIME_INTERVAL_SECONDS = 3;
+                
+                setInterval(function () {
+                  if (videoTags.length > 1) {
+                    var fps =
+                       (videoTags[1].mozPaintedFrames - previousMozFrames) / TIME_INTERVAL_SECONDS;
+                    // mean of the last 16 fps
+                    meanFPS = (meanFPS * (MEAN_ELEMENTS - 1) + fps) / MEAN_ELEMENTS;
+                    console.log('fps = ' + meanFPS);
+                    // same with video width and height
+                    videoWidth =
+                       (videoWidth * (MEAN_ELEMENTS - 1) + videoTags[1].videoWidth) / MEAN_ELEMENTS;
+                    videoHeight =
+                       (videoHeight * (MEAN_ELEMENTS - 1) + videoTags[1].videoHeight) / MEAN_ELEMENTS;
+                    console.log('videoWidth = ' + videoTags[1].videoWidth +
+                                ', videoHeight = ' + videoTags[1].videoHeight);
+                    previousMozFrames = videoTags[1].mozPaintedFrames;
+                 }
+                }, TIME_INTERVAL_SECONDS * 1000);
+              }
             }
           });
           _publishersInSession += 1;
