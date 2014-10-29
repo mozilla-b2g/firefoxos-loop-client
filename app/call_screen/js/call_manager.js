@@ -407,6 +407,37 @@
               _perfDebug && PerfLog.log(_perfBranch,
                 'Received "loaded" event from remote stream');
               CallScreenUI.setCallStatus('connected');
+              if (!_publisher.answerSDP) { return; }
+              var videoCodecName;
+              var audioCodecName;
+              var description = _publisher.answerSDP;
+              //One of these strings will be found in SDP answer if H264 video
+              //codec is used
+              const H264_STRING_126 = 'a=rtpmap:126 H264';
+              const H264_STRING_97 = 'a=rtpmap:97 H264';
+              //This string will be found in SDP answer if VP8 video codec
+              //is used
+              const VP8_STRING = 'a=rtpmap:120 VP8';
+              //This string will be found in SDP answer if OPUS audio codec
+              //is used
+              const OPUS_STRING = 'a=rtpmap:109 opus';
+              if (description.indexOf(H264_STRING_126) != -1 || 
+                  description.indexOf(H264_STRING_97) != -1) {
+                videoCodecName = 'H264';
+              } else if (description.indexOf(VP8_STRING) != -1) {
+                videoCodecName = 'VP8';
+              } else {
+                videoCodecName = 'Unknown';
+              }
+              console.debug && console.log("Video Codec used: " +
+                videoCodecName);
+              if (description.indexOf(OPUS_STRING) != -1) {
+                audioCodecName = 'OPUS';
+              } else {
+                audioCodecName = 'Unknown';
+              }
+              console.debug && console.log("Audio Codec used: " +
+                audioCodecName);
             }
           });
           _publishersInSession += 1;
