@@ -17772,7 +17772,8 @@ waitForDomReady();
         _prevStats,
         _state,
         _iceServers,
-        _audioLevelCapable = OT.$.hasCapabilities('webAudio'),
+        // Set to false on bug 1057038 as a stopgap measure to increase performance
+        _audioLevelCapable = false,
         _audioLevelSampler;
 
     _validResolutions = {
@@ -19015,8 +19016,8 @@ waitForDomReady();
         _state,
         _prevStats,
         _lastSubscribeToVideoReason,
-        _audioLevelCapable =  OT.$.hasCapabilities('audioOutputLevelStat') ||
-                              OT.$.hasCapabilities('webAudioCapableRemoteStream'),
+        // Set to false on bug 1057038 as a stopgap measure to increase performance
+        _audioLevelCapable =  false,
         _audioLevelSampler,
         _audioLevelRunner,
         _frameRateRestricted = false;
