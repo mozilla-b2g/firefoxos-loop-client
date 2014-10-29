@@ -91,7 +91,7 @@
       if (that._state !== 'connected') {
         var message = {};
         that._state = message.state = 'terminated';
-        message.reason = 'Websocket onclose fired';
+        that._reason = message.reason = 'Websocket onclose fired';
         _callback(that._onerror, [message]);
         return;
       }
@@ -101,7 +101,7 @@
     this._ws.onerror = function onErrorWS(evt) {
       var message = {};
       that._state = message.state = 'terminated';
-      message.reason = 'Websocket onerror fired';
+      that._reason = message.reason = 'Websocket onerror fired';
       _callback(that._onerror, [message]);
     };
   }
