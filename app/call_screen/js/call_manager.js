@@ -563,7 +563,7 @@
           resolve();
         }
 
-        function _waitForInitialized() {
+        function _waitForInitialized(error) {
           var secureTimeout = setTimeout(
             function() {
               _resolvePromise(error);

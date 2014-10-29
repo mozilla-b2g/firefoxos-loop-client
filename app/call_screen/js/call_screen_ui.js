@@ -585,6 +585,7 @@
       });
     },
     abortCall: function(error) {
+      TonePlayerHelper.init('telephony');
       if (error && error.reason) {
         this.notifyCallFailed(error);
         return;
