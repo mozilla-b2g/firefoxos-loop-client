@@ -246,9 +246,12 @@
 
       if (params.type === 'outgoing') {
         CallManager.join(params.video, params.frontCamera);
-      } else {
-        CallScreenUIMinified.updateIdentityInfo(params.identities);
       }
+
+      // Update contact name for incoming/outgoing calls. Outgoing calls because
+      // identities are retrieved from server for "loop-call" activities
+      var identities = params.identities;
+      identities && CallScreenUIMinified.updateIdentityInfo(identities);
     },
 
     toggleVideo: function(isVideoOn) {
