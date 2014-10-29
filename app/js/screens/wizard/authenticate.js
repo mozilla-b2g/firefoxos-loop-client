@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
 
-  var _fxaButton, _mobileIdButton, _wizardLogin;
+  var _fxaButton, _mobileIdButton, _wizardLogin, _termsOfService;
 
   function _onButtonClick(id) {
     if (!navigator.onLine) {
@@ -41,24 +41,13 @@
       _fxaButton.addEventListener('click', _onFxaButtonClick);
       _mobileIdButton.addEventListener('click', _onMobileIdButtonClick);
 
-      // Add web view handler
-      var links = _wizardLogin.querySelectorAll('[data-webview]');
-      for (var i = 0, l = links.length; i < l; i++) {
-        var title = links[i].dataset.title;
-        var url = links[i].dataset.url;
-
-        if (!url || !title) {
-          return;
-        }
-
-        links[i].addEventListener(
-          'click',
-          function launchWebview(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            WebviewOverlay.show(title, url);
-          }
-        );
+      if (!_termsOfService) {
+        _termsOfService = document.getElementById('terms-of-service');
+        _termsOfService.addEventListener('click', (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.open(Config.tos_url);
+        });
       }
     }
   };

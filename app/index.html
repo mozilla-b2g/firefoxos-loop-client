@@ -17,7 +17,6 @@
     <link rel="stylesheet" type="text/css" href="libs/components/gaia-layout/style.css">
 
     <link rel="stylesheet" type="text/css" href="style/share.css">
-    <link rel="stylesheet" type="text/css" href="style/webview.css">
     <link rel="stylesheet" type="text/css" href="style/settings.css">
     <link rel="stylesheet" type="text/css" href="style/loading_overlay.css">
     <link rel="stylesheet" type="text/css" href="style/calllog.css">
@@ -62,7 +61,6 @@
     <script defer src="js/controller.js"></script>
 
     <script defer src="js/screens/loading_overlay.js"></script>
-    <script defer src="js/screens/webview_overlay.js"></script>
     <script defer src="js/screens/option_menu.js"></script>
     <script defer src="js/screens/splash_screen.js"></script>
     <script defer src="js/screens/settings.js"></script>
@@ -78,13 +76,6 @@
     <section id="loading-overlay" class="panel" role="region" data-type="dialog">
       <p><progress class="light"></progress></p>
       <p id="loading-overlay-message"></p>
-    </section>
-    <section id="webview-overlay" class="panel" role="region" data-type="dialog">
-      <header>
-        <button id="webview-close"><span class="icon icon-close"></span></button>
-        <h1 id="webview-overlay-title"></h1>
-      </header>
-      <iframe id="webview-iframe" src=""></iframe>
     </section>
     <section id="splash-screen" class="show">
     </section>
@@ -160,7 +151,7 @@
         </header>
         <footer class="gaia-footer vbox">
           <p>
-            <a id="termsOfService" data-url="http://www.mozilla.com" data-title="ToS" data-webview="true"></a>
+            <a id="terms-of-service"></a>
           </p>
           <button id="authenticate-msisdn-button" class="wizard-button" data-l10n-id="usePhone">
           </button>
