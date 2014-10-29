@@ -6,6 +6,7 @@ Config = {
   //   Stage: 'https://loop.stage.mozaws.net'
   //   Prod: 'https://loop.services.mozilla.com'
   server_url: 'https://loop.services.mozilla.com',
+  channel: 'mobile', // The release channel of the calling client.
   performanceLog: {
     enabled: false,
     persistent: false
