@@ -1,0 +1,72 @@
+diff --git a/libs/tokbox/v2.2.9.1/js/TB.js b/libs/tokbox/v2.2.9.1/js/TB.js
+index 4ac74d7..a9b11dd 100644
+--- a/libs/tokbox/v2.2.9.1/js/TB.js
++++ b/libs/tokbox/v2.2.9.1/js/TB.js
+@@ -15229,9 +15229,17 @@ waitForDomReady();
+         _iceProcessor = new IceCandidateProcessor(),
+         _offer,
+         _answer,
++        _offerSDP,
++        _answerSDP,
+         _state = 'new',
+         _messageDelegates = [];
+ 
++    Object.defineProperty(this, 'answerSDP', { get: function() {
++      return _answerSDP; }
++    });
++    Object.defineProperty(this, 'offerSDP', { get: function() {
++      return _offerSDP; }
++    });
+ 
+     OT.$.eventing(this);
+ 
+@@ -15468,6 +15476,7 @@ waitForDomReady();
+               reportError
+             );
+           });
++          _offerSDP = message.content.sdp;
+         },
+ 
+         processAnswer = function(message) {
+@@ -15488,7 +15497,7 @@ waitForDomReady();
+ 
+           _iceProcessor.setPeerConnection(_peerConnection);
+           _iceProcessor.processPending();
+-
++          _answerSDP = message.content.sdp;
+           qos.startCollecting(_peerConnection);
+         },
+ 
+@@ -16186,6 +16195,10 @@ waitForDomReady();
+       _peerConnection.processMessage(type, message);
+     };
+ 
++    this.getPeerConnection = function() {
++      return _peerConnection;
++    };
++
+     // Init
+     this.init = function(iceServers) {
+       _peerConnection = OT.PeerConnections.add(remoteConnection, streamId, {
+@@ -17773,7 +17786,12 @@ waitForDomReady();
+         _state,
+         _iceServers,
+         _audioLevelCapable = OT.$.hasCapabilities('webAudio'),
+-        _audioLevelSampler;
++        _audioLevelSampler,
++        _answerSDP,;
++
++    Object.defineProperty(this, 'answerSDP', {
++      get: function () { return _answerSDP; }
++    });
+ 
+     _validResolutions = {
+       '320x240': {width: 320, height: 240},
+@@ -18646,6 +18664,7 @@ waitForDomReady();
+         default:
+           var peerConnection = createPeerConnectionForRemote.call(this, fromConnection);
+           peerConnection.processMessage(type, message);
++          _answerSDP = peerConnection.getPeerConnection().answerSDP;
+       }
+     };
+ 

@@ -15229,9 +15229,17 @@ waitForDomReady();
         _iceProcessor = new IceCandidateProcessor(),
         _offer,
         _answer,
+        _offerSDP,
+        _answerSDP,
         _state = 'new',
         _messageDelegates = [];
 
+    Object.defineProperty(this, 'answerSDP', { get: function() {
+      return _answerSDP; }
+    });
+    Object.defineProperty(this, 'offerSDP', { get: function() {
+      return _offerSDP; }
+    });
 
     OT.$.eventing(this);
 
@@ -15468,6 +15476,7 @@ waitForDomReady();
               reportError
             );
           });
+          _offerSDP = message.content.sdp;
         },
 
         processAnswer = function(message) {
@@ -15488,7 +15497,7 @@ waitForDomReady();
 
           _iceProcessor.setPeerConnection(_peerConnection);
           _iceProcessor.processPending();
-
+          _answerSDP = message.content.sdp;
           qos.startCollecting(_peerConnection);
         },
 
@@ -16184,6 +16193,10 @@ waitForDomReady();
 
     this.processMessage = function(type, message) {
       _peerConnection.processMessage(type, message);
+    };
+
+    this.getPeerConnection = function() {
+      return _peerConnection;
     };
 
     // Init
@@ -17774,7 +17787,12 @@ waitForDomReady();
         _iceServers,
         // Set to false on bug 1057038 as a stopgap measure to increase performance
         _audioLevelCapable = false,
-        _audioLevelSampler;
+        _audioLevelSampler,
+        _answerSDP;
+
+    Object.defineProperty(this, 'answerSDP', {
+      get: function () { return _answerSDP; }
+    });
 
     _validResolutions = {
       '320x240': {width: 320, height: 240},
@@ -18647,6 +18665,7 @@ waitForDomReady();
         default:
           var peerConnection = createPeerConnectionForRemote.call(this, fromConnection);
           peerConnection.processMessage(type, message);
+          _answerSDP = peerConnection.getPeerConnection().answerSDP;
       }
     };
 
