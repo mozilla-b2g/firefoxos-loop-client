@@ -49,6 +49,9 @@
 
   const TIMEOUT_SHIELD = 5000;
 
+  const MEAN_ELEMENTS = 16;
+  const TIME_INTERVAL_SECONDS = 3;
+
   /**
    * Send the signal given as the parameter to the remote party.
    *
@@ -417,6 +420,36 @@
               _perfDebug && PerfLog.log(_perfBranch,
                 'Received "loaded" event from remote stream');
               CallScreenUI.setCallStatus('connected');
+
+              if (_perfDebug) {
+                var meanFPS = 0;
+                var videoWidth = 640;
+                var videoHeight = 480;
+                var previousMozFrames = 0;
+                var remoteVideoContainer =
+                  document.getElementById('fullscreen-video');
+                var remoteVideoElement =
+                  remoteVideoContainer.querySelector('video');
+
+                if (remoteVideoElement) {
+                  window.setInterval(function () {
+                    var fps = (remoteVideoElement.mozPaintedFrames - previousMozFrames) / TIME_INTERVAL_SECONDS;
+                    // mean of the last 16 fps
+                    meanFPS = (meanFPS * (MEAN_ELEMENTS - 1) + fps) / MEAN_ELEMENTS;
+                    debug && console.log('fps = ' + meanFPS);
+
+                    // same with video width and height
+                    videoWidth = (videoWidth * (MEAN_ELEMENTS - 1) + remoteVideoElement.videoWidth) / MEAN_ELEMENTS;
+                    videoHeight = (videoHeight * (MEAN_ELEMENTS - 1) + remoteVideoElement.videoHeight) / MEAN_ELEMENTS;
+                    debug && console.log(
+                      'videoWidth = ' + remoteVideoElement.videoWidth + ', ' +
+                      'videoHeight = ' + remoteVideoElement.videoHeight
+                    );
+
+                    previousMozFrames = remoteVideoElement.mozPaintedFrames;
+                  }, TIME_INTERVAL_SECONDS * 1000);
+                }
+              }
 
               if (!_publisher.answerSDP) {
                 return;
