@@ -1,6 +1,8 @@
 (function(exports) {
   'use strict';
 
+  var debug = Config.debug;
+
   var _perfDebug = Config.performanceLog.enabled;
   var _perfBranch = 'CallScreen';
 
@@ -36,6 +38,14 @@
   var _isVideoCall = false;
   var _peersConnection = null;
   var _acm = navigator.mozAudioChannelManager;
+
+  // These strings will be found in SDP answer if H264 video codec is used
+  const H264_STRING_126 = 'a=rtpmap:126 H264';
+  const H264_STRING_97 = 'a=rtpmap:97 H264';
+  // This string will be found in SDP answer if VP8 video codec is used
+  const VP8_STRING = 'a=rtpmap:120 VP8';
+  // This string will be found in SDP answer if OPUS audio codec is used
+  const OPUS_STRING = 'a=rtpmap:109 opus';
 
   const TIMEOUT_SHIELD = 5000;
 
@@ -260,7 +270,7 @@
 
     toggleVideo: function(isVideoOn) {
       if (!_publisher) {
-        console.error('No publisher in this call');
+        debug && console.error('No publisher in this call');
         return;
       }
 
@@ -281,7 +291,7 @@
 
     toggleMic: function(isMicOn) {
       if (!_publisher) {
-        console.error('No publisher in this call');
+        debug && console.error('No publisher in this call');
         return;
       }
       _publisher.publishAudio(isMicOn);
@@ -407,6 +417,29 @@
               _perfDebug && PerfLog.log(_perfBranch,
                 'Received "loaded" event from remote stream');
               CallScreenUI.setCallStatus('connected');
+
+              if (!_publisher.answerSDP) {
+                return;
+              }
+
+              var videoCodecName, audioCodecName, description;
+              description = _publisher.answerSDP;
+              if (description.indexOf(H264_STRING_126) != -1 || 
+                  description.indexOf(H264_STRING_97) != -1) {
+                videoCodecName = 'H264';
+              } else if (description.indexOf(VP8_STRING) != -1) {
+                videoCodecName = 'VP8';
+              } else {
+                videoCodecName = 'Unknown';
+              }
+              debug && console.log("Video Codec used: " + videoCodecName);
+
+              if (description.indexOf(OPUS_STRING) != -1) {
+                audioCodecName = 'OPUS';
+              } else {
+                audioCodecName = 'Unknown';
+              }
+              debug && console.log("Audio Codec used: " + audioCodecName);
             }
           });
           _publishersInSession += 1;
@@ -444,7 +477,7 @@
       // Connect asap in order to publish the video
       _session.connect(_call.sessionToken, function(e) {
         if (e) {
-          console.log('Session connect error ' + e.message);
+          debug && console.log('Session connect error ' + e.message);
           return;
         }
 
@@ -465,7 +498,7 @@
           },
           function onPublish(ee) {
             if (ee) {
-              console.log('Session publish error ' + ee.message);
+              debug && console.log('Session publish error ' + ee.message);
             }
 
             // Once published we set the video properly according our setting
@@ -603,7 +636,7 @@
         try {
           _session.disconnect();
         } catch(e) {
-          console.log('Session is not available to disconnect ' + e);
+          debug && console.log('Session is not available to disconnect ' + e);
         }
 
         if (AudioCompetingHelper) {
