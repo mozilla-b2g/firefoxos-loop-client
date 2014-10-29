@@ -19,24 +19,3 @@ body[data-layout="calllog"] #wizard-panel {
 body[data-layout="calllog"] #calllog-panel {
   transform: translateX(0);
 }
-
-/*
- * share
- */
-body[data-layout="contact-detail"] #wizard-panel {
-  transform: translateX(-100%);
-}
-
-body[data-layout="contact-detail"] #calllog-panel {
-  transform: translateX(-100%);
-}
-
-body[data-layout="contact-detail"] #contact-detail-panel {
-  transform: translateX(0);
-}
-
-
-body[data-layout="share"] #share-panel {
-  transition: all ease .4s;
-  transform: translateX(0);
-}
