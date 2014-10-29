@@ -16,6 +16,7 @@
   var _connectionTimeout;
   var _callProgressHelper = null;
   var _callee;
+  var _calleeJoined = false;
   var _isCalleeUnavailable = true;
   var _speakerManager;
   var _onhold = function noop() {};
@@ -109,10 +110,11 @@
           CallScreenUI.setCallStatus('calling');
           return;
         }
-        
-        _perfDebug && PerfLog.log(_perfBranch,
-          'We send "accept" event through websocket');
-        callProgressHelper.accept();
+        if (_callee && _calleeJoined) {
+          _perfDebug && PerfLog.log(_perfBranch,
+            'We send "accept" event through websocket');
+          callProgressHelper.accept();
+        }
         break;
       case 'connecting':
         _perfDebug && PerfLog.log(_perfBranch,
@@ -180,6 +182,7 @@
         _callProgressHelper = null;
 
         if (!reason) {
+          _onpeercancel();
           return;
         }
         switch (reason) {
@@ -201,6 +204,7 @@
             _onpeerended();
             break;
           default:
+            _onpeercancel();
             break;
         }
         break;
@@ -487,6 +491,9 @@
         });
       });
 
+      if (_callee) {
+        _calleeJoined = true;
+      }
 
       window.addEventListener('offline', _dispatchNetworkError);
       _handleCallProgress(_callProgressHelper);
@@ -579,6 +586,8 @@
             }
           );
         }
+
+        _calleeJoined = false;
 
         if (_callProgressHelper) {
           if (_isCallManagerInitialized) {
