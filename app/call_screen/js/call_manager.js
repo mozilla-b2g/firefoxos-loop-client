@@ -38,6 +38,8 @@
   var _isVideoCall = false;
   var _peersConnection = null;
   var _acm = navigator.mozAudioChannelManager;
+  var _videoCodecName = 'unknown';
+  var _audioCodecName = 'unknown';
 
   // These strings will be found in SDP answer if H264 video codec is used
   const H264_STRING_126 = 'a=rtpmap:126 H264';
@@ -455,24 +457,23 @@
                 return;
               }
 
-              var videoCodecName, audioCodecName, description;
+              var description;
               description = _publisher.answerSDP;
               if (description.indexOf(H264_STRING_126) != -1 || 
                   description.indexOf(H264_STRING_97) != -1) {
-                videoCodecName = 'H264';
+                _videoCodecName = 'H264';
               } else if (description.indexOf(VP8_STRING) != -1) {
-                videoCodecName = 'VP8';
+                _videoCodecName = 'VP8';
               } else {
-                videoCodecName = 'Unknown';
+                _videoCodecName = 'unknown';
               }
-              debug && console.log("Video Codec used: " + videoCodecName);
-
+              debug && console.log("Video Codec used: " + _videoCodecName);
               if (description.indexOf(OPUS_STRING) != -1) {
-                audioCodecName = 'OPUS';
+                _audioCodecName = 'OPUS';
               } else {
-                audioCodecName = 'Unknown';
+                _audioCodecName = 'unknown';
               }
-              debug && console.log("Audio Codec used: " + audioCodecName);
+              debug && console.log("Audio Codec used: " + _audioCodecName);
             }
           });
           _publishersInSession += 1;
@@ -694,6 +695,8 @@
           duration: duration,
           connected: connected,
           video: _isVideoCall,
+          videoCodecName: _videoCodecName,
+          audioCodecName: _audioCodecName,
           feedback: feedback || null
         };
 

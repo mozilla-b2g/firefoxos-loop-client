@@ -227,7 +227,8 @@
             CallLog.addCall(callObject);
             cleanCallParams();
           });
-
+          Telemetry.recordAudioCodec(callscreenParams.audioCodecName);
+          Telemetry.recordVideoCodec(callscreenParams.videoCodecName);
           Telemetry.recordCallDuration(callObject.duration);
           break;
       }
