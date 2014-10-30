@@ -82,6 +82,52 @@
     });
   }
 
+  function _onClose() {
+    Share.hide();
+  }
+
+  function _onOtherClicked() {
+    Controller.shareUrl(
+      _url,
+      function onShared() {
+        CallLog.addUrl(_generateUrlObject(), _contactInfo);
+        Share.hide();
+      },
+      function onError() {
+        // TODO Do we need to show something to the user?
+      }
+    );
+  }
+
+  function _onSMSClicked() {
+    if (_tels.length === 1) {
+      _newSMS(_tels[0]);
+      return;
+    }
+    _newFromArray(_tels, _newSMS);
+  }
+
+  function _onEmailClicked() {
+    if (_mails.length === 1) {
+      _newMail(_mails[0]);
+      return;
+    }
+    _newFromArray(_mails, _newMail);
+  }
+
+  function _attachHandlers() {
+    _closeButton.addEventListener('click', _onClose);
+    _shareOthers.addEventListener('click', _onOtherClicked);
+    _shareSMS.addEventListener('click', _onSMSClicked);
+    _shareEmail.addEventListener('click', _onEmailClicked);
+  }
+
+  function _removeHandlers() {
+    _closeButton.removeEventListener('click', _onClose);
+    _shareOthers.removeEventListener('click', _onOtherClicked);
+    _shareSMS.removeEventListener('click', _onSMSClicked);
+    _shareEmail.removeEventListener('click', _onEmailClicked);
+  }
 
   function _init() {
     if (_sharePanel) {
@@ -91,6 +137,11 @@
     _ = navigator.mozL10n.get;
 
     _sharePanel = document.getElementById('share-panel');
+    _sharePanel.innerHTML = Template.extract(_sharePanel);
+    // We emit this event to center properly headers
+    window.dispatchEvent(new CustomEvent('lazyload', {
+      detail: document.body
+    }));
     _closeButton = document.getElementById('share-close-button');
     _shareOthers = document.getElementById('share-by-others');
     _shareSMS = document.getElementById('share-by-sms');
@@ -100,53 +151,6 @@
     _urlshown = document.getElementById('link-to-share');
     _shareInfo = document.querySelector('.share-contact-info');
     _shareInfoPhoto = document.querySelector('.share-contact-photo');
-    
-    
-    _closeButton.addEventListener(
-      'click',
-      function() {
-        Share.hide();
-      }
-    );
-
-    _shareOthers.addEventListener(
-      'click',
-      function() {
-        Controller.shareUrl(
-          _url,
-          function onShared() {
-            CallLog.addUrl(_generateUrlObject(), _contactInfo);
-            Share.hide();
-          },
-          function onError() {
-            // TODO Do we need to show something to the user?
-          }
-        );
-      }
-    );
-
-    _shareSMS.addEventListener(
-      'click',
-      function sendThroughSMS() {
-        if (_tels.length === 1) {
-          _newSMS(_tels[0]);
-          return;
-        }
-        _newFromArray(_tels, _newSMS);
-      }
-    );
-
-
-    _shareEmail.addEventListener(
-      'click',
-      function sendThroughEmail() {
-        if (_mails.length === 1) {
-          _newMail(_mails[0]);
-          return;
-        }
-        _newFromArray(_mails, _newMail);
-      }
-    );
   }
 
 
@@ -236,16 +240,21 @@
       // Render the UI
       _render(identities, _url, sharingReason);
 
+      _attachHandlers();
+
       // Show the panel and execute the callback when shown.
-      _sharePanel.addEventListener(
-        'transitionend',
-        function onTransition() {
-          if (typeof callback === 'function') {
-            callback();
-          }
+      _sharePanel.addEventListener('transitionend', function onTransition() {
+        _sharePanel.removeEventListener('transitionend', onTransition);
+        if (typeof callback === 'function') {
+          callback();
         }
-      );
-      _sharePanel.classList.add('show');
+      });
+
+      _sharePanel.classList.remove('hide');
+      // Allow UI to be painted before launching the animation
+      setTimeout(() => {
+        _sharePanel.classList.add('show');
+      }, 50);
     },
     hide: function s_hide() {
       // Clean vars
@@ -260,7 +269,13 @@
       _shareSMS.style.display = 'none';
       _shareEmail.style.display = 'none';
 
+      _removeHandlers();
+
       // Hide panel
+      _sharePanel.addEventListener('transitionend', function onTransition() {
+        _sharePanel.removeEventListener('transitionend', onTransition);
+        _sharePanel.classList.add('hide');
+      });
       _sharePanel.classList.remove('show');
     }
   };

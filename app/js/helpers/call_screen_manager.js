@@ -106,6 +106,15 @@
     _params = null;
   }
 
+  function getShareUI() {
+    return new Promise((resolve, reject) => {
+      LazyLoader.load(['style/share.css',
+                       'js/screens/share.js'], () => {
+        resolve(Share);
+      });
+    });
+  }
+
   function onHandShakingEvent(event) {
     try {
       var messageFromCallScreen = JSON.parse(event.data);
@@ -162,10 +171,12 @@
                 // Get URL to share and show prompt
                 CallHelper.generateCallUrl(_params.identities[0],
                   function onCallUrlSuccess(result) {
-                    Share.show(result,
-                               _params.identities,
-                               'unavailable',
-                               _closeAttentionScreen);
+                    getShareUI().then((ui) => {
+                      ui.show(result,
+                              _params.identities,
+                              'unavailable',
+                              _closeAttentionScreen);
+                    });
                   },
                   function(e) {
                     console.error(
@@ -351,22 +362,24 @@
                     CallHelper.generateCallUrl(params.identities[0],
                       function onCallUrlSuccess(result) {
                         var speaker = params.video && params.video === true;
-                        Share.show(
-                          result,
-                          params.identities,
-                          'notAUser',
-                          function onShareScreen() {
-                            _closeAttentionScreen();
-                            LazyLoader.load('js/helpers/tone_player_helper.js',
-                              function onTonePlayerLoaded() {
-                                TonePlayerHelper.init('telephony');
-                                TonePlayerHelper.playFailed(speaker).then(
-                                  function onplaybackcompleted() {
-                                    TonePlayerHelper.stop();
-                                    TonePlayerHelper.releaseResources();
-                                });
-                              }
-                            );
+                        getShareUI().then((ui) => {
+                          ui.show(
+                            result,
+                            params.identities,
+                            'notAUser',
+                            function onShareScreen() {
+                              _closeAttentionScreen();
+                              LazyLoader.load('js/helpers/tone_player_helper.js',
+                                function onTonePlayerLoaded() {
+                                  TonePlayerHelper.init('telephony');
+                                  TonePlayerHelper.playFailed(speaker).then(
+                                    function onplaybackcompleted() {
+                                      TonePlayerHelper.stop();
+                                      TonePlayerHelper.releaseResources();
+                                  });
+                                }
+                              );
+                          });
                         });
                       },
                       function(e) {
