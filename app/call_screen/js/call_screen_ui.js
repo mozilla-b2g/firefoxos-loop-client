@@ -76,6 +76,18 @@
     }
   }
 
+  function getFirstCommentChild(node) {
+    node = node.firstChild;
+
+    do {
+      if (node.nodeType === Node.COMMENT_NODE) {
+        return (node.nodeValue || '').trim();
+      }
+    } while ((node = node.nextSibling));
+
+    return '';
+  }
+
   var CallScreenUI = {
     init: function(isIncoming, isVideoCall, frontCamera) {
       if (_initialized) {
@@ -438,6 +450,9 @@
       _feedbackClose = callback;
       if (!_feedback) {
         _feedback = document.getElementById('feedback');
+        // We have the markup as a comment
+        _feedback.innerHTML = getFirstCommentChild(_feedback);
+        Branding.naming(_feedback);
       }
       document.getElementById('skip-feedback-button').addEventListener(
         'click',
