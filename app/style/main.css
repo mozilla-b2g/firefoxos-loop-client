@@ -84,3 +84,11 @@ form[role="dialog"][data-type="confirm"] section button {
   margin-left: -1.5rem;
   width: calc(100% + 3rem)
 }
+
+#error-screen ul {
+  display: none;
+}
+
+#error-screen[data-type="offline"] ul {
+  display: block;
+}

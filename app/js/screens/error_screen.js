@@ -8,85 +8,88 @@
 
   var _screen;
   var _errorMessage;
+  var _okButton;
+  var _settingsButton;
 
-  function _init() {
-    LazyLoader.load('style/bb/confirm.css');
-    _screen = document.getElementById('error-screen');
-    _errorMessage = document.getElementById('error-message');
-    var ok = document.getElementById('error-screen-ok');
-    ok.onclick = function() {
-      _hide();
+  function _attachHandlers() {
+    _okButton.addEventListener('click', _hide);
+    _settingsButton.addEventListener('click', _onSettingsClicked);
+    window.addEventListener('online', _onLine);
+  }
+
+  function _removeHandlers() {
+    _okButton.removeEventListener('click', _hide);
+    _settingsButton.removeEventListener('click', _onSettingsClicked);
+    window.removeEventListener('online', _onLine);
+  }
+
+  function _onLine() {
+    _screen.dataset.type === 'offline' && _hide();
+  }
+
+  function _onSettingsClicked(evt) {
+    _hide(evt);
+
+    var activity = new window.MozActivity({
+      name: 'configure',
+      data: {
+         target: 'device',
+        section: 'root',
+        filterBy: 'connectivity'
+      }
+    });
+
+    activity.onerror = function() {
+      console.warn('Configure activity error:', activity.error.name);
     };
   }
 
-  function _show(message) {
+  function _init() {
+    if (_screen) {
+      return;
+    }
+
+    _screen = document.getElementById('error-screen');
+    LazyLoader.load('style/bb/confirm.css');
+    _screen.innerHTML = Template.extract(_screen);
+    Branding.naming(_screen);
+    _errorMessage = document.getElementById('error-message');
+    _okButton = document.getElementById('error-screen-ok');
+    _settingsButton = document.getElementById('error-screen-settings');
+  }
+
+  function _show(type, message) {
+    _init();
+    _screen.dataset.type = type;
+    _attachHandlers();
     _errorMessage.textContent = message;
     _screen.classList.add('show');
   }
 
-  function _hide() {
-    _screen.addEventListener('transitionend', function onTransitionEnd() {
-        _screen.removeEventListener('transitionend', onTransitionEnd);
-        _screen.classList.remove('show');
-    });
-    _screen.classList.add('hide');
+  function _hide(evt) {
+    if (_screen.dataset.type === 'offline') {
+      evt && evt.preventDefault();
+    }
+
+    delete _screen.dataset.type;
+    _removeHandlers();
+    _screen.classList.remove('show');
   }
 
-  function ErrorScreen() {}
-  ErrorScreen.prototype = {
-    _init: function() {
-      this._initialized = true;
-      _init();
-    },
-    show: function(message) {
-      if (!this._initialized) {
-        this._init();
-      }
-      _show(message);
-    }
+  function ErrorScreen() {
+    this.type = 'error';
+  }
+
+  ErrorScreen.prototype.show = function(message) {
+    _show(this.type, message);
   };
 
-  function OfflineScreen() {}
-  OfflineScreen.prototype = {
-    _init: function() {
-      this._initialized = true;
-      _init();
+  function OfflineScreen() {
+    this.type = 'offline';
+  }
 
-      var _ = navigator.mozL10n.get;
-      var settings = document.createElement('button');
-      settings.textContent = _('checkSettings');
-      settings.classList.add('icon');
-      settings.classList.add('icon-settings');
-      settings.onclick = function() {
-        var activity = new window.MozActivity({
-          name: 'configure',
-          data: {
-             target: 'device',
-            section: 'root',
-            filterBy: 'connectivity'
-          }
-        });
-        activity.onerror = function() {
-          console.warn('Configure activity error:', activity.error.name);
-        };
-      };
-
-      var li = document.createElement('li');
-      li.appendChild(settings);
-
-      var ul = document.createElement('ul');
-      ul.classList.add('skin-dark');
-      ul.appendChild(li);
-
-      var section = _screen.querySelector('section');
-      section.appendChild(ul);
-    },
-    show: function(message) {
-      if (!this._initialized) {
-        this._init();
-      }
-      _show(message);
-    }
+  OfflineScreen.prototype.show = function(message) {
+    _show(this.type, message);
   };
 
   exports.ErrorScreen = new ErrorScreen();
