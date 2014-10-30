@@ -22,7 +22,7 @@
 
   function postRendering() {
     wizardLogin = document.getElementById('wizard-login');
-    termsOfServiceElement = document.getElementById('termsOfService');
+    termsOfServiceElement = document.getElementById('terms-of-service');
     Branding.naming(wizardPanel);
     Wizard.localize();
     window.addEventListener('localized', localize);
