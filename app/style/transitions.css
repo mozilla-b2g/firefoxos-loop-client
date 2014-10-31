@@ -9,11 +9,17 @@ body[data-layout="wizard"] #wizard-panel {
   transform: translateX(0);
 }
 
+body[data-layout="wizard"] #calllog-panel {
+  transform: translateX(100%);
+  display: none;
+}
+
 /*
  * calllog
  */
 body[data-layout="calllog"] #wizard-panel {
   transform: translateX(-100%);
+  display: none;
 }
 
 body[data-layout="calllog"] #calllog-panel {
