@@ -217,7 +217,12 @@
           name: 'Call',
           l10nId: 'call',
           method: function(identities) {
-            Controller.callIdentities(identities, null, Settings.isVideoDefault);
+            var isVideo = element.dataset.isVideo;
+            if (element.dataset.missedCall) {
+              isVideo = Settings.isVideoDefault;
+            }
+            Controller.callIdentities(identities, null, isVideo);
+            Telemetry.recordCallFromCallLog();
           },
           params: [identities]
         }
