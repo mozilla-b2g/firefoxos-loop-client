@@ -1,5 +1,5 @@
 Config = {
-  version: '1.1',
+  version: '1.1.1d',
   debug: false,
   // Server URL. It might be (depending on the environment):
   //   Development: 'http://loop.dev.mozaws.net'
