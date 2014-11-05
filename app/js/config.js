@@ -32,7 +32,7 @@ Config = {
 };
 
 window.OTProperties = {
-  version: 'v2.2.9.1'
+  version: 'v2.2.9.3'
 };
 window.OTProperties.assetURL = '../libs/tokbox/' + window.OTProperties.version + '/';
 window.OTProperties.configURL = window.OTProperties.assetURL + 'js/dynamic_config.min.js';

@@ -1,8 +1,8 @@
-diff --git a/libs/tokbox/v2.2.9.1/js/TB.js b/libs/tokbox/v2.2.9.1/js/TB.js
-index 4ac74d7..a9b11dd 100644
---- a/libs/tokbox/v2.2.9.1/js/TB.js
-+++ b/libs/tokbox/v2.2.9.1/js/TB.js
-@@ -15229,9 +15229,17 @@ waitForDomReady();
+diff --git a/app/libs/tokbox/v2.2.9.3/js/TB.js b/app/libs/tokbox/v2.2.9.3/js/TB.js
+index 30d19f0..e1636fc 100644
+--- a/app/libs/tokbox/v2.2.9.3/js/TB.js
++++ b/app/libs/tokbox/v2.2.9.3/js/TB.js
+@@ -15101,9 +15101,17 @@ waitForDomReady();
          _iceProcessor = new IceCandidateProcessor(),
          _offer,
          _answer,
@@ -10,37 +10,36 @@ index 4ac74d7..a9b11dd 100644
 +        _answerSDP,
          _state = 'new',
          _messageDelegates = [];
- 
+
 +    Object.defineProperty(this, 'answerSDP', { get: function() {
 +      return _answerSDP; }
 +    });
 +    Object.defineProperty(this, 'offerSDP', { get: function() {
 +      return _offerSDP; }
 +    });
- 
+
      OT.$.eventing(this);
- 
-@@ -15468,6 +15476,7 @@ waitForDomReady();
+
+@@ -15340,6 +15348,7 @@ waitForDomReady();
                reportError
              );
            });
 +          _offerSDP = message.content.sdp;
          },
- 
+
          processAnswer = function(message) {
-@@ -15488,7 +15497,7 @@ waitForDomReady();
- 
+@@ -15360,6 +15369,7 @@ waitForDomReady();
+
            _iceProcessor.setPeerConnection(_peerConnection);
            _iceProcessor.processPending();
--
 +          _answerSDP = message.content.sdp;
+
            qos.startCollecting(_peerConnection);
          },
- 
-@@ -16186,6 +16195,10 @@ waitForDomReady();
+@@ -16060,6 +16070,10 @@ waitForDomReady();
        _peerConnection.processMessage(type, message);
      };
- 
+
 +    this.getPeerConnection = function() {
 +      return _peerConnection;
 +    };
@@ -48,25 +47,25 @@ index 4ac74d7..a9b11dd 100644
      // Init
      this.init = function(iceServers) {
        _peerConnection = OT.PeerConnections.add(remoteConnection, streamId, {
-@@ -17773,7 +17786,12 @@ waitForDomReady();
-         _state,
+@@ -17631,7 +17645,12 @@ waitForDomReady();
          _iceServers,
          _audioLevelCapable = OT.$.hasCapabilities('webAudio'),
--        _audioLevelSampler;
-+        _audioLevelSampler,
-+        _answerSDP,;
+         _audioLevelSampler,
+-        _publisher = this;
++        _publisher = this,
++        _answerSDP;
 +
 +    Object.defineProperty(this, 'answerSDP', {
 +      get: function () { return _answerSDP; }
 +    });
- 
+
      _validResolutions = {
        '320x240': {width: 320, height: 240},
-@@ -18646,6 +18664,7 @@ waitForDomReady();
+@@ -18424,6 +18443,7 @@ waitForDomReady();
          default:
            var peerConnection = createPeerConnectionForRemote.call(this, fromConnection);
            peerConnection.processMessage(type, message);
 +          _answerSDP = peerConnection.getPeerConnection().answerSDP;
        }
      };
- 
+

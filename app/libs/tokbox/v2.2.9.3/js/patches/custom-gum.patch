@@ -1,0 +1,14 @@
+diff --git a/app/libs/tokbox/v2.2.9.3/js/TB.js b/app/libs/tokbox/v2.2.9.3/js/TB.js
+index b673ce6..1959800 100644
+--- a/app/libs/tokbox/v2.2.9.3/js/TB.js
++++ b/app/libs/tokbox/v2.2.9.3/js/TB.js
+@@ -18196,7 +18196,8 @@ waitForDomReady();
+             OT.$.bind(onStreamAvailableError, this),
+             OT.$.bind(onAccessDialogOpened, this),
+             OT.$.bind(onAccessDialogClosed, this),
+-            OT.$.bind(onAccessDenied, this)
++            OT.$.bind(onAccessDenied, this),
++            OT.$.customGetUserMedia
+           );
+         }, this));
+ 
