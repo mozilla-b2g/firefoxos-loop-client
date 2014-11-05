@@ -114,6 +114,9 @@
                 _remoteVideo.innerHTML = '';
                 _remoteVideo.style.backgroundImage = urlString;
                 _remoteImage.style.backgroundImage = urlString;
+                _remoteImage.classList.remove('default');
+              } else {
+                _remoteImage.classList.add('default');
               }
             },
             function onError() {
