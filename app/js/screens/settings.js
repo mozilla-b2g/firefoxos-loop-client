@@ -277,9 +277,22 @@
       }
       document.getElementById('settings-container').scrollTop = 0;
 
-      _settingsPanel.classList.add('show');
-      Settings.onShown();
+      _settingsPanel.addEventListener('transitionend', function onTransition() {
+        _settingsPanel.removeEventListener('transitionend', onTransition);
+        Settings.onShown();
+      });
+
+      _settingsPanel.classList.remove('hide');
+      // Emite event for centering header
+      window.dispatchEvent(new CustomEvent('lazyload', {
+        detail: _settingsPanel
+      }));
+      // Allow UI to be painted before launching the animation
+      setTimeout(() => {
+        _settingsPanel.classList.add('show');
+      }, 50);
     },
+
     /*
      * This method is performed once settings view is displayed
      */
@@ -287,10 +300,16 @@
       _cleanCallsButton.disabled = CallLog.callsSectionEmpty;
       _cleanUrlsButton.disabled = CallLog.urlsSectionEmpty;
     },
+
     hide: function s_hide() {
       if (!_settingsPanel) {
         return;
       }
+
+      _settingsPanel.addEventListener('transitionend', function onTransition() {
+        _settingsPanel.removeEventListener('transitionend', onTransition);
+        _settingsPanel.classList.add('hide');
+      });
       _settingsPanel.classList.remove('show');
     },
 
