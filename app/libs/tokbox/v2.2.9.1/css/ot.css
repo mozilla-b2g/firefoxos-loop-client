@@ -492,10 +492,10 @@
 }
 
 .OT_centered {
-	position: fixed;
-	left: 50%;
-	top: 50%;
-	margin: 0;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  margin: 0;
 }
 
 /* Publisher and Subscriber styles */
@@ -525,13 +525,13 @@
 }
 
 .OT_subscriber_error {
-		background-color: #000;
-		color: #fff;
-		text-align: center;
+    background-color: #000;
+    color: #fff;
+    text-align: center;
 }
 
 .OT_subscriber_error > p {
-		padding: 20px;
+    padding: 20px;
 }
 
 /* The publisher/subscriber name/mute background */
