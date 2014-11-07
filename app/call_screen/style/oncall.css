@@ -263,12 +263,9 @@ h1, h2, h3 {
   z-index: 5;
 }
 
-.remote-bubble > div {
-  position: absolute;
-  text-align: center;
-  font-size: 2.9rem;
-  width: 100%;
-  top: calc(50% - 2rem);
+.remote-bubble.default {
+  background-image: url(images/thumb-generic.png);
+  background-size: 100%;
 }
 
 .remote-bubble {
@@ -949,6 +946,10 @@ body[data-rotation="270"] #resume-button  {
     background-image: url(images/ico_check@1.5x.png);
   }
 
+  .remote-bubble.default {
+    background-image: url(images/thumb-generic@1.5x.png);
+  }
+
   .remote-bubble-shadow {
     background-image: url(images/big_shadow@1.5x.png);
   }
@@ -978,6 +979,10 @@ body[data-rotation="270"] #resume-button  {
     background-image: url(images/ico_check@2x.png);
   }
 
+  .remote-bubble.default {
+    background-image: url(images/thumb-generic@2x.png);
+  }
+
   .remote-bubble-shadow {
     background-image: url(images/big_shadow@2x.png);
   }
@@ -1005,6 +1010,10 @@ body[data-rotation="270"] #resume-button  {
 
   #feedback label.pack-checkbox input:checked ~ span:after {
     background-image: url(images/ico_check@2.25x.png);
+  }
+
+  .remote-bubble.default {
+    background-image: url(images/thumb-generic@2.25x.png);
   }
 
   .remote-bubble-shadow {
