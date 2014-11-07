@@ -85,7 +85,7 @@ var LazyLoader = (function() {
             resolve(xhr.response);
           } else {
             reject(new Error('No valid JSON object was found (' +
-			     xhr.status + ' ' + xhr.statusText + ')'));
+                   xhr.status + ' ' + xhr.statusText + ')'));
           }
         };
 

@@ -392,12 +392,12 @@
                     );
                 });
               } else {
-		if (!navigator.onLine) {
-		  _listenToCallScreenMessages();
-		  _abortCall({reason: 'offline'});
-		  return;
-		}
-                CallHelper.callUrl(
+                  if (!navigator.onLine) {
+                    _listenToCallScreenMessages();
+                    _abortCall({reason: 'offline'});
+                    return;
+                  }
+                  CallHelper.callUrl(
                   params.token,
                   params.video,
                   function(call, calleeFriendlyName) {
@@ -407,9 +407,9 @@
                   },
                   function() {
                     console.error('Unable to connect');
-		    _listenToCallScreenMessages();
-		    _abortCall({reason: 'genericServerError'});
-		    return;
+                      _listenToCallScreenMessages();
+                      _abortCall({reason: 'genericServerError'});
+                      return;
                   }
                 );
               }

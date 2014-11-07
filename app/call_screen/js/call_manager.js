@@ -674,8 +674,8 @@
         }
 
         if (AudioCompetingHelper) {
-	  AudioCompetingHelper.leaveCompetition();
-	  AudioCompetingHelper.destroy();
+          AudioCompetingHelper.leaveCompetition();
+          AudioCompetingHelper.destroy();
         }
       });
     },
