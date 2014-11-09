@@ -1,20 +1,20 @@
 /**
- * @license  OpenTok JavaScript Library v2.2.9.1
+ * @license  OpenTok JavaScript Library v2.2.9.3
  * http://www.tokbox.com/
  *
  * Copyright (c) 2014 TokBox, Inc.
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * Date: September 08 10:17:05 2014
+ * Date: October 30 10:33:45 2014
  */
 
 (function(window) {
   if (!window.OT) window.OT = {};
 
   OT.properties = {
-    version: 'v2.2.9.1',         // The current version (eg. v2.0.4) (This is replaced by gradle)
-    build: '72b534e',    // The current build hash (This is replaced by gradle)
+    version: 'v2.2.9.3',         // The current version (eg. v2.0.4) (This is replaced by gradle)
+    build: '5ffd3b6',    // The current build hash (This is replaced by gradle)
 
     // Whether or not to turn on debug logging by default
     debug: 'false',
@@ -3103,6 +3103,14 @@
 })(window);
 !(function() {
 
+  var adjustModal = function(callback) {
+    return function setFullHeightDocument(window, document) {
+      // required in IE8
+      document.querySelector('html').style.height = document.body.style.height = '100%';
+      callback(window, document);
+    };
+  };
+
   var addCss = function(document, url, callback) {
     var head = document.head || document.getElementsByTagName('head')[0];
     var cssTag = OT.$.createElement('link', {
@@ -3167,203 +3175,10 @@
 
   OT.Dialogs = {};
 
-  OT.Dialogs.AllowDeny = {
-    Chrome: {},
-    Firefox: {}
-  };
-
-  OT.Dialogs.AllowDeny.Chrome.initialPrompt = function() {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = OT.$.bind(templateElement, document),
-          close, root;
-
-      close = el('OT_closeButton', '&times;')
-        .on('click', function() {
-          modal.trigger('closeButtonClicked');
-          modal.close();
-        });
-
-      root = el('OT_root OT_dialog OT_dialog-allow-deny-chrome-first', [
-        close,
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', 'Allow camera and mic access'),
-          el('OT_dialog-messages-minor', 'Click the Allow button in the upper-right corner ' +
-            'of your browser to enable real-time communication.'),
-          el('OT_dialog-allow-highlight-chrome')
-        ])
-      ]);
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-  OT.Dialogs.AllowDeny.Chrome.previouslyDenied = function(website) {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = OT.$.bind(templateElement, document),
-          close,
-          root;
-
-      close = el('OT_closeButton', '&times;')
-        .on('click', function() {
-          modal.trigger('closeButtonClicked');
-          modal.close();
-        });
-
-      root = el('OT_root OT_dialog OT_dialog-allow-deny-chrome-pre-denied', [
-        close,
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', 'Allow camera and mic access'),
-          el('OT_dialog-messages-minor', [
-            'To interact with this app, follow these 3 steps:',
-            el('OT_dialog-3steps', [
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '1'),
-                'Find this icon in the URL bar and click it',
-                el('OT_dialog-allow-camera-icon')
-              ]),
-              el('OT_dialog-3steps-seperator'),
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '2'),
-                'Select "Ask if ' + website + ' wants to access your camera and mic" ' +
-                  'and then click Done.'
-              ]),
-              el('OT_dialog-3steps-seperator'),
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '3'),
-                'Refresh your browser.'
-              ])
-            ])
-          ])
-        ])
-      ]);
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-  OT.Dialogs.AllowDeny.Chrome.deniedNow = function() {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = OT.$.bind(templateElement, document),
-          root;
-
-      root = el('OT_root OT_dialog-blackout',
-        el('OT_dialog OT_dialog-allow-deny-chrome-now-denied', [
-          el('OT_dialog-messages', [
-            el('OT_dialog-messages-main ',
-              el('OT_dialog-allow-camera-icon')
-            ),
-            el('OT_dialog-messages-minor',
-              'Find & click this icon to allow camera and mic access.'
-            )
-          ])
-        ])
-      );
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-  OT.Dialogs.AllowDeny.Firefox.maybeDenied = function() {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = OT.$.bind(templateElement, document),
-          close,
-          root;
-
-      close = el('OT_closeButton', '&times;')
-        .on('click', function() {
-          modal.trigger('closeButtonClicked');
-          modal.close();
-        });
-
-      root = el('OT_root OT_dialog OT_dialog-allow-deny-firefox-maybe-denied', [
-        close,
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', 'Please allow camera & mic access'),
-          el('OT_dialog-messages-minor', [
-            'To interact with this app, follow these 3 steps:',
-            el('OT_dialog-3steps', [
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '1'),
-                'Reload the page, or click the camera icon ' +
-                  'in the browser URL bar.'
-              ]),
-              el('OT_dialog-3steps-seperator'),
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '2'),
-                'In the menu, select your camera & mic.'
-              ]),
-              el('OT_dialog-3steps-seperator'),
-              el('OT_dialog-3steps-step', [
-                el('OT_dialog-3steps-step-num', '3'),
-                'Click "Share Selected Devices."'
-              ])
-            ])
-          ])
-        ])
-      ]);
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-    return modal;
-  };
-
-  OT.Dialogs.AllowDeny.Firefox.denied = function() {
-    var modal = new OT.$.Modal(function(window, document) {
-
-      var el = OT.$.bind(templateElement, document),
-          btn = OT.$.bind(templateElement, document, 'OT_dialog-button OT_dialog-button-large'),
-          root,
-          refreshButton;
-
-      refreshButton = btn('Reload')
-        .on('click', function() {
-          modal.trigger('refresh');
-        });
-
-      root = el('OT_root OT_dialog-blackout',
-        el('OT_dialog OT_dialog-allow-deny-firefox-denied', [
-          el('OT_dialog-messages', [
-            el('OT_dialog-messages-minor',
-              'Access to camera and microphone has been denied. ' +
-              'Click the button to reload page.'
-            )
-          ]),
-          el('OT_dialog-single-button', refreshButton)
-        ])
-      );
-
-      addDialogCSS(document, [], function() {
-        document.body.appendChild(root);
-      });
-
-    });
-
-    return modal;
-  };
-
   OT.Dialogs.Plugin = {};
 
   OT.Dialogs.Plugin.promptToInstall = function() {
-    var modal = new OT.$.Modal(function(window, document) {
+    var modal = new OT.$.Modal(adjustModal(function(window, document) {
 
       var el = OT.$.bind(templateElement, document),
           btn = function(children, size) {
@@ -3391,12 +3206,15 @@
           close,
           root;
 
+      OT.$.addClass(cancelButton, 'OT_dialog-no-natural-margin OT_dialog-button-block');
+      OT.$.addClass(refreshButton, 'OT_dialog-no-natural-margin');
+
       function onDownload() {
         modal.trigger('download');
         setTimeout(function() {
           root.querySelector('.OT_dialog-messages-main').innerHTML =
                                               'Plugin installation successful';
-          var sections = root.querySelectorAll('.OT_dialog-single-button-wide');
+          var sections = root.querySelectorAll('.OT_dialog-section');
           OT.$.addClass(sections[0], 'OT_dialog-hidden');
           OT.$.removeClass(sections[1], 'OT_dialog-hidden');
         }, 3000);
@@ -3451,33 +3269,37 @@
 
       checkbox = checkBoxElement.call(document, null, 'acceptEULA', onToggleEULA);
 
-      root = el('OT_root OT_dialog OT_dialog-plugin-prompt', [
-        close,
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', 'This app requires real-time communication')
-        ]),
-        el('OT_dialog-single-button-wide', [
-          el('OT_dialog-single-button-with-title', [
-            el('OT_dialog-button-title', [
-              checkbox,
-              (function() {
-                var x = el('', 'accept', 'label');
-                x.setAttribute('for', checkbox.id);
-                x.style.margin = '0 5px';
-                return x;
-              })(),
-              acceptEULA
+      root = el('OT_dialog-centering', [
+        el('OT_dialog-centering-child', [
+          el('OT_root OT_dialog OT_dialog-plugin-prompt', [
+            close,
+            el('OT_dialog-messages', [
+              el('OT_dialog-messages-main', 'This app requires real-time communication')
             ]),
-            downloadButton,
-            cancelButton
-          ])
-        ]),
-        el('OT_dialog-single-button-wide OT_dialog-hidden', [
-          el('OT_dialog-single-button-with-title', [
-            el('OT_dialog-button-title', [
-              'You can now enjoy webRTC enabled video via Internet Explorer.'
+            el('OT_dialog-section', [
+              el('OT_dialog-single-button-with-title', [
+                el('OT_dialog-button-title', [
+                  checkbox,
+                  (function() {
+                    var x = el('', 'accept', 'label');
+                    x.setAttribute('for', checkbox.id);
+                    x.style.margin = '0 5px';
+                    return x;
+                  })(),
+                  acceptEULA
+                ]),
+                el('OT_dialog-actions-card', [
+                  downloadButton,
+                  cancelButton
+                ])
+              ])
             ]),
-            refreshButton
+            el('OT_dialog-section OT_dialog-hidden', [
+              el('OT_dialog-button-title', [
+                'You can now enjoy webRTC enabled video via Internet Explorer.'
+              ]),
+              refreshButton
+            ])
           ])
         ])
       ]);
@@ -3486,12 +3308,12 @@
         document.body.appendChild(root);
       });
 
-    });
+    }));
     return modal;
   };
 
   OT.Dialogs.Plugin.promptToReinstall = function() {
-    var modal = new OT.$.Modal(function(window, document) {
+    var modal = new OT.$.Modal(adjustModal(function(window, document) {
 
       var el = OT.$.bind(templateElement, document),
           close,
@@ -3499,7 +3321,8 @@
           root;
 
       close = el('OT_closeButton', '&times;');
-      okayButton = el('OT_dialog-button', 'Okay');
+      okayButton =
+        el('OT_dialog-button OT_dialog-button-large OT_dialog-no-natural-margin', 'Okay');
 
       OT.$.on(okayButton, 'click', function() {
         modal.trigger('okay');
@@ -3510,21 +3333,27 @@
         modal.close();
       });
 
-      root = el('OT_ROOT OT_dialog OT_dialog-plugin-reinstall', [
-        close,
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', 'Reinstall Opentok Plugin'),
-          el('OT_dialog-messages-minor', 'Uh oh! Try reinstalling the OpenTok plugin again to ' +
-            'enable real-time video communication for Internet Explorer.')
-        ]),
-        el('OT_dialog-single-button', okayButton)
+      root = el('OT_dialog-centering', [
+        el('OT_dialog-centering-child', [
+          el('OT_ROOT OT_dialog OT_dialog-plugin-reinstall', [
+            close,
+            el('OT_dialog-messages', [
+              el('OT_dialog-messages-main', 'Reinstall Opentok Plugin'),
+              el('OT_dialog-messages-minor', 'Uh oh! Try reinstalling the OpenTok plugin ' +
+                'again to enable real-time video communication for Internet Explorer.')
+            ]),
+            el('OT_dialog-section', [
+              el('OT_dialog-single-button', okayButton)
+            ])
+          ])
+        ])
       ]);
 
       addDialogCSS(document, [], function() {
         document.body.appendChild(root);
       });
 
-    });
+    }));
 
     return modal;
   };
@@ -3535,7 +3364,7 @@
         progressText,
         progressValue = 0;
 
-    var modal = new OT.$.Modal(function(window, document) {
+    var modal = new OT.$.Modal(adjustModal(function(window, document) {
 
       var el = OT.$.bind(templateElement, document),
           root;
@@ -3544,14 +3373,19 @@
 
       progressBar = el('OT_dialog-progress-bar-fill');
 
-      root = el('OT_ROOT OT_dialog OT_dialog-plugin-upgrading', [
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', [
-            'One moment please... ',
-            progressText
-          ]),
-          el('OT_dialog-progress-bar', progressBar),
-          el('OT_dialog-messages-minor', 'Please wait while the OpenTok plugin is updated')
+      root = el('OT_dialog-centering', [
+        el('OT_dialog-centering-child', [
+          el('OT_ROOT OT_dialog OT_dialog-plugin-upgrading', [
+            el('OT_dialog-messages', [
+              el('OT_dialog-messages-main', [
+                'One moment please... ',
+                progressText
+              ]),
+              el('OT_dialog-progress-bar', progressBar),
+              el('OT_dialog-messages-minor OT_dialog-no-natural-margin',
+                'Please wait while the OpenTok plugin is updated')
+            ])
+          ])
         ])
       ]);
 
@@ -3561,7 +3395,7 @@
           modal.setUpdateProgress(progressValue);
         }
       });
-    });
+    }));
 
     modal.setUpdateProgress = function(newProgress) {
       if(progressBar && progressText) {
@@ -3584,14 +3418,16 @@
   };
 
   OT.Dialogs.Plugin.updateComplete = function(error) {
-    var modal = new OT.$.Modal(function(window, document) {
+    var modal = new OT.$.Modal(adjustModal(function(window, document) {
       var el = OT.$.bind(templateElement, document),
           reloadButton,
           root;
 
-      reloadButton = el('OT_dialog-button', 'Reload').on('click', function() {
-        modal.trigger('reload');
-      });
+      reloadButton =
+        el('OT_dialog-button OT_dialog-button-large OT_dialog-no-natural-margin', 'Reload')
+          .on('click', function() {
+            modal.trigger('reload');
+          });
 
       var msgs;
 
@@ -3603,19 +3439,23 @@
           'Please reload your browser.'];
       }
 
-      root = el('OT_root OT_dialog OT_dialog-plugin-upgraded', [
-        el('OT_dialog-messages', [
-          el('OT_dialog-messages-main', msgs[0]),
-          el('OT_dialog-messages-minor', msgs[1])
-        ]),
-        el('OT_dialog-single-button', reloadButton)
+      root = el('OT_dialog-centering', [
+        el('OT_dialog-centering-child', [
+          el('OT_root OT_dialog OT_dialog-plugin-upgraded', [
+            el('OT_dialog-messages', [
+              el('OT_dialog-messages-main', msgs[0]),
+              el('OT_dialog-messages-minor', msgs[1])
+            ]),
+            el('OT_dialog-single-button', reloadButton)
+          ])
+        ])
       ]);
 
       addDialogCSS(document, [], function() {
         document.body.appendChild(root);
       });
 
-    });
+    }));
 
     return modal;
 
@@ -3811,14 +3651,14 @@
 
 })(window);
 /**
- * @license  TB Plugin 0.4.0.8 72b534e HEAD
+ * @license  TB Plugin 0.4.0.8 5ffd3b6 HEAD
  * http://www.tokbox.com/
  *
  * Copyright (c) 2014 TokBox, Inc.
  * Released under the MIT license
  * http://opensource.org/licenses/MIT
  *
- * Date: September 08 10:17:49 2014
+ * Date: October 30 10:33:58 2014
  *
  */
 
@@ -3952,6 +3792,72 @@ var shim = function shim () {
     };
   }
 };
+// tb_require('./header.js')
+// tb_require('./shims.js')
+
+/* global OT:true */
+/* exported PluginRumorSocket */
+
+var PluginRumorSocket = function(plugin, server) {
+  var connected = false,
+      rumorID;
+
+  try {
+    rumorID = plugin._.RumorInit(server, '');
+  }
+  catch(e) {
+    OT.error('Error creating the Rumor Socket: ', e.message);
+  }
+
+  if(!rumorID) {
+    throw new Error('Could not initialise plugin rumor connection');
+  }
+
+  var socket = {
+    open: function() {
+      connected = true;
+      plugin._.RumorOpen(rumorID);
+    },
+
+    close: function(code, reason) {
+      if (!connected) return;
+      connected = false;
+
+      plugin._.RumorClose(rumorID, code, reason);
+      plugin.removeRef(this);
+    },
+
+    destroy: function() {
+      this.close();
+    },
+
+    send: function(msg) {
+      plugin._.RumorSend(rumorID, msg.type, msg.toAddress,
+        JSON.parse(JSON.stringify(msg.headers)), msg.data);
+    },
+
+    onOpen: function(callback) {
+      plugin._.SetOnRumorOpen(rumorID, callback);
+    },
+
+    onClose: function(callback) {
+      plugin._.SetOnRumorClose(rumorID, callback);
+    },
+
+    onError: function(callback) {
+      plugin._.SetOnRumorError(rumorID, callback);
+    },
+
+    onMessage: function(callback) {
+      plugin._.SetOnRumorMessage(rumorID, callback);
+    }
+  };
+
+  plugin.addRef(socket);
+  return socket;
+
+};
+
 // tb_require('./header.js')
 // tb_require('./shims.js')
 
@@ -4356,460 +4262,6 @@ var VideoContainer = function VideoContainer (plugin, stream) {
 
 /* jshint globalstrict: true, strict: false, undef: true, unused: true,
           trailing: true, browser: true, smarttabs:true */
-/* global OT:true, TBPlugin:true, pluginInfo:true, ActiveXObject:true,
-          injectObject:true, curryCallAsync:true */
-
-/* exported AutoUpdater:true */
-var AutoUpdater;
-
-(function() {
-
-  var autoUpdaterController,
-      updaterMimeType,        // <- cached version, use getInstallerMimeType instead
-      installedVersion = -1;  // <- cached version, use getInstallerMimeType instead
-
-
-  var versionGreaterThan = function versionGreaterThan (version1,version2) {
-    if (version1 === version2) return false;
-
-    var v1 = version1.split('.'),
-        v2 = version2.split('.');
-
-    v1 = parseFloat(parseInt(v1.shift(), 10) + '.' +
-                      v1.map(function(vcomp) { return parseInt(vcomp, 10); }).join(''));
-
-    v2 = parseFloat(parseInt(v2.shift(), 10) + '.' +
-                      v2.map(function(vcomp) { return parseInt(vcomp, 10); }).join(''));
-
-
-    return v1 > v2;
-  };
-
-
-  // Work out the full mimeType (including the currently installed version)
-  // of the installer.
-  var findMimeTypeAndVersion = function findMimeTypeAndVersion () {
-
-    if (updaterMimeType !== void 0) {
-      return updaterMimeType;
-    }
-
-    var activeXControlId = 'TokBox.otiePluginInstaller',
-        unversionedMimeType = 'application/x-otieplugininstaller',
-        plugin = navigator.plugins[activeXControlId];
-
-    installedVersion = -1;
-
-
-    if (plugin) {
-      // Look through the supported mime-types for the version
-      // There should only be one mime-type in our use case, and
-      // if there's more than one they should all have the same
-      // version.
-      var numMimeTypes = plugin.length,
-          extractVersion = new RegExp(unversionedMimeType.replace('-', '\\-') +
-                                                            ',version=([0-9]+)', 'i'),
-          mimeType,
-          bits;
-
-      for (var i=0; i<numMimeTypes; ++i) {
-        mimeType = plugin[i];
-
-        // Look through the supported mimeTypes and find
-        // the newest one.
-        if (mimeType && mimeType.enabledPlugin &&
-            (mimeType.enabledPlugin.name === plugin.name) &&
-            mimeType.type.indexOf(unversionedMimeType) !== -1) {
-
-          bits = extractVersion.exec(mimeType.type);
-
-          if (bits !== null && versionGreaterThan(bits[1], installedVersion)) {
-            installedVersion = bits[1];
-          }
-        }
-      }
-    }
-    else {
-      // This may mean that the installer plugin is not installed.
-      // Although it could also mean that we're on IE 9 and below,
-      // which does not support navigator.plugins. Fallback to
-      // using 'ActiveXObject' instead.
-      try {
-        plugin = new ActiveXObject(activeXControlId);
-        installedVersion = plugin.getMasterVersion();
-      } catch(e) {
-      }
-    }
-
-    updaterMimeType = installedVersion !== -1 ?
-                              unversionedMimeType + ',version=' + installedVersion :
-                              null;
-  };
-
-  var getInstallerMimeType = function getInstallerMimeType () {
-    if (updaterMimeType === void 0) {
-      findMimeTypeAndVersion();
-    }
-
-    return updaterMimeType;
-  };
-
-  var getInstalledVersion = function getInstalledVersion () {
-    if (installedVersion === void 0) {
-      findMimeTypeAndVersion();
-    }
-
-    return installedVersion;
-  };
-
-  // Version 0.4.0.4 autoupdate was broken. We want to prompt
-  // for install on 0.4.0.4 or earlier. We're also including
-  // earlier versions just in case...
-  var hasBrokenUpdater = function () {
-    var _broken = !versionGreaterThan(getInstalledVersion(), '0.4.0.4');
-
-    hasBrokenUpdater = function() { return _broken; };
-    return _broken;
-  };
-
-
-  AutoUpdater = function (plugin) {
-
-    // Returns true if the version of the plugin installed on this computer
-    // does not match the one expected by this version of TBPlugin.
-    this.isOutOfDate = function () {
-      return versionGreaterThan(pluginInfo.version, getInstalledVersion());
-    };
-
-    this.autoUpdate = function () {
-      var modal = OT.Dialogs.Plugin.updateInProgress(),
-          analytics = new OT.Analytics(),
-        payload = {
-          ieVersion: OT.$.browserVersion().version,
-          pluginOldVersion: TBPlugin.installedVersion(),
-          pluginNewVersion: TBPlugin.version()
-        };
-
-      var success = curryCallAsync(function() {
-            analytics.logEvent({
-              action: 'OTPluginAutoUpdate',
-              variation: 'Success',
-              partnerId: OT.APIKEY,
-              payload: JSON.stringify(payload)
-            });
-
-            plugin.destroy();
-
-            modal.close();
-            OT.Dialogs.Plugin.updateComplete().on({
-              reload: function() {
-                window.location.reload();
-              }
-            });
-          }),
-
-          error = curryCallAsync(function(errorCode, errorMessage, systemErrorCode) {
-            payload.errorCode = errorCode;
-            payload.systemErrorCode = systemErrorCode;
-
-            analytics.logEvent({
-              action: 'OTPluginAutoUpdate',
-              variation: 'Failure',
-              partnerId: OT.APIKEY,
-              payload: JSON.stringify(payload)
-            });
-
-            plugin.destroy();
-
-            modal.close();
-            var updateMessage = errorMessage + ' (' + errorCode +
-                                      '). Please restart your browser and try again.';
-
-            modal = OT.Dialogs.Plugin.updateComplete(updateMessage).on({
-              'reload': function() {
-                modal.close();
-              }
-            });
-
-            OT.error('autoUpdate failed: ' + errorMessage + ' (' + errorCode +
-                                      '). Please restart your browser and try again.');
-            // TODO log client event
-          }),
-
-          progress = curryCallAsync(function(progress) {
-            modal.setUpdateProgress(progress.toFixed());
-            // modalBody.innerHTML = 'Updating...' + progress.toFixed() + '%';
-          });
-
-      plugin._.updatePlugin(TBPlugin.pathToInstaller(), success, error, progress);
-    };
-
-    this.destroy = function() {
-      plugin.destroy();
-    };
-  };
-
-  AutoUpdater.get = function (completion) {
-    if (autoUpdaterController) {
-      completion.call(null, void 0, autoUpdaterController);
-      return;
-    }
-
-    if (!this.isinstalled()) {
-      completion.call(null, 'Plugin was not installed');
-      return;
-    }
-
-    injectObject(getInstallerMimeType(), false, {windowless: false}, function(err, plugin) {
-      if (plugin) autoUpdaterController = new AutoUpdater(plugin);
-      completion.call(null, err, autoUpdaterController);
-    });
-  };
-
-  AutoUpdater.isinstalled = function () {
-    return getInstallerMimeType() !== null && !hasBrokenUpdater();
-  };
-
-  AutoUpdater.installedVersion = function () {
-    return getInstalledVersion();
-  };
-
-})();
-
-// tb_require('./header.js')
-// tb_require('./shims.js')
-// tb_require('./plugin_object.js')
-// tb_require('./video_container.js')
-
-/* jshint globalstrict: true, strict: false, undef: true, unused: true,
-          trailing: true, browser: true, smarttabs:true */
-/* global OT:true, VideoContainer:true */
-/* exported MediaStream */
-
-var MediaStreamTrack = function MediaStreamTrack (mediaStreamId, options, plugin) {
-  this.id = options.id;
-  this.kind = options.kind;
-  this.label = options.label;
-  this.enabled = OT.$.castToBoolean(options.enabled);
-  this.streamId = mediaStreamId;
-
-  this.setEnabled = function (enabled) {
-    this.enabled = OT.$.castToBoolean(enabled);
-
-    if (this.enabled) {
-      plugin._.enableMediaStreamTrack(mediaStreamId, this.id);
-    }
-    else {
-      plugin._.disableMediaStreamTrack(mediaStreamId, this.id);
-    }
-  };
-};
-
-var MediaStream = function MediaStream (options, plugin) {
-  var audioTracks = [],
-      videoTracks = [];
-
-  this.id = options.id;
-  plugin.addRef(this);
-
-  // TODO
-  // this.ended =
-  // this.onended =
-
-  if (options.videoTracks) {
-    options.videoTracks.map(function(track) {
-      videoTracks.push( new MediaStreamTrack(options.id, track, plugin) );
-    });
-  }
-
-  if (options.audioTracks) {
-    options.audioTracks.map(function(track) {
-      audioTracks.push( new MediaStreamTrack(options.id, track, plugin) );
-    });
-  }
-
-  var hasTracksOfType = function (type) {
-    var tracks = type === 'video' ? videoTracks : audioTracks;
-
-    return OT.$.some(tracks, function(track) {
-      return track.enabled;
-    });
-  };
-
-  this.getVideoTracks = function () { return videoTracks; };
-  this.getAudioTracks = function () { return audioTracks; };
-
-  this.getTrackById = function (id) {
-    videoTracks.concat(audioTracks).forEach(function(track) {
-      if (track.id === id) return track;
-    });
-
-    return null;
-  };
-
-  this.hasVideo = function () {
-    return hasTracksOfType('video');
-  };
-
-  this.hasAudio = function () {
-    return hasTracksOfType('audio');
-  };
-
-  this.addTrack = function (/* MediaStreamTrack */) {
-    // TODO
-  };
-
-  this.removeTrack = function (/* MediaStreamTrack */) {
-    // TODO
-  };
-
-  this.stop = function() {
-    plugin._.stopMediaStream(this.id);
-    plugin.removeRef(this);
-  };
-
-  this.destroy = function() {
-    this.stop();
-  };
-
-  // Private MediaStream API
-  this._ = {
-    plugin: plugin,
-
-    // Get a VideoContainer to render the stream in.
-    render: OT.$.bind(function() {
-      return new VideoContainer(plugin, this);
-    }, this)
-  };
-};
-
-
-MediaStream.fromJson = function (json, plugin) {
-  if (!json) return null;
-  return new MediaStream( JSON.parse(json), plugin );
-};
-
-// tb_require('./header.js')
-// tb_require('./shims.js')
-
-/* global OT:true */
-/* exported PluginRumorSocket */
-
-var PluginRumorSocket = function(plugin, server) {
-  var connected = false,
-      rumorID;
-
-  try {
-    rumorID = plugin._.RumorInit(server, '');
-  }
-  catch(e) {
-    OT.error('Error creating the Rumor Socket: ', e.message);
-  }
-
-  if(!rumorID) {
-    throw new Error('Could not initialise plugin rumor connection');
-  }
-
-  var socket = {
-    open: function() {
-      connected = true;
-      plugin._.RumorOpen(rumorID);
-    },
-
-    close: function(code, reason) {
-      if (!connected) return;
-      connected = false;
-
-      plugin._.RumorClose(rumorID, code, reason);
-      plugin.removeRef(this);
-    },
-
-    destroy: function() {
-      this.close();
-    },
-
-    send: function(msg) {
-      plugin._.RumorSend(rumorID, msg.type, msg.toAddress,
-        JSON.parse(JSON.stringify(msg.headers)), msg.data);
-    },
-
-    onOpen: function(callback) {
-      plugin._.SetOnRumorOpen(rumorID, callback);
-    },
-
-    onClose: function(callback) {
-      plugin._.SetOnRumorClose(rumorID, callback);
-    },
-
-    onError: function(callback) {
-      plugin._.SetOnRumorError(rumorID, callback);
-    },
-
-    onMessage: function(callback) {
-      plugin._.SetOnRumorMessage(rumorID, callback);
-    }
-  };
-
-  plugin.addRef(socket);
-  return socket;
-
-};
-
-// tb_require('./header.js')
-// tb_require('./shims.js')
-// tb_require('./plugin_object.js')
-// tb_require('./video_container.js')
-
-/* jshint globalstrict: true, strict: false, undef: true, unused: true,
-          trailing: true, browser: true, smarttabs:true */
-/* global OT:true */
-/* exported MediaConstraints */
-
-var MediaConstraints = function(userConstraints) {
-  var constraints = OT.$.clone(userConstraints);
-
-  this.hasVideo = constraints.video !== void 0 && constraints.video !== false;
-  this.hasAudio = constraints.audio !== void 0 && constraints.audio !== false;
-
-  if (constraints.video === true) constraints.video = {};
-  if (constraints.audio === true)  constraints.audio = {};
-
-  if (this.hasVideo && !constraints.video.mandatory) {
-    constraints.video.mandatory = {};
-  }
-
-  if (this.hasAudio && !constraints.audio.mandatory) {
-    constraints.audio.mandatory = {};
-  }
-
-  this.screenSharing = this.hasVideo &&
-                ( constraints.video.mandatory.chromeMediaSource === 'screen' ||
-                  constraints.video.mandatory.chromeMediaSource === 'window' );
-
-  this.audio = constraints.audio;
-  this.video = constraints.video;
-
-  this.setVideoSource = function(sourceId) {
-    if (sourceId !== void 0) constraints.video.mandatory.sourceId =  sourceId;
-    else delete constraints.video;
-  };
-
-  this.setAudioSource = function(sourceId) {
-    if (sourceId !== void 0) constraints.audio.mandatory.sourceId =  sourceId;
-    else delete constraints.audio;
-  };
-
-  this.toHash = function() {
-    return constraints;
-  };
-};
-
-// tb_require('./header.js')
-// tb_require('./shims.js')
-// tb_require('./plugin_object.js')
-
-/* jshint globalstrict: true, strict: false, undef: true, unused: true,
-          trailing: true, browser: true, smarttabs:true */
 /* exported RTCStatsReport */
 
 var RTCStatsReport = function (reports) {
@@ -5034,6 +4486,394 @@ var PeerConnection = function PeerConnection (iceServers, options, plugin) {
 
 
 
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+// tb_require('./video_container.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true, VideoContainer:true */
+/* exported MediaStream */
+
+var MediaStreamTrack = function MediaStreamTrack (mediaStreamId, options, plugin) {
+  this.id = options.id;
+  this.kind = options.kind;
+  this.label = options.label;
+  this.enabled = OT.$.castToBoolean(options.enabled);
+  this.streamId = mediaStreamId;
+
+  this.setEnabled = function (enabled) {
+    this.enabled = OT.$.castToBoolean(enabled);
+
+    if (this.enabled) {
+      plugin._.enableMediaStreamTrack(mediaStreamId, this.id);
+    }
+    else {
+      plugin._.disableMediaStreamTrack(mediaStreamId, this.id);
+    }
+  };
+};
+
+var MediaStream = function MediaStream (options, plugin) {
+  var audioTracks = [],
+      videoTracks = [];
+
+  this.id = options.id;
+  plugin.addRef(this);
+
+  // TODO
+  // this.ended =
+  // this.onended =
+
+  if (options.videoTracks) {
+    options.videoTracks.map(function(track) {
+      videoTracks.push( new MediaStreamTrack(options.id, track, plugin) );
+    });
+  }
+
+  if (options.audioTracks) {
+    options.audioTracks.map(function(track) {
+      audioTracks.push( new MediaStreamTrack(options.id, track, plugin) );
+    });
+  }
+
+  var hasTracksOfType = function (type) {
+    var tracks = type === 'video' ? videoTracks : audioTracks;
+
+    return OT.$.some(tracks, function(track) {
+      return track.enabled;
+    });
+  };
+
+  this.getVideoTracks = function () { return videoTracks; };
+  this.getAudioTracks = function () { return audioTracks; };
+
+  this.getTrackById = function (id) {
+    videoTracks.concat(audioTracks).forEach(function(track) {
+      if (track.id === id) return track;
+    });
+
+    return null;
+  };
+
+  this.hasVideo = function () {
+    return hasTracksOfType('video');
+  };
+
+  this.hasAudio = function () {
+    return hasTracksOfType('audio');
+  };
+
+  this.addTrack = function (/* MediaStreamTrack */) {
+    // TODO
+  };
+
+  this.removeTrack = function (/* MediaStreamTrack */) {
+    // TODO
+  };
+
+  this.stop = function() {
+    plugin._.stopMediaStream(this.id);
+    plugin.removeRef(this);
+  };
+
+  this.destroy = function() {
+    this.stop();
+  };
+
+  // Private MediaStream API
+  this._ = {
+    plugin: plugin,
+
+    // Get a VideoContainer to render the stream in.
+    render: OT.$.bind(function() {
+      return new VideoContainer(plugin, this);
+    }, this)
+  };
+};
+
+
+MediaStream.fromJson = function (json, plugin) {
+  if (!json) return null;
+  return new MediaStream( JSON.parse(json), plugin );
+};
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+// tb_require('./video_container.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true */
+/* exported MediaConstraints */
+
+var MediaConstraints = function(userConstraints) {
+  var constraints = OT.$.clone(userConstraints);
+
+  this.hasVideo = constraints.video !== void 0 && constraints.video !== false;
+  this.hasAudio = constraints.audio !== void 0 && constraints.audio !== false;
+
+  if (constraints.video === true) constraints.video = {};
+  if (constraints.audio === true)  constraints.audio = {};
+
+  if (this.hasVideo && !constraints.video.mandatory) {
+    constraints.video.mandatory = {};
+  }
+
+  if (this.hasAudio && !constraints.audio.mandatory) {
+    constraints.audio.mandatory = {};
+  }
+
+  this.screenSharing = this.hasVideo &&
+                ( constraints.video.mandatory.chromeMediaSource === 'screen' ||
+                  constraints.video.mandatory.chromeMediaSource === 'window' );
+
+  this.audio = constraints.audio;
+  this.video = constraints.video;
+
+  this.setVideoSource = function(sourceId) {
+    if (sourceId !== void 0) constraints.video.mandatory.sourceId =  sourceId;
+    else delete constraints.video;
+  };
+
+  this.setAudioSource = function(sourceId) {
+    if (sourceId !== void 0) constraints.audio.mandatory.sourceId =  sourceId;
+    else delete constraints.audio;
+  };
+
+  this.toHash = function() {
+    return constraints;
+  };
+};
+
+// tb_require('./header.js')
+// tb_require('./shims.js')
+// tb_require('./plugin_object.js')
+
+/* jshint globalstrict: true, strict: false, undef: true, unused: true,
+          trailing: true, browser: true, smarttabs:true */
+/* global OT:true, TBPlugin:true, pluginInfo:true, ActiveXObject:true,
+          injectObject:true, curryCallAsync:true */
+
+/* exported AutoUpdater:true */
+var AutoUpdater;
+
+(function() {
+
+  var autoUpdaterController,
+      updaterMimeType,        // <- cached version, use getInstallerMimeType instead
+      installedVersion = -1;  // <- cached version, use getInstallerMimeType instead
+
+
+  var versionGreaterThan = function versionGreaterThan (version1,version2) {
+    if (version1 === version2) return false;
+
+    var v1 = version1.split('.'),
+        v2 = version2.split('.');
+
+    v1 = parseFloat(parseInt(v1.shift(), 10) + '.' +
+                      v1.map(function(vcomp) { return parseInt(vcomp, 10); }).join(''));
+
+    v2 = parseFloat(parseInt(v2.shift(), 10) + '.' +
+                      v2.map(function(vcomp) { return parseInt(vcomp, 10); }).join(''));
+
+
+    return v1 > v2;
+  };
+
+
+  // Work out the full mimeType (including the currently installed version)
+  // of the installer.
+  var findMimeTypeAndVersion = function findMimeTypeAndVersion () {
+
+    if (updaterMimeType !== void 0) {
+      return updaterMimeType;
+    }
+
+    var activeXControlId = 'TokBox.otiePluginInstaller',
+        unversionedMimeType = 'application/x-otieplugininstaller',
+        plugin = navigator.plugins[activeXControlId];
+
+    installedVersion = -1;
+
+
+    if (plugin) {
+      // Look through the supported mime-types for the version
+      // There should only be one mime-type in our use case, and
+      // if there's more than one they should all have the same
+      // version.
+      var numMimeTypes = plugin.length,
+          extractVersion = new RegExp(unversionedMimeType.replace('-', '\\-') +
+                                                            ',version=([0-9]+)', 'i'),
+          mimeType,
+          bits;
+
+      for (var i=0; i<numMimeTypes; ++i) {
+        mimeType = plugin[i];
+
+        // Look through the supported mimeTypes and find
+        // the newest one.
+        if (mimeType && mimeType.enabledPlugin &&
+            (mimeType.enabledPlugin.name === plugin.name) &&
+            mimeType.type.indexOf(unversionedMimeType) !== -1) {
+
+          bits = extractVersion.exec(mimeType.type);
+
+          if (bits !== null && versionGreaterThan(bits[1], installedVersion)) {
+            installedVersion = bits[1];
+          }
+        }
+      }
+    }
+    else {
+      // This may mean that the installer plugin is not installed.
+      // Although it could also mean that we're on IE 9 and below,
+      // which does not support navigator.plugins. Fallback to
+      // using 'ActiveXObject' instead.
+      try {
+        plugin = new ActiveXObject(activeXControlId);
+        installedVersion = plugin.getMasterVersion();
+      } catch(e) {
+      }
+    }
+
+    updaterMimeType = installedVersion !== -1 ?
+                              unversionedMimeType + ',version=' + installedVersion :
+                              null;
+  };
+
+  var getInstallerMimeType = function getInstallerMimeType () {
+    if (updaterMimeType === void 0) {
+      findMimeTypeAndVersion();
+    }
+
+    return updaterMimeType;
+  };
+
+  var getInstalledVersion = function getInstalledVersion () {
+    if (installedVersion === void 0) {
+      findMimeTypeAndVersion();
+    }
+
+    return installedVersion;
+  };
+
+  // Version 0.4.0.4 autoupdate was broken. We want to prompt
+  // for install on 0.4.0.4 or earlier. We're also including
+  // earlier versions just in case...
+  var hasBrokenUpdater = function () {
+    var _broken = !versionGreaterThan(getInstalledVersion(), '0.4.0.4');
+
+    hasBrokenUpdater = function() { return _broken; };
+    return _broken;
+  };
+
+
+  AutoUpdater = function (plugin) {
+
+    // Returns true if the version of the plugin installed on this computer
+    // does not match the one expected by this version of TBPlugin.
+    this.isOutOfDate = function () {
+      return versionGreaterThan(pluginInfo.version, getInstalledVersion());
+    };
+
+    this.autoUpdate = function () {
+      var modal = OT.Dialogs.Plugin.updateInProgress(),
+          analytics = new OT.Analytics(),
+        payload = {
+          ieVersion: OT.$.browserVersion().version,
+          pluginOldVersion: TBPlugin.installedVersion(),
+          pluginNewVersion: TBPlugin.version()
+        };
+
+      var success = curryCallAsync(function() {
+            analytics.logEvent({
+              action: 'OTPluginAutoUpdate',
+              variation: 'Success',
+              partnerId: OT.APIKEY,
+              payload: JSON.stringify(payload)
+            });
+
+            plugin.destroy();
+
+            modal.close();
+            OT.Dialogs.Plugin.updateComplete().on({
+              reload: function() {
+                window.location.reload();
+              }
+            });
+          }),
+
+          error = curryCallAsync(function(errorCode, errorMessage, systemErrorCode) {
+            payload.errorCode = errorCode;
+            payload.systemErrorCode = systemErrorCode;
+
+            analytics.logEvent({
+              action: 'OTPluginAutoUpdate',
+              variation: 'Failure',
+              partnerId: OT.APIKEY,
+              payload: JSON.stringify(payload)
+            });
+
+            plugin.destroy();
+
+            modal.close();
+            var updateMessage = errorMessage + ' (' + errorCode +
+                                      '). Please restart your browser and try again.';
+
+            modal = OT.Dialogs.Plugin.updateComplete(updateMessage).on({
+              'reload': function() {
+                modal.close();
+              }
+            });
+
+            OT.error('autoUpdate failed: ' + errorMessage + ' (' + errorCode +
+                                      '). Please restart your browser and try again.');
+            // TODO log client event
+          }),
+
+          progress = curryCallAsync(function(progress) {
+            modal.setUpdateProgress(progress.toFixed());
+            // modalBody.innerHTML = 'Updating...' + progress.toFixed() + '%';
+          });
+
+      plugin._.updatePlugin(TBPlugin.pathToInstaller(), success, error, progress);
+    };
+
+    this.destroy = function() {
+      plugin.destroy();
+    };
+  };
+
+  AutoUpdater.get = function (completion) {
+    if (autoUpdaterController) {
+      completion.call(null, void 0, autoUpdaterController);
+      return;
+    }
+
+    if (!this.isinstalled()) {
+      completion.call(null, 'Plugin was not installed');
+      return;
+    }
+
+    injectObject(getInstallerMimeType(), false, {windowless: false}, function(err, plugin) {
+      if (plugin) autoUpdaterController = new AutoUpdater(plugin);
+      completion.call(null, err, autoUpdaterController);
+    });
+  };
+
+  AutoUpdater.isinstalled = function () {
+    return getInstallerMimeType() !== null && !hasBrokenUpdater();
+  };
+
+  AutoUpdater.installedVersion = function () {
+    return getInstalledVersion();
+  };
+
+})();
 
 // tb_require('./header.js')
 // tb_require('./shims.js')
@@ -9173,7 +9013,7 @@ waitForDomReady();
   'use strict';
 
   var browser = OT.$.browserVersion();
-  if(browser.browser === 'IE' && browser.version < 10) {
+  if(browser && browser.name === 'IE' && browser.version < 10) {
     return; // IE 8 doesn't do websockets. No websockets, no encoding.
   }
 
@@ -13538,8 +13378,10 @@ waitForDomReady();
     return archive;
   }
 
-  var sessionRead;
-  var sessionReadQueue = [];
+  var sessionRead,
+    sessionReadQueue = [],
+    // streams for which corresponding connectionCreated events have not been dispatched:
+    unconnectedStreams = {};
 
   function sessionReadQueuePush(type, args) {
     var triggerArgs = ['signal'];
@@ -13609,6 +13451,15 @@ waitForDomReady();
       if (session.connection && connection.id !== session.connection.id) {
         session.connections.add( connection );
       }
+
+      OT.$.forEach(OT.$.keys(unconnectedStreams), function(streamId) {
+        var stream = unconnectedStreams[streamId];
+        if (stream && connection.id === stream.connection.id) {
+          // dispatch streamCreated event now that the connectionCreated has been dispatched
+          parseAndAddStreamToSession(stream, session);
+          delete unconnectedStreams[stream.id];
+        }
+      });
     });
 
     dispatcher.on('connection#deleted', function(connection, reason) {
@@ -13617,7 +13468,12 @@ waitForDomReady();
     });
 
     dispatcher.on('stream#created', function(stream, transactionId) {
-      stream = parseAndAddStreamToSession(stream, session);
+      var connectionId = stream.connectionId ? stream.connectionId : stream.connection.id;
+      if (session.connections.has(connectionId)) {
+        stream = parseAndAddStreamToSession(stream, session);
+      } else {
+        unconnectedStreams[stream.id] = stream;
+      }
 
       if (stream.publisher) {
         stream.publisher.setStream(stream);
@@ -14772,6 +14628,22 @@ waitForDomReady();
 })(window);
 !(function() {
 
+  /**
+   * Lazy instantiates an audio context and always return the same instance on following calls
+   *
+   * @returns {AudioContext}
+   */
+  OT.audioContext = function() {
+    var context = new window.AudioContext();
+    OT.audioContext = function() {
+      return context;
+    };
+    return context;
+  };
+
+})();
+!(function() {
+
 
   /*
    * A <code>RTCPeerConnection.getStats</code> based audio level sampler.
@@ -15498,6 +15370,7 @@ waitForDomReady();
           _iceProcessor.setPeerConnection(_peerConnection);
           _iceProcessor.processPending();
           _answerSDP = message.content.sdp;
+
           qos.startCollecting(_peerConnection);
         },
 
@@ -15888,44 +15761,46 @@ waitForDomReady();
           }
           return statsString;
         },
+
         dumpAvStat = function dumpAvStat(stat) {
-	  var statsString = '';
-	  if (stat.mozAvSyncDelay !== undefined) {
-	    statsString += "A/V sync: " + stat.mozAvSyncDelay + " ms ";
-	  }
-	  if (stat.mozJitterBufferDelay !== undefined) {
-	    statsString += "Jitter-buffer delay: " + stat.mozJitterBufferDelay + " ms";
-	  }
+          var statsString = '';
+          if (stat.mozAvSyncDelay !== undefined) {
+            statsString += "A/V sync: " + stat.mozAvSyncDelay + " ms ";
+          }
+          if (stat.mozJitterBufferDelay !== undefined) {
+            statsString += "Jitter-buffer delay: " + stat.mozJitterBufferDelay + " ms";
+          }
           return statsString;
         },
+
         dumpCoderStat = function dumpCoderStat(stat) {
           var statsString = '';
-	  if (stat.bitrateMean !== undefined ||
-	      stat.framerateMean !== undefined ||
-	      stat.droppedFrames !== undefined ||
-	      stat.discardedPackets !== undefined) {
-	    statsString = (stat.packetsReceived !== undefined)? " Decoder:" : " Encoder:";
-	    if (stat.bitrateMean !== undefined) {
-	      statsString += " Avg. bitrate: " + (stat.bitrateMean/1000000).toFixed(2) + " Mbps";
-	      if (stat.bitrateStdDev !== undefined) {
-		statsString += " (" + (stat.bitrateStdDev/1000000).toFixed(2) + " SD)";
-	      }
-	    }
-	    if (stat.framerateMean !== undefined) {
-	      statsString += " Avg. framerate: " + (stat.framerateMean).toFixed(2) + " fps";
-	      if (stat.framerateStdDev !== undefined) {
-		statsString += " (" + stat.framerateStdDev.toFixed(2) + " SD)";
-	      }
-	    }
-	    if (stat.droppedFrames !== undefined) {
-	      statsString += " Dropped frames: " + stat.droppedFrames;
-	    }
-	    if (stat.discardedPackets !== undefined) {
-	      statsString += " Discarded packets: " + stat.discardedPackets;
-	    }
-	  }
+          if (stat.bitrateMean !== undefined ||
+              stat.framerateMean !== undefined ||
+              stat.droppedFrames !== undefined ||
+              stat.discardedPackets !== undefined) {
+            statsString = (stat.packetsReceived !== undefined)? " Decoder:" : " Encoder:";
+            if (stat.bitrateMean !== undefined) {
+              statsString += " Avg. bitrate: " + (stat.bitrateMean/1000000).toFixed(2) + " Mbps";
+              if (stat.bitrateStdDev !== undefined) {
+                statsString += " (" + (stat.bitrateStdDev/1000000).toFixed(2) + " SD)";
+              }
+            }
+            if (stat.framerateMean !== undefined) {
+              statsString += " Avg. framerate: " + (stat.framerateMean).toFixed(2) + " fps";
+              if (stat.framerateStdDev !== undefined) {
+                statsString += " (" + stat.framerateStdDev.toFixed(2) + " SD)";
+              }
+            }
+            if (stat.droppedFrames !== undefined) {
+              statsString += " Dropped frames: " + stat.droppedFrames;
+            }
+            if (stat.discardedPackets !== undefined) {
+              statsString += " Discarded packets: " + stat.discardedPackets;
+            }
+          }
           return statsString;
-        };
+         };
 
     peerConnection.getStats(null, function(stats) {
 
@@ -15937,15 +15812,15 @@ waitForDomReady();
 
           var statsString = 'WebRTC stats - ' + key + ' * ';
           if (!res.isRemote) {
-	    if (res.mozAvSyncDelay !== undefined ||
-		res.mozJitterBufferDelay !== undefined) {
-	      if (dumpAvStat(res)) {
+            if (res.mozAvSyncDelay !== undefined ||
+                res.mozJitterBufferDelay !== undefined) {
+              if (dumpAvStat(res)) {
                 statsString += 'WebRTC A/V stats - ' + dumpAvStat(res) + ' * ';
               }
-	    }
-	    if (dumpCoderStat(res)) {
-	      statsString += 'WebRTC Coder stats - ' + dumpCoderStat(res) + ' * ';
-	    }
+            }
+            if (dumpCoderStat(res)) {
+              statsString += 'WebRTC Coder stats - ' + dumpCoderStat(res) + ' * ';
+            }
             statsString += 'WebRTC RTP stats - ' + dumpRtpStats(res, 'Local') + ' * ';
             if (res.remoteId) {
               statsString += 'WebRTC RTP stats - ' + dumpRtpStats(stats[res.remoteId], 'Remote') + ' * ';
@@ -16679,8 +16554,7 @@ waitForDomReady();
   // can be shown/hidden
   // can be destroyed
   OT.Chrome.NamePanel = function(options) {
-    var _name = options.name,
-        _bugMode = options.bugMode;
+    var _name = options.name;
 
     if (!_name || OT.$.trim(_name).length === '') {
       _name = null;
@@ -16695,15 +16569,6 @@ waitForDomReady();
       this.domElement.innerHTML = _name;
     });
 
-    this.setBugMode = OT.$.bind(function(bugMode) {
-      _bugMode = bugMode;
-      if(bugMode === 'off') {
-        OT.$.addClass(this.domElement, 'OT_name-no-bug');
-      } else {
-        OT.$.removeClass(this.domElement, 'OT_name-no-bug');
-      }
-    }, this);
-
     // Mixin common widget behaviour
     OT.Chrome.Behaviour.Widget(this, {
       mode: options.mode,
@@ -16711,10 +16576,7 @@ waitForDomReady();
       htmlContent: _name,
       htmlAttributes: {
         className: 'OT_name OT_edge-bar-item'
-      },
-      onCreate: OT.$.bind(function() {
-        this.setBugMode(_bugMode);
-      }, this)
+      }
     });
 
   };
@@ -16787,23 +16649,6 @@ waitForDomReady();
     });
   };
 
-
-})(window);
-!(function() {
-
-  OT.Chrome.OpenTokButton = function(options) {
-
-    // Mixin common widget behaviour
-    OT.Chrome.Behaviour.Widget(this, {
-      mode: options ? options.mode : null,
-      nodeName: 'span',
-      htmlContent: 'OpenTok',
-      htmlAttributes: {
-        className: 'OT_opentok OT_edge-bar-item'
-      }
-    });
-
-  };
 
 })(window);
 !(function() {
@@ -16929,35 +16774,50 @@ waitForDomReady();
         _maxValue = options.maxValue || 1,
         _minValue = options.minValue || 0;
 
-    // Mixin common widget behaviour
-    OT.Chrome.Behaviour.Widget(this, {
-      mode: options ? options.mode : 'auto',
-      nodeName: 'div',
-      htmlAttributes: {
-        className: 'OT_audio-level-meter'
-      },
-      onCreate: function() {
-        _meterBarElement = OT.$.createElement('div', {
-          className: 'OT_audio-level-meter__bar'
-        }, '');
-        _meterValueElement = OT.$.createElement('div', {
-          className: 'OT_audio-level-meter__value'
-        }, '');
-        _voiceOnlyIconElement = OT.$.createElement('div', {
-          className: 'OT_audio-level-meter__audio-only-img'
-        }, '');
+    function onCreate() {
+      _meterBarElement = OT.$.createElement('div', {
+        className: 'OT_audio-level-meter__bar'
+      }, '');
+      _meterValueElement = OT.$.createElement('div', {
+        className: 'OT_audio-level-meter__value'
+      }, '');
+      _voiceOnlyIconElement = OT.$.createElement('div', {
+        className: 'OT_audio-level-meter__audio-only-img'
+      }, '');
 
-        widget.domElement.appendChild(_meterBarElement);
-        widget.domElement.appendChild(_voiceOnlyIconElement);
-        widget.domElement.appendChild(_meterValueElement);
-      }
-    });
+      widget.domElement.appendChild(_meterBarElement);
+      widget.domElement.appendChild(_voiceOnlyIconElement);
+      widget.domElement.appendChild(_meterValueElement);
+    }
 
     function updateView() {
       var percentSize = _value * 100 / (_maxValue - _minValue);
       _meterValueElement.style.width = _meterValueElement.style.height = 2 * percentSize + '%';
       _meterValueElement.style.top = _meterValueElement.style.right = -percentSize + '%';
     }
+
+    // Mixin common widget behaviour
+    var widgetOptions = {
+      mode: options ? options.mode : 'auto',
+      nodeName: 'div',
+      htmlAttributes: {
+        className: 'OT_audio-level-meter'
+      },
+      onCreate: onCreate
+    };
+
+    OT.Chrome.Behaviour.Widget(this, widgetOptions);
+
+    // override
+    var _setDisplayMode = OT.$.bind(widget.setDisplayMode, widget);
+    widget.setDisplayMode = function(mode) {
+      _setDisplayMode(mode);
+      if (mode === 'off') {
+        if (options.onPassivate) options.onPassivate();
+      } else {
+        if (options.onActivate) options.onActivate();
+      }
+    };
 
     widget.setValue = function(value) {
       _value = value;
@@ -17275,14 +17135,12 @@ waitForDomReady();
       'showSpeakerButton',
       'nameDisplayMode',
       'buttonDisplayMode',
-      'backgroundImageURI',
-      'bugDisplayMode'
+      'backgroundImageURI'
     ];
 
     _validStyleValues = {
       buttonDisplayMode: ['auto', 'mini', 'mini-auto', 'off', 'on'],
       nameDisplayMode: ['auto', 'off', 'on'],
-      bugDisplayMode: ['auto', 'off', 'on'],
       audioLevelDisplayMode: ['auto', 'off', 'on'],
       showSettingsButton: [true, false],
       showMicButton: [true, false],
@@ -17785,9 +17643,9 @@ waitForDomReady();
         _prevStats,
         _state,
         _iceServers,
-        // Set to false on bug 1057038 as a stopgap measure to increase performance
-        _audioLevelCapable = false,
+        _audioLevelCapable = OT.$.hasCapabilities('webAudio'),
         _audioLevelSampler,
+        _publisher = this,
         _answerSDP;
 
     Object.defineProperty(this, 'answerSDP', {
@@ -17807,13 +17665,12 @@ waitForDomReady();
     OT.$.eventing(this);
 
     if(_audioLevelCapable) {
-      _audioLevelSampler = new OT.AnalyserAudioLevelSampler(new window.AudioContext());
+      _audioLevelSampler = new OT.AnalyserAudioLevelSampler(OT.audioContext());
 
-      var publisher = this;
       var audioLevelRunner = new OT.IntervalRunner(function() {
         _audioLevelSampler.sample(function(audioInputLevel) {
           OT.$.requestAnimationFrame(function() {
-            publisher.dispatchEvent(
+            _publisher.dispatchEvent(
               new OT.AudioLevelUpdatedEvent(audioInputLevel));
           });
         });
@@ -17837,7 +17694,6 @@ waitForDomReady();
       showArchiveStatus: true,
       nameDisplayMode: 'auto',
       buttonDisplayMode: 'auto',
-      bugDisplayMode: 'auto',
       audioLevelDisplayMode: 'auto',
       backgroundImageURI: null
     });
@@ -17942,9 +17798,7 @@ waitForDomReady();
             _webRTCStream.getVideoTracks().length > 0);
 
           this.accessAllowed = true;
-          this.dispatchEvent(
-            new OT.Event(OT.Event.names.ACCESS_ALLOWED, false)
-          );
+          this.dispatchEvent(new OT.Event(OT.Event.names.ACCESS_ALLOWED, false));
 
           var videoContainerOptions = {
             muted: true,
@@ -17962,7 +17816,7 @@ waitForDomReady();
             onLoaded.call(this);
           }, this));
 
-          if(_audioLevelSampler) {
+          if(_audioLevelSampler && webOTStream.getAudioTracks().length > 0) {
             _audioLevelSampler.webOTStream = webOTStream;
           }
 
@@ -18000,40 +17854,9 @@ waitForDomReady();
           logAnalyticsEvent('publish', 'Failure', 'reason',
             'GetUserMedia:Publisher Access Denied: Permission Denied');
 
-          var browser = OT.$.browserVersion();
-
-          var event = new OT.Event(OT.Event.names.ACCESS_DENIED),
-            defaultAction = function() {
-              if(!event.isDefaultPrevented()) {
-                if(browser.browser === 'Chrome') {
-                  if (_container) {
-                    _container.addError('', null, 'OT_publisher-denied-chrome');
-                  }
-                  if(!accessDialogWasOpened) {
-                    OT.Dialogs.AllowDeny.Chrome.previouslyDenied(window.location.hostname);
-                  } else {
-                    OT.Dialogs.AllowDeny.Chrome.deniedNow();
-                  }
-                } else if(browser.browser === 'Firefox') {
-                  if(_container) {
-                    _container.addError('', 'Click the reload button in the URL bar to change ' +
-                      'camera & mic settings.', 'OT_publisher-denied-firefox');
-                  }
-                  OT.Dialogs.AllowDeny.Firefox.denied().on({
-                    refresh: function() {
-                      window.location.reload();
-                    }
-                  });
-                }
-              }
-            };
-
-          this.dispatchEvent(event, defaultAction);
+          this.dispatchEvent(new OT.Event(OT.Event.names.ACCESS_DENIED));
         },
 
-        accessDialogPrompt,
-        accessDialogChromeTimeout,
-        accessDialogFirefoxTimeout,
         accessDialogWasOpened = false,
 
         onAccessDialogOpened = function() {
@@ -18042,63 +17865,13 @@ waitForDomReady();
 
           logAnalyticsEvent('accessDialog', 'Opened', '', '');
 
-          var browser = OT.$.browserVersion();
-
-          this.dispatchEvent(
-            new OT.Event(OT.Event.names.ACCESS_DIALOG_OPENED, true),
-            function(event) {
-              if(!event.isDefaultPrevented()) {
-                if(browser.browser === 'Chrome') {
-                  accessDialogChromeTimeout = setTimeout(function() {
-                    accessDialogChromeTimeout = null;
-                    logAnalyticsEvent('allowDenyHelpers', 'show', 'version', 'Chrome');
-                    accessDialogPrompt = OT.Dialogs.AllowDeny.Chrome.initialPrompt();
-                    accessDialogPrompt.on('closeButtonClicked', function() {
-                      logAnalyticsEvent('allowDenyHelpers', 'dismissed', 'version', 'Chrome');
-                    });
-                  }, 5000);
-                } else if(browser.browser === 'Firefox') {
-                  accessDialogFirefoxTimeout = setTimeout(function() {
-                    accessDialogFirefoxTimeout = null;
-                    logAnalyticsEvent('allowDenyHelpers', 'show', 'version', 'Firefox');
-                    accessDialogPrompt = OT.Dialogs.AllowDeny.Firefox.maybeDenied();
-                    accessDialogPrompt.on('closeButtonClicked', function() {
-                      logAnalyticsEvent('allowDenyHelpers', 'dismissed', 'version', 'Firefox');
-                    });
-                  }, 7000);
-                }
-              } else {
-                logAnalyticsEvent('allowDenyHelpers', 'developerPrevented', '', '');
-              }
-            }
-          );
+          this.dispatchEvent(new OT.Event(OT.Event.names.ACCESS_DIALOG_OPENED, true));
         },
 
         onAccessDialogClosed = function() {
           logAnalyticsEvent('accessDialog', 'Closed', '', '');
 
-          if(accessDialogChromeTimeout) {
-            clearTimeout(accessDialogChromeTimeout);
-            logAnalyticsEvent('allowDenyHelpers', 'notShown', 'version', 'Chrome');
-            accessDialogChromeTimeout = null;
-          }
-
-          if(accessDialogFirefoxTimeout) {
-            clearTimeout(accessDialogFirefoxTimeout);
-            logAnalyticsEvent('allowDenyHelpers', 'notShown', 'version', 'Firefox');
-            accessDialogFirefoxTimeout = null;
-          }
-
-          if(accessDialogPrompt) {
-            accessDialogPrompt.close();
-            var browser = OT.$.browserVersion();
-            logAnalyticsEvent('allowDenyHelpers', 'closed', 'version', browser.browser);
-            accessDialogPrompt = null;
-          }
-
-          this.dispatchEvent(
-            new OT.Event(OT.Event.names.ACCESS_DIALOG_CLOSED, false)
-          );
+          this.dispatchEvent( new OT.Event(OT.Event.names.ACCESS_DIALOG_CLOSED, false));
         },
 
         onVideoError = function(errorCode, errorReason) {
@@ -18259,9 +18032,6 @@ waitForDomReady();
               _chrome.audioLevel.setDisplayMode(value);
               break;
 
-            case 'bugDisplayMode':
-              // bugDisplayMode can't be updated but is used by some partners
-
             case 'backgroundImageURI':
               _container.setBackgroundImageURI(value);
           }
@@ -18269,9 +18039,6 @@ waitForDomReady();
 
         _createChrome = function() {
 
-          if(this.getStyle('bugDisplayMode') === 'off') {
-            logAnalyticsEvent('bugDisplayMode', 'createChrome', 'mode', 'off');
-          }
           if(!this.getStyle('showArchiveStatus')) {
             logAnalyticsEvent('showArchiveStatus', 'createChrome', 'mode', 'off');
           }
@@ -18284,17 +18051,12 @@ waitForDomReady();
 
             name: new OT.Chrome.NamePanel({
               name: _publishProperties.name,
-              mode: this.getStyle('nameDisplayMode'),
-              bugMode: this.getStyle('bugDisplayMode')
+              mode: this.getStyle('nameDisplayMode')
             }),
 
             muteButton: new OT.Chrome.MuteButton({
               muted: _publishProperties.publishAudio === false,
               mode: chromeButtonMode.call(this, this.getStyle('buttonDisplayMode'))
-            }),
-
-            opentokButton: new OT.Chrome.OpenTokButton({
-              mode: this.getStyle('bugDisplayMode')
             }),
 
             archive: new OT.Chrome.Archiving({
@@ -18303,14 +18065,21 @@ waitForDomReady();
             })
           };
 
-          if(_audioLevelCapable) {
-            _audioLevelMeter = new OT.Chrome.AudioLevelMeter({
-              mode: this.getStyle('audioLevelDisplayMode')
-            });
-
+          if (_audioLevelCapable) {
             var audioLevelTransformer = new OT.AudioLevelTransformer();
-            this.on('audioLevelUpdated', function(evt) {
+
+            var audioLevelUpdatedHandler = function(evt) {
               _audioLevelMeter.setValue(audioLevelTransformer.transform(evt.audioLevel));
+            };
+
+            _audioLevelMeter = new OT.Chrome.AudioLevelMeter({
+              mode: this.getStyle('audioLevelDisplayMode'),
+              onActivate: function() {
+                _publisher.on('audioLevelUpdated', audioLevelUpdatedHandler);
+              },
+              onPassivate: function() {
+                _publisher.off('audioLevelUpdated', audioLevelUpdatedHandler);
+              }
             });
 
             widgets.audioLevel = _audioLevelMeter;
@@ -18322,6 +18091,8 @@ waitForDomReady();
             muted: OT.$.bind(this.publishAudio, this, false),
             unmuted: OT.$.bind(this.publishAudio, this, true)
           });
+
+          if(_audioLevelMeter) _audioLevelMeter[_container.audioOnly() ? 'show' : 'hide']();
         },
 
         reset = OT.$.bind(function() {
@@ -18358,6 +18129,17 @@ waitForDomReady();
 
           if (!_state.isDestroyed()) _state.set('NotPublishing');
         }, this);
+
+    var setAudioOnly = function(audioOnly) {
+      if (_container) {
+        _container.audioOnly(audioOnly);
+        _container.showPoster(audioOnly);
+      }
+
+      if (_audioLevelMeter) {
+        _audioLevelMeter[audioOnly ? 'show' : 'hide']();
+      }
+    };
 
     this.publish = function(targetElement, properties) {
       OT.debug('OT.Publisher: publish');
@@ -18557,8 +18339,7 @@ waitForDomReady();
       return this;
     };
 
-
- /**
+    /**
   * Starts publishing video (if it is currently not being published)
   * when the <code>value</code> is <code>true</code>; stops publishing video
   * (if it is currently being published) when the <code>value</code> is <code>false</code>.
@@ -18590,10 +18371,7 @@ waitForDomReady();
         }
       }
 
-      if(_container) {
-        _container.audioOnly(!value);
-        _container.showPoster(!value);
-      }
+      setAudioOnly(!value);
 
       return this;
     };
@@ -19035,11 +18813,12 @@ waitForDomReady();
         _state,
         _prevStats,
         _lastSubscribeToVideoReason,
-        // Set to false on bug 1057038 as a stopgap measure to increase performance
-        _audioLevelCapable =  false,
+        _audioLevelCapable =  OT.$.hasCapabilities('audioOutputLevelStat') ||
+                              OT.$.hasCapabilities('webAudioCapableRemoteStream'),
         _audioLevelSampler,
         _audioLevelRunner,
-        _frameRateRestricted = false;
+        _frameRateRestricted = false,
+        _subscriber = this;
 
     this.id = _domId;
     this.widgetId = _widgetId;
@@ -19082,8 +18861,7 @@ waitForDomReady();
       videoDisabledIndicatorDisplayMode: 'auto',
       backgroundImageURI: null,
       showArchiveStatus: true,
-      showMicButton: true,
-      bugDisplayMode: 'auto'
+      showMicButton: true
     });
 
     var logAnalyticsEvent = function(action, variation, payloadType, payload) {
@@ -19262,7 +19040,8 @@ waitForDomReady();
             onLoaded.call(this, null);
           }, this));
 
-          if (OT.$.hasCapabilities('webAudioCapableRemoteStream') && _audioLevelSampler) {
+          if (OT.$.hasCapabilities('webAudioCapableRemoteStream') && _audioLevelSampler &&
+            webOTStream.getAudioTracks().length > 0) {
             _audioLevelSampler.webOTStream = webOTStream;
           }
 
@@ -19305,11 +19084,9 @@ waitForDomReady();
               break;
 
             case 'hasVideo':
-              if(_container) {
-                var audioOnly = !(_stream.hasVideo && _properties.subscribeToVideo);
-                _container.audioOnly(audioOnly);
-                _container.showPoster(audioOnly);
-              }
+
+              setAudioOnly(!(_stream.hasVideo && _properties.subscribeToVideo));
+
               this.dispatchEvent(new OT.VideoEnabledChangedEvent(
                 _stream.hasVideo ? 'videoEnabled' : 'videoDisabled', {
                 reason: 'publishVideo'
@@ -19364,19 +19141,12 @@ waitForDomReady();
               _chrome.audioLevel.setDisplayMode(value);
               break;
 
-            case 'bugDisplayMode':
-              // bugDisplayMode can't be updated but is used by some partners
-
             case 'backgroundImageURI':
               _container.setBackgroundImageURI(value);
           }
         },
 
         _createChrome = function() {
-          
-          if(this.getStyle('bugDisplayMode') === 'off') {
-            logAnalyticsEvent('bugDisplayMode', 'createChrome', 'mode', 'off');
-          }
 
           var widgets = {
             backingBar: new OT.Chrome.BackingBar({
@@ -19386,17 +19156,12 @@ waitForDomReady();
 
             name: new OT.Chrome.NamePanel({
               name: _properties.name,
-              mode: this.getStyle('nameDisplayMode'),
-              bugMode: this.getStyle('bugDisplayMode')
+              mode: this.getStyle('nameDisplayMode')
             }),
 
             muteButton: new OT.Chrome.MuteButton({
               muted: _properties.muted,
               mode: chromeButtonMode.call(this, this.getStyle('showMuteButton'))
-            }),
-
-            opentokButton: new OT.Chrome.OpenTokButton({
-              mode: this.getStyle('bugDisplayMode')
             }),
 
             archive: new OT.Chrome.Archiving({
@@ -19405,14 +19170,21 @@ waitForDomReady();
             })
           };
 
-          if(_audioLevelCapable) {
-            _audioLevelMeter = new OT.Chrome.AudioLevelMeter({
-              mode: this.getStyle('audioLevelDisplayMode')
-            });
-
+          if (_audioLevelCapable) {
             var audioLevelTransformer = new OT.AudioLevelTransformer();
-            this.on('audioLevelUpdated', function(evt) {
+
+            var audioLevelUpdatedHandler = function(evt) {
               _audioLevelMeter.setValue(audioLevelTransformer.transform(evt.audioLevel));
+            };
+
+            _audioLevelMeter = new OT.Chrome.AudioLevelMeter({
+              mode: this.getStyle('audioLevelDisplayMode'),
+              onActivate: function() {
+                _subscriber.on('audioLevelUpdated', audioLevelUpdatedHandler);
+              },
+              onPassivate: function() {
+                _subscriber.off('audioLevelUpdated', audioLevelUpdatedHandler);
+              }
             });
 
             widgets.audioLevel = _audioLevelMeter;
@@ -19433,6 +19205,8 @@ waitForDomReady();
               muteAudio.call(this, false);
             }
           }, this);
+
+          if(_audioLevelMeter) _audioLevelMeter[_container.audioOnly() ? 'show' : 'hide']();
         },
 
         _showError = function() {
@@ -19446,6 +19220,14 @@ waitForDomReady();
           }
         };
 
+    var setAudioOnly = function(audioOnly) {
+      if(_container) {
+        _container.audioOnly(audioOnly);
+        _container.showPoster(audioOnly);
+      }
+
+      if (_audioLevelMeter) _audioLevelMeter[audioOnly ? 'show' : 'hide']();
+    };
 
     this.subscribe = function(stream) {
       OT.debug('OT.Subscriber: subscribe to ' + stream.id);
@@ -19519,18 +19301,17 @@ waitForDomReady();
         if (OT.$.hasCapabilities('audioOutputLevelStat')) {
           _audioLevelSampler = new OT.GetStatsAudioLevelSampler(_peerConnection, 'out');
         } else if (OT.$.hasCapabilities('webAudioCapableRemoteStream')) {
-          _audioLevelSampler = new OT.AnalyserAudioLevelSampler(new window.AudioContext());
+          _audioLevelSampler = new OT.AnalyserAudioLevelSampler(OT.audioContext());
         }
 
         if(_audioLevelSampler) {
-          var subscriber = this;
           // sample with interval to minimise disturbance on animation loop but dispatch the
           // event with RAF since the main purpose is animation of a meter
           _audioLevelRunner = new OT.IntervalRunner(function() {
             _audioLevelSampler.sample(function(audioOutputLevel) {
               if (audioOutputLevel !== null) {
                 OT.$.requestAnimationFrame(function() {
-                  subscriber.dispatchEvent(
+                  _subscriber.dispatchEvent(
                     new OT.AudioLevelUpdatedEvent(audioOutputLevel));
                 });
               }
@@ -19850,16 +19631,13 @@ waitForDomReady();
     this.subscribeToVideo = function(pValue, reason) {
       var value = OT.$.castToBoolean(pValue, true);
 
-      if(_container) {
-        var audioOnly = !(value && _stream.hasVideo);
-        _container.audioOnly(audioOnly);
-        _container.showPoster(audioOnly);
-        if(value && _container.video()) {
-          _container.loading(value);
-          _container.video().whenTimeIncrements(function(){
-            _container.loading(false);
-          }, this);
-        }
+      setAudioOnly(!(value && _stream.hasVideo));
+
+      if ( value && _container  && _container.video()) {
+        _container.loading(value);
+        _container.video().whenTimeIncrements(function() {
+          _container.loading(false);
+        }, this);
       }
 
       if (_chrome && _chrome.videoDisabledIndicator) {

@@ -1,0 +1,103 @@
+diff --git a/app/libs/tokbox/v2.2.9.3/js/TB.js b/app/libs/tokbox/v2.2.9.3/js/TB.js
+index b673ce6..3f92992 100644
+--- a/app/libs/tokbox/v2.2.9.3/js/TB.js
++++ b/app/libs/tokbox/v2.2.9.3/js/TB.js
+@@ -15725,8 +15725,72 @@ waitForDomReady();
+           var transferDelta = currentStats.audioBytesTransferred -
+                                         (prevStats.audioBytesTransferred || 0);
+           return Math.round(transferDelta * 8 / currentStats.deltaSecs);
+-        };
++        },
++
++        round = function round(num) {
++          return Math.round(num * 100) / 100;
++        },
++
++        dumpRtpStats = function dumpRtpStats(stat, label) {
++          var statsString = label + " " + new Date(stat.timestamp).toTimeString() +
++                            " " + stat.type + " SSRC: " + stat.ssrc;
++          if (stat.packetsReceived !== undefined) {
++            statsString += " Received: " + stat.packetsReceived + " packets";
++            if (stat.bytesReceived !== undefined) {
++              statsString += " (" + round(stat.bytesReceived/1024) + " Kb)";
++            }
++            statsString += " Lost: " + stat.packetsLost + " Jitter: " + stat.jitter;
++            if (stat.mozRtt !== undefined) {
++              statsString += " RTT: " + stat.mozRtt + " ms";
++            }
++          } else if (stat.packetsSent !== undefined) {
++            statsString += " Sent: " + stat.packetsSent + " packets";
++            if (stat.bytesSent !== undefined) {
++              statsString += " (" + round(stat.bytesSent/1024) + " Kb)";
++            }
++          }
++          return statsString;
++        },
+ 
++        dumpAvStat = function dumpAvStat(stat) {
++          var statsString = '';
++          if (stat.mozAvSyncDelay !== undefined) {
++            statsString += "A/V sync: " + stat.mozAvSyncDelay + " ms ";
++          }
++          if (stat.mozJitterBufferDelay !== undefined) {
++            statsString += "Jitter-buffer delay: " + stat.mozJitterBufferDelay + " ms";
++          }
++          return statsString;
++        },
++
++        dumpCoderStat = function dumpCoderStat(stat) {
++          var statsString = '';
++          if (stat.bitrateMean !== undefined ||
++              stat.framerateMean !== undefined ||
++              stat.droppedFrames !== undefined ||
++              stat.discardedPackets !== undefined) {
++            statsString = (stat.packetsReceived !== undefined)? " Decoder:" : " Encoder:";
++            if (stat.bitrateMean !== undefined) {
++              statsString += " Avg. bitrate: " + (stat.bitrateMean/1000000).toFixed(2) + " Mbps";
++              if (stat.bitrateStdDev !== undefined) {
++                statsString += " (" + (stat.bitrateStdDev/1000000).toFixed(2) + " SD)";
++              }
++            }
++            if (stat.framerateMean !== undefined) {
++              statsString += " Avg. framerate: " + (stat.framerateMean).toFixed(2) + " fps";
++              if (stat.framerateStdDev !== undefined) {
++                statsString += " (" + stat.framerateStdDev.toFixed(2) + " SD)";
++              }
++            }
++            if (stat.droppedFrames !== undefined) {
++              statsString += " Dropped frames: " + stat.droppedFrames;
++            }
++            if (stat.discardedPackets !== undefined) {
++              statsString += " Discarded packets: " + stat.discardedPackets;
++            }
++          }
++          return statsString;
++         };
+ 
+     peerConnection.getStats(null, function(stats) {
+ 
+@@ -15736,6 +15800,24 @@ waitForDomReady();
+ 
+           var res = stats[key];
+ 
++          var statsString = 'WebRTC stats - ' + key + ' * ';
++          if (!res.isRemote) {
++            if (res.mozAvSyncDelay !== undefined ||
++                res.mozJitterBufferDelay !== undefined) {
++              if (dumpAvStat(res)) {
++                statsString += 'WebRTC A/V stats - ' + dumpAvStat(res) + ' * ';
++              }
++            }
++            if (dumpCoderStat(res)) {
++              statsString += 'WebRTC Coder stats - ' + dumpCoderStat(res) + ' * ';
++            }
++            statsString += 'WebRTC RTP stats - ' + dumpRtpStats(res, 'Local') + ' * ';
++            if (res.remoteId) {
++              statsString += 'WebRTC RTP stats - ' + dumpRtpStats(stats[res.remoteId], 'Remote') + ' * ';
++            }
++          }
++          OT.log(statsString);
++
+           // Find the bandwidth info for video
+           if (res.id.indexOf('video') !== -1) {
+             var avgVideoBitrate = parseAvgVideoBitrate(res);
