@@ -51,9 +51,9 @@
   const OPUS_STRING = 'a=rtpmap:109 opus';
 
   const TIMEOUT_SHIELD = 5000;
-
   const MEAN_ELEMENTS = 16;
   const TIME_INTERVAL_SECONDS = 3;
+  const POLLING_INTERVAL_MILISECONDS = 100;
 
   /**
    * Send the signal given as the parameter to the remote party.
@@ -334,7 +334,8 @@
       var that = this;
       _session.on({
         streamPropertyChanged: function(event) {
-          if (event.stream && event.stream.streamId !== _subscriber.stream.streamId) {
+          if (_subscriber && event.stream &&
+              event.stream.streamId !== _subscriber.stream.streamId) {
             return;
           }
 
@@ -422,21 +423,38 @@
                 }
               }
             );
+
           _subscriber.on({
             loaded: function() {
               _perfDebug && PerfLog.log(_perfBranch,
                 'Received "loaded" event from remote stream');
-              CallScreenUI.setCallStatus('connected');
+
+              var remoteVideoContainer = document.getElementById('fullscreen-video');
+              var remoteVideoElement = remoteVideoContainer.querySelector('video');
+              // The mozPaintedFrames hack added below solved the long lantency
+              // issue described on bug 1087068. Bug 1105707 was filed to get
+              // rid of it.
+              var pollingInterval, timeoutShield;
+
+              function setCallStatus() {
+                window.clearInterval(pollingInterval);
+                window.clearTimeout(timeoutShield);
+                CallScreenUI.setCallStatus('connected');
+              }
+
+              timeoutShield = window.setTimeout(setCallStatus, TIMEOUT_SHIELD);
+              pollingInterval = window.setInterval(function() {
+                if (remoteVideoElement.mozPaintedFrames == 0) {
+                  return;
+                }
+                setCallStatus();
+              }, POLLING_INTERVAL_MILISECONDS);
 
               if (_perfDebug) {
                 var meanFPS = 0;
                 var videoWidth = 640;
                 var videoHeight = 480;
                 var previousMozFrames = 0;
-                var remoteVideoContainer =
-                  document.getElementById('fullscreen-video');
-                var remoteVideoElement =
-                  remoteVideoContainer.querySelector('video');
 
                 if (remoteVideoElement) {
                   window.setInterval(function () {
