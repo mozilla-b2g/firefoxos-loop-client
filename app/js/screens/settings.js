@@ -11,7 +11,7 @@
 
   const _SETTING_DEFAULTS = {
     video: true,
-    frontCamera: true,
+    frontCamera: false,
     vibrate: true
   };
 
@@ -59,6 +59,20 @@
     _settingValues.vibrate = _vibrateSettings.checked;
     asyncStorage.setItem(SETTINGS_ITEM, _settingValues);
   };
+
+  function _checkUpgrade() {
+    LazyLoader.load('js/helpers/version_helper.js', () => {
+      VersionHelper.getVersionInfo().then((info) => {
+        if (info.previous.toString().startsWith('1.1.0') &&
+            info.current.toString().startsWith('1.1.1')) {
+          // upgrade from 1.1.0.x to 1.1.1.x -> rear/back will be default
+          // camera
+          _cameraDefaultSettings.selectedIndex = 1;
+          _settingHandler();
+        }
+      });
+    });
+  }
 
   var _;
   var _identity;
@@ -231,6 +245,7 @@
           if (!settingValues) {
             Settings.reset();
           } else {
+            _checkUpgrade();
             _settingValues = settingValues;
             _setVisualSettingValues(settingValues);
           }
