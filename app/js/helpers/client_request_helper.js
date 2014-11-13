@@ -115,6 +115,7 @@
       body = JSON.stringify(options.body);
     }
 
+    debug && console.log("Request to " + options.url + " with body " + body);
     req.send(body);
   }
 
@@ -275,14 +276,13 @@
       }
 
       // In order to allow the server to normalize the given identity as an
-      // MSISDN, we need to also provide the current MCC.
+      // MSISDN, we need to also provide the current MCC if it is available.
+      var _calleeId = calleeId.slice(0);
       var mcc;
       var conn = navigator.mozMobileConnections;
-      if (conn && conn[0]) {
-        // TODO: So far we will only provide the MCC of the first SIM if
-        //       available, but we'll need to provide the entire list after
-        //       bug 1062324 is fixed.
-        var network = conn[0].lastKnownHomeNetwork || conn[0].lastKnownNetwork;
+      if (conn && (conn[0] || conn[1])) {
+        var network = conn[0].lastKnownHomeNetwork || conn[0].lastKnownNetwork ||
+                      conn[1].lastKnownHomeNetwork || conn[1].lastKnownNetwork;
         var mccParts = (network || '-').split('-');
         if (mccParts.length >= 1) {
           // mccParts contains at least mcc and mnc. Recent implementations
@@ -290,16 +290,29 @@
           // about it.
           mcc = mccParts[0];
         }
+
+        for (var i = 0, l = calleeId.length; i < l; i++) {
+          // Ignore email based identities.
+          if (calleeId[i].indexOf('@') != -1) {
+            continue;
+          }
+          // The server expects an array of single strings or objects with the
+          // form {phoneNumber: <string>, mcc: <string>} for the callee
+          // identities.
+          _calleeId[i] = {
+            phoneNumber: calleeId[i],
+            mcc: mcc
+          };
+        }
       }
 
       _request({
         method: 'POST',
         url: SERVER_URL + '/calls/',
         body: {
-          calleeId: calleeId,
+          calleeId: _calleeId,
           callType: isVideoCall ? 'audio-video' : 'audio',
-          channel: CHANNEL,
-          mcc: mcc
+          channel: CHANNEL
         },
         credentials: _hawkCredentials
       }, onsuccess, onerror);
