@@ -306,11 +306,13 @@
       // In order to allow the server to normalize the given identity as an
       // MSISDN, we need to also provide the current MCC if it is available.
       var _calleeId = calleeId.slice(0);
-      var mcc;
+      var mcc = '';
       var conn = navigator.mozMobileConnections;
       if (conn && (conn[0] || conn[1])) {
-        var network = conn[0].lastKnownHomeNetwork || conn[0].lastKnownNetwork ||
-                      conn[1].lastKnownHomeNetwork || conn[1].lastKnownNetwork;
+        var network = (conn[0] &&
+                       (conn[0].lastKnownHomeNetwork || conn[0].lastKnownNetwork)) ||
+                      (conn[1] &&
+                       (conn[1].lastKnownHomeNetwork || conn[1].lastKnownNetwork));
         var mccParts = (network || '-').split('-');
         if (mccParts.length >= 1) {
           // mccParts contains at least mcc and mnc. Recent implementations
