@@ -97,7 +97,7 @@
         return;
       }
 
-      if (req.status !== 200 && req.status !== 204 && req.status !== 302) {
+      if (req.status !== 201 && req.status !== 200 && req.status !== 204 && req.status !== 302) {
         _callback(onerror, [req.statusText]);
         return;
       }
@@ -122,7 +122,9 @@
     get serverUrl() {
       return SERVER_URL;
     },
-
+    /*
+     * Methods related with account
+     */
     signUp: function signUp(credentials, pushEndpoint, onsuccess, onerror) {
       _request({
           method: 'POST',
@@ -184,6 +186,10 @@
         );
     },
 
+    /*
+     * Methods related with Shared URLs. This will be deprecated in the future
+     * based on the new version of the API.
+     */
     generateCallUrl: function generateCallUrl(callerId, onsuccess, onerror) {
       if (!_hawkCredentials) {
         _callback(onerror, [new Error('No HAWK credentials')]);
@@ -222,6 +228,25 @@
       }, onsuccess, onerror);
     },
 
+    revokeUrl: function revokeUrl(token, onsuccess, onerror) {
+      if (!_hawkCredentials) {
+        _callback(onerror, [new Error('No HAWK credentials')]);
+        return;
+      }
+
+      _request({
+          method: 'DELETE',
+          url: SERVER_URL + '/call-url/' + token,
+          credentials: _hawkCredentials
+        },
+        onsuccess,
+        onerror
+      );
+    },
+
+    /*
+     * Methods related with direct call (conversations)
+     */
     deleteCall: function deleteCall(token, onsuccess, onerror) {
       if (!_hawkCredentials) {
         _callback(onerror, [new Error('No HAWK credentials')]);
@@ -308,20 +333,93 @@
       }, onsuccess, onerror);
     },
 
-    revokeUrl: function revokeUrl(token, onsuccess, onerror) {
-      if (!_hawkCredentials) {
-        _callback(onerror, [new Error('No HAWK credentials')]);
-        return;
-      }
-
+    /*
+     * Methods related with Rooms
+     */
+    createRoom: function createRoom(params, onsuccess, onerror) {
       _request({
-          method: 'DELETE',
-          url: SERVER_URL + '/call-url/' + token,
+        method: 'POST',
+        url:  SERVER_URL + '/rooms',
+        body: params,
+        credentials: _hawkCredentials
+      }, onsuccess, onerror);
+    },
+
+    deleteRoom: function deleteRoom(token, onsuccess, onerror) {
+      _request({
+        method: 'DELETE',
+        url: SERVER_URL + '/rooms/' + token,
+        credentials: _hawkCredentials
+      }, onsuccess, onerror);
+    },
+
+    getRoom: function getRoom(token, onsuccess, onerror) {
+      _request({
+        method: 'GET',
+        url: SERVER_URL + '/rooms/' + token,
+        credentials: _hawkCredentials
+      }, onsuccess, onerror);
+    },
+
+    joinRoom: function joinRoom(token, params, onsuccess, onerror) {
+      // Add the action to the params
+      params.action = 'join';
+      _request({
+        method: 'POST',
+        url: SERVER_URL + '/rooms/' + token,
+        body: params,
+        credentials: _hawkCredentials
+      }, onsuccess, onerror);
+    },
+
+    leaveRoom: function leaveRoom(token, onsuccess, onerror) {
+      _request({
+        method: 'POST',
+        url: SERVER_URL + '/rooms/' + token,
+        body: {
+          action: 'leave'
+        },
+        credentials: _hawkCredentials
+      }, onsuccess, onerror);
+    },
+
+    getRooms: function getRooms(onsuccess, onerror) {
+      _request({
+        method: 'GET',
+        url: SERVER_URL + '/rooms',
+        credentials: _hawkCredentials
+      }, onsuccess, onerror);
+    },
+
+    refreshRoom: function refreshRoom(token, onsuccess, onerror) {
+      _request({
+        method: 'POST',
+        url: SERVER_URL + '/rooms/' + token,
+        body: {
+          action: 'refresh'
+        },
+        credentials: _hawkCredentials
+      }, onsuccess, onerror);
+    },
+
+    getRoomsChanges: function getRoomsChanges(version, onsuccess, onerror) {
+      _request({
+          method: 'GET',
+          url: SERVER_URL + '/rooms?version=' + version,
           credentials: _hawkCredentials
         },
         onsuccess,
         onerror
       );
+    },
+
+    updateRoom: function updateRoom(token, params, onsuccess, onerror) {
+      _request({
+        method: 'PATCH',
+        url: SERVER_URL + '/rooms/' + token,
+        body: params,
+        credentials: _hawkCredentials
+      }, onsuccess, onerror);
     }
   };
 
