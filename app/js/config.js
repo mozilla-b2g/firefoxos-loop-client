@@ -2,15 +2,18 @@ Config = {
   version: '1.1d',
   debug: false,
   // Server URL. It might be (depending on the environment):
-  //   Development: 'http://loop.dev.mozaws.net'
+  //   Development: 'https://loop-dev.stage.mozaws.net'
   //   Stage: 'https://loop.stage.mozaws.net'
   //   Prod: 'https://loop.services.mozilla.com'
   server_url: 'https://loop.services.mozilla.com',
   channel: 'mobile', // The release channel of the calling client.
+  // cfg perfLog
   performanceLog: {
     enabled: false,
     persistent: false
   },
+  // end
+  // cfg metrics
   metrics: {
     enabled: true,
     feedback: {
@@ -20,6 +23,7 @@ Config = {
       serverUrl: 'https://fxos.telemetry.mozilla.org/submit/telemetry'
     }
   },
+  // end
   // This parameters defaults to false
   // (don't allow unsecure connections) if undefined
   allowUnsecure: false,
