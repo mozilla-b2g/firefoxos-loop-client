@@ -19,25 +19,6 @@
     }
   }
 
-  function _ensureGum(frontCamera) {
-    return new Promise(function(resolve, reject) {
-      var mode = frontCamera ? 'user' : 'environment';
-      var cameraConstraints = {facingMode: mode, require: ['facingMode']};
-
-      navigator.mozGetUserMedia(
-        {
-          video: cameraConstraints,
-          audio: true
-        },
-        function(stream) {
-          stream.stop();
-          resolve();
-        },
-        reject
-      );
-    });
-  }
-
   function _onAttentionLoaded(attention, callback) {
     if (typeof callback !== 'function') {
       console.error('Error when waiting for attention onload');
@@ -340,81 +321,79 @@
             _postCall(type, incomingCall, params.identities, params.frontCamera);
             break;
           case 'outgoing':
-            _ensureGum(params.frontCamera).then(function() {
-              if (!params.token) {
-                CallHelper.callUser(
-                  params.identities,
-                  params.video,
-                  function onLoopIdentity(call) {
-                    _postCall(type,
-                              call,
-                              params.identities,
-                              params.frontCamera,
-                              params.video);
-                  },
-                  function onFallback() {
-                    if (!navigator.onLine) {
+            if (!params.token) {
+              CallHelper.callUser(
+                params.identities,
+                params.video,
+                function onLoopIdentity(call) {
+                  _postCall(type,
+                            call,
+                            params.identities,
+                            params.frontCamera,
+                            params.video);
+                },
+                function onFallback() {
+                  if (!navigator.onLine) {
+                    _listenToCallScreenMessages();
+                    _abortCall({reason: 'offline'});
+                    return;
+                  }
+                  _abortCall(null);
+                  // Get URL to share and show prompt
+                  CallHelper.generateCallUrl(
+                    params.identities[0],
+                    function onCallUrlSuccess(result) {
+                      var speaker = params.video && params.video === true;
+                      getShareUI().then((ui) => {
+                        ui.show(
+                          result,
+                          params.identities,
+                          'notAUser',
+                          function onShareScreen() {
+                            _closeAttentionScreen();
+                            LazyLoader.load('js/helpers/tone_player_helper.js',
+                              function onTonePlayerLoaded() {
+                                TonePlayerHelper.init('telephony');
+                                TonePlayerHelper.playFailed(speaker).then(
+                                  function onplaybackcompleted() {
+                                    TonePlayerHelper.stop();
+                                    TonePlayerHelper.releaseResources();
+                                  });
+                              }
+                            );
+                          });
+                      });
+                    },
+                    function(e) {
+                      console.error('Unable to retrieve link to share ' + e);
                       _listenToCallScreenMessages();
-                      _abortCall({reason: 'offline'});
+                      _abortCall({reason: 'genericServerError'});
                       return;
                     }
-                    _abortCall(null);
-                    // Get URL to share and show prompt
-                    CallHelper.generateCallUrl(params.identities[0],
-                      function onCallUrlSuccess(result) {
-                        var speaker = params.video && params.video === true;
-                        getShareUI().then((ui) => {
-                          ui.show(
-                            result,
-                            params.identities,
-                            'notAUser',
-                            function onShareScreen() {
-                              _closeAttentionScreen();
-                              LazyLoader.load('js/helpers/tone_player_helper.js',
-                                function onTonePlayerLoaded() {
-                                  TonePlayerHelper.init('telephony');
-                                  TonePlayerHelper.playFailed(speaker).then(
-                                    function onplaybackcompleted() {
-                                      TonePlayerHelper.stop();
-                                      TonePlayerHelper.releaseResources();
-                                  });
-                                }
-                              );
-                          });
-                        });
-                      },
-                      function(e) {
-                        console.error('Unable to retrieve link to share ' + e);
-                        _listenToCallScreenMessages();
-                        _abortCall({reason: 'genericServerError'});
-                        return;
-                      }
-                    );
+                  );
                 });
-              } else {
-		if (!navigator.onLine) {
-		  _listenToCallScreenMessages();
-		  _abortCall({reason: 'offline'});
-		  return;
-		}
-                CallHelper.callUrl(
-                  params.token,
-                  params.video,
-                  function(call, calleeFriendlyName) {
-                    params.identities = [calleeFriendlyName];
-                    _postCall(type, call, params.identities, params.frontCamera,
-                              params.video);
-                  },
-                  function() {
-                    console.error('Unable to connect');
-		    _listenToCallScreenMessages();
-		    _abortCall({reason: 'genericServerError'});
-		    return;
-                  }
-                );
-              }
-            },
-            _listenToCallScreenMessages);
+            } else {
+		          if (!navigator.onLine) {
+		            _listenToCallScreenMessages();
+		            _abortCall({reason: 'offline'});
+		            return;
+		          }
+              CallHelper.callUrl(
+                params.token,
+                params.video,
+                function(call, calleeFriendlyName) {
+                  params.identities = [calleeFriendlyName];
+                  _postCall(type, call, params.identities, params.frontCamera,
+                            params.video);
+                },
+                function() {
+                  console.error('Unable to connect');
+		              _listenToCallScreenMessages();
+		              _abortCall({reason: 'genericServerError'});
+		              return;
+                }
+              );
+            }
             break;
           }
         }
