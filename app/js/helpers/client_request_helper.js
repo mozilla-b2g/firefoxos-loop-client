@@ -206,7 +206,7 @@
         },
         function(result) {
           _callback(onsuccess, [result]);
-          Telemetry.recordGeneratedUrl();
+          Telemetry.updateReport('generatedUrls');
         },
         onerror
       );

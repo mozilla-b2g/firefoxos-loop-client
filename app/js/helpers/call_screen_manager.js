@@ -208,9 +208,13 @@
             CallLog.addCall(callObject);
             cleanCallParams();
           });
-          Telemetry.recordAudioCodec(callscreenParams.audioCodecName);
-          Telemetry.recordVideoCodec(callscreenParams.videoCodecName);
-          Telemetry.recordCallDuration(callObject.duration);
+
+          Telemetry.updateReport('audioCodecName',
+                                 callscreenParams.audioCodecName);
+          Telemetry.updateReport('videoCodecName',
+                                 callscreenParams.videoCodecName);
+          Telemetry.updateReport('callsDuration',
+                                 callObject.duration);
           break;
       }
     } catch(e) {}
