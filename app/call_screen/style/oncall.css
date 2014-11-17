@@ -437,7 +437,8 @@ body[data-call-status='outgoing'] .call-status-info {
   font-size: 1.7rem;
   color: white;
   font-weight: 400;
-  display: none;
+  visibility: hidden;
+  pointer-events: none;
   position: absolute;
   z-index: 100;
   width: 100%;
@@ -505,7 +506,8 @@ body[data-call-status='remotehold'] #call-bar .call-status-info {
 }
 
 body.status-bar #call-bar {
-  display: block;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 /*

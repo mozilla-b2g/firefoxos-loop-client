@@ -311,13 +311,15 @@
       // call.
       CallManager.oncallfailed = this.notifyCallFailed;
 
+      var statusBarHeight = document.getElementById('call-bar').offsetHeight;
+
       // Use status bar in the call screen
       window.onresize = function() {
         if (_feedbackClose && typeof _feedbackClose === 'function') {
           _feedbackClose();
           return;
         }
-        if (document.body.classList.contains('status-bar')) {
+        if (window.innerHeight > statusBarHeight) {
           document.body.classList.remove('status-bar');
         } else {
           document.body.classList.add('status-bar');
