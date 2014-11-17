@@ -15,18 +15,20 @@
     /**
      * Generate a call URL to be shared with the called party.
      *
-     * @param {String} id Peer's id.
+     * @param {String} params Object with the needed params.
+                              Shall include the id Peer's id.
      * @param {Function} onsuccess Function to be called once the call URL is
      *                             generated correctly.
      * @param {Function} onerror Function to be called when an error occurs.
      */
-    generateCallUrl: function ch_generateCallUrl(id, onsuccess, onerror) {
-      if (!id) {
+    generateCallUrl: function ch_generateCallUrl(params, onsuccess, onerror) {
+      params = params || {};
+      if (!params.callerId) {
         _callback(onerror, [new Error('Invalid peer id')]);
         return;
       }
 
-      ClientRequestHelper.generateCallUrl(id, function onCallUrl(result) {
+      ClientRequestHelper.generateCallUrl(params, function onCallUrl(result) {
         _callback(onsuccess, [result]);
       }, onerror);
     },
@@ -39,13 +41,14 @@
      *                         account.
      * @param {Boolean} isVideoCall
      */
-    callUser: function ch_callUser(calleeId, isVideoCall, onsuccess, onerror) {
-      if (!calleeId) {
+    callUser: function ch_callUser(params, onsuccess, onerror) {
+      params = params || {};
+      if (!params.calleeId) {
         _callback(onerror, [new Error('Invalid callee id')]);
         return;
       }
 
-      ClientRequestHelper.callUser(calleeId, isVideoCall, function(result) {
+      ClientRequestHelper.callUser(params, function(result) {
         _callback(onsuccess, [result]);
       }, onerror);
     },
@@ -53,19 +56,22 @@
     /**
      * Call a user given a call token.
      *
-     * @param {String} token The call token comes from a previously generated
+     * @param {String} params Object with the callUrl params.
+     *                  shall include The call token comes from a
+                        previously generated
      *                 Loop URL
      * @param {Boolean} isVideoCall
      */
 
-    callUrl: function ch_callUrl(token, isVideoCall, onsuccess, onerror) {
-      if (!token) {
+    callUrl: function ch_callUrl(params, onsuccess, onerror) {
+      params = params || {};
+      if (!params.token) {
         _callback(onerror, [new Error('Invalid call token')]);
         return;
       }
 
-      ClientRequestHelper.getCallUrl(token, function(call) {
-        ClientRequestHelper.callUrl(token, isVideoCall, function(result) {
+      ClientRequestHelper.getCallUrl(params, function(call) {
+        ClientRequestHelper.callUrl(params, function(result) {
           _callback(onsuccess, [result, call.calleeFriendlyName]);
         }, onerror);
       }, onerror);
