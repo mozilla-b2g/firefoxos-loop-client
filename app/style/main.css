@@ -11,12 +11,16 @@ html {
 }
 
 .panel {
+  display: none;
   position: absolute;
   top: 0;
-  left: 0;
+  left: 100%;
   height: 100%;
   width: 100%;
-  background: white;
+}
+
+.panel.show {
+  display: block;
 }
 
 .modal {
@@ -26,6 +30,14 @@ html {
   height: 100%;
   width: 100%;
   background: white;
+  z-index: 100;
+  transition: all ease .5s;
+  transform: translateY(100%);
+}
+
+.modal.show {
+  transition: all ease .5s;
+  transform: translateY(0);
 }
 
 .dialog {
@@ -41,11 +53,6 @@ html {
 
 .dialog.show {
   display: block;
-}
-
-.main {
-  -webkit-transform: translateX(100%);
-  transform: translateX(100%);
 }
 
 input::-moz-focus-inner,

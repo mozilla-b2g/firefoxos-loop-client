@@ -215,7 +215,9 @@
                   l10nId: 'logOut',
                   method: function onLogout() {
                     LoadingOverlay.show(_('loggingOut'));
-                    Controller.logout();
+                    setTimeout(function() {
+                      Settings.hide(Controller.logout);
+                    }, 100);
                   }.bind(this),
                   params: []
                 }
@@ -316,7 +318,7 @@
       _cleanUrlsButton.disabled = CallLog.urlsSectionEmpty;
     },
 
-    hide: function s_hide() {
+    hide: function s_hide(callback) {
       if (!_settingsPanel) {
         return;
       }
@@ -324,6 +326,9 @@
       _settingsPanel.addEventListener('transitionend', function onTransition() {
         _settingsPanel.removeEventListener('transitionend', onTransition);
         _settingsPanel.classList.add('hide');
+        if (typeof callback === 'function') {
+          callback();
+        }
       });
       _settingsPanel.classList.remove('show');
     },

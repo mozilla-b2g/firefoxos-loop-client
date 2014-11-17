@@ -20,7 +20,7 @@
     <link rel="stylesheet" type="text/css" href="style/loading_overlay.css">
     <link rel="stylesheet" type="text/css" href="style/calllog.css">
     <link rel="stylesheet" type="text/css" href="style/main.css">
-    <link rel="stylesheet" type="text/css" href="style/transitions.css">
+    <link rel="stylesheet" type="text/css" href="style/navigation.css">
     <link id="splash-screen-stylesheet"rel="stylesheet" type="text/css" href="style/splash_screen.css">
 
     <link rel="manifest" href="manifest.webapp">
@@ -40,7 +40,7 @@
     <script defer src="libs/uuid.js"></script>
 
     <script defer src="js/compatibility_checker.js"></script>
-
+    <script defer src="js/navigation.js"></script>
     <script defer src="js/helpers/contacts_helper.js"></script>
     <script defer src="js/helpers/action_log_db.js"></script>
     <script defer src="js/helpers/audio_competing_helper.js"></script>
@@ -68,8 +68,8 @@
     <script defer src="js/boot.js"></script>
   </head>
 
-  <body role="application" class="animate" data-layout="wizard">
-    <section id="loading-overlay" class="panel" role="region" data-type="dialog">
+  <body role="application" class="" data-transition="" data-uidebug="">
+    <section id="loading-overlay" class="dialog" role="region" data-type="dialog">
       <p><progress class="light"></progress></p>
       <p id="loading-overlay-message"></p>
     </section>
@@ -96,7 +96,7 @@
     <!--
       Every relevant screen which have it own 'panel'
     -->
-    <section id="wizard-panel" data-step="0" class="panel main hide">
+    <section id="wizard-panel" data-step="0" class="panel">
       <!--
       <section id="wizard-tutorial-section"  class="wizard-section vbox current">
         <header id="wizard-tutorial-header">
@@ -164,7 +164,7 @@
       </section>
       -->
     </section>
-    <section id="calllog-panel" class="panel main vbox skin-comms" role="region">
+    <section id="calllog-panel" class="panel vbox skin-comms" role="region">
       <header>
         <menu type="toolbar">
           <a id="open-settings-button"><span class="icon icon-settings"></span></a>
@@ -213,7 +213,13 @@
         </button>
       </footer>
     </section>
-    <section id="share-panel" class="panel share skin-comms hide" role="region">
+    <section id="room-detail" class="panel skin-comms">
+      Panel ready to add the detail of a room given the token
+    </section>
+    <section id="room-detail-history" class="panel skin-comms">
+      Panel ready to add the history given a room token
+    </section>
+    <section id="share-panel" class="modal share skin-comms hide" role="region">
       <!--
       <header>
         <button id="share-close-button"><span class="icon icon-close"></span></button>
@@ -262,7 +268,7 @@
       </section>
       -->
     </section>
-    <section id="settings-panel" class="panel settings vbox skin-organic hide" role="region">
+    <section id="settings-panel" class="modal settings vbox skin-organic hide" role="region">
       <header>
         <menu type="toolbar">
           <button id="settings-close-button" data-l10n-id="done"></button>
@@ -312,6 +318,11 @@
         <p id="settings-logout-identity"></p>
         <button id="settings-logout-button" data-l10n-id="logOut"></button>
       </footer>
+    </section>
+
+    <section id="mirror-current" class="mirror">
+    </section>
+    <section id="mirror-future" class="mirror">
     </section>
 
     <!-- Templates -->

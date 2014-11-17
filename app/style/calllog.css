@@ -1,6 +1,14 @@
+#calllog-panel {
+  background-color: white;
+}
 
 #calllog-container {
   overflow: hidden;
+  /* In order to have scroll working properly
+   * we stablish the 'real' heigh of the list, removing
+   * the space used by the header
+   */
+  height: calc(100% - 5rem);
 }
 
 .hidden {
@@ -35,7 +43,7 @@
   flex: 1;
 }
 
-.calllog-section ul:last-child li:last-child {
+.calllog-section ul:last-child {
   margin-bottom: 10rem;
 }
 
