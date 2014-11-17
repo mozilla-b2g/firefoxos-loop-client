@@ -3,7 +3,8 @@
 
   var _initialized = false;
   var calllogSectionsContainer, callsTabSelector, urlsTabSelector,
-      callsSection, urlsSection, callsSectionEntries, urlsSectionEntries;
+      callsSection, urlsSection, callsSectionEntries, urlsSectionEntries,
+      toolbarFooter;
   var _contactsCache = false;
   var _renderingCalls = false;
   var _renderingUrls = false;
@@ -877,6 +878,36 @@
     }
   }
 
+  function _toggleToolbar(cb) {
+    if (typeof cb === 'function') {
+      var toggleButton = toolbarFooter.querySelector('.toggle-actions');
+      toggleButton.addEventListener('transitionend', function onTranstionEnd() {
+        toggleButton.removeEventListener('transitionend', onTranstionEnd);
+        cb();
+      });
+    }
+    toolbarFooter.classList.toggle('show');
+  }
+
+  function _attachToolbarHandlers() {
+    toolbarFooter.querySelector('.toggle-actions').addEventListener('click', (e) => {
+      e.stopPropagation();
+      _toggleToolbar();
+    });
+
+    toolbarFooter.querySelector('.create-room').addEventListener('click', () => {
+      _toggleToolbar(Controller.createRoom);
+    });
+
+    toolbarFooter.querySelector('.new-conversation').addEventListener('click', () => {
+      _toggleToolbar(Controller.pickAndCall);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      document.hidden && toolbarFooter.classList.contains('show') && _toggleToolbar();
+    });
+  }
+
   var CallLog = {
     init: function w_init(identity) {
       // Show the section
@@ -897,6 +928,7 @@
         document.querySelector('.calllog-sections-container');
       callsTabSelector = document.getElementById('calls-section-filter');
       urlsTabSelector = document.getElementById('urls-section-filter');
+      toolbarFooter = document.getElementById('calllog-actions');
 
       // Add a listener to the right button
       document.getElementById('open-settings-button').addEventListener(
@@ -904,10 +936,7 @@
         Settings.show
       );
 
-      document.getElementById('call-from-loop').addEventListener(
-        'click',
-        Controller.pickAndCall
-      );
+      _attachToolbarHandlers();
 
       document.getElementById('calls-section-filter').addEventListener(
         'click',

@@ -130,6 +130,10 @@
       AccountHelper.authenticate(id);
     },
 
+    createRoom: function() {
+      console.log('TODO create Room action');
+    },
+
     pickAndCall: function() {
       var activity = new MozActivity({
         name: 'pick',
