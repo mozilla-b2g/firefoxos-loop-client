@@ -2,6 +2,12 @@
   'use strict';
 
   var debug = Config.debug;
+  const TELEMETRY_DICTIONARY = {
+    'fxa': 'FxA',
+    'msisdn': 'MobileId',
+    'cellular': 'callsWithCellular',
+    'wifi': 'callsWithWifi'
+  };
 
   function _hideSplash() {
     setTimeout(function() {
@@ -77,7 +83,7 @@
   }
 
   function _onsharedurl() {
-    Telemetry.recordSharedUrl();
+    Telemetry.updateReport('sharedUrls');
   }
 
   function _oncall(isIncoming) {
@@ -86,19 +92,14 @@
         return;
       }
 
-      if (account.id.type === 'fxa') {
-        isIncoming ? Telemetry.recordIncomingCallWithFxA()
-                   : Telemetry.recordOutgoingCallWithFxA();
-      } else if (account.id.type === 'msisdn') {
-        isIncoming ? Telemetry.recordIncomingCallWithMobileId()
-                   : Telemetry.recordOutgoingCallWithMobileId();
-      }
+      var direction = isIncoming ? 'incoming' : 'outgoing';
+      var type = TELEMETRY_DICTIONARY[account.id.type];
+      type && Telemetry.updateReport(direction + 'CallsWith' + type);
     });
 
-    if (navigator.connection && navigator.connection.type == 'cellular') {
-      Telemetry.recordCallWithCellular();
-    } else if (navigator.connection && navigator.connection.type == 'wifi') {
-      Telemetry.recordCallWithWifi();
+    if (navigator.connection) {
+      var reportName = TELEMETRY_DICTIONARY[navigator.connection.type];
+      reportName && Telemetry.updateReport(reportName);
     }
   }
 
@@ -141,7 +142,7 @@
 
       activity.onsuccess = function() {
         Controller.callContact(activity.result, Settings.isVideoDefault);
-        Telemetry.recordCallFromContactPicker();
+        Telemetry.updateReport('callsFromContactPicker');
       };
 
       activity.onerror = function() {

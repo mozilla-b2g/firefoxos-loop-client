@@ -71,7 +71,7 @@
           return;
         }
         Controller.callContact(activityParams.contact, activityParams.video);
-        Telemetry.recordCallFromContactDetails();
+        Telemetry.updateReport('callsFromContactDetails');
         break;
       case LOOP_CALL:
         if (!activityParams.token) {
@@ -79,7 +79,7 @@
           return;
         }
         Controller.callUrl(activityParams.token, activityParams.video != false);
-        Telemetry.recordCallFromUrl();
+        Telemetry.updateReport('callsFromUrl');
         break;
     }
   }

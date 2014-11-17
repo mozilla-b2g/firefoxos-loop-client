@@ -403,13 +403,13 @@
               }
             }
           );
-          Telemetry.recordFxALogin();
+          Telemetry.updateReport('fxaLogins');
           break;
         case 'msisdn':
           navigator.getMobileIdAssertion({
             forceSelection: true
           }).then(_onlogin, _onloginerror);
-          Telemetry.recordMobileIdLogin();
+          Telemetry.updateReport('mobileIdLogins');
           break;
         default:
           console.error('Should never get here. Wrong authentication id');

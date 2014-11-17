@@ -222,7 +222,7 @@
               isVideo = Settings.isVideoDefault;
             }
             Controller.callIdentities(identities, null, isVideo);
-            Telemetry.recordCallFromCallLog();
+            Telemetry.updateReport('callsFromCallLog');
           },
           params: [identities]
         }
@@ -965,7 +965,7 @@
             isVideo = Settings.isVideoDefault;
           }
           Controller.callIdentities(identities, null, isVideo);
-          Telemetry.recordCallFromCallLog();
+          Telemetry.updateReport('callsFromCallLog');
         }
       )
 

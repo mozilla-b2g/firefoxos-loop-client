@@ -11,30 +11,6 @@
                           24 * 60 * 60 * 1000; // 1 day
   const SAFE_TIME = 0.1 * 60 * 1000; // 1 min
 
-  // We record the number of shared and published URLs.
-  const SHARED_URLS = 'sharedUrls';
-  const GENERATED_URLS = 'generatedUrls';
-  // The number of logins with MobileID and FxA.
-  const MOBILEID_LOGINS = 'mobileIdLogins';
-  const FXA_LOGINS = 'fxaLogins';
-  // The number of calls made with each ID.
-  const OUTGOING_CALLS_WITH_MOBILEID = 'outgoingCallsWithMobileId';
-  const OUTGOING_CALLS_WITH_FXA = 'outgoingCallsWithFxA';
-  const INCOMING_CALLS_WITH_MOBILEID = 'incomingCallsWithMobileId';
-  const INCOMING_CALLS_WITH_FXA = 'incomingCallsWithFxA';
-  // The source of the calls.
-  const CALLS_FROM_CONTACT_DETAILS = 'callsFromContactDetails';
-  const CALLS_FROM_CONTACT_PICKER = 'callsFromContactPicker';
-  const CALLS_FROM_CALL_LOG = 'callsFromCallLog';
-  const CALLS_FROM_URL = 'callsFromUrl';
-  // The duration of the calls.
-  const CALLS_DURATION = 'callsDuration';
-  // The network type used for the call.
-  // We only care about cellular or wifi.
-  const CALLS_WITH_CELLULAR = 'callsWithCellular';
-  const CALLS_WITH_WIFI = 'callsWithWifi';
-  const AUDIO_CODEC_NAME = 'audioCodecName';
-  const VIDEO_CODEC_NAME = 'videoCodecName';
   const LAST_REPORT = 'telemetry-last-report';
 
   const THROTTLE_DELAY = 10 * 1000; // 10 sec
@@ -70,18 +46,37 @@
       appVersion: Config.version || 'unknown'
     };
 
-    [GENERATED_URLS, SHARED_URLS, MOBILEID_LOGINS, FXA_LOGINS,
-     CALLS_FROM_CONTACT_DETAILS, CALLS_FROM_CONTACT_PICKER,
-     CALLS_FROM_CALL_LOG, CALLS_FROM_URL, CALLS_WITH_CELLULAR,
-     CALLS_WITH_WIFI, OUTGOING_CALLS_WITH_MOBILEID,
-     OUTGOING_CALLS_WITH_FXA, INCOMING_CALLS_WITH_MOBILEID,
-     INCOMING_CALLS_WITH_FXA].forEach((type) => {
-       this[type] = 0;
+    Object.keys(TelemetryReport.prototype).forEach((key) => {
+      this[key] = TelemetryReport.prototype[key];
     });
-    this[CALLS_DURATION] = [];
-    this[AUDIO_CODEC_NAME] = [];
-    this[VIDEO_CODEC_NAME] = [];
   }
+
+  TelemetryReport.prototype = {
+    // We record the number of shared and published URLs.
+    generatedUrls: 0,
+    sharedUrls: 0,
+    // The number of logins with MobileID and FxA.
+    mobileIdLogins: 0,
+    fxaLogins: 0,
+    // The source of the calls.
+    callsFromContactDetails: 0,
+    callsFromContactPicker: 0,
+    callsFromCallLog: 0,
+    callsFromUrl: 0,
+    // We only care about cellular or wifi.
+    callsWithCellular: 0,
+    callsWithWifi: 0,
+    // The number of calls made with each ID.
+    outgoingCallsWithMobileId: 0,
+    outgoingCallsWithFxA: 0,
+    incomingCallsWithMobileId: 0,
+    incomingCallsWithFxA: 0,
+    // The duration of the calls.
+    callsDuration: [],
+    // The network type used for the call.
+    audioCodecName: [],
+    videoCodecName: []
+  };
 
   function Telemetry() {
     Metrics.call(this, 'telemetry');
@@ -159,7 +154,6 @@
               if (report[key] == undefined) {
                 report[key] = newReport[key];
               }
-              delete newReport[key];
             }
             newReport = null; // freeing newReport
           }
@@ -180,81 +174,13 @@
       });
     },
 
-    recordGeneratedUrl: function() {
-      this._updateReport(GENERATED_URLS);
-    },
-
-    recordSharedUrl: function() {
-      this._updateReport(SHARED_URLS)
-    },
-
-    recordMobileIdLogin: function() {
-      this._updateReport(MOBILEID_LOGINS);
-    },
-
-    recordFxALogin: function() {
-      this._updateReport(FXA_LOGINS);
-    },
-
-    recordOutgoingCallWithMobileId: function() {
-      this._updateReport(OUTGOING_CALLS_WITH_MOBILEID);
-    },
-
-    recordOutgoingCallWithFxA: function() {
-      this._updateReport(OUTGOING_CALLS_WITH_FXA);
-    },
-
-    recordIncomingCallWithMobileId: function() {
-      this._updateReport(INCOMING_CALLS_WITH_MOBILEID);
-    },
-
-    recordIncomingCallWithFxA: function() {
-      this._updateReport(INCOMING_CALLS_WITH_FXA);
-    },
-
-    recordCallFromContactDetails: function() {
-      this._updateReport(CALLS_FROM_CONTACT_DETAILS);
-    },
-
-    recordCallFromContactPicker: function() {
-      this._updateReport(CALLS_FROM_CONTACT_PICKER);
-    },
-
-    recordCallFromCallLog: function() {
-      this._updateReport(CALLS_FROM_CALL_LOG);
-    },
-
-    recordCallFromUrl: function() {
-      this._updateReport(CALLS_FROM_URL);
-    },
-
-    recordCallWithCellular: function() {
-      this._updateReport(CALLS_WITH_CELLULAR);
-    },
-
-    recordCallWithWifi: function() {
-      this._updateReport(CALLS_WITH_WIFI);
-    },
-
-    recordCallDuration: function(duration) {
-      if (duration === undefined || duration === null) {
+    updateReport: function(name, value) {
+      if (TelemetryReport.prototype[name] === undefined ||
+          Array.isArray(TelemetryReport.prototype[name]) &&
+          (value === undefined || value ===  null)) {
         return;
       }
-      this._updateReport(CALLS_DURATION, duration);
-    },
-
-    recordAudioCodec: function(codec) {
-      if (codec == undefined || codec == null) {
-        return;
-      }
-      this._updateReport(AUDIO_CODEC_NAME, codec);
-    },
-
-    recordVideoCodec: function(codec) {
-      if (codec == undefined || codec == null) {
-        return;
-      }
-      this._updateReport(VIDEO_CODEC_NAME, codec);
+      this._updateReport(name, value);
     }
 
   };
