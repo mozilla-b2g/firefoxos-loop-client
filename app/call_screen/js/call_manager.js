@@ -40,6 +40,7 @@
   var _acm = navigator.mozAudioChannelManager;
   var _videoCodecName = 'unknown';
   var _audioCodecName = 'unknown';
+  var _frontCamera = null;
 
   // These strings will be found in SDP answer if H264 video codec is used
   const H264_STRING_126 = 'a=rtpmap:126 H264';
@@ -270,6 +271,7 @@
       // Update contact name for incoming/outgoing calls. Outgoing calls because
       // identities are retrieved from server for "loop-call" activities
       var identities = params.identities;
+      _frontCamera = params.frontCamera;
       identities && CallScreenUIMinified.updateIdentityInfo(identities);
     },
 
@@ -697,9 +699,9 @@
           video: _isVideoCall,
           videoCodecName: _videoCodecName,
           audioCodecName: _audioCodecName,
+          defaultCamera: _frontCamera === true ? 'front' : 'rear',
           feedback: feedback || null
         };
-
         if (error) {
           params.error = error;
         }

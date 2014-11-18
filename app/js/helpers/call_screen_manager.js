@@ -208,13 +208,14 @@
             CallLog.addCall(callObject);
             cleanCallParams();
           });
-
           Telemetry.updateReport('audioCodecName',
                                  callscreenParams.audioCodecName);
           Telemetry.updateReport('videoCodecName',
                                  callscreenParams.videoCodecName);
           Telemetry.updateReport('callsDuration',
                                  callObject.duration);
+          Telemetry.updateReport('defaultCamera',
+                                 callscreenParams.defaultCamera);
           break;
       }
     } catch(e) {}
