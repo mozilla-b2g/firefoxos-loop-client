@@ -102,19 +102,26 @@
     // different contacts holding the same identity, but unlikely isn't
     // impossible, so we sadly need to check all the identities against
     // the Contacts API.
-    for (var i = 0, l = identities.length; i < l; i++) {
+    var contactsAPI = navigator.mozContacts;
+    identities.forEach((identity) => {
       _asyncCalls++;
 
       var options = {
-        filterBy    : ['tel', 'email'],
-        filterValue : identities[i],
-        filterOp    : 'equals'
+        filterValue : identity
+      };
+
+      if (identity.indexOf('@') !== -1) {
+        options.filterBy = ['email'];
+        options.filterOp = 'equals';
+      } else {
+        options.filterBy = ['tel'];
+        options.filterOp = 'match';
       }
 
-      var request = navigator.mozContacts.find(options);
+      var request = contactsAPI.find(options);
       request.onsuccess = _onsuccess;
       request.onerror = _onerror;
-    }
+    });
   }
 
   function getPrimaryInfo(contact) {
