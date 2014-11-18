@@ -208,6 +208,7 @@
             CallLog.addCall(callObject);
             cleanCallParams();
           });
+
           Telemetry.updateReport('audioCodecName',
                                  callscreenParams.audioCodecName);
           Telemetry.updateReport('videoCodecName',
