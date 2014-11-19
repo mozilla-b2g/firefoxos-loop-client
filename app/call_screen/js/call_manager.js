@@ -306,7 +306,6 @@
 
     join: function(isVideoCall, frontCamera) {
 
-      console.log('opg: frontcamera val = ' + frontCamera + ' typeof ' + typeof(frontCamera));
       _perfDebug && PerfLog.log(_perfBranch, 'CallManager.join');
 
       _useSpeaker = _isVideoCall = isVideoCall && isVideoCall != 'false';
