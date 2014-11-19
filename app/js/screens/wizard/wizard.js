@@ -35,8 +35,7 @@
 
   var Wizard = {
     init: function w_init(isFirstUse, success, error) {
-      document.body.dataset.layout = 'wizard';
-
+      
       render();
 
       Authenticate.init();

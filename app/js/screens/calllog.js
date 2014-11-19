@@ -910,9 +910,6 @@
 
   var CallLog = {
     init: function w_init(identity) {
-      // Show the section
-      document.body.dataset.layout = 'calllog';
-
       if (_initialized) {
         return;
       }

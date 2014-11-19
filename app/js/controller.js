@@ -21,6 +21,7 @@
                        'js/screens/wizard/authenticate.js',
                        'js/screens/wizard/tutorial.js',
                        'js/screens/wizard/wizard.js'], () => {
+        Navigation.to('wizard-panel', 'right');
         Wizard.init(isFirstUse, resolve, reject);
       });
     });
@@ -40,20 +41,17 @@
     }
 
     Settings.updateIdentity(event.detail.identity);
-
+    
     CallLog.init(event.detail.identity);
-    _hideSplash();
     LoadingOverlay.hide();
+    Navigation.to('calllog-panel', 'left').then(_hideSplash);
   }
 
   function _onlogout() {
     _initWizard(false).then(() => {
       _hideSplash();
       Settings.reset();
-      setTimeout(function() {
-        LoadingOverlay.hide();
-        Settings.hide();
-      }, 500);
+      LoadingOverlay.hide();
     });
   }
 
