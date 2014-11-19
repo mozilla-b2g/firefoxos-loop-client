@@ -35,8 +35,11 @@
 
   function _newSMS(id) {
     Controller.sendUrlBySMS(
-      id,
-      _url,
+      {
+        phonenumber: id,
+        url: _url,
+        type: 'conversation'
+      },
       function onSMSShared() {
         CallLog.addUrl(_generateUrlObject(), _contactInfo);
         Share.hide();
@@ -49,8 +52,11 @@
     
   function _newMail(id) {
     Controller.sendUrlByEmail(
-      id,
-      _url
+      {
+        email: id,
+        url: _url,
+        type: 'conversation'
+      }
     );
     CallLog.addUrl(_generateUrlObject(), _contactInfo);
     Share.hide();

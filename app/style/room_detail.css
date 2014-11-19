@@ -1,0 +1,14 @@
+#room-detail-panel {
+  background: white;
+}
+
+.rdp-delete-container {
+  padding: 1rem 1.5rem;
+  box-sizing: border-box;
+}
+
+#room-detail-panel.invited #rdp-history-section,
+#room-detail-panel.invited #rdp-expiration-section,
+#room-detail-panel.invited #rdp-share-section {
+  display: none;
+}

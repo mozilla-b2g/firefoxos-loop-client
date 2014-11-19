@@ -41,6 +41,8 @@
 
     <script defer src="js/compatibility_checker.js"></script>
     <script defer src="js/navigation.js"></script>
+    <script defer src="js/helpers/rooms_db.js"></script>
+    <script defer src="js/helpers/rooms.js"></script>
     <script defer src="js/helpers/contacts_helper.js"></script>
     <script defer src="js/helpers/action_log_db.js"></script>
     <script defer src="js/helpers/audio_competing_helper.js"></script>
@@ -233,10 +235,41 @@
       </section>
       -->
     </section>
-    <section id="room-detail" class="panel skin-comms">
-      Panel ready to add the detail of a room given the token
+    <section id="room-detail-panel" class="panel vbox skin-comms" role="region">
+      <!--
+      <header>
+        <button id="rdp-back-button" class="icon icon-back"></button>
+        <h1 data-l10n-id="roomDetail"></h1>
+      </header>
+      <section id="" class="gaia-list fit scroll">
+        <ul>
+          <li class="vbox">
+            <p id="rdp-name"></p>
+            <p id="rdp-creation-date"></p>
+            <p id="rdp-owner"></p>
+          </li>
+          <li id="rdp-share-section" class="vbox">
+            <p data-l10n-id="shareRoom"></p>
+            <button data-l10n-id="pickContact" id="rdp-share-contact"></button>
+            <button data-l10n-id="pickSocial" id="rdp-share-social"></button>
+          </li>
+          <li id="rdp-history-section" class="vbox">
+            <p data-l10n-id="history"></p>
+            <button  data-l10n-id="checkChanges" id="rdp-show-history" class="icon icon-view">
+            </button>
+          </li>
+          <li  id="rdp-expiration-section" class="vbox">
+            <p data-l10n-id="roomExpiration"></p>
+            <p id="rdp-expiration"></p>
+          </li>
+          <div class="rdp-delete-container">
+            <button data-l10n-id="delete" id="rdp-delete" class="danger"></button>
+          </div>
+        </ul>
+      </section>
+      -->
     </section>
-    <section id="room-detail-history" class="panel skin-comms">
+    <section id="room-history-panel" class="panel skin-comms">
       Panel ready to add the history given a room token
     </section>
     <section id="share-panel" class="modal share skin-comms hide" role="region">
