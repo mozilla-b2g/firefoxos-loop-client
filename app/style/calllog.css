@@ -35,6 +35,10 @@
   flex: 1;
 }
 
+.calllog-section ul:last-child li:last-child {
+  margin-bottom: 10rem;
+}
+
 .section-entries li * {
   pointer-events: none;
 }
@@ -94,16 +98,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   background-position: 0 0;
 }
 
-
-[role="toolbar"] .icon-user {
-  background: url(images/Ico_Contacttoolbar_40x80.png) center 0 no-repeat;
-}
-
-[role="toolbar"] .icon-user:active {
-  background-position: center -4rem;
-}
-
-/* List elelments */
+/* List elements */
 #calls-section li p {
   margin-left: 0;
 }
@@ -140,6 +135,188 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   color: #00adad;
 }
 
+/* FOOTER */
+
+#calllog-actions {
+  width: 100%;
+  height: 11rem;
+  position: absolute;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(255,255,255,1) 0%,
+                              rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+}
+
+#calllog-actions button {
+  height: 6rem;
+  width: 6rem;
+  position: absolute;
+  top: 2rem;
+  left: calc(50% - 3rem);
+  pointer-events: auto;
+  border-radius: 50%;
+  overflow: visible;
+}
+
+/* Button to show actions */
+
+#calllog-actions .toggle-actions {
+  z-index: 1; /* This button is over rest of them */
+}
+
+/* The "toggle" button needs three layers: icon, dark blue and light blue layers */
+
+#calllog-actions .toggle-actions > label {
+  z-index: 1;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  border-radius: 50%;
+  background: url(images/ico_toggle_actions.png) no-repeat 2.25rem;
+  background-size: 1.5rem;
+}
+
+#calllog-actions .toggle-actions::before,
+#calllog-actions .toggle-actions::after {
+  content: '';
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  border-radius: 50%;
+  position: absolute;
+}
+
+#calllog-actions .toggle-actions::before {
+  background-color: #61cff0
+}
+
+#calllog-actions .toggle-actions::after {
+  background-color: #00a9dc
+}
+
+/* Room and conversation buttons */
+
+#calllog-actions .action {
+  background-color: #00a9dc;
+}
+
+#calllog-actions .action:active {
+  background-color: #a4e8fc;
+  color: #575757;
+}
+
+/* Button's labels below icons */
+
+#calllog-actions .action > label {
+  width: 300%;
+  height: 1.4rem;
+  position: absolute;
+  bottom: 1.4rem;
+  left: -100%;
+  font-size: 1.4rem;
+  color: #575757;
+  font-weight: 500;
+}
+
+/* This layer contains the icon for action buttons (room and conversation) */
+
+#calllog-actions .action::after {
+  content: '';
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: 1;
+}
+
+#calllog-actions .create-room::after {
+  background: url(images/ico_create_room.png) no-repeat 1.65rem 1.55rem;
+  background-size: 2.7rem 2.9rem;
+}
+
+#calllog-actions .new-conversation::after {
+  background: url(images/ico_new_conversation.png) no-repeat 1.75rem 1.8rem;
+  background-size: 2.5rem 2.4rem;
+}
+
+/* All transitions for the footer */
+
+/* The "toggle" icon is rotating during the whole transition */
+
+#calllog-actions .toggle-actions > label {
+  transform: rotate(0);
+  transition: transform .5s;
+}
+
+#calllog-actions.show .toggle-actions > label {
+  transform: rotate(405deg); /* 360deg + 45deg */
+}
+
+/* The "toggle" icon changes its color from dark to light (the ::after layer
+   disappears allowing users to see the ::before layer) */
+
+#calllog-actions .toggle-actions::after {
+  opacity: 1;
+  transition: opacity .5s;
+}
+
+#calllog-actions.show .toggle-actions::after {
+  opacity: 0;
+}
+
+/* "room" and "conversation" icons move from the center to the sides turning
+   100% opacity at the time they reach the final position */
+
+#calllog-actions .action {
+  opacity: .6;
+  transform: translateX(0);
+  transition: opacity .2s .3s, transform .2s .3s;
+}
+
+#calllog-actions.show .action {
+  opacity: 1;
+  transition: opacity .2s, transform .2s;
+}
+
+#calllog-actions.show .create-room {
+  transform: translateX(-9.2rem);
+}
+
+#calllog-actions.show .new-conversation {
+  transform: translateX(9.2rem);
+}
+
+/* Icons move from bottom to the center of the button from 25% opacity to 100% */
+
+#calllog-actions .action::after {
+  transform: translateY(1.65rem);
+  opacity: 0.25;
+  transition: opacity .2s .2s, transform .2s .2s;
+}
+
+#calllog-actions.show .action::after {
+  transform: translateY(0);
+  opacity: 1;
+  transition: opacity .2s .1s, transform .2s .1s;
+}
+
+/* Buttons labels slide from top to bottom, from 25% opacity to 100% when
+   reaching final position. */
+
+#calllog-actions .action > label {
+  opacity: 0;
+  transform: translateY(0);
+  transition: opacity .15s, transform .2s;
+}
+
+#calllog-actions.show .action > label {
+  opacity: 1;
+  transform: translateY(1.7rem);
+  transition: opacity .15s .35s, transform .2s .3s;
+}
 
 /*
   MEDIA QUERIES FOR device-pixel-ratio
@@ -156,15 +333,19 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
     background-image: url(images/ico_calllog_sp@1.5x.png);
   }
 
-  [role="toolbar"] .icon-user {
-    background: url(images/Ico_Contacttoolbar_40x80@1.5x.png) no-repeat;
-    background-size: 4rem 8rem;
-    background-position: center 0rem;
+  #calllog-actions .toggle-actions > label {
+    background: url(images/ico_toggle_actions@1.5x.png) no-repeat 2.25rem;
+    background-size: 1.5rem;
   }
 
-  [role="toolbar"] .icon-user:active {
-    background-color: #b2f2ff;
-    background-position: center -4rem;
+  #calllog-actions .create-room::after {
+    background: url(images/ico_create_room@1.5x.png) no-repeat 1.65rem 1.55rem;
+    background-size: 2.7rem 2.9rem;
+  }
+
+  #calllog-actions .new-conversation::after {
+    background: url(images/ico_new_conversation@1.5x.png) no-repeat 1.75rem 1.8rem;
+    background-size: 2.5rem 2.4rem;
   }
 
   #urls-section.empty .section-empty {
@@ -187,15 +368,19 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
     background-image: url(images/ico_calllog_sp@2x.png);
   }
 
-  [role="toolbar"] .icon-user {
-    background: url(images/Ico_Contacttoolbar_40x80@2x.png) no-repeat;
-    background-position: center 0rem;
-    background-size: 4rem 8rem;
+  #calllog-actions .toggle-actions > label {
+    background: url(images/ico_toggle_actions@2x.png) no-repeat 2.25rem;
+    background-size: 1.5rem;
   }
 
-  [role="toolbar"] .icon-user:active {
-    background-color: #b2f2ff;
-    background-position: center -4rem;
+  #calllog-actions .create-room::after {
+    background: url(images/ico_create_room@2x.png) no-repeat 1.65rem 1.55rem;
+    background-size: 2.7rem 2.9rem;
+  }
+
+  #calllog-actions .new-conversation::after {
+    background: url(images/ico_new_conversation@2x.png) no-repeat 1.75rem 1.8rem;
+    background-size: 2.5rem 2.4rem;
   }
 
   #urls-section.empty .section-empty {
@@ -219,15 +404,19 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
     background-image: url(images/ico_calllog_sp@2.25x.png);
   }
 
-  [role="toolbar"] .icon-user {
-    background: url(images/Ico_Contacttoolbar_40x80@2.25x.png) no-repeat;
-    background-position: center 0rem;
-    background-size: 4rem 8rem;
+  #calllog-actions .toggle-actions > label {
+    background: url(images/ico_toggle_actions@2.25x.png) no-repeat 2.25rem;
+    background-size: 1.5rem;
   }
 
-  [role="toolbar"] .icon-user:active {
-    background-color: #b2f2ff;
-    background-position: center -4rem;
+  #calllog-actions .create-room::after {
+    background: url(images/ico_create_room@2.25x.png) no-repeat 1.65rem 1.55rem;
+    background-size: 2.7rem 2.9rem;
+  }
+
+  #calllog-actions .new-conversation::after {
+    background: url(images/ico_new_conversation@2.25x.png) no-repeat 1.75rem 1.8rem;
+    background-size: 2.5rem 2.4rem;
   }
 
   #urls-section.empty .section-empty {
