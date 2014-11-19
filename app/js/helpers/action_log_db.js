@@ -40,8 +40,8 @@
 (function(exports) {
   'use strict';
 
-  var _dbCallStore = 'actionLogCalls';
-  var _dbUrlStore = 'actionLogUrls';
+  const _dbCallStore = 'actionLogCalls';
+  const _dbUrlStore = 'actionLogUrls';
   var _dbHelper = new DatabaseHelper({
     name: 'actionLog',
     version: 1,
@@ -412,6 +412,35 @@
         })
       });
     },
+
+    /**
+     * getList with Callback manager
+     * Manages cursor callbacks
+     */
+    _getList: function(aCallback, dbStore, aFilter) {
+      _dbHelper.getList(function(error, cursor) {
+        if (error) {
+          return aCallback(error);
+        }
+
+        cursor.onsuccess = function onsuccess(event) {
+          var item = event.target.result;
+          if (!item) {
+            aCallback();
+            return;
+          }
+
+          aCallback(null, {
+            value: item.value,
+            continue: function() { return item.continue(); }
+          });
+        };
+        cursor.onerror = function onerror(event) {
+          aCallback(event.target.error.name);
+        };
+      }, dbStore, aFilter);
+    },
+
     /**
      * Gets the list of calls stored in the DB.
      *
@@ -419,7 +448,7 @@
      *       Object. Check _dbHelper.getList.
      */
     getCalls: function(aCallback, aFilter) {
-      _dbHelper.getList(aCallback, _dbCallStore, aFilter);
+      this._getList(aCallback, _dbCallStore, aFilter);
     },
 
     /**
@@ -429,7 +458,25 @@
      *       Object. Check _dbHelper.getList.
      */
     getUrls: function(aCallback, aFilter) {
-      _dbHelper.getList(aCallback, _dbUrlStore, aFilter);
+      this._getList(aCallback, _dbUrlStore, aFilter);
+    },
+
+    /**
+     * Generic method for fixing the record as needed by addRecord method
+     *
+     * param aRegToStore
+     *       Record for _dbHelper.addRecord mehtod to fix
+     */
+    fixRecord: function(aRegToStore) {
+      if (aRegToStore.identities && !Array.isArray(aRegToStore.identities)) {
+        aRegToStore.identities = [aRegToStore.identities];
+      }
+
+      if (aRegToStore.contactId && !Array.isArray(aRegToStore.contactId)) {
+        aRegToStore.contactId = [aRegToStore.contactId];
+      }
+
+      return aRegToStore;
     },
 
     /**
@@ -443,7 +490,8 @@
       if (aContactInfo && aContactInfo.contactIds) {
         aCall = _addContactInfoToRecord(aCall, aContactInfo);
       }
-      _dbHelper.addRecord(aCallback, _dbCallStore, aCall);
+
+      _dbHelper.addRecord(aCallback, _dbCallStore, this.fixRecord(aCall));
     },
 
     /**
@@ -457,7 +505,7 @@
       if (aContactInfo && aContactInfo.contactIds) {
         aUrl = _addContactInfoToRecord(aUrl, aContactInfo);
       }
-      _dbHelper.addRecord(aCallback, _dbUrlStore, aUrl);
+      _dbHelper.addRecord(aCallback, _dbUrlStore, this.fixRecord(aUrl));
     },
 
     /**

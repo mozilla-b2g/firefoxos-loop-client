@@ -181,14 +181,6 @@ DatabaseHelper.prototype = {
       return;
     }
 
-    if (aRecord.identities && !Array.isArray(aRecord.identities)) {
-      aRecord.identities = [aRecord.identities];
-    }
-
-    if (aRecord.contactId && !Array.isArray(aRecord.contactId)) {
-      aRecord.contactId = [aRecord.contactId];
-    }
-
     this.newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
@@ -222,6 +214,7 @@ DatabaseHelper.prototype = {
   getList: function _getList(aCallback, aObjectStore, aFilter) {
     this.checkCallback(aCallback);
 
+    var self = this;
     this.newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
@@ -234,32 +227,31 @@ DatabaseHelper.prototype = {
 
       var cursor = null;
       var direction = aFilter.prev ? 'prev' : 'next';
+      var keyIndex = keyRange = null;
+      if (aFilter.index) {
+        keyIndex = store.index(aFilter.index.name);
+        keyRange = IDBKeyRange.only(aFilter.index.value);
+      }
       if (aFilter.sortedBy && aFilter.sortedBy !== null) {
         if (!store.indexNames.contains(aFilter.sortedBy)) {
           txn.abort();
           aCallback('INVALID_SORTED_BY_FILTER');
           return;
         }
-        cursor = store.index(aFilter.sortedBy).openCursor(null, direction);
+        if (keyIndex) {
+          cursor = keyIndex.openCursor(keyRange, direction);
+        } else {
+          cursor = store.index(aFilter.sortedBy).openCursor(null, direction);
+        }
       } else {
-        cursor = store.openCursor(null, direction);
+        if (keyIndex) {
+          cursor = keyIndex.openCursor(keyRange, direction);
+        } else {
+          cursor = store.openCursor(null, direction);
+        }
       }
 
-      cursor.onsuccess = function onsuccess(event) {
-        var item = event.target.result;
-        if (!item) {
-          aCallback();
-          return;
-        }
-
-        aCallback(null, {
-          value: item.value,
-          continue: function() { return item.continue(); }
-        });
-      };
-      cursor.onerror = function onerror(event) {
-        aCallback(event.target.error.name);
-      };
+      aCallback(null, cursor);
     }, 'readonly', [aObjectStore]);
   },
 
@@ -402,7 +394,7 @@ DatabaseHelper.prototype = {
         aKey = [aKey];
       }
 
-      for (var i = 0, l = aKey.length; i < l; i++) {
+      for (var i = 0, aKeyLength = aKey.length; i < aKeyLength; i++) {
         store.delete(aKey[i]);
       }
 
