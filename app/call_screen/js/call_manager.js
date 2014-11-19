@@ -306,6 +306,7 @@
 
     join: function(isVideoCall, frontCamera) {
 
+      console.log('opg: frontcamera val = ' + frontCamera + ' typeof ' + typeof(frontCamera));
       _perfDebug && PerfLog.log(_perfBranch, 'CallManager.join');
 
       _useSpeaker = _isVideoCall = isVideoCall && isVideoCall != 'false';
@@ -321,8 +322,13 @@
       if (_isVideoCall == false) {
         _defaultCamera = 'none';
       } else {
-        _defaultCamera = frontCamera == 'true' ? 'front' : 'rear';
+        if (typeof(frontCamera) == 'string'){
+          _defaultCamera = (frontCamera == 'true') ? 'front' : 'rear';
+        } else if (typeof(frontCamera) == 'boolean') {
+          _defaultCamera = (frontCamera == true) ? 'front' : 'rear';
+        }
       }
+
 
       var mode = (frontCamera && frontCamera != 'false') ? 'user':'environment';
       var cameraConstraint = {facingMode: mode, require: ['facingMode']};
