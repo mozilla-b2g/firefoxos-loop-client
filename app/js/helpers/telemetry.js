@@ -99,8 +99,7 @@
       if (timeout < 0) {
         timeout = 0;
       }
-      //timeout += SAFE_TIME;
-      timeout = 1000;
+      timeout += SAFE_TIME;
 
       DEBUG && console.log('Scheduled next report in ' + timeout + 'ms');
 
