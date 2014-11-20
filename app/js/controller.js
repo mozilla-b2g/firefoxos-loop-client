@@ -2,6 +2,9 @@
   'use strict';
 
   var debug = Config.debug;
+
+  var _identity;
+
   const TELEMETRY_DICTIONARY = {
     'fxa': 'FxA',
     'msisdn': 'MobileId',
@@ -40,9 +43,11 @@
       return;
     }
 
-    Settings.updateIdentity(event.detail.identity);
+    _identity = event.detail.identity;
+
+    Settings.updateIdentity(_identity);
     
-    CallLog.init(event.detail.identity);
+    CallLog.init(_identity);
     LoadingOverlay.hide();
     Navigation.to('calllog-panel', 'left').then(_hideSplash);
   }
@@ -130,7 +135,11 @@
     },
 
     createRoom: function() {
-      console.log('TODO create Room action');
+      LazyLoader.load(['style/bb/input_areas.css',
+                       'style/create_room.css',
+                       'js/screens/create_room.js'], () => {
+        RoomCreate.show();
+      });
     },
 
     pickAndCall: function() {
@@ -329,6 +338,10 @@
           alert(_(reason));
           break;
       }
+    },
+
+    get identity() {
+      return _identity;
     }
   };
 

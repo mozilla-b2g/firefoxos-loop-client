@@ -1,0 +1,26 @@
+#new-room button {
+  color: white;
+}
+
+#new-room section {
+  height: 100%;
+}
+
+#new-room form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: calc(100% - 5rem);
+  padding: 3rem 1.5rem 0 1.5rem;
+}
+
+#new-room form p {
+  width: 100%;
+}
+
+#new-room form p.description {
+  font-weight: 300;
+  color: #858585;
+  font-size: 1.5rem;
+  text-align: center;
+}
