@@ -318,16 +318,9 @@
 
       _publishVideo = _subscribeToVideo = _isVideoCall;
 
-      if (_isVideoCall == false) {
-        _defaultCamera = 'none';
-      } else {
-        if (typeof(frontCamera) == 'string'){
-          _defaultCamera = (frontCamera == 'true') ? 'front' : 'rear';
-        } else if (typeof(frontCamera) == 'boolean') {
-          _defaultCamera = (frontCamera == true) ? 'front' : 'rear';
-        }
-      }
-
+      (!_isVideoCall) ? _defaultCamera = 'none' :
+        (frontCamera && frontCamera != 'false') ? _defaultCamera = 'front' :
+        _defaultCamera = 'back';
 
       var mode = (frontCamera && frontCamera != 'false') ? 'user':'environment';
       var cameraConstraint = {facingMode: mode, require: ['facingMode']};
