@@ -68,6 +68,12 @@
     checkButtons();
   }
 
+  function saveFromKeyboard(evt) {
+    evt.preventDefault();
+    evt.stopPropagation();
+    roomNameInput.value.trim() !== '' && save();
+  }
+
   function save() {
     if (!navigator.onLine) {
       LazyLoader.load('js/screens/error_screen.js', () => {
@@ -109,12 +115,14 @@
     closeButton.addEventListener('click', hide);
     saveButton.addEventListener('click', save);
     form.addEventListener('input', checkButtons);
+    form.addEventListener('submit', saveFromKeyboard);
   }
 
   function removeHandlers() {
     closeButton.removeEventListener('click', hide);
     saveButton.removeEventListener('click', save);
     form.removeEventListener('input', checkButtons);
+    form.removeEventListener('submit', saveFromKeyboard);
   }
 
   exports.RoomCreate = {
