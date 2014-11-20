@@ -318,9 +318,9 @@
 
       _publishVideo = _subscribeToVideo = _isVideoCall;
 
-      (!_isVideoCall) ? _defaultCamera = 'none' :
-        (frontCamera && frontCamera != 'false') ? _defaultCamera = 'front' :
-        _defaultCamera = 'back';
+      _defaultCamera = _isVideoCall ?
+        (frontCamera && frontCamera != 'false') ? 'front' : 'rear' :
+        'none';
 
       var mode = (frontCamera && frontCamera != 'false') ? 'user':'environment';
       var cameraConstraint = {facingMode: mode, require: ['facingMode']};
