@@ -452,28 +452,6 @@
                   }, TIME_INTERVAL_SECONDS * 1000);
                 }
               }
-
-              if (!_publisher.answerSDP) {
-                return;
-              }
-
-              var description;
-              description = _publisher.answerSDP;
-              if (description.indexOf(H264_STRING_126) != -1 || 
-                  description.indexOf(H264_STRING_97) != -1) {
-                _videoCodecName = 'H264';
-              } else if (description.indexOf(VP8_STRING) != -1) {
-                _videoCodecName = 'VP8';
-              } else {
-                _videoCodecName = 'unknown';
-              }
-              debug && console.log("Video Codec used: " + _videoCodecName);
-              if (description.indexOf(OPUS_STRING) != -1) {
-                _audioCodecName = 'OPUS';
-              } else {
-                _audioCodecName = 'unknown';
-              }
-              debug && console.log("Audio Codec used: " + _audioCodecName);
             }
           });
           _publishersInSession += 1;
@@ -629,6 +607,25 @@
       return new Promise(function(resolve, reject) {
         _perfDebug && PerfLog.stopTracing(_perfBranch);
 
+        if (_publisher.answerSDP) {
+          var description;
+          description = _publisher.answerSDP;
+          if (description.indexOf(H264_STRING_126) != -1 ||
+              description.indexOf(H264_STRING_97) != -1) {
+            _videoCodecName = 'H264';
+          } else if (description.indexOf(VP8_STRING) != -1) {
+            _videoCodecName = 'VP8';
+          } else {
+            _videoCodecName = 'unknown';
+          }
+          debug && console.log("Video Codec used: " + _videoCodecName);
+          if (description.indexOf(OPUS_STRING) != -1) {
+            _audioCodecName = 'OPUS';
+          } else {
+            _audioCodecName = 'unknown';
+          }
+          debug && console.log("Audio Codec used: " + _audioCodecName);
+        }
         window.removeEventListener('offline', _dispatchNetworkError);
         _removeHeadPhonesChangeHandler();
 
