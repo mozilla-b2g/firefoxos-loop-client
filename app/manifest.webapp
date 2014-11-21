@@ -90,6 +90,10 @@
       "name": "Firefox Hello",
       "description": "Firefox Hello"
     }
+    "te": {
+      "name": "Firefox Hello",
+      "description": "Firefox Hello"
+    },
   },
   "default_locale": "en-US",
   "icons": {
