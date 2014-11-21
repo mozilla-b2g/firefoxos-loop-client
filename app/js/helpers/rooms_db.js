@@ -59,7 +59,7 @@
      *                  The rejected promise, an error string.
      */
     create: function(room) {
-      return Promise.resolve();
+      return Promise.resolve(room);
     },
 
     /**

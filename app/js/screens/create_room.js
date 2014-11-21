@@ -84,30 +84,28 @@
 
     LoadingOverlay.show(_('saving'));
 
-    LazyLoader.load(['js/helpers/rooms_db.js',
-                     'js/helpers/rooms.js'], () => {
-      var params = {
-        roomName: roomNameInput.value.trim(),
-        expiresIn: CONFIG.expiresIn,
-        roomOwner: Controller.identity,
-        maxSize: CONFIG.maxSize
-      };
-      
-      Rooms.create(params).then((response) => {
-        return Rooms.get(response.roomToken);
-      }).then((room) => {
-        console.log(JSON.stringify(room));
-        return RoomsDB.create(room);
-      }).then(() => {
-        // TODO -> Bug 1101525 - Navigate to room detail
-        hide();
-      }).catch((error) => {
-        console.error(JSON.stringify(error));
-        // TODO -> Bug 1102157
-        alert(error);
-      }).then(() => {
-        LoadingOverlay.hide();
-      });
+    var params = {
+      roomName: roomNameInput.value.trim(),
+      expiresIn: CONFIG.expiresIn,
+      roomOwner: Controller.identity,
+      maxSize: CONFIG.maxSize
+    };
+    
+    var token;
+    Rooms.create(params).then((response) => {
+      token = response.roomToken;
+      return Rooms.get(token);
+    }).then((room) => {
+      return RoomsDB.create(room);
+    }).then((room) => {
+      Controller.onRoomCreated(room, token);
+      hide();
+    }).catch((error) => {
+      console.error(JSON.stringify(error));
+      // TODO -> Bug 1102157
+      alert(error);
+    }).then(() => {
+      LoadingOverlay.hide();
     });
   }
 

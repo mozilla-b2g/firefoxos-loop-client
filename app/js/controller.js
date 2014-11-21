@@ -142,7 +142,33 @@
       });
     },
 
-    pickAndCall: function() {
+    onRoomCreated: function(room, token) {
+      Controller.showRoomDetails(room, token);
+      // TODO Update log UI
+    },
+
+    onRoomDeleted: function(token) {
+      // TODO Update log UI
+    },
+
+    showRoomDetails: function (room, token) {
+      LazyLoader.load(
+        [
+          'style/room_detail.css',
+          'js/screens/room_detail.js'],
+          function() {
+            RoomDetail.show(room, token);
+          }
+      );
+    },
+
+    pickContact: function(onsuccess, onerror) {
+      if (typeof onsuccess !== 'function') {
+        onsuccess = function() {};
+      }
+      if (typeof onerror !== 'function') {
+        onerror = function() {};
+      }
       var activity = new MozActivity({
         name: 'pick',
         data: {
@@ -152,13 +178,21 @@
       });
 
       activity.onsuccess = function() {
-        Controller.callContact(activity.result, Settings.isVideoDefault);
-        Telemetry.updateReport('callsFromContactPicker');
+        onsuccess(activity.result);
       };
+      activity.onerror = onerror;
+    },
 
-      activity.onerror = function() {
-        // TODO Check if needed to show any prompt to the user
-      };
+    pickAndCall: function() {
+      Controller.pickContact(
+        function onContactRetrieved(contact) {
+          Controller.callContact(contact, Settings.isVideoDefault);
+          Telemetry.updateReport('callsFromContactPicker');
+        },
+        function onError() {
+          // TODO Check if needed to show any prompt to the user
+        }
+      )
     },
 
     callIdentities: function(identities, contact, isVideoCall) {
@@ -247,35 +281,105 @@
       activity.onerror = onerror;
     },
 
-    sendUrlBySMS: function (id, url, onsuccess, onerror) {
-      debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
+    sendUrlBySMS: function (params, onsuccess, onerror) {
+      params = params || {};
+
+      if (!params.phonenumber || params.phonenumber.length === 0) {
+        console.error('Controller.sendURLbySMS: No phone number in params');
+        return;
+      }
+
+      if (!params.url || params.url.length === 0) {
+        console.error('Controller.sendURLbySMS: No url in params');
+        return;
+      }
+
+      debug && console.log('Loop web URL for SMS ' + params.url + ' to ' + params.phonenumber);
+
+      var text = '';
+      switch(params.type) {
+        case 'room':
+          text = params.url;
+          break;
+        case 'conversation':
+          text = _('shareMessage') + ' ' + params.url;
+          break;
+        default:
+          text = params.url;
+      }
+
+      if (typeof onsuccess !== 'function') {
+        onsuccess = function() {};
+      }
+      if (typeof onerror !== 'function') {
+        onerror = function() {};
+      }
+
       var activity = new MozActivity({
         name: 'new',
         data: {
           type: 'websms/sms',
-          number: id,
-          body: _('shareMessage') + ' ' + url
+          number: params.phonenumber,
+          body: text
         }
       });
       activity.onsuccess = function() {
-        onsuccess && onsuccess();
-        _onsharedurl();
+        onsuccess();
+        if (params.type === 'conversation') {
+          _onsharedurl();
+        }
       };
       activity.onerror = onerror;
     },
 
-    sendUrlByEmail: function (id, url) {
-      debug && console.log('Loop web URL for SMS ' + url + ' to ' + id);
-      var a = document.createElement('a');
-      var params = 'mailto:' + id + '?subject=Firefox Hello' +
-        '&body= '+ _('shareMessage') + ' ' + url;
+    sendUrlByEmail: function (params, onsuccess, onerror) {
+      if (!params.email || params.email.length === 0) {
+        console.error('Controller.sendURLbyEmail: No phone number in params');
+        return;
+      }
 
-      a.href = params;
-      a.classList.add('hide');
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      _onsharedurl();
+      if (!params.url || params.url.length === 0) {
+        console.error('Controller.sendURLbyEmail: No url in params');
+        return;
+      }
+
+      if (typeof onsuccess !== 'function') {
+        onsuccess = function() {};
+      }
+      if (typeof onerror !== 'function') {
+        onerror = function() {};
+      }
+
+      debug && console.log('Loop web URL through EMAIL ' + params.url + ' to ' + params.email);
+
+      // This is a workaround to add subject & body clicking on a '<a>' element
+      var body = '';
+      var subject = 'Firefox Hello';
+      switch(params.type) {
+        case 'room':
+          body = params.url;
+          break;
+        case 'conversation':
+          body = _('shareMessage') + ' ' + params.url;
+          _onsharedurl();
+          break;
+      }
+
+      debug && console.log('Loop web URL for email ' + url + ' to ' + id);
+      var activity = new MozActivity({
+        name: 'new',
+        data: {
+          type: 'mail',
+          url: 'mailto:' + params.email +
+                '?subject=' + subject +
+                '&body= '+ body
+        }
+      });
+      activity.onsuccess = function() {
+        onsuccess();
+        _onsharedurl();
+      };
+      activity.onerror = onerror;
     },
 
     getUrlByToken: function(token, callback) {
