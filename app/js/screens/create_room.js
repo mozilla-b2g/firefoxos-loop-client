@@ -78,6 +78,12 @@
     !saveButton.disabled && save();
   }
 
+  function showError(message) {
+    LazyLoader.load('js/screens/error_screen.js' , () => {
+      ErrorScreen.show(message);
+    });
+  }
+
   function save() {
     if (!navigator.onLine) {
       LazyLoader.load('js/screens/error_screen.js', () => {
@@ -94,7 +100,7 @@
       roomOwner: Controller.identity,
       maxSize: CONFIG.maxSize
     };
-    
+
     var token;
     Rooms.create(params).then((response) => {
       token = response.roomToken;
@@ -104,8 +110,14 @@
       hide();
     }).catch((error) => {
       console.error(JSON.stringify(error));
-      // TODO -> Bug 1102157
-      alert(error);
+      if (token) {
+        // If we have a room token means the error happened getting the
+        // room from the server or saving it in our dababase. Anyway, the room
+        // couldn't be created so deleting this empty room recently generated
+        // from server behind scene.
+        Rooms.delete(token);
+      }
+      showError(_('savingRoomError'));
     }).then(() => {
       LoadingOverlay.hide();
     });

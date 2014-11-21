@@ -99,7 +99,7 @@
         'js/screens/error_screen.js'
       ], function() {
         var _ = navigator.mozL10n.get;
-        ErrorScreen.show(_('genericServerError'));
+        ErrorScreen.show(_('genericServerError'), true);
         Controller.logout();
       });
       return;
@@ -183,7 +183,7 @@
           'js/screens/error_screen.js'
         ], function() {
           var _ = navigator.mozL10n.get;
-          ErrorScreen.show(_('genericServerError'));
+          ErrorScreen.show(_('genericServerError'), true);
           _onloginerror();
         });
       });
@@ -418,7 +418,7 @@
               _cachedAccount = new Account(id, hawkCredentials, endpoints);
               // Store it
               AccountStorage.store(_cachedAccount);
-              
+
               _callback(onsuccess);
             } catch (e) {
               NotificationChannels.reset();
