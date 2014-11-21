@@ -27,25 +27,27 @@
  * }
  */
 
-function DatabaseHelper(_dbParams, _dbSchema) {
-  _dbParams = _dbParams || {};
-  _dbSchema = _dbSchema || {};
-
+function DatabaseHelper(dbParams, dbSchema) {
   ///////////////////////////////////////////////
   // Initialize database object
   ///////////////////////////////////////////////
 
-  var _db = null;
+  this._dbParams = dbParams || {};
+  this._dbSchema = dbSchema || {};
+  this._db = null;
+}
 
-  ///////////////////////////////////////////////
-  // Helper methods
-  ///////////////////////////////////////////////
+///////////////////////////////////////////////
+// Helper methods
+///////////////////////////////////////////////
 
-  function _checkCallback(aCallback) {
+DatabaseHelper.prototype = {
+
+  checkCallback: function _checkCallback(aCallback) {
     if (!aCallback || typeof aCallback != 'function') {
       throw new Error('INVALID_CALLBACK');
     }
-  }
+  },
 
   /**
    * Prepare the database. This may include opening the database and upgrading
@@ -54,21 +56,23 @@ function DatabaseHelper(_dbParams, _dbSchema) {
    * return Promise. The resolved promise will contain as result IDBDatastore
    *                 instance. The rejected promise, an error string.
    */
-  function _ensureDB() {
+  ensureDB: function _ensureDB() {
+    var self = this;
     return new Promise(function(resolve, reject) {
-      if (_db) {
-        return resolve(_db);
+      if (self._db) {
+        return resolve(self._db);
       }
 
       try {
         if (!window.indexedDB) {
           return reject('NO_INDEXED_DB_AVAILABLE');
         }
-        var request = window.indexedDB.open(_dbParams.name, _dbParams.version);
+        var request = window.indexedDB.open(self._dbParams.name,
+                                            self._dbParams.version);
         request.onsuccess = (function onsuccess(event) {
-          _db = event.target.result;
-          resolve(_db);
-        }).bind(this);
+          self._db = event.target.result;
+          resolve(self._db);
+        }).bind(self);
 
         request.onerror = function onerror(event) {
           reject(event.target.errorCode);
@@ -82,9 +86,10 @@ function DatabaseHelper(_dbParams, _dbSchema) {
           var db = event.target.result;
 
           // Create DB Schemas
-          for (var _schema = 0; _schema < Object.keys(_dbSchema).length; _schema++) {
-            var schemaName = Object.keys(_dbSchema)[_schema];
-            var schemaData = _dbSchema[schemaName];
+          for (var _schema = 0; _schema < Object.keys(self._dbSchema).length;
+               _schema++) {
+            var schemaName = Object.keys(self._dbSchema)[_schema];
+            var schemaData = self._dbSchema[schemaName];
 
             var auxStore = db.createObjectStore(schemaName, {
               keyPath: schemaData.primary
@@ -100,7 +105,7 @@ function DatabaseHelper(_dbParams, _dbSchema) {
         reject(e.message);
       }
     });
-  }
+  },
 
   /**
    * Start a new database transaction.
@@ -115,13 +120,13 @@ function DatabaseHelper(_dbParams, _dbSchema) {
    *        object store, you can specify its name as a string.
    *
    */
-  function _newTxn(aCallback, aTxnType, aObjectStores) {
-    _checkCallback(aCallback);
+  newTxn: function _newTxn(aCallback, aTxnType, aObjectStores) {
+    this.checkCallback(aCallback);
 
     if (!Array.isArray(aObjectStores)) {
       aObjectStores = [aObjectStores];
     }
-    _ensureDB().then(function(db) {
+    this.ensureDB().then(function(db) {
       var txn = db.transaction(aObjectStores, aTxnType);
       var stores;
       if (aObjectStores.length === 1) {
@@ -136,28 +141,23 @@ function DatabaseHelper(_dbParams, _dbSchema) {
     }, function(error) {
       aCallback(error);
     });
-  }
-
-  function _close() {
-    _db.close();
-    _db = null;
-  }
+  },
 
   /**
    * Helper to validate a DB record.
    */
-  function _isValidRecord(aObjectStoreName, aRecord) {
-    if (!aObjectStoreName || !aRecord || !_dbSchema[aObjectStoreName]) {
+  isValidRecord: function _isValidRecord(aObjectStoreName, aRecord) {
+    if (!aObjectStoreName || !aRecord || !this._dbSchema[aObjectStoreName]) {
       return;
     }
     var keys = Object.keys(aRecord);
     for (var i = 0, l = keys.length; i < l; i++) {
-      if (_dbSchema[aObjectStoreName].indexOf(keys[i]) == -1) {
+      if (this._dbSchema[aObjectStoreName].indexOf(keys[i]) == -1) {
         return;
       }
     }
     return true;
-  }
+  },
 
   /**
    * Helper method to add a new record to a given object store.
@@ -168,8 +168,8 @@ function DatabaseHelper(_dbParams, _dbSchema) {
    * param aRecord.
    *       Object to be stored.
    */
-  function _addRecord(aCallback, aObjectStore, aRecord) {
-    _checkCallback(aCallback);
+  addRecord: function _addRecord(aCallback, aObjectStore, aRecord) {
+    this.checkCallback(aCallback);
 
     if (typeof aRecord !== 'object') {
       aCallback('INVALID_RECORD');
@@ -184,7 +184,7 @@ function DatabaseHelper(_dbParams, _dbSchema) {
       aRecord.contactId = [aRecord.contactId];
     }
 
-    _newTxn(function(error, txn, store) {
+    this.newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
         return;
@@ -197,7 +197,7 @@ function DatabaseHelper(_dbParams, _dbSchema) {
       };
       store.add(aRecord);
     }, 'readwrite', [aObjectStore]);
-  }
+  },
 
   /**
    * Helper method to get a list of records stored in an specific object
@@ -214,10 +214,10 @@ function DatabaseHelper(_dbParams, _dbSchema) {
    *       }
    *
    */
-  function _getList(aCallback, aObjectStore, aFilter) {
-    _checkCallback(aCallback);
+  getList: function _getList(aCallback, aObjectStore, aFilter) {
+    this.checkCallback(aCallback);
 
-    _newTxn(function(error, txn, store) {
+    this.newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
         return;
@@ -256,7 +256,7 @@ function DatabaseHelper(_dbParams, _dbSchema) {
         aCallback(event.target.error.name);
       };
     }, 'readonly', [aObjectStore]);
-  }
+  },
 
   /**
    * param aFilter.
@@ -271,8 +271,8 @@ function DatabaseHelper(_dbParams, _dbSchema) {
    *       }
    *       where we would expect 'key' or 'index' but not both.
    */
-  function _getRecord(aCallback, aObjectStore, aFilter) {
-    _checkCallback(aCallback);
+  getRecord: function _getRecord(aCallback, aObjectStore, aFilter) {
+    this.checkCallback(aCallback);
 
     if (!aFilter ||
         (!aFilter.key && !aFilter.index) ||
@@ -282,7 +282,7 @@ function DatabaseHelper(_dbParams, _dbSchema) {
       return;
     }
 
-    _newTxn(function(error, txn, store) {
+    this.newTxn(function(error, txn, store) {
       if (error) {
         console.error(error.name);
         aCallback(error.name);
@@ -308,12 +308,13 @@ function DatabaseHelper(_dbParams, _dbSchema) {
         aCallback(event.target.error.name);
       };
     }, 'readonly', [aObjectStore]);
-  }
+  },
 
-  function _updateRecord(aCallback, aObjectStore, aFilter, aRecord) {
-    _checkCallback(aCallback);
+  updateRecord: function _updateRecord(aCallback, aObjectStore, aFilter,
+                                       aRecord) {
+    this.checkCallback(aCallback);
 
-    if (!_isValidRecord(aObjectStore, aRecord)) {
+    if (!this.isValidRecord(aObjectStore, aRecord)) {
       aCallback('INVALID_RECORD');
       return;
     }
@@ -329,7 +330,7 @@ function DatabaseHelper(_dbParams, _dbSchema) {
         return;
       }
 
-      _newTxn(function(error, txn, store) {
+      this.newTxn(function(error, txn, store) {
         if (error) {
           aCallback(error);
           return;
@@ -350,13 +351,13 @@ function DatabaseHelper(_dbParams, _dbSchema) {
       }, 'readwrite', [aObjectStore]);
     };
 
-    _getRecord(onRecord, aObjectStore, aFilter);
-  }
+    this.getRecord(onRecord, aObjectStore, aFilter);
+  },
 
-  function _clearObjectStore(aCallback, aObjectStore) {
-    _checkCallback(aCallback);
+  clearObjectStore: function _clearObjectStore(aCallback, aObjectStore) {
+    this.checkCallback(aCallback);
 
-    _newTxn(function(error, txn, store) {
+    this.newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
         return;
@@ -373,17 +374,17 @@ function DatabaseHelper(_dbParams, _dbSchema) {
         }
       };
     }, 'readwrite', [aObjectStore]);
-  }
+  },
 
-  function _deleteRecord(aCallback, aObjectStore, aKey) {
-    _checkCallback(aCallback);
+  deleteRecord: function _deleteRecord(aCallback, aObjectStore, aKey) {
+    this.checkCallback(aCallback);
 
     if (!aKey) {
-      _clearObjectStore(aCallback, aObjectStore);
+      this.clearObjectStore(aCallback, aObjectStore);
       return;
     }
 
-    _newTxn(function(error, txn, store) {
+    this.newTxn(function(error, txn, store) {
       if (error) {
         aCallback(error);
         return;
@@ -405,18 +406,4 @@ function DatabaseHelper(_dbParams, _dbSchema) {
       };
     }, 'readwrite', [aObjectStore]);
   }
-
-  ///////////////////////////////////////////////
-  // Public API
-  ///////////////////////////////////////////////
-
-  return {
-    newTxn: _newTxn,
-    addRecord: _addRecord,
-    getList: _getList,
-    getRecord: _getRecord,
-    updateRecord: _updateRecord,
-    deleteRecord: _deleteRecord
-  };
-
-}
+};
