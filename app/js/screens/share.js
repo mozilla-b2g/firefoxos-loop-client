@@ -143,7 +143,7 @@
     _sharePanel.innerHTML = Template.extract(_sharePanel);
     // We emit this event to center properly headers
     window.dispatchEvent(new CustomEvent('lazyload', {
-      detail: document.body
+      detail: _sharePanel
     }));
     _closeButton = document.getElementById('share-close-button');
     _shareOthers = document.getElementById('share-by-others');

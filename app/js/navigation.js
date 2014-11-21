@@ -53,6 +53,11 @@
         fromPanel.classList.add('show');
         toPanel.classList.add('show');
 
+        // We emit this event to center properly the header
+        window.dispatchEvent(new CustomEvent('lazyload', {
+          detail: toPanel
+        }));
+
         // Add mirror targets
         _mirrorCurrent.style.background = '-moz-element(#' + from + ')';
         _mirrorFuture.style.background = '-moz-element(#' + to + ')';
