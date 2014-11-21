@@ -57,50 +57,54 @@ DatabaseHelper.prototype = {
    *                 instance. The rejected promise, an error string.
    */
   ensureDB: function _ensureDB() {
+    if (this._db) {
+      return Promise.resolve(this._db);
+    }
+
     var self = this;
     return new Promise(function(resolve, reject) {
-      if (self._db) {
-        return resolve(self._db);
-      }
-
       try {
         if (!window.indexedDB) {
           return reject('NO_INDEXED_DB_AVAILABLE');
         }
         var request = window.indexedDB.open(self._dbParams.name,
                                             self._dbParams.version);
-        request.onsuccess = (function onsuccess(event) {
+        request.onsuccess = ((event) => {
           self._db = event.target.result;
           resolve(self._db);
-        }).bind(self);
+        });
 
-        request.onerror = function onerror(event) {
+        request.onerror = ((event) => {
           reject(event.target.errorCode);
-        };
+        });
 
-        request.onblocked = function onblocked() {
+        request.onblocked = (() => {
           reject('DB_REQUEST_BLOCKED');
-        };
+        });
 
-        request.onupgradeneeded = function onupgradeneeded(event) {
+        request.onupgradeneeded = ((event) => {
           var db = event.target.result;
 
           // Create DB Schemas
-          for (var _schema = 0; _schema < Object.keys(self._dbSchema).length;
-               _schema++) {
-            var schemaName = Object.keys(self._dbSchema)[_schema];
+          var schemaKeys = Object.keys(self._dbSchema);
+          var schemaKeysLength = schemaKeys.length;
+          for (var _schema = 0; _schema < schemaKeysLength; _schema++) {
+            var schemaName = schemaKeys[_schema];
             var schemaData = self._dbSchema[schemaName];
+            var schemaIndexes = schemaData.indexes;
+            var schemaIndexesLength = schemaIndexes.length;
 
             var auxStore = db.createObjectStore(schemaName, {
               keyPath: schemaData.primary
             });
-            for (var _index = 0; _index < schemaData.indexes.length; _index++) {
-              auxStore.createIndex(schemaData.indexes[_index].name,
-                                   schemaData.indexes[_index].field,
-                                   schemaData.indexes[_index].params);
+
+            for (var _index = 0; _index < schemaIndexesLength; _index++) {
+              auxStore.createIndex(schemaIndexes[_index].name,
+                                   schemaIndexes[_index].field,
+                                   schemaIndexes[_index].params);
             }
           }
-        };
+        });
       } catch(e) {
         reject(e.message);
       }
@@ -133,7 +137,8 @@ DatabaseHelper.prototype = {
         stores = txn.objectStore(aObjectStores[0]);
       } else {
         stores = [];
-        for (var i = 0; i < aObjectStores.length; i++) {
+        var objectStoresLength = aObjectStores.length;
+        for (var i = 0; i < objectStoresLength; i++) {
           stores.push(txn.objectStore(aObjectStores[i]));
         }
       }
@@ -148,12 +153,12 @@ DatabaseHelper.prototype = {
    */
   isValidRecord: function _isValidRecord(aObjectStoreName, aRecord) {
     if (!aObjectStoreName || !aRecord || !this._dbSchema[aObjectStoreName]) {
-      return;
+      return false;
     }
     var keys = Object.keys(aRecord);
     for (var i = 0, l = keys.length; i < l; i++) {
-      if (this._dbSchema[aObjectStoreName].indexOf(keys[i]) == -1) {
-        return;
+      if (this._dbSchema[aObjectStoreName].fields.indexOf(keys[i]) == -1) {
+        return false;
       }
     }
     return true;
@@ -259,6 +264,11 @@ DatabaseHelper.prototype = {
   },
 
   /**
+   * Helper method to return a record.
+   *
+   * param aCallback
+   * param aObjectStore
+   *       String. Name of the object store that we want to query.
    * param aFilter.
    *       So far the only use case that we found is an 'equal' query,
    *       so we will be taking an object of this kind:
@@ -319,7 +329,7 @@ DatabaseHelper.prototype = {
       return;
     }
 
-    var onRecord = function(error, record) {
+    var onRecord = ((error, record) => {
       if (error) {
         aCallback(error);
         return;
@@ -349,7 +359,7 @@ DatabaseHelper.prototype = {
           aCallback(e);
         };
       }, 'readwrite', [aObjectStore]);
-    };
+    });
 
     this.getRecord(onRecord, aObjectStore, aFilter);
   },
@@ -369,9 +379,7 @@ DatabaseHelper.prototype = {
         }
       };
       txn.onerror = function(event) {
-        if (typeof aCallback === 'function') {
-          aCallback(event.target.error.name);
-        }
+        aCallback(event.target.error.name);
       };
     }, 'readwrite', [aObjectStore]);
   },
