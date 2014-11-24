@@ -305,10 +305,10 @@
     var translation = 0;
     switch(section) {
       case 'urls':
-        translation = '-50%';
+        translation = '0';
         break;
       case 'calls':
-        translation = '0';
+        translation = '-50%';
         break;
     }
     // Move the panel in order to show the right section
@@ -753,11 +753,11 @@
             return;
           }
           _contactsCache = true;
-          ActionLogDB.getCalls(function(error, cursor) {
-            _renderCalls(error, cursor, true /* update */);
-          }, {prev: 'prev'});
           ActionLogDB.getUrls(function(error, cursor) {
             _renderUrls(error, cursor, true /* update */);
+          }, {prev: 'prev'});
+          ActionLogDB.getCalls(function(error, cursor) {
+            _renderCalls(error, cursor, true /* update */);
           }, {prev: 'prev'});
         });
       };
@@ -908,6 +908,82 @@
     });
   }
 
+  function _initCalls() {
+    if (!_templateNoUrlCalls) {
+      _templateNoUrlCalls = Template('calls-without-url-tmpl');
+    }
+
+    if (!_templateUrlCalls) {
+      _templateUrlCalls = Template('calls-url-tmpl');
+    }
+
+    callsSectionEntries.innerHTML = '';
+
+    callsSectionEntries.addEventListener(
+      'contextmenu',
+      function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        var callElement = event.target;
+        if (callElement.tagName !== 'LI') {
+          return;
+        }
+
+        _showCallSecondaryMenu(callElement);
+      }
+    );
+
+    callsSectionEntries.addEventListener(
+      'click',
+      function(event) {
+        var callElement = event.target;
+        if (callElement.tagName !== 'LI') {
+          return;
+        }
+
+        var identities = callElement.dataset.identities.split(',');
+        var isVideo = callElement.dataset.isVideo;
+        if (callElement.dataset.missedCall) {
+          isVideo = Settings.isVideoDefault;
+        }
+        Controller.callIdentities(identities, null, isVideo);
+        Telemetry.updateReport('callsFromCallLog');
+      }
+    );
+
+    ActionLogDB.getCalls(_renderCalls, {prev: 'prev'});
+    callsSection.addEventListener('scroll', _manageScroll);
+  }
+
+  function _initUrls() {
+    // Render urls
+    if (!_templateUrl) {
+      _templateUrl = Template('url-tmpl');
+    }
+    // TODO Optimize this with the bug
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1036351
+    urlsSectionEntries.innerHTML = '';
+
+    urlsSectionEntries.addEventListener(
+      'contextmenu',
+      function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        var urlElement = event.target;
+        if (urlElement.tagName !== 'LI') {
+          return;
+        }
+
+        _showUrlSecondaryMenu(urlElement);
+      }
+    );
+
+    ActionLogDB.getUrls(_renderUrls, {prev: 'prev'});
+    urlsSection.addEventListener('scroll', _manageScroll);
+  }
+
   var CallLog = {
     init: function w_init(identity) {
       if (_initialized) {
@@ -952,81 +1028,12 @@
       // Shield against multiple calls
       _initialized = true;
 
-      // Render calls
-      if (!_templateNoUrlCalls) {
-        _templateNoUrlCalls = Template('calls-without-url-tmpl');
-      }
+      // Init and render both logs
+      _initUrls();
+      _initCalls();
 
-      if (!_templateUrlCalls) {
-        _templateUrlCalls = Template('calls-url-tmpl');
-      }
-      callsSectionEntries.innerHTML = '';
-
-      callsSectionEntries.addEventListener(
-        'contextmenu',
-        function(event) {
-          event.stopPropagation();
-          event.preventDefault();
-
-          var callElement = event.target;
-          if (callElement.tagName !== 'LI') {
-            return;
-          }
-
-          _showCallSecondaryMenu(callElement);
-        }
-      );
-
-      callsSectionEntries.addEventListener(
-        'click',
-        function(event) {
-          var callElement = event.target;
-          if (callElement.tagName !== 'LI') {
-            return;
-          }
-
-          var identities = callElement.dataset.identities.split(',');
-          var isVideo = callElement.dataset.isVideo;
-          if (callElement.dataset.missedCall) {
-            isVideo = Settings.isVideoDefault;
-          }
-          Controller.callIdentities(identities, null, isVideo);
-          Telemetry.updateReport('callsFromCallLog');
-        }
-      )
-
-      ActionLogDB.getCalls(_renderCalls, {prev: 'prev'});
-
-      callsSection.addEventListener('scroll', _manageScroll);
-      urlsSection.addEventListener('scroll', _manageScroll);
-
-      // Render urls
-      if (!_templateUrl) {
-        _templateUrl = Template('url-tmpl');
-      }
-      // TODO Optimize this with the bug
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=1036351
-      urlsSectionEntries.innerHTML = '';
-      urlsSectionEntries.addEventListener(
-        'contextmenu',
-        function(event) {
-          event.stopPropagation();
-          event.preventDefault();
-
-          var urlElement = event.target;
-          if (urlElement.tagName !== 'LI') {
-            return;
-          }
-
-          _showUrlSecondaryMenu(urlElement);
-        }
-      );
-
-      ActionLogDB.getUrls(_renderUrls, {prev: 'prev'});
-
-      // Show the calls as initial screen
-      _changeSection('calls');
-
+      // Show the urls as initial screen
+      _changeSection('urls');
 
       navigator.mozContacts.oncontactchange = function(event) {
         window.dispatchEvent(new CustomEvent('oncontactchange', {
