@@ -50,7 +50,6 @@
     }
 
     _screen = document.getElementById('error-screen');
-    LazyLoader.load('style/bb/confirm.css');
     _screen.innerHTML = Template.extract(_screen);
     Branding.naming(_screen);
     _errorMessage = document.getElementById('error-message');

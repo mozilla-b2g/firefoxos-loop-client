@@ -135,8 +135,7 @@
     },
 
     createRoom: function() {
-      LazyLoader.load(['style/bb/input_areas.css',
-                       'style/create_room.css',
+      LazyLoader.load(['style/create_room.css',
                        'js/screens/create_room.js'], () => {
         RoomCreate.show();
       });
