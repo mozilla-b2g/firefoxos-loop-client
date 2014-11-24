@@ -12,6 +12,9 @@
     'wifi': 'callsWithWifi'
   };
 
+  const CALLS_CHANNEL_NAME = 'calls';
+  const ROOMS_CHANNEL_NAME = 'rooms';
+
   function _hideSplash() {
     setTimeout(function() {
       SplashScreen && SplashScreen.hide();
@@ -37,7 +40,7 @@
     });
   }
 
-  function _onlogin(event) {
+  function _onAccount(event) {
     if (!event.detail || !event.detail.identity) {
       log.error('Unexpected malformed onlogin event');
       return;
@@ -50,6 +53,11 @@
     CallLog.init(_identity);
     LoadingOverlay.hide();
     Navigation.to('calllog-panel', 'left').then(_hideSplash);
+  }
+
+  function _onlogin(event) {
+    // TODO When we are logged in with the server, we are ready
+    // to call the API in order to update our DB (i.e. rooms).
   }
 
   function _onlogout() {
@@ -65,24 +73,6 @@
       _hideSplash();
       LoadingOverlay.hide();
     });
-  }
-
-  /**
-   * Handle the simple push notifications the device receives as an incoming
-   * call.
-   *
-   * @param {Numeric} notificationId Simple push notification id (version).
-   */
-  function _onnotification(version) {
-    CallScreenManager.launch(
-      'incoming',
-      {
-        version: version,
-        frontCamera: Settings.isFrontalCamera,
-        vibrate: Settings.shouldVibrate
-      }
-    );
-    _oncall(true /* isIncoming */);
   }
 
   function _onsharedurl() {
@@ -120,13 +110,57 @@
 
       window.addEventListener('onauthentication', _onauthentication);
       window.addEventListener('onlogin', _onlogin);
+      window.addEventListener('onaccount', _onAccount);
       window.addEventListener('onlogout', _onlogout);
       window.addEventListener('onloginerror', _onloginerror);
 
       // Start listening activities
       Activities.init();
 
-      AccountHelper.init(_onnotification);
+      // Channels where I want to listen events from.
+      var channels = [
+        {
+          name: CALLS_CHANNEL_NAME,
+          handler: Controller.onConversationEvent
+        },
+        {
+          name: ROOMS_CHANNEL_NAME,
+          handler: Controller.onRoomsEvent
+        }
+      ];
+
+      AccountHelper.init(channels);
+    },
+
+
+    /**
+     * Handle the simple push notifications the device receives as an incoming
+     * call as Conversation.
+     *
+     * @param {Numeric} version Simple push notification id (version).
+     */
+    onConversationEvent: function(version) {
+      CallScreenManager.launch(
+        'incoming',
+        {
+          version: version,
+          frontCamera: Settings.isFrontalCamera,
+          vibrate: Settings.shouldVibrate
+        }
+      );
+      _oncall(true /* isIncoming */);
+    },
+
+    /**
+     * Handle the simple push notifications the device receives when there is a
+     * change in any of my rooms (If you are not the owner of the room you will
+     * not receive any notification)
+     *
+     * @param {Numeric} version Simple push notification id (version).
+     */
+    onRoomsEvent: function(version) {
+      // TODO Use for the implementation of bug
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=1104018
     },
 
     authenticate: function(id) {

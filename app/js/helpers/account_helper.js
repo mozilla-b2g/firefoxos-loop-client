@@ -17,7 +17,7 @@
   var _isIdFlowRunning = false;
   var _isIdCheckNeeded = false;
 
-  var _onnotification = null;
+  var _channels = null;
 
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
@@ -70,15 +70,14 @@
    *                                 sign process fails.
    */
   function _signIn(onSignInSuccess, onSignInError) {
-    _registerPush(_onnotification).then(
-      function onRegistered(endpoint) {
-        ClientRequestHelper.signIn(
-          _cachedAccount.credentials,
-          endpoint,
-          onSignInSuccess,
-          onSignInError
-        );
-    }).catch(function onError(error) {
+    NotificationChannels.listen(_channels).then(function(endpoints) {
+      ClientRequestHelper.signIn(
+        _cachedAccount.credentials,
+        endpoints,
+        onSignInSuccess,
+        onSignInError
+      );
+     }).catch(function(error) {
       _callback(onSignInError, [error]);
     });
   }
@@ -115,7 +114,7 @@
       window.removeEventListener('offline', onOffline);
       clearTimeout(timeout);
       _execOnOnline(function() {
-        _keepTryingSignIn(SimplePush.start);
+        _keepTryingSignIn(--retryCount, onSignedIn);
       });
     });
     document.addEventListener('visibilitychange', function onChange() {
@@ -125,7 +124,7 @@
       document.removeEventListener('visibilitychange', onChange);
       clearTimeout(timeout);
       _execOnDocumentVisible(function() {
-        _keepTryingSignIn(--retryCount, SimplePush.start);
+        _keepTryingSignIn(--retryCount, onSignedIn);
       });
     });
   }
@@ -149,31 +148,6 @@
     }
 
     return claim['verifiedMSISDN'] || claim['fxa-verifiedEmail'];
-  }
-
-  function _registerPush(onnotification) {
-    return new Promise(function(resolve, reject) {
-      SimplePush.createChannel(
-        LOOP_CHANNEL_NAME,
-        onnotification,
-        function onRegistered(error, endpoint) {
-          debug && console.log('SimplePush.createChannel: onregistered ' +
-                               endpoint);
-          if (error) {
-             reject(error);
-             return;
-          }
-
-          if (!endpoint) {
-             reject(new Error('Invalid endpoint'));
-             return;
-          }
-
-          resolve(endpoint);
-
-        }
-      );
-    });
   }
 
   function _dispatchEvent(eventName, detail) {
@@ -200,7 +174,7 @@
         _isLogged = true;
         _isIdFlowRunning = false;
         _isIdCheckNeeded = false;
-        _dispatchEvent('onlogin', {
+        _dispatchEvent('onaccount', {
           identity: assertionParsed['fxa-verifiedEmail'] ||
                     assertionParsed['verifiedMSISDN']
         });
@@ -242,7 +216,7 @@
           _cachedAccount = account;
           _isLogged = true;
           _isIdFlowRunning = false;
-          _dispatchEvent('onlogin', {identity: account.id.value});
+          _dispatchEvent('onaccount', {identity: account.id.value});
           return;
         }
 
@@ -257,7 +231,7 @@
               _isLogged = true;
               _isIdFlowRunning = false;
               _isIdCheckNeeded = false;
-              _dispatchEvent('onlogin', {
+              _dispatchEvent('onaccount', {
                 identity: assertionParsed['fxa-verifiedEmail'] ||
                           assertionParsed['verifiedMSISDN']
               });
@@ -334,11 +308,11 @@
       AccountStorage.load(onsuccess);
     },
 
-    init: function init(onnotification) {
+    init: function init(channels) {
       this.getAccount((function(account) {
         debug && console.log('Account ' + JSON.stringify(account));
 
-        _onnotification = onnotification;
+        _channels = channels;
 
         // If there is no account, this is the first run of the App.
         if (!account) {
@@ -363,7 +337,7 @@
           case 'msisdn':
             _isLogged = true;
             this.signIn(function() {
-              _dispatchEvent('onlogin', { identity: account.id.value });
+              _dispatchEvent('onaccount', { identity: account.id.value });
             }, _onloginerror);
             break;
           case 'fxa':
@@ -429,38 +403,32 @@
      *                           error object is passed as parameter.
      */
     signUp: function signUp(credentials, onsuccess, onerror) {
-      debug && console.log('AccountHelper: signUp');
-      if (!_onnotification) {
-        _callback(onerror);
-        return;
-      }
-
-      _registerPush(_onnotification).then(function onRegistered(endpoint) {
-          // Register the peer.
-          ClientRequestHelper.signUp(
-            // TODO: We need to pass in the credentials once the prod server
-            // runs (at least) "version":"0.6.0" (currently v.0.5.0).
-            credentials,
-            endpoint,
-            function onRegisterSuccess(result, hawkCredentials) {
-              // Create an account locally.
-              try {
-                var id = _getIdentifier(credentials);
-                // Keep a cached version of the account
-                _cachedAccount = new Account(id, hawkCredentials, endpoint);
-                // Store it
-                AccountStorage.store(_cachedAccount);
-                // Start the Push notifications
-                SimplePush.start();
-                _callback(onsuccess);
-              } catch (e) {
-                _callback(onerror, [e]);
-              }
-            },
-            onerror
-          );
-      }).catch(function onError(e) {
-        _callback(onerror, [e]);
+      NotificationChannels.listen(_channels).then(function(endpoints) {
+        // Register the peer.
+        ClientRequestHelper.signUp(
+          // TODO: We need to pass in the credentials once the prod server
+          // runs (at least) "version":"0.6.0" (currently v.0.5.0).
+          credentials,
+          endpoints,
+          function onRegisterSuccess(result, hawkCredentials) {
+            // Create an account locally.
+            try {
+              var id = _getIdentifier(credentials);
+              // Keep a cached version of the account
+              _cachedAccount = new Account(id, hawkCredentials, endpoints);
+              // Store it
+              AccountStorage.store(_cachedAccount);
+              
+              _callback(onsuccess);
+            } catch (e) {
+              NotificationChannels.reset();
+              _callback(onerror, [e]);
+            }
+          },
+          onerror
+        );
+      }).catch(function(error) {
+        _callback(onerror, [error]);
       });
     },
 
@@ -474,10 +442,6 @@
      */
     signIn: function signIn(onsuccess, onerror) {
       debug && console.log('AccountHelper: signIn');
-      if (!_onnotification) {
-        _callback(onerror);
-        return;
-      }
 
       AccountStorage.load(
         function(account) {
@@ -485,30 +449,37 @@
             _callback(onerror, [new Error('Unable to sign in. Sing up first')]);
             return;
           }
-
           // Keep a cached version of the account
           _cachedAccount = account;
-          _callback(onsuccess, [account.id.value]);
+          _callback(onsuccess);
 
           function _signInRetry() {
-            _keepTryingSignIn(Config.offline.maxSignInAttempts,
-                              SimplePush.start);
+            _keepTryingSignIn(
+              Config.offline.maxSignInAttempts,
+              function onLoggedIn() {
+                _dispatchEvent('onlogin');
+              }
+            );
           }
 
           _execOnOnline(function() {
-            _signIn(SimplePush.start, function(error) {
-              if (error && (error.code === 401) && (error.errno === 110)) {
-                LazyLoader.load([
-                  'js/screens/error_screen.js'
-                ], function() {
-                  var _ = navigator.mozL10n.get;
-                  ErrorScreen.show(_('signInFail'));
-                  Controller.logout();
-                });
-                return;
+            _signIn(
+              function() {
+                _dispatchEvent('onlogin');
+              }, function(error) {
+                if (error && (error.code === 401) && (error.errno === 110)) {
+                  LazyLoader.load([
+                    'js/screens/error_screen.js'
+                  ], function() {
+                    var _ = navigator.mozL10n.get;
+                    ErrorScreen.show(_('signInFail'));
+                    Controller.logout();
+                  });
+                  return;
+                }
+                _signInRetry();
               }
-              _signInRetry();
-            });
+            );
           });
         },
         onerror
@@ -535,9 +506,9 @@
       _dispatchEvent('onlogout');
       // Clean the account
       AccountStorage.clear();
-      // Reset the push channel
-      SimplePush.reset();
-      // Clean up flags.
+      // Reset the notifications channel
+      NotificationChannels.reset();
+       // Clean up flags.
       _isIdCheckNeeded = false;
       _isLogged = false;
       _isIdFlowRunning = false;
