@@ -92,42 +92,6 @@ form[role="dialog"][data-type="confirm"] section button {
   width: calc(100% + 3rem)
 }
 
-form p.counter input,
-form p.counter input:focus {
-  padding-right: 4.5rem;
-}
-
-html[dir="rtl"] form p.counter input,
-html[dir="rtl"] form p.counter input:focus {
-  padding-left: 4.5rem;
-}
-
-form p.counter input + span {
-  position: absolute;
-  top: 0;
-  right: 1.5rem;
-  width: 3rem;
-  height: 4rem;
-  line-height: 4rem;
-  padding: 0;
-  border: none;
-  font-size: 1.5rem;
-  font-weight: 300;
-  color: #858585;
-  text-align: right;
-  -moz-font-feature-settings: 'tnum';
-  font-feature-settings: 'tnum';
-}
-
-form p.counter input + span.limitExceeded {
-  color: #b90000;
-}
-
-html[dir="rtl"] form p.counter input + span {
-  right: auto;
-  left: 1.5rem;
-}
-
 #error-screen ul {
   display: none;
 }
