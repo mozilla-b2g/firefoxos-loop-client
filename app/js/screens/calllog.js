@@ -616,7 +616,7 @@
   function _deleteUrls(ids) {
     ActionLogDB.deleteUrls(
       function(error) {
-        console.error('Error when deleting calls from DB ' +
+        error && console.error('Error when deleting calls from DB ' +
                       error.name || error || 'Unknown');
       },
       ids
