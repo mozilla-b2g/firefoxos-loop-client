@@ -2,7 +2,7 @@
 
 (function(exports) {
 
-  var modal, roomNameInput, saveButton, closeButton, form, counter;
+  var modal, roomNameInput, saveButton, closeButton, resetButton, form, counter;
 
   var _ = navigator.mozL10n.get;
 
@@ -22,8 +22,9 @@
     roomNameInput = modal.querySelector('input');
     saveButton = modal.querySelector('#save-room-action');
     closeButton = modal.querySelector('.icon-close');
+    resetButton = modal.querySelector('input + button');
     form = modal.querySelector('form');
-    counter = modal.querySelector('.counter span');
+    counter = modal.querySelector('.counter');
     roomNameInput.placeholder = _('roomNamePlaceHolder');
   }
 
@@ -53,17 +54,20 @@
   }
 
   function checkButtons() {
-    var value = roomNameInput.value.trim();
-    saveButton.disabled = value === '';
-    // We have to decrease one because 0..CONFIG.maxRoomNamesSize - 1
-    var countdown = CONFIG.maxRoomNamesSize - value.length - 1;
-    counter.textContent = countdown;
-    countdown < 0 ? counter.classList.add('limitExceeded') :
-                    counter.classList.remove('limitExceeded');
+    var total = roomNameInput.value.trim().length;
+    var countdown = counter.dataset.countdown = CONFIG.maxRoomNamesSize - total;
+    saveButton.disabled = total === 0 || countdown < 0;
+    var key = countdown < 0 ? 'negativeCharactersCountdown' : 'charactersCountdown';
+    counter.textContent = _(key, {
+      value: countdown
+    });
   }
 
   function clearRoomName(evt) {
-    evt && evt.preventDefault();
+    if (evt) {
+      evt.stopPropagation();
+      evt.preventDefault();
+    }
     roomNameInput.value = '';
     checkButtons();
   }
@@ -71,7 +75,7 @@
   function saveFromKeyboard(evt) {
     evt.preventDefault();
     evt.stopPropagation();
-    roomNameInput.value.trim() !== '' && save();
+    !saveButton.disabled && save();
   }
 
   function save() {
@@ -112,6 +116,7 @@
   function attachHandlers() {
     closeButton.addEventListener('click', hide);
     saveButton.addEventListener('click', save);
+    resetButton.addEventListener('touchstart', clearRoomName);
     form.addEventListener('input', checkButtons);
     form.addEventListener('submit', saveFromKeyboard);
   }
@@ -119,6 +124,7 @@
   function removeHandlers() {
     closeButton.removeEventListener('click', hide);
     saveButton.removeEventListener('click', save);
+    resetButton.removeEventListener('touchstart', clearRoomName);
     form.removeEventListener('input', checkButtons);
     form.removeEventListener('submit', saveFromKeyboard);
   }

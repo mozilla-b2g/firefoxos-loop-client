@@ -18,9 +18,25 @@
   width: 100%;
 }
 
+#new-room form p.counter {
+  margin: -.5rem 0 1rem 0;
+  font-size: 1.4rem;
+  font-weight: 200;
+  color: #858585;
+  -moz-font-feature-settings: 'tnum';
+  font-feature-settings: 'tnum';
+}
+
+#new-room form p.counter[data-countdown='100'] {
+  visibility: hidden;
+}
+
+#new-room form p.counter[data-countdown^='-'] {
+  color: #b90000;
+}
+
 #new-room form p.description {
   font-weight: 300;
   color: #858585;
   font-size: 1.5rem;
-  text-align: center;
 }
