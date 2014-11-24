@@ -267,17 +267,6 @@
 
       Countdown.init();
 
-      LazyLoader.load(
-        [
-          '../style/bb/progress_activity.css',
-          '../style/bb/switches.css',
-          '../style/bb/edit_mode.css',
-          '../style/bb/lists.css',
-          '../style/bb/buttons.css',
-          '../libs/components/gaia-layout/style.css'
-        ]
-      );
-
 
       // Set the callback function to be called once the call is held in the
       // call manager helper.
