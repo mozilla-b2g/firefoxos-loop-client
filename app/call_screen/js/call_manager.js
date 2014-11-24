@@ -40,6 +40,7 @@
   var _acm = navigator.mozAudioChannelManager;
   var _videoCodecName = 'unknown';
   var _audioCodecName = 'unknown';
+  var _defaultCamera = 'none';
 
   // These strings will be found in SDP answer if H264 video codec is used
   const H264_STRING_126 = 'a=rtpmap:126 H264';
@@ -316,6 +317,10 @@
       Countdown.reset();
 
       _publishVideo = _subscribeToVideo = _isVideoCall;
+
+      _defaultCamera = _isVideoCall ?
+        (frontCamera && frontCamera != 'false') ? 'front' : 'rear' :
+        'none';
 
       var mode = (frontCamera && frontCamera != 'false') ? 'user':'environment';
       var cameraConstraint = {facingMode: mode, require: ['facingMode']};
@@ -697,6 +702,7 @@
           video: _isVideoCall,
           videoCodecName: _videoCodecName,
           audioCodecName: _audioCodecName,
+          defaultCamera: _defaultCamera,
           feedback: feedback || null
         };
 

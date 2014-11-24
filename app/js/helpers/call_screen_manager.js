@@ -215,6 +215,8 @@
                                  callscreenParams.videoCodecName);
           Telemetry.updateReport('callsDuration',
                                  callObject.duration);
+          Telemetry.updateReport('defaultCamera',
+                                 callscreenParams.defaultCamera);
           break;
       }
     } catch(e) {}
