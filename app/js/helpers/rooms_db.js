@@ -88,7 +88,7 @@
      *                  The rejected promise, an error string.
      */
     getAll: function(field, sorting) {
-      return Promise.resolve(_dummyObjects);
+      return Promise.resolve();
     },
 
     /**

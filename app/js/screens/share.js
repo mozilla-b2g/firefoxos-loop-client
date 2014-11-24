@@ -41,7 +41,6 @@
         type: 'conversation'
       },
       function onSMSShared() {
-        CallLog.addUrl(_generateUrlObject(), _contactInfo);
         Share.hide();
       },
       function onError() {
@@ -58,7 +57,6 @@
         type: 'conversation'
       }
     );
-    CallLog.addUrl(_generateUrlObject(), _contactInfo);
     Share.hide();
   }
 
@@ -96,7 +94,6 @@
     Controller.shareUrl(
       _url,
       function onShared() {
-        CallLog.addUrl(_generateUrlObject(), _contactInfo);
         Share.hide();
       },
       function onError() {
