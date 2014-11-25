@@ -131,7 +131,7 @@
           method: 'POST',
           url: SERVER_URL + '/registration',
           body: {
-            simple_push_url: pushEndpoint
+            simplePushURLs: pushEndpoint
           },
           credentials: credentials
         },
@@ -160,7 +160,7 @@
           method: 'POST',
           url: SERVER_URL + '/registration',
           body: {
-            simple_push_url: pushEndpoint
+            simplePushURLs: pushEndpoint
           },
           credentials: credentials
         },
@@ -177,9 +177,8 @@
         _request({
             method: 'DELETE',
             url: SERVER_URL + '/registration',
-            body: {
-              simple_push_url: pushEndpoint
-            },
+            // Now we dont need to send any body
+            // http://docs.services.mozilla.com/loop/apis.html#delete-registration
             credentials: credentials
           },
           onsuccess,
