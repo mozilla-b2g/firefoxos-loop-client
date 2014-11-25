@@ -74,6 +74,10 @@ button::-moz-focus-inner {
   overflow: hidden;
 }
 
+.expand {
+  width: 100%;
+}
+
 /* General overrides for BB and lib/components */
 section.skin-comms[role="region"] > header:first-child {
   background-color: #00a9dc;

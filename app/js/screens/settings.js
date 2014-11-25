@@ -2,7 +2,7 @@
   'use strict';
 
   var _settingsPanel, _closeSettingsButton, _logoutSettingsButton,
-      _cleanCallsButton, _cleanUrlsButton, _videoDefaultSettings,
+      _cleanCallsButton, _cleanRoomsButton, _videoDefaultSettings,
       _commitHashTag, _cameraDefaultSettings, _loggedAs, _vibrateSettings;
 
   var _initialized = false;
@@ -109,7 +109,7 @@
         _closeSettingsButton = document.getElementById('settings-close-button');
         _logoutSettingsButton = document.getElementById('settings-logout-button');
         _cleanCallsButton = document.getElementById('settings-clean-calls-button');
-        _cleanUrlsButton = document.getElementById('settings-clean-urls-button');
+        _cleanRoomsButton = document.getElementById('settings-clean-rooms-button');
         _videoDefaultSettings = document.getElementById('video-default-setting');
         _cameraDefaultSettings = document.getElementById('camera-default-setting');
         _commitHashTag = document.getElementById('settings-commit-hash-tag');
@@ -142,7 +142,7 @@
           }.bind(this)
         );
 
-        _cleanUrlsButton.addEventListener(
+        _cleanRoomsButton.addEventListener(
           'click',
            function() {
             var options = new OptionMenu({
@@ -315,7 +315,8 @@
      */
     onShown: function s_onShown() {
       _cleanCallsButton.disabled = CallLog.callsSectionEmpty;
-      _cleanUrlsButton.disabled = CallLog.urlsSectionEmpty;
+      // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1104764
+      _cleanRoomsButton.disabled = true;
     },
 
     hide: function s_hide(callback) {

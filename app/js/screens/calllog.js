@@ -2,12 +2,12 @@
   'use strict';
 
   var _initialized = false;
-  var calllogSectionsContainer, callsTabSelector, urlsTabSelector,
-      callsSection, urlsSection, callsSectionEntries, urlsSectionEntries,
+  var calllogSectionsContainer, callsTabSelector, roomsTabSelector,
+      callsSection, roomsSection, callsSectionEntries, roomsSectionEntries,
       toolbarFooter;
   var _contactsCache = false;
   var _renderingCalls = false;
-  var _renderingUrls = false;
+  var _renderingRooms = false;
   var _invalidatingCache = false;
 
   var _; // l10n get
@@ -18,7 +18,7 @@
   const SCROLL_EDGE = 50;
 
   var callsRenderedIndex = 0;
-  var urlsRenderedIndex = 0;
+  var roomsRenderedIndex = 0;
 
   /**
    * Function for rendering an option prompt given a list
@@ -41,77 +41,35 @@
     });
   }
 
-  function _showUrlSecondaryMenu(element) {
-    // Options to show
+  function _showRoomSecondaryMenu(element) {
     var items = [];
 
-    var revokeElement = element.querySelector('[data-revoked]');
-    if (revokeElement && revokeElement.dataset.revoked === 'false') {
-      // Revoke single item
-      items.push(
-        {
-          name: 'Revoke',
-          l10nId: 'revoke',
-          method: function(element) {
-            var token = element.dataset.urlToken;
-            Controller.revokeUrl(token, function onRevoked() {
-              ActionLogDB.revokeUrl(function(error) {
-                if (error) {
-                  console.error('Error revoking an URL from DB ' + error.name);
-                  return;
-                }
+    // Join a room
+    items.push({
+      name: 'Join',
+      l10nId: 'join',
+      method: function(element) {
+        var roomToken = element.dataset.roomToken;
+        roomToken && Controller.joinRoom(roomToken);
+      },
+      params: [element]
+    });
 
-                var revokedElement = element.querySelector('[data-revoked]');
-                revokedElement.dataset.revoked = true;
-                revokedElement.textContent = _('revoked');
-              }, token);
-            });
-          },
-          params: [element]
-        }
-      );
-    }
-
-    // Delete single item
-    items.push(
-      {
-        name: 'Delete',
-        l10nId: 'delete',
-        method: function(element) {
-          var tmp = element.querySelector('[data-revoked]');
-          var isRevoked = tmp.dataset.revoked === 'true';
-
-          function deleteElement() {
-            _deleteUrls([new Date(+element.id)]);
-          }
-
-          if (isRevoked) {
-            deleteElement();
-            return;
-          }
-          var options = new OptionMenu({
-            section: _('deleteConfirmation'),
-            type: 'confirm',
-            items: [
-              {
-                name: 'Cancel',
-                l10nId: 'cancel'
-              },
-              {
-                name: 'Delete',
-                class: 'danger',
-                l10nId: 'delete',
-                method: function() {
-                  deleteElement();
-                },
-                params: []
-              }
-            ]
+    // Delete a room
+    items.push({
+      name: 'Delete',
+      l10nId: 'delete',
+      method: function(element) {
+        var roomToken = element.dataset.roomToken;
+        var roomOwner = element.dataset.roomOwner;
+        if (roomToken && roomOwner) {
+          LazyLoader.load('js/screens/delete_room.js', () => {
+            RoomDelete.show(roomToken, roomOwner === Controller.identity);
           });
-        },
-        params: [element]
-      }
-    );
+        }
+      },
+      params: [element]
+    });
 
     _showSecondaryMenu(items);
   }
@@ -253,15 +211,7 @@
 
         for (var i = 0, l = elementsToUpdate.length; i < l; i++) {
           var dataset = elementsToUpdate[i].dataset;
-          var value;
-          switch(dataset.formatDate) {
-            case 'header':
-              value = Utils.getHeaderDate(+dataset.timestamp);
-              break;
-            case 'revoke':
-              value = _getExpiration(+dataset.timestamp, dataset.revoked === 'true');
-              break;
-          }
+          var value = Utils.getHeaderDate(+dataset.timestamp);
           elementsToUpdate[i].textContent = value || _('unknown');
         }
       }
@@ -299,12 +249,12 @@
     // Set the active tab
     callsTabSelector.setAttribute('aria-selected',
           section === 'calls' ? 'true' : 'false');
-    urlsTabSelector.setAttribute('aria-selected',
-          section === 'urls' ? 'true' : 'false');
+    roomsTabSelector.setAttribute('aria-selected',
+          section === 'rooms' ? 'true' : 'false');
     // Calculate the translation needed
     var translation = 0;
     switch(section) {
-      case 'urls':
+      case 'rooms':
         translation = '0';
         break;
       case 'calls':
@@ -317,25 +267,32 @@
 
 
   function _deleteElementsFromGroup(ids, type) {
-    var sectionEntries, cleanSection;
+    // decorateId is a decorator for ids that require some additional work
+    var sectionEntries, cleanSection, decorateId;
     if (type === 'calls') {
       sectionEntries = callsSectionEntries;
       cleanSection = function() {
         _isCallsSectionEmpty = true;
         _showEmptyCalls();
       }
-    } else {
-      sectionEntries = urlsSectionEntries;
-      cleanSection = function() {
-        _isUrlsSectionEmpty = true;
-        _showEmptyUrls();
+      decorateId = function(id) {
+        return id.getTime();
       }
+    } else {
+      sectionEntries = roomsSectionEntries;
+      cleanSection = function() {
+        _isRoomsSectionEmpty = true;
+        _showEmptyRooms();
+      }
+      decorateId = function(id) {
+        return id;
+      };
     }
 
     // TODO Implement in https://bugzilla.mozilla.org/show_bug.cgi?id=1035693
     for (var i = 0, l = ids.length; i < l; i++) {
       // ID is the timestamp given a date
-      var elementToDelete = document.getElementById(ids[i].getTime());
+      var elementToDelete = document.getElementById(decorateId(ids[i]));
       if (!elementToDelete) {
         continue;
       }
@@ -429,7 +386,7 @@
     ul.id = type + '-' + timestampIndex;
 
     // We need to check where to place the new group
-    var container = type === 'calls' ? callsSectionEntries : urlsSectionEntries;
+    var container = type === 'calls' ? callsSectionEntries : roomsSectionEntries;
     if (callsRenderedIndex > CHUNK_SIZE) {
       header.classList.add('hidden');
     }
@@ -578,136 +535,98 @@
   }
 
   /**
-   * Set of methods & vars related with the 'Calls' section
+   * Set of methods & vars related with the 'Rooms' section
    */
 
-  var _isUrlsSectionEmpty = true;
-  var _templateUrl;
+  var _isRoomsSectionEmpty = true;
+  var _templateRoom;
 
-  function _showEmptyUrls() {
-    _isUrlsSectionEmpty ? urlsSection.classList.add('empty') :
-                          urlsSection.classList.remove('empty');
+  function _showEmptyRooms() {
+    _isRoomsSectionEmpty ? roomsSection.classList.add('empty') :
+                           roomsSection.classList.remove('empty');
   }
 
-  function _clearUrls() {
-    // Delete all entries in call section
-    ActionLogDB.deleteUrls(function(error) {
-      error && console.error('ERROR when clearing urls db ' + error);
-    });
-    // Show 'empty' panel
-    urlsSectionEntries.innerHTML = '';
-    _isUrlsSectionEmpty = true;
-    _showEmptyUrls();
-  }
-
-  function _clearRevokedUrls() {
-    // Get elements to be deleted
-    var revokedUrls = urlsSection.querySelectorAll('[data-revoked="true"]');
-    // For deleting nodes we are going to use the ID (timestamp)
-    var ids = [];
-    for (var i = 0, l = revokedUrls.length; i < l; i++) {
-      var id = revokedUrls[i].parentNode.parentNode.id;
-      ids.push(new Date(+id));
-    }
-    // Delete just the revoked URLs
-    _deleteUrls(ids);
-  }
-
-  function _deleteUrls(ids) {
-    ActionLogDB.deleteUrls(
-      function(error) {
-        error && console.error('Error when deleting calls from DB ' +
+  function _deleteRooms(tokens) {
+    RoomsDB.delete(tokens).then(() => {
+      _deleteElementsFromGroup(tokens, 'rooms');
+    }, (error) => {
+      error && console.error('Error when deleting rooms from DB ' +
                       error.name || error || 'Unknown');
-      },
-      ids
-    );
-    _deleteElementsFromGroup(ids, 'urls');
+    });
   }
 
-  function _renderUrls(error, urlsCursor, update) {
-    if (!urlsCursor) {
-      _showEmptyUrls();
-      _renderingUrls = false;
+  function _renderRooms(error, roomsCursor, update) {
+    if (!roomsCursor) {
+      _showEmptyRooms();
+      _renderingRooms = false;
       _verifyContactsCache();
       return;
     }
 
-    _renderingUrls = true;
+    _renderingRooms = true;
 
-    var rawUrl = urlsCursor.value;
+    var rawRoom = roomsCursor.value;
     if (update) {
-      _updateUrl(rawUrl);
+      _updateRoom(rawRoom);
     } else {
       // Append to DOM
-      _appendUrl(rawUrl, true /* isFirstPaint */);
+      _appendRoom(rawRoom, true /* isFirstPaint */);
     }
     // Go to the next position of the cursor
-    urlsCursor.continue();
+    roomsCursor.continue();
   }
 
-  function _getExpiration(timestamp, revoked) {
-    return revoked ? _('revoked') : Utils.getRevokeDate(timestamp);
-  }
+  function _createRoomDOM(rawRoom, element) {
+    var roomElement = element || document.createElement('li');
+    roomElement.dataset.timestampIndex = rawRoom.creationTime.getTime();
+    roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
+    roomElement.dataset.identities = roomElement.dataset.roomOwner =
+                                     rawRoom.roomOwner;
+    roomElement.dataset.contactId = rawRoom.contactId;
 
-  function _createUrlDOM(rawUrl) {
-    var urlElement = document.createElement('li');
-    urlElement.dataset.timestampIndex = rawUrl.date.getTime();
-    urlElement.dataset.urlToken = rawUrl.urlToken;
-    urlElement.dataset.contactId = rawUrl.contactId;
-    urlElement.dataset.identities = rawUrl.identities;
-    urlElement.id = rawUrl.date.getTime();
-
-    var datePretty =  Utils.getFormattedHour(rawUrl.date);
-    var revokeTimestamp = rawUrl.expiration.getTime();
-    var timestamp = '' + rawUrl.date.getTime();
-    var revoked = rawUrl.revoked;
-    urlElement.innerHTML = _templateUrl.interpolate({
-      type: 'url',
-      primary: rawUrl.contactPrimaryInfo || rawUrl.identities[0],
-      link: rawUrl.url,
-      time: datePretty,
-      revoked: '' + revoked,
-      revokeTimestamp: '' + revokeTimestamp,
-      expiration: _getExpiration(revokeTimestamp, revoked)
+    roomElement.innerHTML = _templateRoom.interpolate({
+      roomName: rawRoom.roomName,
+      roomOwner: rawRoom.contactPrimaryInfo || rawRoom.roomOwner,
+      creationTime: Utils.getFormattedHour(rawRoom.creationTime)
     });
 
-    return urlElement;
+    return roomElement;
   }
 
-  function _appendUrl(rawUrl, isFirstPaint) {
-    if (!rawUrl) {
+  function _appendRoom(rawRoom, isFirstPaint) {
+    if (!rawRoom) {
       return;
     }
 
-    if (_isUrlsSectionEmpty) {
-      _isUrlsSectionEmpty = false;
-      _showEmptyUrls();
+    if (_isRoomsSectionEmpty) {
+      _isRoomsSectionEmpty = false;
+      _showEmptyRooms();
     }
 
     // Create elements needed
-    var group = _getGroup('urls', rawUrl.date);
-    var element = _createUrlDOM(rawUrl);
-    urlsRenderedIndex++;
-    if (isFirstPaint && urlsRenderedIndex > CHUNK_SIZE) {
+    var group = _getGroup('rooms', rawRoom.creationTime);
+    var element = _createRoomDOM(rawRoom);
+    roomsRenderedIndex++;
+    if (isFirstPaint && roomsRenderedIndex > CHUNK_SIZE) {
       element.classList.add('hidden');
     }
     // Append to the right position
     _appendElementToContainer(group, element)
   }
 
-  function _updateUrl(url) {
-    if (!url) {
+  function _updateRoom(room) {
+    if (!room) {
       return;
     }
 
-    if (_isUrlsSectionEmpty) {
-      _isUrlsSectionEmpty = false;
-      _showEmptyUrls();
+    if (_isRoomsSectionEmpty) {
+      _isRoomsSectionEmpty = false;
+      _showEmptyRooms();
     }
 
-    var query = 'li[id="' + call.date.getTime() + '"]';
-    var element = urlsSectionEntries.querySelector(query);
-    _createUrlDOM(url, element);
+    var query = 'li[id="' + room.roomToken + '"]';
+    var element = roomsSectionEntries.querySelector(query);
+    _createRoomDOM(room, element);
   }
 
   /*****************************
@@ -717,7 +636,7 @@
     // We don't want to verify and potentially rebuild the contacts cache
     // if we are still rendering the screen as it may lead to unexpected
     // behaviors.
-    if (_renderingCalls || _renderingUrls || _invalidatingCache) {
+    if (_renderingCalls || _renderingRooms || _invalidatingCache) {
       return;
     }
 
@@ -753,9 +672,7 @@
             return;
           }
           _contactsCache = true;
-          ActionLogDB.getUrls(function(error, cursor) {
-            _renderUrls(error, cursor, true /* update */);
-          }, {prev: 'prev'});
+          _renderRoomsFromDB(true);
           ActionLogDB.getCalls(function(error, cursor) {
             _renderCalls(error, cursor, true /* update */);
           }, {prev: 'prev'});
@@ -765,9 +682,9 @@
   }
 
   function _updateContactInfo(aElement, aContact) {
-    // '.primary-info > p' -> Calls in call log | '.primary-info' -> Shared URLs
+    // '.primary-info > p' -> Calls in call log | '.primary-info' -> Rooms
     var primaryInfo = aElement.querySelector('.primary-info > p') || 
-                      aElement.querySelector('.primary-info');
+                      aElement.querySelector('.room-owner');
 
     if (aContact) {
       var identities = [];
@@ -956,32 +873,78 @@
     callsSection.addEventListener('scroll', _manageScroll);
   }
 
-  function _initUrls() {
+  function _initRooms() {
     // Render urls
-    if (!_templateUrl) {
-      _templateUrl = Template('url-tmpl');
+    if (!_templateRoom) {
+      _templateRoom = Template('rooms-tmpl');
     }
     // TODO Optimize this with the bug
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1036351
-    urlsSectionEntries.innerHTML = '';
+    roomsSectionEntries.innerHTML = '';
 
-    urlsSectionEntries.addEventListener(
+    roomsSectionEntries.addEventListener(
       'contextmenu',
       function(event) {
         event.stopPropagation();
         event.preventDefault();
 
-        var urlElement = event.target;
-        if (urlElement.tagName !== 'LI') {
+        var roomElement = event.target;
+        if (roomElement.tagName !== 'LI') {
           return;
         }
 
-        _showUrlSecondaryMenu(urlElement);
+        _showRoomSecondaryMenu(roomElement);
       }
     );
+    
+    _renderRoomsFromDB();
+    roomsSection.addEventListener('scroll', _manageScroll);
 
-    ActionLogDB.getUrls(_renderUrls, {prev: 'prev'});
-    urlsSection.addEventListener('scroll', _manageScroll);
+    roomsSectionEntries.addEventListener('click', (event) => {
+      var roomToken = event.target.dataset.roomToken;
+      // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1104749
+      // Get this info from RoomsDB instead of server
+      roomToken && Rooms.get(roomToken).then((room) => {
+        Controller.showRoomDetails(room, roomToken);
+      });
+    });
+  }
+
+  function _renderRoomsFromDB(update) {
+    RoomsDB.getAll('creationTime', {prev: 'prev'}).then((cursor) => {
+      _renderRooms(null, cursor, update);
+    }, (error) => {
+      _renderRooms(error);
+    });
+  }
+
+  function _renderRoomsFromServer() {
+    Rooms.getAll().then((rooms) => {
+      if (rooms.length === 0) {
+        _renderRooms();
+        return;
+      }
+
+      _renderRooms(null, {
+        _idx: 0,
+
+        get value() {
+          var room = rooms[this._idx];
+          room.creationTime = _getRoomCreationDate(room);
+          return room;
+        },
+
+        continue: function() {
+          ++this._idx < rooms.length ? _renderRooms(null, this) : _renderRooms();
+        }
+      });      
+    }, (error) => {
+      _renderRooms(error);
+    });
+  }
+
+  function _getRoomCreationDate(room) {
+    return new Date(+room.creationTime * 1000);
   }
 
   var CallLog = {
@@ -995,12 +958,12 @@
 
       callsSection = document.getElementById('calls-section');
       callsSectionEntries = document.getElementById('calls-section-entries');
-      urlsSection = document.getElementById('urls-section');
-      urlsSectionEntries = document.getElementById('urls-section-entries');
+      roomsSection = document.getElementById('rooms-section');
+      roomsSectionEntries = document.getElementById('rooms-section-entries');
       calllogSectionsContainer =
         document.querySelector('.calllog-sections-container');
       callsTabSelector = document.getElementById('calls-section-filter');
-      urlsTabSelector = document.getElementById('urls-section-filter');
+      roomsTabSelector = document.getElementById('rooms-section-filter');
       toolbarFooter = document.getElementById('calllog-actions');
 
       // Add a listener to the right button
@@ -1018,10 +981,10 @@
         }
       );
 
-      document.getElementById('urls-section-filter').addEventListener(
+      document.getElementById('rooms-section-filter').addEventListener(
         'click',
         function() {
-           _changeSection('urls');
+           _changeSection('rooms');
         }
       );
 
@@ -1029,11 +992,11 @@
       _initialized = true;
 
       // Init and render both logs
-      _initUrls();
+      _initRooms();
       _initCalls();
 
       // Show the urls as initial screen
-      _changeSection('urls');
+      _changeSection('rooms');
 
       navigator.mozContacts.oncontactchange = function(event) {
         window.dispatchEvent(new CustomEvent('oncontactchange', {
@@ -1065,16 +1028,6 @@
       _changeSection('calls');
     },
 
-    cleanUrls: function() {
-      _clearUrls();
-      _changeSection('urls');
-    },
-
-    cleanRevokedUrls: function() {
-      _clearRevokedUrls();
-      _changeSection('urls');
-    },
-
     addCall: function(callObject, contactInfo) {
       ActionLogDB.addCall(function(error, callObject) {
         if (error) {
@@ -1084,24 +1037,44 @@
         _appendCall(callObject);
         _changeSection('calls');
       }, callObject, contactInfo);
-   },
+    },
 
-    addUrl: function(urlObject, contactInfo) {
-      ActionLogDB.addUrl(function(error, urlObject) {
-        if (error) {
-          console.error('ERROR when storing the URL ' + error);
+    addRoom: function(roomObject, roomToken, contactInfo) {
+      // RoomsDB is a mockup so we have to cook the object for now
+      RoomsDB.create(roomObject, contactInfo).then((roomObject) => {
+        var room = {};
+        Object.keys(roomObject).forEach((key) => {
+          room[key] = roomObject[key];
+        });
+        room.creationTime = _getRoomCreationDate(roomObject);
+        room.roomToken = roomToken;
+        if (contactInfo) {
+          room.contactId = contactInfo.contactIds || null;
+          var contact = contactInfo.contacts ? contactInfo.contacts[0] : null;
+          if (contact) {
+            room.contactPrimaryInfo = ContactsHelper.getPrimaryInfo(contact);
+          }
         }
-        _appendUrl(urlObject);
-        _changeSection('urls');
-      }, urlObject, contactInfo);
-    },
-    clean: function() {
-      _clearCalls();
-      _clearUrls();
+        _appendRoom(room);
+        _changeSection('rooms');
+      }, (error) => {
+        console.error('ERROR when storing the room ' + error);
+      });
     },
 
-    get urlsSectionEmpty() {
-      return _isUrlsSectionEmpty;
+    updateRooms: function() {
+      roomsSectionEntries.innerHTML = '';
+      // While the DB is being implemented we load the rooms from server
+      // _renderRoomsFromDB();
+      _renderRoomsFromServer();
+    },
+
+    removeRoom: function(roomToken) {
+      _deleteRooms([roomToken]);
+    },
+
+    get roomsSectionEmpty() {
+      return _isRoomsSectionEmpty;
     },
 
     get callsSectionEmpty() {

@@ -56,8 +56,24 @@
   }
 
   function _onlogin(event) {
-    // TODO When we are logged in with the server, we are ready
-    // to call the API in order to update our DB (i.e. rooms).
+    /*
+     * Future work:
+     *
+     * 1) Get rooms from loop server.
+     *
+     * 2.1) If there are changes:
+     *      * Update RoomsDB properly.
+     *      * Update CallLog which will paint rooms getting them from RoomsDB
+     * 
+     * 2.2) No changes
+     *      * Nothing to do (call log is updated)
+     *
+     * Currently:
+     *
+     * 1) There is not DB so calling to CallLog.updateRooms() which gets rooms
+     *    from server and paints them.
+     */
+    CallLog.updateRooms();
   }
 
   function _onlogout() {
@@ -175,13 +191,23 @@
       });
     },
 
+    joinRoom: function() {
+      // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1104003
+    },
+
     onRoomCreated: function(room, token) {
       Controller.showRoomDetails(room, token);
-      // TODO Update log UI
+      ContactsHelper.find({
+        identities: room.roomOwner
+      }, function(result) {
+        CallLog.addRoom(room, token, result);
+      }, function() {
+        CallLog.addRoom(room, token);
+      });
     },
 
     onRoomDeleted: function(token) {
-      // TODO Update log UI
+      CallLog.removeRoom(token);
     },
 
     showRoomDetails: function (room, token) {

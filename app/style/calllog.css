@@ -51,7 +51,7 @@
   pointer-events: none;
 }
 
-#urls-section.empty .section-empty {
+#rooms-section.empty .section-empty {
   background: url(images/link_wmark.png) center no-repeat;
   background-size: 18.1rem auto;
 }
@@ -62,13 +62,13 @@
 }
 
 #calls-section.empty .section-empty,
-#urls-section.empty .section-empty {
+#rooms-section.empty .section-empty {
   display: flex;
   align-items: center;
 }
 
 #calls-section.empty .calls-section-entries,
-#urls-section.empty .urls-section-entries {
+#rooms-section.empty .rooms-section-entries {
   display: none;
 }
 
@@ -111,34 +111,32 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   margin-left: 0;
 }
 
-.call-time {
+.call-time, .room-time {
   line-height: 2rem;
 }
 
 .calllog-section .call-time,
+.calllog-section .room-time,
 .calllog-section .retry-count,
-.calllog-section .url {
+.calllog-section .room-owner {
   font-size: 1.5rem;
   color: #858585;
   white-space: nowrap;
 }
+
 .calllog-section .missed .call-time {
   color: #bc1515;
-}
-
-.calllog-section li[data-revoked="true"] .url {
-  font-style: italic;
 }
 
 #calls-section .retry-count {
   flex: 0.4
 }
 
-#urls-section .url {
+#rooms-section .room-owner {
   white-space: normal;
 }
 
-#urls-section .retry-count {
+#rooms-section .retry-count {
   font-style: italic;
   color: #00a9dc;
 }
@@ -356,7 +354,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
     background-size: 2.5rem 2.4rem;
   }
 
-  #urls-section.empty .section-empty {
+  #rooms-section.empty .section-empty {
     background-image: url(images/link_wmark@1.5x.png);
   }
 
@@ -391,7 +389,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
     background-size: 2.5rem 2.4rem;
   }
 
-  #urls-section.empty .section-empty {
+  #rooms-section.empty .section-empty {
     background-image: url(images/link_wmark@2x.png);
   }
 
@@ -427,7 +425,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
     background-size: 2.5rem 2.4rem;
   }
 
-  #urls-section.empty .section-empty {
+  #rooms-section.empty .section-empty {
     background-image: url(images/link_wmark@2.25x.png);
   }
 

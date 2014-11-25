@@ -208,42 +208,20 @@
     )
   }
 
-  function _deleteRoomDB() {
-    Rooms.delete(_token).then(
-      function() {
-        _onBack();
-        Controller.onRoomDeleted(_token);
-      },
-      function(e) {
-        // TODO Add error handling about this
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1102847
-        alert('Error while deleting ' + _token + ' ' + e + JSON.stringify(e));
-      }
-    );
-  }
-
   function _delete() {
-    if (!_isOwner) {
-      _deleteRoomDB();
-      return;
-    }
-
-    var options = new OptionMenu({
-      section: _('deleteRoomConfirmation'),
-      type: 'confirm',
-      items: [
-        {
-          name: 'Cancel',
-          l10nId: 'cancel'
+    LazyLoader.load('js/screens/delete_room.js', () => {
+      RoomDelete.show(_token, _isOwner).then(
+        function() {
+          _onBack();
         },
-        {
-          name: 'Delete',
-          class: 'danger',
-          l10nId: 'delete',
-          method: _deleteRoomDB,
-          params: []
+        function(e) {
+          if (e && e !== 'NO_CONNECTION') {
+            // TODO Add error handling about this
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=1102847
+            alert('Error while deleting ' + _token + ' ' + e + JSON.stringify(e));
+          }
         }
-      ]
+      );
     });
   }
 

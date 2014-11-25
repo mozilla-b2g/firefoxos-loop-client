@@ -182,7 +182,7 @@
         <nav>
           <ul role="tablist" class="bb-tablist" data-type="filter">
             <li role="presentation">
-              <a id="urls-section-filter" role="tab" aria-selected="true" data-l10n-id="linksTab"></a>
+              <a id="rooms-section-filter" role="tab" aria-selected="true" data-l10n-id="roomsTab"></a>
             </li>
             <li role="presentation">
               <a id="calls-section-filter" role="tab" aria-selected="false" data-l10n-id="callsTab"></a>
@@ -190,12 +190,12 @@
           </ul>
         </nav>
         <div class="calllog-sections-container hbox fit">
-          <div id="urls-section" class="calllog-section gaia-list active sticky">
+          <div id="rooms-section" class="calllog-section gaia-list active sticky">
             <div class="section-empty">
               <p class="section-empty-label" data-l10n-id="emptyLinks">
               </p>
             </div>
-            <div id="urls-section-entries" class="section-entries">
+            <div id="rooms-section-entries" class="section-entries">
             </div>
           </div>
           <div id="calls-section" class="calllog-section gaia-list active sticky">
@@ -365,7 +365,7 @@
             <button id="settings-clean-calls-button" data-l10n-id="cleanAllCalls"></button>
           </li>
           <li>
-            <button id="settings-clean-urls-button" data-l10n-id="cleanAllLinks"></button>
+            <button id="settings-clean-rooms-button" data-l10n-id="cleanAllRooms"></button>
           </li>
           <li class="vbox">
             <p data-l10n-id="version"></p>
@@ -419,15 +419,14 @@
       </div>
       -->
     </div>
-    <div id="url-tmpl" class="hide">
+    <div id="rooms-tmpl" class="hide">
       <!--
-      <div class="vbox no-overflow">
+      <div class="vbox no-overflow expand">
         <div class="hbox">
-          <p class="primary-info fit ellipsis">${primary}</p>
-          <span class="call-time">${time}</span>
+          <p class="primary-info fit ellipsis">${roomName}</p>
+          <span class="room-time">${creationTime}</span>
         </div>
-        <p class="url">${link}</p>
-        <p class="retry-count" data-need-update="true" data-revoked="${revoked}" data-format-date="revoke" data-timestamp="${revokeTimestamp}">${expiration}</p>
+        <p class="room-owner">${roomOwner}</p>
       </div>
       -->
     </div>
