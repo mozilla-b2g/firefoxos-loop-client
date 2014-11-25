@@ -695,8 +695,7 @@
       }
 
       if (_publisher && _publisher.answerSDP) {
-        var description;
-        description = _publisher.answerSDP;
+        var description = _publisher.answerSDP;
         if (description.indexOf(H264_STRING_126) != -1 ||
             description.indexOf(H264_STRING_97) != -1) {
           _videoCodecName = 'H264';
