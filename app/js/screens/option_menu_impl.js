@@ -101,7 +101,9 @@ var OptionMenuImpl = function(options) {
     this.form.appendChild(header);
   }
   if (options.section) {
-    var section = document.createElement('section');
+    var sectionContainer = document.createElement('section');
+    this.form.appendChild(sectionContainer);
+    var section = document.createElement('p');
 
     if (typeof options.section === 'string') {
       section.textContent = options.section || '';
@@ -109,7 +111,7 @@ var OptionMenuImpl = function(options) {
       section.appendChild(options.section);
     }
 
-    this.form.appendChild(section);
+    sectionContainer.appendChild(section);
   }
 
   // We append a menu with the list of options

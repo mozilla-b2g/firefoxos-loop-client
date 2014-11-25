@@ -97,7 +97,7 @@ h1, h2, h3 {
 #answer {
   bottom: 4rem;
   right: 3rem;
-  background: #00acac;
+  background: #00a9dc;
 }
 
 #answer span {
@@ -107,7 +107,7 @@ h1, h2, h3 {
 #answer-video {
   right: calc(50% - 2.5rem);
   bottom: 13rem;
-  background: #00acac;
+  background: #00a9dc;
 }
 
 #answer-video span {
@@ -133,7 +133,7 @@ h1, h2, h3 {
 }
 
 .setting-button:active {
-  background: #00acac;
+  background: #00a9dc;
   transform: translate(0.8rem, 0.8rem);
   height: 7rem;
   width: 7rem;
@@ -143,7 +143,7 @@ h1, h2, h3 {
 
 .setting-disabled,
 .setting-enabled {
-  background: #00acac;
+  background: #00a9dc;
 }
 
 #call-settings-video {
@@ -220,14 +220,14 @@ h1, h2, h3 {
 #resume-button {
   bottom: 4rem;
   right: 3rem;
-  background: #00acac;
+  background: #00a9dc;
   width: 19rem;
   color: white;
 }
 
 #resume-button:active {
   background: white;
-  color: #00acac;
+  color: #00a9dc;
 }
 
 /*
@@ -482,7 +482,7 @@ body[data-call-status='outgoing'] .call-status-info {
 }
 
 #call-bar .micro-info.disabled {
-  background-position: 0rem -6rem; 
+  background-position: 0rem -6rem;
 }
 
 #call-bar .video-info.disabled {
@@ -531,7 +531,7 @@ body[data-call-status='unavailable'] .local-bubble-shadow {
  */
 
 #feedback {
-  background: #00acac;
+  background: linear-gradient(#00a9dc, #5bc0a4);
   width: 100%;
   height: 100%;
   display: none;
@@ -613,7 +613,6 @@ body[data-call-status='unavailable'] .local-bubble-shadow {
 
 .fq-buttons .fq-button:active .feedback-icon{
   background-blend-mode: hard-light;
-  background-color: #00ACAC;
 }
 
 .feedback-questions[data-question='2'] {
@@ -657,10 +656,23 @@ body[data-call-status='unavailable'] .local-bubble-shadow {
   border: none;
 }
 
+#feedback footer button {
+  background-color: #fff;
+  color: #575757;
+  border: none;
+}
+
 #feedback footer #rate-feedback-button {
   display: none;
-  color: #00adad;
-  background-color: #fff;
+  background-color: #00a9dc;
+  color: #fff;
+}
+
+
+#feedback footer button:active,
+#feedback footer #rate-feedback-button:active {
+  background-color: #b2f2ff;
+  color: #fff;
 }
 
 #feedback.two-options #rate-feedback-button {
