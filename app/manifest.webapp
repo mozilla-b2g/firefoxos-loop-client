@@ -69,8 +69,14 @@
       "disposition": "window",
       "filters": {
         "type": "loop/token"
-      },
-      "returnValue": true
+      }
+    },
+    "room-call": {
+      "href": "index.html",
+      "disposition": "window",
+      "filters": {
+        "type": "loop/rToken"
+      }
     }
   },
   "locales": {

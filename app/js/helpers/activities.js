@@ -1,8 +1,11 @@
 (function(exports) {
   'use strict';
 
+  var debug = Config.debug;
+
   const WEBRTC_CALL = 'webrtc-call';
   const LOOP_CALL = 'loop-call';
+  const ROOM_CALL = 'room-call';
 
   var _initialized = false;
   var _isLogged = false;
@@ -80,6 +83,18 @@
         }
         Controller.callUrl(activityParams.token, activityParams.video != false);
         Telemetry.updateReport('callsFromUrl');
+        break;
+      case ROOM_CALL:
+        if (!activityParams.token) {
+          console.error('Activity is not sending required data');
+          return;
+        }
+        // TODO Bug 1104057
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1104057
+        // Connect standalone UI with the 'Basic room' screen via activity
+        debug && console.log ("TODO: Bug 1104057: Connect standalone UI with " +
+                              "the 'Basic room' screen via activity");
+        // TODO: Perhaps some Telemetry here
         break;
     }
   }
