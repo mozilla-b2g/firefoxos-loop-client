@@ -105,7 +105,8 @@
       token = response.roomToken;
       return Rooms.get(token);
     }).then((room) => {
-      Controller.onRoomCreated(room, token);
+      room.roomToken = token;
+      Controller.onRoomCreated(room);
       hide();
     }).catch((error) => {
       console.error(JSON.stringify(error));

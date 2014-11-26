@@ -6,9 +6,7 @@
       callsSection, roomsSection, callsSectionEntries, roomsSectionEntries,
       toolbarFooter;
   var _contactsCache = false;
-  var _renderingCalls = false;
-  var _renderingRooms = false;
-  var _invalidatingCache = false;
+  var _ready = false;
 
   var _; // l10n get
 
@@ -273,7 +271,7 @@
       sectionEntries = callsSectionEntries;
       cleanSection = function() {
         _isCallsSectionEmpty = true;
-        _showEmptyCalls();
+        _checkEmptyCalls();
       }
       decorateId = function(id) {
         return id.getTime();
@@ -282,7 +280,7 @@
       sectionEntries = roomsSectionEntries;
       cleanSection = function() {
         _isRoomsSectionEmpty = true;
-        _showEmptyRooms();
+        _checkEmptyRooms();
       }
       decorateId = function(id) {
         return id;
@@ -403,7 +401,7 @@
   var _isCallsSectionEmpty = true;
   var _templateNoUrlCalls, _templateUrlCalls;
 
-  function _showEmptyCalls() {
+  function _checkEmptyCalls() {
     _isCallsSectionEmpty ?
       callsSection.classList.add('empty') : callsSection.classList.remove('empty');
   }
@@ -416,7 +414,7 @@
     // Show 'empty' panel
     callsSectionEntries.innerHTML = '';
     _isCallsSectionEmpty = true;
-    _showEmptyCalls();
+    _checkEmptyCalls();
   }
 
   function _deleteCalls(ids) {
@@ -429,18 +427,8 @@
     _deleteElementsFromGroup(ids, 'calls');
   }
 
-  function _renderCalls(error, callsCursor, update) {
-    if (!callsCursor) {
-      _showEmptyCalls();
-      _startTimeUpdates();
-      _renderingCalls = false;
-      _verifyContactsCache();
-      return;
-    }
-
-    _renderingCalls = true;
-
-    var rawCall = callsCursor && callsCursor.value;
+  function _renderCalls(callsCursor, update) {
+    var rawCall = callsCursor.value;
     if (update) {
       _updateCall(rawCall);
     } else {
@@ -503,7 +491,7 @@
 
     if (_isCallsSectionEmpty) {
       _isCallsSectionEmpty = false;
-      _showEmptyCalls();
+      _checkEmptyCalls();
       _startTimeUpdates();
     }
 
@@ -525,7 +513,7 @@
 
     if (_isCallsSectionEmpty) {
       _isCallsSectionEmpty = false;
-      _showEmptyCalls();
+      _checkEmptyCalls();
       _startTimeUpdates();
     }
 
@@ -541,12 +529,15 @@
   var _isRoomsSectionEmpty = true;
   var _templateRoom;
 
-  function _showEmptyRooms() {
+  function _checkEmptyRooms() {
     _isRoomsSectionEmpty ? roomsSection.classList.add('empty') :
                            roomsSection.classList.remove('empty');
   }
 
   function _deleteRooms(tokens) {
+    if (!Array.isArray(tokens)) {
+      tokens = [tokens];
+    }
     RoomsDB.delete(tokens).then(() => {
       _deleteElementsFromGroup(tokens, 'rooms');
     }, (error) => {
@@ -555,16 +546,7 @@
     });
   }
 
-  function _renderRooms(error, roomsCursor, update) {
-    if (!roomsCursor) {
-      _showEmptyRooms();
-      _renderingRooms = false;
-      _verifyContactsCache();
-      return;
-    }
-
-    _renderingRooms = true;
-
+  function _renderRooms(roomsCursor, update) {
     var rawRoom = roomsCursor.value;
     if (update) {
       _updateRoom(rawRoom);
@@ -578,7 +560,8 @@
 
   function _createRoomDOM(rawRoom, element) {
     var roomElement = element || document.createElement('li');
-    roomElement.dataset.timestampIndex = rawRoom.creationTime.getTime();
+    var creationTime = _getRoomCreationDate(rawRoom);
+    roomElement.dataset.timestampIndex = creationTime.getTime();
     roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
     roomElement.dataset.identities = roomElement.dataset.roomOwner =
                                      rawRoom.roomOwner;
@@ -587,7 +570,7 @@
     roomElement.innerHTML = _templateRoom.interpolate({
       roomName: rawRoom.roomName,
       roomOwner: rawRoom.contactPrimaryInfo || rawRoom.roomOwner,
-      creationTime: Utils.getFormattedHour(rawRoom.creationTime)
+      creationTime: Utils.getFormattedHour(creationTime)
     });
 
     return roomElement;
@@ -600,11 +583,11 @@
 
     if (_isRoomsSectionEmpty) {
       _isRoomsSectionEmpty = false;
-      _showEmptyRooms();
+      _checkEmptyRooms();
     }
 
     // Create elements needed
-    var group = _getGroup('rooms', rawRoom.creationTime);
+    var group = _getGroup('rooms', _getRoomCreationDate(rawRoom));
     var element = _createRoomDOM(rawRoom);
     roomsRenderedIndex++;
     if (isFirstPaint && roomsRenderedIndex > CHUNK_SIZE) {
@@ -621,7 +604,7 @@
 
     if (_isRoomsSectionEmpty) {
       _isRoomsSectionEmpty = false;
-      _showEmptyRooms();
+      _checkEmptyRooms();
     }
 
     var query = 'li[id="' + room.roomToken + '"]';
@@ -633,57 +616,52 @@
    * Contacts related methods.
    *****************************/
   function _verifyContactsCache() {
-    // We don't want to verify and potentially rebuild the contacts cache
-    // if we are still rendering the screen as it may lead to unexpected
-    // behaviors.
-    if (_renderingCalls || _renderingRooms || _invalidatingCache) {
-      return;
-    }
+    return new Promise((resolve, reject) => {
+      // Get the latest contacts cache revision and the actual Contacts API
+      // db revision. If both values differ, we need to update the contact
+      // cache and its revision and directly query the Contacts API to render
+      // the appropriate information while the cache is being rebuilt.
+      window.asyncStorage.getItem('contactsCacheRevision', (cacheRevision) => {
+        var req = navigator.mozContacts.getRevision();
 
-    _invalidatingCache = true;
-
-    // Get the latest contacts cache revision and the actual Contacts API
-    // db revision. If both values differ, we need to update the contact
-    // cache and its revision and directly query the Contacts API to render
-    // the appropriate information while the cache is being rebuilt.
-    window.asyncStorage.getItem('contactsCacheRevision',
-                                function onItem(cacheRevision) {
-      navigator.mozContacts.getRevision()
-            .onsuccess = function(event) {
-        var contactsRevision = event.target.result;
-        // We don't need to sync if this is the first time that we use the
-        // action log.
-        if (!cacheRevision || cacheRevision > contactsRevision) {
-          window.asyncStorage.setItem('contactsCacheRevision',
-                                      contactsRevision);
-          return;
-        }
-
-        var cacheIsValid = _contactsCache = (cacheRevision >= contactsRevision);
-        if (cacheIsValid) {
-          _invalidatingCache = false;
-          return;
-        }
-
-        ActionLogDB.invalidateContactsCache(function(error) {
-          _invalidatingCache = false;
-          if (error) {
-            console.error('Could not invalidate contacts cache ' + error);
+        req.onsuccess = function(event) {
+          var contactsRevision = event.target.result;
+          // We don't need to sync if this is the first time that we use the
+          // action log.
+          if (!cacheRevision || cacheRevision > contactsRevision) {
+            window.asyncStorage.setItem('contactsCacheRevision',
+                                         contactsRevision);
+            reject();
             return;
           }
-          _contactsCache = true;
-          _renderRoomsFromDB(true);
-          ActionLogDB.getCalls(function(error, cursor) {
-            _renderCalls(error, cursor, true /* update */);
-          }, {prev: 'prev'});
-        });
-      };
+
+          var cacheIsValid = _contactsCache = (cacheRevision >= contactsRevision);
+          if (cacheIsValid) {
+            reject();
+            return;
+          }
+
+          ActionLogDB.invalidateContactsCache(function(error) {
+            if (error) {
+              console.error('Could not invalidate contacts cache ' + error);
+              reject();
+              return;
+            }
+            _contactsCache = true;
+            resolve();
+          });
+        };
+
+        req.onerror = function(event) {
+          reject();
+        };
+      });
     });
   }
 
   function _updateContactInfo(aElement, aContact) {
     // '.primary-info > p' -> Calls in call log | '.primary-info' -> Rooms
-    var primaryInfo = aElement.querySelector('.primary-info > p') || 
+    var primaryInfo = aElement.querySelector('.primary-info > p') ||
                       aElement.querySelector('.room-owner');
 
     if (aContact) {
@@ -825,6 +803,77 @@
     });
   }
 
+  function _renderRoomsFromDB(update) {
+    return new Promise((resolve, reject) => {
+      RoomsDB.getAll('creationTime', {prev: 'prev'}).then((cursor) => {
+        if (!cursor) {
+          return resolve();
+        }
+
+        cursor.onsuccess = function onsuccess(event) {
+          var item = event.target.result;
+          if (!item) {
+            return resolve();
+          }
+
+          _renderRooms(item, update);
+        };
+
+        cursor.onerror = function onerror(event) {
+          console.error('Error iterating rooms cursor', error);
+          resolve();
+        };
+      }, (error) => {
+        console.error('Error rendering rooms', error);
+        resolve();
+      });
+    }).then(_checkEmptyRooms);
+  }
+
+  function _renderCallsFromDB(update) {
+    return new Promise((resolve, reject) => {
+      ActionLogDB.getCalls(function(error, cursor) {
+        if (!error && cursor){
+          _renderCalls(cursor, update);
+        } else {
+          resolve();
+        }
+      }, {prev: 'prev'});
+    }).then(_checkEmptyCalls);
+  }
+
+  /*
+   * This method implements:
+   *
+   * 1º step: render both logs
+   * 2º step: start timer for updating markup related to time
+   * 3º step: verify local cache
+   * 4º step: if local cache is invalid we have to update entries in the calllog
+   * 5º step: dispatch 'calllog-ready' event once finished
+   */
+  function _renderLogs() {
+    return Promise.all([
+      _renderRoomsFromDB(),
+      _renderCallsFromDB()
+    ]).then(
+      _startTimeUpdates
+    ).then(() => {
+      // It rejects when the cache is invalid.
+      return _verifyContactsCache();
+    }).then(() => {
+      // Invalid cache then updating items in the call log.
+      return Promise.all([
+        _renderRoomsFromDB(true),
+        _renderCallsFromDB(true)
+      ]);
+    }).then(_dispatchReadyEvent, _dispatchReadyEvent);
+  }
+
+  function _dispatchReadyEvent() {
+    _ready = true;
+    window.dispatchEvent(new CustomEvent('calllog-ready'));
+  }
+
   function _initCalls() {
     if (!_templateNoUrlCalls) {
       _templateNoUrlCalls = Template('calls-without-url-tmpl');
@@ -869,12 +918,10 @@
       }
     );
 
-    ActionLogDB.getCalls(_renderCalls, {prev: 'prev'});
     callsSection.addEventListener('scroll', _manageScroll);
   }
 
   function _initRooms() {
-    // Render urls
     if (!_templateRoom) {
       _templateRoom = Template('rooms-tmpl');
     }
@@ -896,55 +943,26 @@
         _showRoomSecondaryMenu(roomElement);
       }
     );
-    
-    _renderRoomsFromDB();
+
     roomsSection.addEventListener('scroll', _manageScroll);
 
     roomsSectionEntries.addEventListener('click', (event) => {
       var roomToken = event.target.dataset.roomToken;
-      // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1104749
-      // Get this info from RoomsDB instead of server
-      roomToken && Rooms.get(roomToken).then((room) => {
-        Controller.showRoomDetails(room, roomToken);
-      });
-    });
-  }
-
-  function _renderRoomsFromDB(update) {
-    RoomsDB.getAll('creationTime', {prev: 'prev'}).then((cursor) => {
-      _renderRooms(null, cursor, update);
-    }, (error) => {
-      _renderRooms(error);
-    });
-  }
-
-  function _renderRoomsFromServer() {
-    Rooms.getAll().then((rooms) => {
-      if (rooms.length === 0) {
-        _renderRooms();
-        return;
-      }
-
-      _renderRooms(null, {
-        _idx: 0,
-
-        get value() {
-          var room = rooms[this._idx];
-          room.creationTime = _getRoomCreationDate(room);
-          return room;
-        },
-
-        continue: function() {
-          ++this._idx < rooms.length ? _renderRooms(null, this) : _renderRooms();
-        }
-      });      
-    }, (error) => {
-      _renderRooms(error);
+      roomToken && RoomsDB.get(roomToken).then(Controller.showRoomDetails);
     });
   }
 
   function _getRoomCreationDate(room) {
     return new Date(+room.creationTime * 1000);
+  }
+
+  function _addRoom(room, contactInfo) {
+    return RoomsDB.create(room, contactInfo).then((room) => {
+      _appendRoom(room);
+      return room;
+    }, (error) => {
+      console.error('ERROR when storing the room ' + error);
+    });
   }
 
   var CallLog = {
@@ -995,8 +1013,9 @@
       _initRooms();
       _initCalls();
 
-      // Show the urls as initial screen
+      // Show the rooms as initial screen
       _changeSection('rooms');
+      _renderLogs();
 
       navigator.mozContacts.oncontactchange = function(event) {
         window.dispatchEvent(new CustomEvent('oncontactchange', {
@@ -1023,6 +1042,17 @@
       };
     },
 
+    clean: function() {
+      CallLog.onReady().then(() => {
+        roomsSectionEntries.innerHTML = '';
+        _isRoomsSectionEmpty = true;
+        _checkEmptyRooms();
+        callsSectionEntries.innerHTML = '';
+        _isCallsSectionEmpty = true;
+        _checkEmptyCalls();
+      });
+    },
+
     cleanCalls: function() {
       _clearCalls();
       _changeSection('calls');
@@ -1039,38 +1069,25 @@
       }, callObject, contactInfo);
     },
 
-    addRoom: function(roomObject, roomToken, contactInfo) {
-      // RoomsDB is a mockup so we have to cook the object for now
-      RoomsDB.create(roomObject, contactInfo).then((roomObject) => {
-        var room = {};
-        Object.keys(roomObject).forEach((key) => {
-          room[key] = roomObject[key];
+    addRoom: function(room) {
+      return new Promise(function(resolve, reject) {
+        ContactsHelper.find({
+          identities: room.roomOwner
+        }, function(result) {
+          _addRoom(room, result).then(resolve, reject);
+        }, function() {
+          _addRoom(room).then(resolve, reject);
         });
-        room.creationTime = _getRoomCreationDate(roomObject);
-        room.roomToken = roomToken;
-        if (contactInfo) {
-          room.contactId = contactInfo.contactIds || null;
-          var contact = contactInfo.contacts ? contactInfo.contacts[0] : null;
-          if (contact) {
-            room.contactPrimaryInfo = ContactsHelper.getPrimaryInfo(contact);
-          }
-        }
-        _appendRoom(room);
-        _changeSection('rooms');
-      }, (error) => {
-        console.error('ERROR when storing the room ' + error);
       });
     },
 
-    updateRooms: function() {
-      roomsSectionEntries.innerHTML = '';
-      // While the DB is being implemented we load the rooms from server
-      // _renderRoomsFromDB();
-      _renderRoomsFromServer();
+    removeRooms: function(roomTokens) {
+      _deleteRooms(roomTokens);
     },
 
-    removeRoom: function(roomToken) {
-      _deleteRooms([roomToken]);
+    updateRooms: function(rooms) {
+      rooms.forEach(_updateRoom);
+      RoomsDB.update(rooms);
     },
 
     get roomsSectionEmpty() {
@@ -1079,6 +1096,19 @@
 
     get callsSectionEmpty() {
       return _isCallsSectionEmpty;
+    },
+
+    onReady: function() {
+      if (_ready) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve, reject) => {
+        window.addEventListener('calllog-ready', function _onReady() {
+          window.removeEventListener('calllog-ready', _onReady);
+          resolve();
+        });
+      });
     }
   };
 

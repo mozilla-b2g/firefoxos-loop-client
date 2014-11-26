@@ -42,8 +42,7 @@
 
   function getCurrent() {
     if (current) {
-      Promise.resolve(current);
-      return;
+      return Promise.resolve(current);
     }
 
     return new Promise((resolve, reject) => {
@@ -64,8 +63,7 @@
 
   function getPrevious() {
     if (previous) {
-      Promise.resolve(previous);
-      return;
+      return Promise.resolve(previous);
     }
 
     return new Promise((resolve, reject) => {

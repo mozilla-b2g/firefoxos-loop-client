@@ -61,27 +61,30 @@
   }
 
   function _onlogin(event) {
-    /*
-     * Future work:
-     *
-     * 1) Get rooms from loop server.
-     *
-     * 2.1) If there are changes:
-     *      * Update RoomsDB properly.
-     *      * Update CallLog which will paint rooms getting them from RoomsDB
-     *
-     * 2.2) No changes
-     *      * Nothing to do (call log is updated)
-     *
-     * Currently:
-     *
-     * 1) There is not DB so calling to CallLog.updateRooms() which gets rooms
-     *    from server and paints them.
-     */
-    CallLog.updateRooms();
+    _synchronizeRooms();
+  }
+
+  /*
+   * It synchronizes local and remote rooms. It adds new rooms or deletes rooms
+   * created/deleted while phone was off or existing before installing Firefox
+   * Hello.
+   */
+  function _synchronizeRooms() {
+    Loader.getRoomsSynchronizer().then((RoomsSynchronizer) => {
+      RoomsSynchronizer.synchronize().then((response) => {
+        CallLog.removeRooms(response.roomsToDelete.map((currentValue) => {
+          return currentValue.roomToken;
+        }));
+        CallLog.updateRooms(response.roomsToUpdate);
+        response.roomsToAdd.forEach(CallLog.addRoom);
+      }, (error) => {
+        console.error('Could not synchronize the call log', error);
+      });
+    });
   }
 
   function _onlogout() {
+    CallLog.clean();
     _initWizard(false).then(() => {
       _hideSplash();
       Settings.reset();
@@ -201,24 +204,20 @@
       // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1104003
     },
 
-    onRoomCreated: function(room, token) {
-      Controller.showRoomDetails(room, token);
-      ContactsHelper.find({
-        identities: room.roomOwner
-      }, function(result) {
-        CallLog.addRoom(room, token, result);
-      }, function() {
-        CallLog.addRoom(room, token);
-      });
+    onRoomCreated: function(room) {
+      CallLog.addRoom(room).then(Controller.showRoomDetails);
     },
 
     onRoomDeleted: function(token) {
-      CallLog.removeRoom(token);
+      CallLog.removeRooms(token);
     },
 
-    showRoomDetails: function (room, token) {
+    showRoomDetails: function (room) {
+      if (!room) {
+        return;
+      }
       Loader.getRoomDetail().then((RoomDetail) => {
-        RoomDetail.show(room, token);
+        RoomDetail.show(room);
       });
     },
 
@@ -331,7 +330,7 @@
 
     shareUrl: function (url, onsuccess, onerror) {
       debug && console.log('Loop web URL ' + url);
-      
+
       if (typeof onerror !== 'function') {
         onerror = function() {};
       }
@@ -347,7 +346,7 @@
           params.url,
           function onSent() {
             _onsharedurl();
-            
+
             if (typeof onsuccess !== 'function') {
               onsuccess = function() {};
             }
@@ -404,7 +403,7 @@
       if (typeof onsuccess !== 'function') {
         onsuccess = function() {};
       }
-      
+
       debug && console.log('Loop web URL through EMAIL ' + params.url + ' to ' + params.email);
       Loader.getShare().then((Share) => {
         Share.useEmail(

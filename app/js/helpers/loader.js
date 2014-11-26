@@ -112,6 +112,22 @@
           resolve(FeedbackScreen);
         }, PANELS_ID.feedback);
       });
+    },
+    getRoomsSynchronizer: function() {
+      if (window.RoomsSynchronizer) {
+        return Promise.resolve(RoomsSynchronizer);
+      }
+
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          [
+            'js/helpers/rooms_synchronizer.js'
+          ],
+          () => {
+            resolve(RoomsSynchronizer);
+          }
+        );
+      });
     }
   };
 
