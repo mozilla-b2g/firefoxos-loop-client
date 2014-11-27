@@ -33,6 +33,14 @@
     });
   }
 
+  function _getCallScreenManager() {
+    return new Promise((resolve, reject) => {
+      LazyLoader.load(['js/helpers/call_screen_manager.js'], () => {
+        resolve(CallScreenManager);
+      });
+    });
+  }
+
   function _onauthentication(event) {
     _initWizard(event.detail.firstRun).then(() => {
       _hideSplash();
@@ -49,7 +57,7 @@
     _identity = event.detail.identity;
 
     Settings.updateIdentity(_identity);
-    
+
     CallLog.init(_identity);
     LoadingOverlay.hide();
     Navigation.to('calllog-panel', 'left').then(_hideSplash);
@@ -64,7 +72,7 @@
      * 2.1) If there are changes:
      *      * Update RoomsDB properly.
      *      * Update CallLog which will paint rooms getting them from RoomsDB
-     * 
+     *
      * 2.2) No changes
      *      * Nothing to do (call log is updated)
      *
@@ -156,15 +164,17 @@
      * @param {Numeric} version Simple push notification id (version).
      */
     onConversationEvent: function(version) {
-      CallScreenManager.launch(
-        'incoming',
-        {
-          version: version,
-          frontCamera: Settings.isFrontalCamera,
-          vibrate: Settings.shouldVibrate
-        }
-      );
-      _oncall(true /* isIncoming */);
+      _getCallScreenManager().then((csm) => {
+        csm.launch(
+          'incoming',
+          {
+            version: version,
+            frontCamera: Settings.isFrontalCamera,
+            vibrate: Settings.shouldVibrate
+          }
+        );
+        _oncall(true /* isIncoming */);
+      });
     },
 
     /**
@@ -255,16 +265,18 @@
     },
 
     callIdentities: function(identities, contact, isVideoCall) {
-      CallScreenManager.launch(
-        'outgoing',
-        {
-          identities: identities,
-          video: isVideoCall,
-          contact: contact,
-          frontCamera: Settings.isFrontalCamera
-        }
-      );
-      _oncall();
+      _getCallScreenManager().then((csm) => {
+        csm.launch(
+          'outgoing',
+          {
+            identities: identities,
+            video: isVideoCall,
+            contact: contact,
+            frontCamera: Settings.isFrontalCamera
+          }
+        );
+        _oncall();
+      });
     },
 
     callContact: function(contact, isVideoCall) {
@@ -312,16 +324,18 @@
         return;
       }
 
-      CallScreenManager.launch(
-        'outgoing',
-        {
-          token: token,
-          video: isVideoCall,
-          frontCamera: Settings.isFrontalCamera
-        }
-      );
+      _getCallScreenManager().then((csm) => {
+        csm.launch(
+          'outgoing',
+          {
+            token: token,
+            video: isVideoCall,
+            frontCamera: Settings.isFrontalCamera
+          }
+        );
 
-      _oncall();
+        _oncall();
+      });
     },
 
     shareUrl: function (url, onsuccess, onerror) {
