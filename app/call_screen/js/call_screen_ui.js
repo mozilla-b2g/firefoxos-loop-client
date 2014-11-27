@@ -357,8 +357,17 @@
           document.body.dataset.callStatus = 'outgoing';
           break;
         case 'connecting':
-          // The other side has answered the call, so we need just to wait until
-          // both streams will be published
+          // If we are the caller party and the call status changes to
+          // connecting is because the call set up protocol has finished (it has
+          // already reached the connected state). There might be a race
+          // condition here and we could change to the connecting status even
+          // being already in the connected status. If that happens we must keep
+          // the connected status.
+          if (document.body.dataset.callStatus === 'connected') {
+            return;
+          }
+          // If we are the calle party and the call status changes to connecting
+          // is because the user has answered the call.
           TonePlayerHelper.stop();
           updateStatusInfo('connecting');
           document.body.dataset.callStatus = 'connecting';

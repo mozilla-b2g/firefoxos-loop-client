@@ -138,13 +138,16 @@
         callProgressHelper.mediaUp();
         break;
       case 'connected':
+        _perfDebug && PerfLog.log(_perfBranch,
+          'Peer hanged up. "connected" event received');
+        if (_callee) {
+          return;
+        }
         // A "connected" notification from the server means that both peers has
         // successfully published their streams, but that doesn't mean that the
         // remote stream is still available. In order to have a better UX, we
-        // show a "Connecting"-like message in the screen that will be removed
-        // once the remote media is successfully aquired.
-        _perfDebug && PerfLog.log(_perfBranch,
-          'Setting visual call status to "connecting"');
+        // show a "Connecting"-like message in the caller screen that will be
+        // removed once the remote media is successfully aquired.
         CallScreenUI.setCallStatus('connecting');
         break;
       case 'error':
