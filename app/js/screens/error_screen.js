@@ -57,16 +57,18 @@
     _settingsButton = document.getElementById('error-screen-settings');
   }
 
-  function _show(type, message) {
+  function _show(screenObj, message) {
     _init();
-    _screen.dataset.type = type;
+    _screen.dataset.type = screenObj.type;
+    _screen.dataset.unrecoverable = screenObj.unrecoverable;
     _attachHandlers();
     _errorMessage.textContent = message;
     _screen.classList.add('show');
   }
 
   function _hide(evt) {
-    if (_screen.dataset.type === 'offline') {
+    if (_screen.dataset.unrecoverable !== 'true') {
+      // We have to avoid the form submission if this is a recoverable error
       evt && evt.preventDefault();
     }
 
@@ -79,16 +81,18 @@
     this.type = 'error';
   }
 
-  ErrorScreen.prototype.show = function(message) {
-    _show(this.type, message);
+  ErrorScreen.prototype.show = function(message, unrecoverable) {
+    this.unrecoverable = !!unrecoverable;
+    _show(this, message);
   };
 
   function OfflineScreen() {
     this.type = 'offline';
+    this.unrecoverable = false;
   }
 
   OfflineScreen.prototype.show = function(message) {
-    _show(this.type, message);
+    _show(this, message);
   };
 
   exports.ErrorScreen = new ErrorScreen();
