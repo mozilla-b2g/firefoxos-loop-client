@@ -18,7 +18,6 @@
     }
 
     modal = document.getElementById('new-room');
-    modal.innerHTML = Template.extract(modal);
     roomNameInput = modal.querySelector('input');
     saveButton = modal.querySelector('#save-room-action');
     closeButton = modal.querySelector('.icon-close');

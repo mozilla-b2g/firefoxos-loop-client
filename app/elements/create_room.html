@@ -1,0 +1,25 @@
+<element name="new-room" extends="section">
+
+  <link rel="stylesheet" type="text/css" href="style/create_room.css"></link>
+  <script src="js/screens/create_room.js"></script>
+
+  <template>
+    <header>
+      <button class="icon icon-close"></button>
+      <menu type="toolbar">
+        <button id="save-room-action" data-l10n-id="saveRoomAction" disabled></button>
+      </menu>
+      <h1 data-l10n-id="newRoomTitle"></h1>
+    </header>
+    <section>
+      <form>
+        <p>
+          <input type="text" dir="auto"></input>
+          <button type="reset"></button>
+        </p>
+        <p class="counter"></p>
+        <p data-l10n-id="roomNameDescription" class="description"></p>
+      </form>
+    </section>
+  </template>
+</element>

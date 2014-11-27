@@ -11,7 +11,6 @@
   var _gUMFailed = false;
   var _stream = null;
 
-  var _feedbackClose;
   var _orientationHandler;
 
   var _; // l10n
@@ -19,19 +18,15 @@
   var _hangupButton, _answerAudioButton, _answerVideoButton,
       _settingsButtonVideo, _settingsButtonMute, _callBarMicro, _callBarVideo,
       _settingsButtonSpeaker, _resumeButton, _callStatusInfoElements,
-      _fakeLocalVideo, _localVideo, _feedback;
+      _fakeLocalVideo, _localVideo;
 
   var _initialized = false;
+  var _feedbackClose = null;
 
   function _hangUp(error) {
     Ringer.stop();
     Countdown.stop();
     CallScreenUI.notifyCallEnded(error);
-  }
-
-  function Feedback(happy, description) {
-    this.happy = happy;
-    this.description = description;
   }
 
   function _toggleSpeakerButton() {
@@ -74,18 +69,6 @@
     for (var i = 0; i < len; i++) {
       _callStatusInfoElements[i].textContent = str;
     }
-  }
-
-  function getFirstCommentChild(node) {
-    node = node.firstChild;
-
-    do {
-      if (node.nodeType === Node.COMMENT_NODE) {
-        return (node.nodeValue || '').trim();
-      }
-    } while ((node = node.nextSibling));
-
-    return '';
   }
 
   var CallScreenUI = {
@@ -304,8 +287,13 @@
 
       // Use status bar in the call screen
       window.onresize = function() {
+
         if (_feedbackClose && typeof _feedbackClose === 'function') {
           _feedbackClose();
+          Loader.getFeedback(true /*isAttention = true*/).then(function(FeedbackScreen){
+            FeedbackScreen.hide();
+            _feedbackClose = null;
+          });
           return;
         }
         if (window.innerHeight > statusBarHeight) {
@@ -448,64 +436,9 @@
     },
     showFeedback: function(callback) {
       _feedbackClose = callback;
-      if (!_feedback) {
-        _feedback = document.getElementById('feedback');
-        // We have the markup as a comment
-        _feedback.innerHTML = getFirstCommentChild(_feedback);
-        Branding.naming(_feedback);
-      }
-      document.getElementById('skip-feedback-button').addEventListener(
-        'click',
-        function onSkip() {
-          if (typeof callback === 'function') {
-            callback();
-          }
-        }
-      );
-
-      var rateFeedbackButton = document.getElementById('rate-feedback-button');
-      rateFeedbackButton.addEventListener(
-        'click',
-        function onRate() {
-          if (typeof callback === 'function') {
-            var description = [];
-            var checked = _feedback.querySelectorAll(':checked');
-            if (checked) {
-              for (var i = 0, l = checked.length; i < l; i++) {
-                description.push(checked[i].value);
-              }
-            }
-
-            callback(new Feedback(false /* happy */, description));
-          }
-        }
-      );
-
-      document.querySelector('.fq-options ul').addEventListener('click',
-        function onClick() {
-          var numberChecked = _feedback.querySelectorAll(':checked').length;
-          rateFeedbackButton.disabled = numberChecked === 0;
-        }
-      );
-
-      document.getElementById('answer-happy').addEventListener(
-        'click',
-        function onAnswerHappy() {
-          if (typeof callback === 'function') {
-            callback(new Feedback(true /* happy */));
-          }
-        }
-      );
-
-      document.getElementById('answer-sad').addEventListener(
-        'click',
-        function onAnswerSad() {
-          _feedback.classList.add('two-options');
-          document.querySelector('[data-question]').dataset.question = 2;
-        }
-      );
-
-      document.body.dataset.feedback = true;
+      Loader.getFeedback(true /*isAttention = true*/).then(function(FeedbackScreen){
+        FeedbackScreen.show(callback);
+      });
     },
     toggleHold: function() {
       CallScreenUI.setCallStatus('hold');
