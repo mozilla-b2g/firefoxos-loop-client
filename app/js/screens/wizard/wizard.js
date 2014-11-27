@@ -26,10 +26,6 @@
     Branding.naming(wizardPanel);
     Wizard.localize();
     window.addEventListener('localized', localize);
-    // We emit this event to center properly headers
-    window.dispatchEvent(new CustomEvent('lazyload', {
-      detail: document.body
-    }));
     wizardPanel.classList.remove('hide');
   }
 

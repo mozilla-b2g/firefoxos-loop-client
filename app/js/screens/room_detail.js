@@ -6,14 +6,14 @@
   var _room = null, _token = null;
   var _isOwner = false;
   var _ = navigator.mozL10n.get;
- 
+
   function _onBack(event) {
     _room = null;
     _token = null;
     _isOwner = false;
 
     _removeListeners();
-    
+
     // Back to the call log based on the 'deep' navigation model
     Navigation.to('calllog-panel', 'right').then(_cleanUI);
   }
@@ -23,15 +23,15 @@
     _ctimeUI.textContent = '';
     _expirationUI.textContent = '';
     _ownerUI.textContent = '';
-    
+
     _panel.classList.remove('invited');
   }
- 
+
   function _restoreStructure() {
     if (_panel) {
       return;
     }
- 
+
     // Extract the commented code to the panel
     _panel = document.getElementById('room-detail-panel');
     _panel.innerHTML = Template.extract(_panel);
@@ -45,11 +45,6 @@
     _shareContactButton = document.getElementById('rdp-share-contact');
     _showHistoryButton = document.getElementById('rdp-show-history');
     _deleteButton = document.getElementById('rdp-delete');
-    
-    // We emit this event to center properly the header
-    window.dispatchEvent(new CustomEvent('lazyload', {
-      detail: _panel
-    }));
   }
 
   function _renderInfo(room) {
@@ -59,7 +54,7 @@
 
     // Update details of the room
     _roomNameUI.textContent = room.roomName;
-    
+
     var ms = +_room.creationTime * 1000;
     navigator.mozL10n.localize(_ctimeUI, 'roomCreation', {
       date: Utils.getHeaderDate(ms),
@@ -140,7 +135,7 @@
     _deleteButton.removeEventListener('click', _delete);
     window.removeEventListener('localized', _handleLocalization);
   }
- 
+
   function _addListeners() {
     _backButton.addEventListener('click', _onBack);
     _shareContactButton.addEventListener('click', _shareToContact);
@@ -175,7 +170,7 @@
     },
     update: _renderInfo
   };
- 
+
   exports.RoomDetail = RoomDetail;
- 
+
 }(window));
