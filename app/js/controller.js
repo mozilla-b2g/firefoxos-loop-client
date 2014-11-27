@@ -23,10 +23,7 @@
 
   function _initWizard(isFirstUse) {
     return new Promise((resolve, reject) => {
-      LazyLoader.load(['style/wizard.css',
-                       'js/screens/wizard/authenticate.js',
-                       'js/screens/wizard/tutorial.js',
-                       'js/screens/wizard/wizard.js'], () => {
+      Loader.getWizard().then((Wizard) => {
         Navigation.to('wizard-panel', 'right');
         Wizard.init(isFirstUse, resolve, reject);
       });
@@ -195,8 +192,7 @@
     },
 
     createRoom: function() {
-      LazyLoader.load(['style/create_room.css',
-                       'js/screens/create_room.js'], () => {
+      Loader.getRoomCreate().then((RoomCreate) => {
         RoomCreate.show();
       });
     },
@@ -221,14 +217,9 @@
     },
 
     showRoomDetails: function (room, token) {
-      LazyLoader.load(
-        [
-          'style/room_detail.css',
-          'js/screens/room_detail.js'],
-          function() {
-            RoomDetail.show(room, token);
-          }
-      );
+      Loader.getRoomDetail().then((RoomDetail) => {
+        RoomDetail.show(room, token);
+      });
     },
 
     pickContact: function(onsuccess, onerror) {
@@ -340,18 +331,30 @@
 
     shareUrl: function (url, onsuccess, onerror) {
       debug && console.log('Loop web URL ' + url);
-      var activity = new MozActivity({
-        name: 'share',
-        data: {
-          type: 'url',
-          url: url
-        }
+      
+      if (typeof onerror !== 'function') {
+        onerror = function() {};
+      }
+
+      if (!params.url || params.url.length === 0) {
+        console.error('Controller.shareUrl: No url to share');
+        onerror(new Error('Controller.shareUrl: No url to share'));
+        return;
+      }
+
+      Loader.getShare().then((Share) => {
+        Share.broadcast(
+          params.url,
+          function onSent() {
+            _onsharedurl();
+            
+            if (typeof onsuccess !== 'function') {
+              onsuccess = function() {};
+            }
+          },
+          onerror
+        );
       });
-      activity.onsuccess = function() {
-        onsuccess && onsuccess();
-        _onsharedurl();
-      };
-      activity.onerror = onerror;
     },
 
     sendUrlBySMS: function (params, onsuccess, onerror) {
@@ -367,42 +370,24 @@
         return;
       }
 
-      debug && console.log('Loop web URL for SMS ' + params.url + ' to ' + params.phonenumber);
-
-      var text = '';
-      switch(params.type) {
-        case 'room':
-          text = params.url;
-          break;
-        case 'conversation':
-          text = _('shareMessage') + ' ' + params.url;
-          break;
-        default:
-          text = params.url;
-      }
-
       if (typeof onsuccess !== 'function') {
         onsuccess = function() {};
       }
-      if (typeof onerror !== 'function') {
-        onerror = function() {};
-      }
 
-      var activity = new MozActivity({
-        name: 'new',
-        data: {
-          type: 'websms/sms',
-          number: params.phonenumber,
-          body: text
-        }
+      debug && console.log('Loop web URL for SMS ' + params.url + ' to ' + params.phonenumber);
+      Loader.getShare().then((Share) => {
+        Share.useSMS(
+          params,
+          params.phonenumber,
+          function onSent() {
+            if (params.type === 'call') {
+              _onsharedurl();
+            }
+            onsuccess();
+          },
+          onerror
+        );
       });
-      activity.onsuccess = function() {
-        onsuccess();
-        if (params.type === 'conversation') {
-          _onsharedurl();
-        }
-      };
-      activity.onerror = onerror;
     },
 
     sendUrlByEmail: function (params, onsuccess, onerror) {
@@ -419,40 +404,21 @@
       if (typeof onsuccess !== 'function') {
         onsuccess = function() {};
       }
-      if (typeof onerror !== 'function') {
-        onerror = function() {};
-      }
-
+      
       debug && console.log('Loop web URL through EMAIL ' + params.url + ' to ' + params.email);
-
-      // This is a workaround to add subject & body clicking on a '<a>' element
-      var body = '';
-      var subject = 'Firefox Hello';
-      switch(params.type) {
-        case 'room':
-          body = params.url;
-          break;
-        case 'conversation':
-          body = _('shareMessage') + ' ' + params.url;
-          _onsharedurl();
-          break;
-      }
-
-      debug && console.log('Loop web URL for email ' + url + ' to ' + id);
-      var activity = new MozActivity({
-        name: 'new',
-        data: {
-          type: 'mail',
-          url: 'mailto:' + params.email +
-                '?subject=' + subject +
-                '&body= '+ body
-        }
+      Loader.getShare().then((Share) => {
+        Share.useEmail(
+          params,
+          params.email,
+          function onSent() {
+            if (params.type === 'call') {
+              _onsharedurl();
+            }
+            onsuccess();
+          },
+          onerror
+        );
       });
-      activity.onsuccess = function() {
-        onsuccess();
-        _onsharedurl();
-      };
-      activity.onerror = onerror;
     },
 
     getUrlByToken: function(token, callback) {

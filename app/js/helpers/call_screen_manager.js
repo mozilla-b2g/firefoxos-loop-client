@@ -91,7 +91,7 @@
     return new Promise((resolve, reject) => {
       LazyLoader.load(['style/share.css',
                        'js/screens/share.js'], () => {
-        resolve(Share);
+        resolve(ShareScreen);
       });
     });
   }

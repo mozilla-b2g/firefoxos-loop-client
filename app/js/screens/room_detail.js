@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
   var _panel;
-  var _roomNameUI, _ctimeUI, _ownerUI, _shareSocialButton, _shareContactButton,
+  var _roomNameUI, _ctimeUI, _ownerUI, _shareContactButton,
       _showHistoryButton, _deleteButton, _backButton, _expirationUI;
   var _room = null, _token = null;
   var _isOwner = false;
@@ -42,7 +42,6 @@
     _ctimeUI = document.getElementById('rdp-creation-date');
     _expirationUI = document.getElementById('rdp-expiration');
     _ownerUI = document.getElementById('rdp-owner');
-    _shareSocialButton = document.getElementById('rdp-share-social');
     _shareContactButton = document.getElementById('rdp-share-contact');
     _showHistoryButton = document.getElementById('rdp-show-history');
     _deleteButton = document.getElementById('rdp-delete');
@@ -93,121 +92,6 @@
 
     }
   }
-
-  function _shareSocial() {
-    Controller.shareUrl(
-      _room.roomUrl,
-      function() {
-        // TODO Add to event history when creating the panel
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1102849
-      },
-      function() {
-        // TODO Add error handling if needed
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1102847
-      }
-    );
-  }
-
-  function _shareBySMS(identity) {
-    setTimeout(function() {
-      Controller.sendUrlBySMS(
-        {
-          url: _room.roomUrl,
-          phonenumber: identity,
-          type: 'room'
-        },
-        function() {
-          // TODO Add to event history when creating the panel
-          // https://bugzilla.mozilla.org/show_bug.cgi?id=1102849
-        }
-      );
-    }, 600); // Workaround to get the SMS activity working.
-  }
-
-  function _shareByEmail(identity) {
-    Controller.sendUrlByEmail(
-      {
-        url: _room.roomUrl,
-        email: identity,
-        type: 'room'
-      }
-    );
-    // TODO Add to event history when creating the panel
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1102849
-  }
-
-  function _shareToContact() {
-    Controller.pickContact(
-      function onContactRetrieved(contact) {
-        // Given a contact we get the array of identities
-        function _mapValue(item) {
-          return item.value;
-        }
-        var emails = !contact.email ? [] : contact.email.map(_mapValue);
-        var tels = !contact.tel ? [] : contact.tel.map(_mapValue);
-
-        var emailsLength = emails.length;
-        var telsLength = tels.length;
-
-        // If no email or tel is found, we show just an alert with the error
-        if (emailsLength === 0 && telsLength === 0) {
-          alert(_('pickActivityFail'));
-          return;
-        }
-
-        // If just a phone number is found, we send SMS directly
-        if (emailsLength === 0 && telsLength === 1) {
-          _shareBySMS(tels[0]);
-          return;
-        }
-
-        // If just a email is found, we send email directly
-        if (emailsLength === 1 && telsLength === 0) {
-          _shareByEmail(emails[0]);
-          return;
-        }
-
-        // Now we need to get all identities and we create the option dialog
-        var identities = emails.concat(tels);
-        var items = [];
-
-        function _solveActivity(identity) {
-          if (identity.indexOf('@') !== -1) {
-            _shareByEmail(identity);
-          } else {
-            _shareBySMS(identity);
-          }
-        }
-
-        for (var i = 0, l = identities.length; i < l; i++) {
-          items.push(
-            {
-              name: identities[i],
-              method: _solveActivity,
-              params: [identities[i]]
-            }
-          );
-        }
-
-        items.push(
-          {
-            name: 'Cancel',
-            l10nId: 'cancel'
-          }
-        );
-
-        var options = new OptionMenu({
-          type: 'action',
-          items: items
-        });
-      },
-      function onError() {
-        // TODO Check if show an error is needed
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1102847
-      }
-    )
-  }
-
   function _delete() {
     LazyLoader.load('js/screens/delete_room.js', () => {
       RoomDelete.show(_token, _isOwner).then(
@@ -231,9 +115,26 @@
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1102849
   }
 
+  function _shareToContact() {
+    Share.toContact(
+      {
+        type: 'room',
+        url: _room.roomUrl
+      },
+      function onShared() {
+        console.log('Lets add this to DB');
+        // TODO Implement when
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1104749
+      },
+      function onError() {
+        // TOOD Implement if needed
+        console.log('Error when sharing room to a contact');
+      }
+    );
+  }
+
   function _removeListeners() {
     _backButton.removeEventListener('click', _onBack);
-    _shareSocialButton.removeEventListener('click', _shareSocial);
     _shareContactButton.removeEventListener('click', _shareToContact);
     _showHistoryButton.removeEventListener('click', _showHistory);
     _deleteButton.removeEventListener('click', _delete);
@@ -242,7 +143,6 @@
  
   function _addListeners() {
     _backButton.addEventListener('click', _onBack);
-    _shareSocialButton.addEventListener('click', _shareSocial);
     _shareContactButton.addEventListener('click', _shareToContact);
     _showHistoryButton.addEventListener('click', _showHistory);
     _deleteButton.addEventListener('click', _delete);

@@ -38,10 +38,10 @@
       {
         phonenumber: id,
         url: _url,
-        type: 'conversation'
+        type: 'call'
       },
       function onSMSShared() {
-        Share.hide();
+        ShareScreen.hide();
       },
       function onError() {
         // TODO Do we need to show something to the user?
@@ -57,7 +57,7 @@
         type: 'conversation'
       }
     );
-    Share.hide();
+    ShareScreen.hide();
   }
 
   function _newFromArray(identities, newCB) {
@@ -87,14 +87,14 @@
   }
 
   function _onClose() {
-    Share.hide();
+    ShareScreen.hide();
   }
 
   function _onOtherClicked() {
     Controller.shareUrl(
       _url,
       function onShared() {
-        Share.hide();
+        ShareScreen.hide();
       },
       function onError() {
         // TODO Do we need to show something to the user?
@@ -231,7 +231,7 @@
     );
   }
 
-  var Share = {
+  var ShareScreen = {
     show: function s_show(urlObject, identities, sharingReason, callback) {
       // Init listeners
       _init();
@@ -283,5 +283,5 @@
     }
   };
 
-  exports.Share = Share;
+  exports.ShareScreen = ShareScreen;
 }(this));
