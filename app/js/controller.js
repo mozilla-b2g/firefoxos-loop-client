@@ -206,8 +206,15 @@
       });
     },
 
-    joinRoom: function() {
-      // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1104003
+    joinRoom: function(token) {
+      Loader.getRoomController().then((RoomController) => {
+        RoomController.join({
+          token: token,
+          displaName: Controller.identity,
+          video: Settings.isVideoDefault,
+          frontCamera: Settings.isFrontalCamera
+        });
+      });
     },
 
     onRoomCreated: function(room) {

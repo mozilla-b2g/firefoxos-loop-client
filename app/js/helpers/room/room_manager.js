@@ -4,6 +4,24 @@
   var debug = Config.debug;
   var session = null, publisher = null, subscribers = [], speakerManager = null;
 
+  const TARGET_ELEMENT_PROPERTIES = {
+    audioVolume: 100,
+    width: "100%",
+    height: "100%",
+    style:{
+      nameDisplayMode: 'off',
+      buttonDisplayMode: 'off',
+      showMicButton: false,
+      showSettingsButton: false,
+      audioLevelDisplayMode: 'off'
+    }
+  };
+
+  const DEFAULT_JOIN_PARAMS = {
+    video: true,
+    frontCamera: false
+  };
+
   function disconnectSession() {
     if (session) {
       session.off();
@@ -12,69 +30,126 @@
     }
   }
 
-  var RoomManager = {
+  // Note: we reuse the OT eventing module. This will allow to dispatch any
+  // event on the RoomManager Object. The object inherits all the eventing suff
+  // like on, once, off, dispatch methods.
+  OT.RoomManager = function() {
+    OT.$.eventing(this);
+  };
+
+  OT.RoomManager.prototype = {
     join: function(params) {
+      debug && console.log('Join room with params: ' + JSON.stringify(params));
+
+      params = params || {};
+      if (!params.apiKey || !params.sessionId || !params.sessionToken ||
+          !params.localTargetElement || !params.remoteTargetElement) {
+        // https://tokbox.com/opentok/libraries/client/js/reference/Error.html
+        // Fire an OT.RoomManager.EventNames.ERROR event.
+        this.dispatchEvent(new OT.ErrorEvent(OT.RoomManager.EventNames.ERROR,
+                                             1011,
+                                             'Invalid Parameter'));
+        return;
+      }
+      for (var param in params) {
+        params.param = params.param || DEFAULT_JOIN_PARAMS.param;
+      }
+
       var video = params.video;
       var frontCamera = params.frontCamera;
       var mode = !!frontCamera ? 'user': 'environment';
       var cameraConstraints = {facingMode: mode, require: ['facingMode']};
       var sessionConstraints = {video: cameraConstraints, audio: true};
 
+      var self = this;
       Opentok.setConstraints(sessionConstraints);
       session = OT.initSession(params.apiKey, params.sessionId);
       session.on(
         {
           sessionConnected: function(event) {
-            // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=1104003
-            // Pass in a targetElement (the ID of the DOM element that the
-            // Publisher will replace) and a properties object that defines
-            // options for the Publisher.
-            publisher = session.publish(function(error) {
-              if (error) {
-                disconnectSession();
-                // Fire a RoomManager.EventNames.ERROR event.
-                this.dispatch(new OT.ErrorEvent(RoomManager.EventNames.ERROR,
-                                                error.code,
-                                                error.message));
-              } else {
-                this.publishVideo(video);
-                // Fire a RoomManager.EventNames.JOINED event.
-                this.dispatch(new OT.Event(RoomManager.EventNames.JOINED));
+            // Fire an OT.RoomManager.EventNames.JOINING event.
+            this.dispatchEvent(new OT.Event(OT.RoomManager.EventNames.JOINING));
+
+            publisher = session.publish(
+              params.localTargetElement,
+              TARGET_ELEMENT_PROPERTIES,
+              function(error) {
+                if (error) {
+                  disconnectSession();
+                  // Fire an OT.RoomManager.EventNames.ERROR event.
+                  self.dispatchEvent(
+                    new OT.ErrorEvent(OT.RoomManager.EventNames.ERROR,
+                                      error.code,
+                                      error.message));
+                } else {
+                  self.publishVideo(video);
+                  // Fire an OT.RoomManager.EventNames.JOINED event.
+                  self.dispatchEvent(
+                      new OT.Event(OT.RoomManager.EventNames.JOINED)
+                  );
+                }
+            });
+          },
+
+          connectionCreated: function(event) {
+            // The Session object dispatches a connectionCreated event when a
+            // client (including your own) connects to a Session so we should
+            // not dispatch an OT.RoomManager.EventNames.PARTICIPANT_JOINING
+            // event in case this event is because of our own connection. Let's
+            // check whether this event is because of our own connection by
+            // comparing the connection objects.
+            if (session.connection &&
+                (session.connection.connectionId ===
+                event.connection.connectionId)) {
+              return;
+            }
+
+            // Fire an OT.RoomManager.EventNames.PARTICIPANT_JOINING event.
+            this.dispatchEvent(
+              new OT.Event(OT.RoomManager.EventNames.PARTICIPANT_JOINING)
+            );
+          },
+
+          connectionDestroyed: function(event) {
+            // Fire an OT.RoomManager.EventNames.PARTICIPANT_LEFT event.
+            this.dispatchEvent(
+              new OT.Event(OT.RoomManager.EventNames.PARTICIPANT_LEFT)
+            );
+          },
+
+          streamCreated: function(event) {
+            var subscriber = session.subscribe(
+              event.stream,
+              params.remoteTargetElement,
+              TARGET_ELEMENT_PROPERTIES
+            );
+            subscriber.on({
+              loaded: function() {
+                // Fire an OT.RoomManager.EventNames.PARTICIPANT_JOINED event.
+                self.dispatchEvent(
+                  new OT.Event(OT.RoomManager.EventNames.PARTICIPANT_JOINED)
+                );
               }
             });
           },
 
-          streamCreated: function(event) {
-            // TODO: https://bugzilla.mozilla.org/show_bug.cgi?id=1104003
-            // A new stream, published by another client, has been created on
-            // this session. Subscribes to a stream that is available to the
-            // session via Session.subscribe() function.
-            // Pass in a targetElement (the ID of the DOM element that the
-            // Subscriber will replace) and a properties object that defines
-            // options for the Subscriber.
-            // Fire a RoomManager.EventNames.PARTICIPANT_JOINED event.
-            this.dispatch(
-              new OT.Event(RoomManager.EventNames.PARTICIPANT_JOINED)
-            );
-          },
-
           streamDestroyed: function(event) {
-            // Fire a RoomManager.EventNames.PARTICIPANT_LEFT event.
-            this.dispatch(
-              new OT.Event(RoomManager.EventNames.PARTICIPANT_LEFT)
+            // Fire an OT.RoomManager.EventNames.PARTICIPANT_LEAVING event.
+            this.dispatchEvent(
+              new OT.Event(OT.RoomManager.EventNames.PARTICIPANT_LEAVING)
             );
           }
         },
-        RoomManager
+        this
       );
       session.connect(params.sessionToken, function(error) {
         if (error) {
           session.off();
           session = null;
-          // Fire a RoomManager.EventNames.ERROR event.
-          this.dispatch(new OT.ErrorEvent(RoomManager.EventNames.ERROR,
-                                          error.code,
-                                          error.message));
+          // Fire an OT.RoomManager.EventNames.ERROR event.
+          self.dispatchEvent(new OT.ErrorEvent(OT.RoomManager.EventNames.ERROR,
+                                               error.code,
+                                               error.message));
         }
       });
     },
@@ -84,16 +159,24 @@
       publisher = null;
       subscribers = null;
       speakerManager = null;
-      // Fire a RoomManager.EventNames.LEFT event.
-      this.dispatch(new OT.Event(RoomManager.EventNames.LEFT));
+      // Fire an OT.RoomManager.EventNames.LEFT event.
+      this.dispatchEvent(new OT.Event(OT.RoomManager.EventNames.LEFT));
     },
 
     publishAudio: function(value) {
       publisher && publisher.publishAudio(value);
     },
 
+    get isPublishingAudio() {
+      return publisher && publisher.stream && publisher.stream.hasAudio;
+    },
+
     publishVideo: function(value) {
       publisher && publisher.publishVideo(value);
+    },
+
+    get isPublishingVideo() {
+      return publisher && publisher.stream && publisher.stream.hasVideo;
     },
 
     subscribeToAudio: function(value) {
@@ -119,12 +202,22 @@
         speakerManager = new window.MozSpeakerManager();
       }
       speakerManager.forcespeaker = value;
+    },
+
+    get isSpeakerEnabled() {
+      if (!speakerManager) {
+        speakerManager = new window.MozSpeakerManager();
+      }
+      return speakerManager.forcespeaker;
     }
   };
 
-  RoomManager.EventNames = {
+  OT.RoomManager.EventNames = {
+    JOINING: 'joining',
     JOINED: 'joined',
+    PARTICIPANT_JOINING: 'participantJoining',
     PARTICIPANT_JOINED: 'participantJoined',
+    PARTICIPANT_LEAVING: 'participantLeaving',
     PARTICIPANT_LEFT: 'participantLeft',
     LEFT: 'left',
     ERROR: 'error'
@@ -136,10 +229,5 @@
     this.error = new OT.Error(code, message);
   };
 
-  // Note: we reuse the OT eventing module. This will allow to dispatch any
-  // event on the RoomManager Object. The object inherits all the eventing suff
-  // like on, once, off, dispatch methods.
-  OT.$.eventing(RoomManager);
-
-  exports.RoomManager = RoomManager;
+  exports.RoomManager = OT.RoomManager;
 }(this));
