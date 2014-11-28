@@ -41,6 +41,10 @@
   var _videoCodecName = 'unknown';
   var _audioCodecName = 'unknown';
   var _defaultCamera = 'none';
+  var _videoEncStats = {};
+  var _videoDecStats = {};
+  var _rtpInbound = {};
+  var _rtpOutbound = {};
 
   // These strings will be found in SDP answer if H264 video codec is used
   const H264_STRING_126 = 'a=rtpmap:126 H264';
@@ -54,6 +58,113 @@
   const MEAN_ELEMENTS = 16;
   const TIME_INTERVAL_SECONDS = 3;
   const POLLING_INTERVAL_MILISECONDS = 100;
+  function dumpRtpStats(stat) {
+    if (stat.type === 'inboundrtp') {
+      _rtpInbound.ssrc = stat.ssrc;
+      if (stat.packetsReceived !== undefined) {
+        _rtpInbound.packetsReceived = stat.packetsReceived;
+        if (stat.bytesReceived !== undefined) {
+          _rtpInbound.bytesReceived = stat.bytesReceived/1024;
+        }
+        _rtpInbound.packetsLost = stat.packetsLost;
+        _rtpInbound.jitter = stat.jitter;
+        if (stat.mozRtt !== undefined) {
+          _rtpInbound.mozRtt = stat.mozRtt;
+        }
+      } else if (stat.packetsSent !== undefined) {
+        _rtpInbound.packetsSent = stat.packetsSent;
+        if (stat.bytesSent !== undefined) {
+          _rtpInbound.bytesSent = stat.bytesSent/1024;
+        }
+      }
+    } else if (stat.type === 'outboundrtp') {
+      _rtpOutbound.ssrc = stat.ssrc;
+      if (stat.packetsReceived !== undefined) {
+        _rtpOutbound.packetsReceived = stat.packetsReceived;
+        if (stat.bytesReceived !== undefined) {
+          _rtpOutbound.bytesReceived = stat.bytesReceived/1024;
+        }
+        _rtpOutbound.packetsLost = stat.packetsLost;
+        _rtpOutbound.jitter = stat.jitter;
+        if (stat.mozRtt !== undefined) {
+          _rtpOutbound.mozRtt = stat.mozRtt;
+        }
+      } else if (stat.packetsSent !== undefined) {
+        _rtpOutbound.packetsSent = stat.packetsSent;
+        if (stat.bytesSent !== undefined) {
+          _rtpOutbound.bytesSent = stat.bytesSent/1024;
+        }
+      }
+    }
+  }
+
+  function dumpCoderStat(res) {
+    if (res.id.indexOf('video') != -1) {
+      if (res.bitrateMean !== undefined ||
+          res.framerateMean !== undefined ||
+          res.droppedFrames !== undefined ||
+          res.discardedPackets !== undefined) {
+        if (res.packetsReceived !== undefined){
+          //" Decoder:"
+          if (res.bitrateMean !== undefined) {
+            _videoDecStats.bitrateMean = (res.bitrateMean/1000000).toFixed(2);
+          }
+          if (res.bitrateStdDev !== undefined) {
+            _videoDecStats.bitrateStdDev = (res.bitrateStdDev/1000000).toFixed(2);
+          }
+          if (res.framerateMean !== undefined) {
+            _videoDecStats.framerateMean = (res.framerateMean).toFixed(2);
+            if (res.framerateStdDev !== undefined) {
+              _videoDecStats.framerateStdDev = res.framerateStdDev.toFixed(2);
+            }
+          }
+          if (res.droppedFrames !== undefined) {
+            _videoDecStats.droppedFrames = res.droppedFrames;
+          }
+          if (res.discardedPackets !== undefined) {
+            _videoDecStats.discardedPackets = res.discardedPackets;
+          }
+        } else {
+          //" Encoder:";
+          if (res.bitrateMean !== undefined) {
+            _videoEncStats.bitrateMean = (res.bitrateMean/1000000).toFixed(2);
+          }
+          if (res.bitrateStdDev !== undefined) {
+            _videoEncStats.bitrateStdDev = (res.bitrateStdDev/1000000).toFixed(2);
+          }
+          if (res.framerateMean !== undefined) {
+            _videoEncStats.framerateMean = (res.framerateMean).toFixed(2);
+            if (res.framerateStdDev !== undefined) {
+              _videoEncStats.framerateStdDev = res.framerateStdDev.toFixed(2);
+            }
+          }
+          if (res.droppedFrames !== undefined) {
+            _videoEncStats.droppedFrames = res.droppedFrames;
+          }
+          if (res.discardedPackets !== undefined) {
+            _videoEncStats.discardedPackets = res.discardedPackets;
+          }
+        }
+      }
+    }
+  }
+
+  function _getAVStats(stats) {
+    for (var key in stats) {
+      if (stats.hasOwnProperty(key) &&
+        (stats[key].type === 'outboundrtp' || stats[key].type === 'inboundrtp')) {
+        var res = stats[key];
+        dumpCoderStat(res);
+        if (res.remoteId) {
+          dumpRtpStats(stats[res.remoteId], 'Remote');
+        }
+      }
+    }
+    debug && console.log('STATS _videoenc ' + JSON.stringify(_videoEncStats));
+    debug && console.log('STATS _videodec ' + JSON.stringify(_videoDecStats));
+    debug && console.log('STATS _rtpin ' + JSON.stringify(_rtpInbound));
+    debug && console.log('STATS _rtpout ' + JSON.stringify(_rtpOutbound));
+  }
 
   /**
    * Send the signal given as the parameter to the remote party.
@@ -478,6 +589,10 @@
                   }, TIME_INTERVAL_SECONDS * 1000);
                 }
               }
+              window.setInterval(function () {
+                  _getAVStats(OT.inboundStats);
+                  _getAVStats(OT.outboundStats);
+                }, 30000);
             }
           });
           _publishersInSession += 1;
