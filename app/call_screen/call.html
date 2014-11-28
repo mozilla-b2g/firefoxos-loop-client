@@ -14,16 +14,18 @@
     <link rel="localization" href="../locales/loop.{locale}.properties">
     <link rel="localization" href="../locales/date/date.{locale}.properties">
 
+    <script defer src="../libs/html_imports.js"></script>
     <script defer src="../libs/lazy_loader.js"></script>
     <script defer src="../libs/l10n.js"></script>
 
+    <script defer src="../js/helpers/loader.js"></script>
     <script defer src="../js/config.js"></script>
 
     <script defer src="js/controller_communications.js"></script>
     <script defer src="js/call_screen_ui_minified.js"></script>
-   	<title>Call</title>
+    <title>Call</title>
   </head>
-  <body role="application" data-local-video="on" data-remote-video="off" data-call-status="dialing" data-settings="true" data-feedback="false" data-rotation="0">
+  <body role="application" data-local-video="on" data-remote-video="off" data-call-status="dialing" data-settings="true" data-rotation="0">
     <div id="fake-disabled-screen" class="screen-disabled-workaround">
     </div>
     <div class="panel">
@@ -67,64 +69,6 @@
       </button>
       <button id="resume-button" class="action-button" data-l10n-id="resume">
       </button>
-      <section id="feedback" class="vbox">
-        <!--
-        <div class="feedback-questions hbox fit" data-question="1">
-          <div class="feedback-question vbox">
-            <div class="fq-title vbox fit two middle" data-branding-service-name="feeling">
-            </div>
-            <div class="fq-buttons hbox fit three">
-              <button id="answer-sad" class="fq-button-sad fq-button hbox fit bottom">
-                <span class="feedback-icon"></span>
-                <span class="fq-text" data-l10n-id="sad"></span>
-              </button>
-              <button id="answer-happy" class="fq-button-happy fq-button hbox fit bottom">
-                <span class="feedback-icon"></span>
-                <span class="fq-text" data-l10n-id="happy"></span>
-              </button>
-            </div>
-          </div>
-          <div class="feedback-question vbox">
-            <div class="fq-title vbox fit two middle">
-              <span data-l10n-id="sadQuestion"></span>
-              <span data-l10n-id="whySad"></span>
-            </div>
-            <div class="fq-options gaia-list vbox fit five">
-              <ul>
-                <li>
-                  <label class="pack-checkbox reverse">
-                    <input type="checkbox" value="Bad audio">
-                    <span data-l10n-id="badAudio"></span>
-                  </label>
-                </li>
-                <li>
-                  <label class="pack-checkbox reverse">
-                    <input type="checkbox" value="Bad video">
-                    <span data-l10n-id="badVideo"></span>
-                  </label>
-                </li>
-                <li>
-                  <label class="pack-checkbox reverse">
-                    <input type="checkbox" value="Got disconnected">
-                    <span data-l10n-id="disconnected"></span>
-                  </label>
-                </li>
-                <li>
-                  <label class="pack-checkbox reverse">
-                    <input type="checkbox" value="Hate interface">
-                    <span data-l10n-id="badInterface"></span>
-                  </label>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <footer class="gaia-footer">
-          <button id="skip-feedback-button" data-l10n-id="skip"></button>
-          <button id="rate-feedback-button" disabled="disabled" data-l10n-id="rate"></button>
-        </footer>
-        -->
-      </section>
     </div>
     <footer id="call-bar">
       <span class="title" data-branding-service-name="callBar" data-branding-html-markup></span>

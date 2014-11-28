@@ -1,0 +1,63 @@
+<element name="feedback" extends="section">
+
+  <link rel="stylesheet" type="text/css" href="style/feedback_screen.css"></link>
+  <script src="js/screens/feedback_screen.js"></script>
+
+  <template>
+    <div class="feedback-questions hbox fit" data-question="1">
+      <div class="feedback-question vbox">
+        <div class="fq-title vbox fit two middle" data-branding-service-name="feeling">
+        </div>
+        <div class="fq-buttons hbox fit three">
+          <button id="answer-sad" class="fq-button-sad fq-button hbox fit bottom">
+            <span class="feedback-icon"></span>
+            <span class="fq-text" data-l10n-id="sad"></span>
+          </button>
+          <button id="answer-happy" class="fq-button-happy fq-button hbox fit bottom">
+            <span class="feedback-icon"></span>
+            <span class="fq-text" data-l10n-id="happy"></span>
+          </button>
+        </div>
+      </div>
+      <div class="feedback-question vbox">
+        <div class="fq-title vbox fit two middle">
+          <span data-l10n-id="sadQuestion"></span>
+          <span data-l10n-id="whySad"></span>
+        </div>
+        <div class="fq-options gaia-list vbox fit five">
+          <ul>
+            <li>
+              <label class="pack-checkbox reverse">
+                <input type="checkbox" value="Bad audio"></input>
+                <span data-l10n-id="badAudio"></span>
+              </label>
+            </li>
+            <li>
+              <label class="pack-checkbox reverse">
+                <input type="checkbox" value="Bad video"></input>
+                <span data-l10n-id="badVideo"></span>
+              </label>
+            </li>
+            <li>
+              <label class="pack-checkbox reverse">
+                <input type="checkbox" value="Got disconnected"></input>
+                <span data-l10n-id="disconnected"></span>
+              </label>
+            </li>
+            <li>
+              <label class="pack-checkbox reverse">
+                <input type="checkbox" value="Hate interface"></input>
+                <span data-l10n-id="badInterface"></span>
+              </label>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <footer class="gaia-footer">
+      <button id="skip-feedback-button" data-l10n-id="skip"></button>
+      <button id="rate-feedback-button" disabled="disabled" data-l10n-id="rate"></button>
+    </footer>
+  </template>
+</element>
+

@@ -27,7 +27,7 @@
       var query = window.location.search.slice(1);
       var urlParams = query.split('&');
       var callParams = {};
-      
+
       for (var i=0; i < urlParams.length; i++) {
         var keyValue = urlParams[i].split('=');
         callParams[keyValue[0]] = decodeURIComponent(keyValue[1]);

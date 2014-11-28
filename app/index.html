@@ -25,6 +25,12 @@
     <link rel="stylesheet" type="text/css" href="style/main.css">
     <link rel="stylesheet" type="text/css" href="style/navigation.css">
     <link id="splash-screen-stylesheet"rel="stylesheet" type="text/css" href="style/splash_screen.css">
+    <!--
+      Adding all elements to be imported directly. Add 'is' with the
+      same attribute as your HTML element in order to use the Loader
+      properly.
+    -->
+    <link rel="import" href="elements/create_room.html" is="new-room">
 
     <link rel="manifest" href="manifest.webapp">
     <link rel="localization" href="locales/loop.{locale}.properties">
@@ -34,6 +40,7 @@
     <script defer src="js/version.js"></script>
     <script defer src="js/utils.js"></script>
 
+    <script defer src="libs/html_imports.js"></script>
     <script defer src="libs/template.js"></script>
     <script defer src="libs/lazy_loader.js"></script>
     <script defer src="libs/l10n.js"></script>
@@ -61,7 +68,7 @@
     <script defer src="js/helpers/client_request_helper.js"></script>
     <script defer src="js/helpers/metrics.js"></script>
     <script defer src="js/helpers/telemetry.js"></script>
-    
+
     <script defer src="js/controller.js"></script>
 
     <script defer src="js/screens/loading_overlay.js"></script>
@@ -220,27 +227,7 @@
         </button>
       </footer>
     </section>
-    <section id="new-room" class="modal skin-comms hide" role="region">
-      <!--
-      <header>
-        <button class="icon icon-close"></button>
-        <menu type="toolbar">
-          <button id="save-room-action" data-l10n-id="saveRoomAction" disabled></button>
-        </menu>
-        <h1 data-l10n-id="newRoomTitle"></h1>
-      </header>
-      <section>
-        <form>
-          <p>
-            <input type="text" dir="auto"></input>
-            <button type="reset"></button>
-          </p>
-          <p class="counter"></p>
-          <p data-l10n-id="roomNameDescription" class="description"></p>
-        </form>
-      </section>
-      -->
-    </section>
+
     <section id="room-detail-panel" class="panel vbox skin-comms" role="region">
       <!--
       <header>
@@ -273,6 +260,8 @@
         </ul>
       </section>
       -->
+    </section>
+    <section id="new-room" is="new-room" role="region" class="modal skin-comms hide">
     </section>
     <section id="room-history-panel" class="panel skin-comms">
       Panel ready to add the history given a room token
