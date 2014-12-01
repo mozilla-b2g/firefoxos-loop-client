@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
   var _panel;
-  var _roomNameUI, _ctimeUI, _ownerUI, _shareContactButton,
+  var _roomNameUI, _ctimeUI, _ownerUI, _shareContactButton, _editButton,
       _showHistoryButton, _deleteButton, _backButton, _expirationUI;
   var _room = null, _token = null;
   var _isOwner = false;
@@ -16,6 +16,10 @@
 
     // Back to the call log based on the 'deep' navigation model
     Navigation.to('calllog-panel', 'right').then(_cleanUI);
+  }
+
+  function _onEdit() {
+    Controller.editRoom(_room);
   }
 
   function _cleanUI() {
@@ -38,6 +42,7 @@
 
     // Cache all elements to be used in the rest of code
     _backButton = document.getElementById('rdp-back-button');
+    _editButton = document.getElementById('rdp-edit-button');
     _roomNameUI = document.getElementById('rdp-name');
     _ctimeUI = document.getElementById('rdp-creation-date');
     _expirationUI = document.getElementById('rdp-expiration');
@@ -132,6 +137,7 @@
 
   function _removeListeners() {
     _backButton.removeEventListener('click', _onBack);
+    _editButton.removeEventListener('click', _onEdit);
     _shareContactButton.removeEventListener('click', _shareToContact);
     _showHistoryButton.removeEventListener('click', _showHistory);
     _deleteButton.removeEventListener('click', _delete);
@@ -140,6 +146,7 @@
 
   function _addListeners() {
     _backButton.addEventListener('click', _onBack);
+    _editButton.addEventListener('click', _onEdit);
     _shareContactButton.addEventListener('click', _shareToContact);
     _showHistoryButton.addEventListener('click', _showHistory);
     _deleteButton.addEventListener('click', _delete);

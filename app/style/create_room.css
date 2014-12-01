@@ -40,3 +40,13 @@
   color: #858585;
   font-size: 1.5rem;
 }
+
+#new-room header h1,
+#new-room[data-type="edit"] .description {
+  display: none;
+}
+
+#new-room[data-type="create"] #new-room-title,
+#new-room[data-type="edit"] #edit-room-title {
+  display: block;
+}

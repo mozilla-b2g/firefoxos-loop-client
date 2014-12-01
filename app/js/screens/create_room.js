@@ -7,6 +7,9 @@
 
   var _ = navigator.mozL10n.get;
 
+  var type = null,
+      room = null;
+
   const CONFIG = {
     expiresIn: 24,
     maxSize: 2,
@@ -29,14 +32,27 @@
     counter = modal.querySelector('.counter');
   }
 
+  function init(roomObj) {
+    room = roomObj;
+    type = modal.dataset.type = isInEditMode() ? 'edit' : 'create';
+  }
+
+  function isInEditMode() {
+    return room;
+  }
+
   function initRoomName() {
+    if (isInEditMode()) {
+      roomNameInput.value = room.roomName;
+      return Promise.resolve();
+    }
     return new Promise((resolve, reject) => {
       asyncStorage.getItem(ROOM_NAME_COUNTER_KEY, function onCounter(number) {
-        number = number || 1;
+        roomNumber = number || 1;
         roomNameInput.placeholder = _('roomNamePlaceHolder', {
-          number: number
+          number: roomNumber
         });
-        resolve(number);
+        resolve();
       });
     });
   }
@@ -61,15 +77,21 @@
     modal.addEventListener('transitionend', function onTransitionEnd() {
       modal.removeEventListener('transitionend', onTransitionEnd);
       removeHandlers();
+      type = room = null;
+      roomNameInput.placeholder = roomNameInput.value = '';
       modal.classList.add('hide');
     });
     modal.classList.remove('show');
   }
 
   function checkButtons() {
-    var total = roomNameInput.value.trim().length;
+    var name = roomNameInput.value.trim();
+    var total = name.length;
     var countdown = counter.dataset.countdown = CONFIG.maxRoomNamesSize - total;
     saveButton.disabled = countdown < 0;
+    if (!saveButton.disabled && isInEditMode()) {
+      saveButton.disabled = name === room.roomName || name === '';
+    }
     var key = countdown < 0 ? 'negativeCharactersCountdown' : 'charactersCountdown';
     counter.textContent = _(key, {
       value: countdown
@@ -97,16 +119,7 @@
     });
   }
 
-  function save() {
-    if (!navigator.onLine) {
-      LazyLoader.load('js/screens/error_screen.js', () => {
-        OfflineScreen.show(_('noConnection'));
-      });
-      return;
-    }
-
-    LoadingOverlay.show(_('saving'));
-
+  function newRoom() {
     var roomName = roomNameInput.value.trim();
     var roomNameLength = roomName.length;
     var params = {
@@ -117,7 +130,7 @@
     };
 
     var token;
-    Rooms.create(params).then((response) => {
+    return Rooms.create(params).then((response) => {
       token = response.roomToken;
       return Rooms.get(token);
     }).then((room) => {
@@ -135,7 +148,37 @@
         Rooms.delete(token);
       }
       showError(_('savingRoomError'));
-    }).then(() => {
+    });
+  }
+
+  function updateRoom() {
+    var name = roomNameInput.value.trim();
+    return Rooms.update(room.roomToken, {
+      roomName: name
+    }).then((response) => {
+      room.roomName = name;
+      room.expiresAt = response.expiresAt;
+      Controller.onRoomUpdated(room);
+      hide();
+    }).catch((error) => {
+      console.error(JSON.stringify(error));
+      showError(_('updatingRoomError'));
+    });
+  }
+
+  function save() {
+    if (!navigator.onLine) {
+      LazyLoader.load('js/screens/error_screen.js', () => {
+        OfflineScreen.show(_('noConnection'));
+      });
+      return;
+    }
+
+    LoadingOverlay.show(_('saving'));
+
+    var action = isInEditMode() ? updateRoom : newRoom;
+
+    action().then(() => {
       LoadingOverlay.hide();
     });
   }
@@ -157,15 +200,17 @@
   }
 
   exports.RoomCreate = {
-    show: () => {
+    show: (room) => {
       render();
-      initRoomName().then((number) => {
-        roomNumber = number;
-        clearRoomName();
+      init(room);
+      initRoomName().then(() => {
+        checkButtons();
         show(() => {
           attachHandlers();
           // Focus the input field to trigger showing the keyboard
           roomNameInput.focus();
+          var cursorPos = roomNameInput.value.length;
+          roomNameInput.setSelectionRange(cursorPos, cursorPos);
         });
       });
     }
