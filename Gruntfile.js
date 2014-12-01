@@ -290,7 +290,7 @@ module.exports = function(grunt) {
         appOrigin = "loop.services.mozilla.com";
         break;
     }
-    config = config.replace(SERVER_DEF_VAL, "server_url: 'https://'" + 
+    config = config.replace(SERVER_DEF_VAL, "server_url: 'https://" + 
                             appOrigin + "'");
     manifest.origin = "app://" + appOrigin;
     grunt.config.set("origin", appOrigin);
