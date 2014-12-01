@@ -277,7 +277,9 @@ module.exports = function(grunt) {
     // and manifest.webapp for app origin
     var loopServer = grunt.option('loopServer') || "production";
     var SERVER_DEF_VAL = "server_url: 'https://loop.services.mozilla.com'";
-    var appOrigin;
+    var appOrigin = "loop.services.mozilla.com";
+    var port = "";
+    var protocol = "https";
     switch (loopServer) {
       case "stage":
         appOrigin = "loop.stage.mozaws.net";
@@ -286,12 +288,29 @@ module.exports = function(grunt) {
         appOrigin = "loop-dev.stage.mozaws.net";
         break;
       case "production":
-      default:
         appOrigin = "loop.services.mozilla.com";
         break;
+      default:
+        // Check if the configuration parameter includes a valid URL, if so,
+        // we will configure it as the loop server, otherwise, fallback to 
+        // default
+        var url = require('url')
+        var serverUrl = url.parse(loopServer);
+        if (serverUrl.hostname != null){
+          appOrigin = serverUrl.hostname;
+          if (serverUrl.port != null) {
+            port = ":" + serverUrl.port;
+          }
+          if (serverUrl.protocol == "http:") {
+            config = config.replace("allowUnsecure: false",
+                                    "allowUnsecure: true");
+            protocol = "http"
+          }
+        }
+        break;
     }
-    config = config.replace(SERVER_DEF_VAL, "server_url: 'https://" + 
-                            appOrigin + "'");
+    config = config.replace(SERVER_DEF_VAL, "server_url: '" + protocol + "://" +
+                            appOrigin + port + "'");
     manifest.origin = "app://" + appOrigin;
     grunt.config.set("origin", appOrigin);
 
