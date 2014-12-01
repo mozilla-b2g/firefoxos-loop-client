@@ -2,7 +2,8 @@
 
 (function(exports) {
 
-  var modal, roomNameInput, saveButton, closeButton, resetButton, form, counter;
+  var modal, roomNameInput, saveButton, closeButton, resetButton, form, counter,
+      roomNumber;
 
   var _ = navigator.mozL10n.get;
 
@@ -11,6 +12,8 @@
     maxSize: 2,
     maxRoomNamesSize: 100
   };
+
+  const ROOM_NAME_COUNTER_KEY = 'room.name.counter';
 
   function render() {
     if (modal) {
@@ -24,7 +27,18 @@
     resetButton = modal.querySelector('input + button');
     form = modal.querySelector('form');
     counter = modal.querySelector('.counter');
-    roomNameInput.placeholder = _('roomNamePlaceHolder');
+  }
+
+  function initRoomName() {
+    return new Promise((resolve, reject) => {
+      asyncStorage.getItem(ROOM_NAME_COUNTER_KEY, function onCounter(number) {
+        number = number || 1;
+        roomNameInput.placeholder = _('roomNamePlaceHolder', {
+          number: number
+        });
+        resolve(number);
+      });
+    });
   }
 
   function show(cb) {
@@ -55,7 +69,7 @@
   function checkButtons() {
     var total = roomNameInput.value.trim().length;
     var countdown = counter.dataset.countdown = CONFIG.maxRoomNamesSize - total;
-    saveButton.disabled = total === 0 || countdown < 0;
+    saveButton.disabled = countdown < 0;
     var key = countdown < 0 ? 'negativeCharactersCountdown' : 'charactersCountdown';
     counter.textContent = _(key, {
       value: countdown
@@ -93,8 +107,10 @@
 
     LoadingOverlay.show(_('saving'));
 
+    var roomName = roomNameInput.value.trim();
+    var roomNameLength = roomName.length;
     var params = {
-      roomName: roomNameInput.value.trim(),
+      roomName: roomNameLength ? roomName : roomNameInput.placeholder,
       expiresIn: CONFIG.expiresIn,
       roomOwner: Controller.identity,
       maxSize: CONFIG.maxSize
@@ -107,6 +123,7 @@
     }).then((room) => {
       room.roomToken = token;
       Controller.onRoomCreated(room);
+      !roomNameLength && asyncStorage.setItem(ROOM_NAME_COUNTER_KEY, ++roomNumber);
       hide();
     }).catch((error) => {
       console.error(JSON.stringify(error));
@@ -142,8 +159,15 @@
   exports.RoomCreate = {
     show: () => {
       render();
-      clearRoomName();
-      show(attachHandlers);
+      initRoomName().then((number) => {
+        roomNumber = number;
+        clearRoomName();
+        show(() => {
+          attachHandlers();
+          // Focus the input field to trigger showing the keyboard
+          roomNameInput.focus();
+        });
+      });
     }
   };;
 
