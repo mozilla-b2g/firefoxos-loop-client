@@ -805,7 +805,7 @@
 
   function _renderRoomsFromDB(update) {
     return new Promise((resolve, reject) => {
-      RoomsDB.getAll('creationTime', {prev: 'prev'}).then((cursor) => {
+      RoomsDB.getAll('creationTime', 'DESC').then((cursor) => {
         if (!cursor) {
           return resolve();
         }
