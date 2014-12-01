@@ -111,21 +111,23 @@
   }
 
   function _shareToContact() {
-    Share.toContact(
-      {
-        type: 'room',
-        url: _room.roomUrl
-      },
-      function onShared() {
-        console.log('Lets add this to DB');
-        // TODO Implement when
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1104749
-      },
-      function onError() {
-        // TOOD Implement if needed
-        console.log('Error when sharing room to a contact');
-      }
-    );
+    Loader.getShare().then(() => {
+      Share.toContact(
+        {
+          type: 'room',
+          url: _room.roomUrl
+        },
+        function onShared() {
+          console.log('Lets add this to DB');
+          // TODO Implement when
+          // https://bugzilla.mozilla.org/show_bug.cgi?id=1104749
+        },
+        function onError() {
+          // TOOD Implement if needed
+          console.log('Error when sharing room to a contact');
+        }
+      );
+    });
   }
 
   function _removeListeners() {
