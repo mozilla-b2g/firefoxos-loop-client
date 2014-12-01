@@ -14,6 +14,28 @@
 
   const CALLS_CHANNEL_NAME = 'calls';
   const ROOMS_CHANNEL_NAME = 'rooms';
+  const MAX_PARTICIPANTS = 2;
+
+  var _ownAppInfo = {
+    app: null,
+    icon: null
+  };
+
+  function _getApp() {
+    if (_ownAppInfo.app && _ownAppInfo.icon) {
+      return Promise.resolve(_ownAppInfo);
+    }
+
+    return new Promise(function(resolve, reject) {
+      navigator.mozApps.getSelf().onsuccess = function(evt) {
+        _ownAppInfo.app = evt.target.result;
+        Loader.getNotificationHelper().then(function(NotificationHelper) {
+          _ownAppInfo.icon = NotificationHelper.getIconURI(_ownAppInfo.app);
+          resolve(_ownAppInfo);
+        });
+      };
+    });
+  }
 
   function _hideSplash() {
     setTimeout(function() {
@@ -185,8 +207,48 @@
      * @param {Numeric} version Simple push notification id (version).
      */
     onRoomsEvent: function(version) {
-      // TODO Use for the implementation of bug
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=1104018
+      debug && console.log('Push notification with version ' + version);
+      // Update the list
+      _synchronizeRooms();
+      // Launch notifications if anyone joined
+      Rooms.getChanges(version).then(function(rooms) {
+        debug && console.log('Rooms changed ' + JSON.stringify(rooms));
+        _getApp().then(function() {
+          rooms.forEach(function(room) {
+            // Avoid auto-push effect. If the room is full there is no
+            // notification (due we are connected and waiting the other
+            // peer)
+            if (!room.participants ||
+                room.participants.length === 0 ||
+                room.participants.length === MAX_PARTICIPANTS) {
+              return;
+            }
+
+            var _ = navigator.mozL10n.get;
+
+            for (var i = 0, l = room.participants.length; i < l; i++) {
+              if (room.participants[i].account !== Controller.identity) {
+                Loader.getNotificationHelper().then(function(NotificationHelper) {
+                  NotificationHelper.send(
+                    room.roomName,
+                    _('hasJoined', {
+                      name: room.participants[i].displayName
+                    }),
+                    _ownAppInfo.icon,
+                    function onClick() {
+                      _ownAppInfo.app.launch();
+                    }
+                  );
+                });
+                // TODO Add logic to let the room UI that the other
+                // peer has joined.
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=1107033
+                break;
+              }
+            }
+          });
+        });
+      });
     },
 
     authenticate: function(id) {

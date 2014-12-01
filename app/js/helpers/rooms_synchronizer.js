@@ -23,8 +23,11 @@
     return new Promise(function(resolve, reject) {
       onConnected().then(() => {
         Rooms.getAll().then((remoteRooms) => {
+          // Remove deleted rooms as candidates, we will identify them later on.
+          var candidates = remoteRooms.filter(function(room) {return !room.deleted});
+
           var response = {
-            roomsToAdd: remoteRooms,
+            roomsToAdd: candidates,
             roomsToDelete: [],
             roomsToUpdate: []
           };
@@ -45,15 +48,17 @@
                 if (!item) {
                   return resolve(response);
                 }
-
+                // Retrieve every local room
                 var localRoom = item.value;
-                var idx = remoteRooms.findIndex(matching.bind(null, localRoom));
+                // Is between the ones with changes?
+                var idx = candidates.findIndex(matching.bind(null, localRoom));
                 if (idx > -1) {
-                  var remoteRoom = remoteRooms[idx];
+                  // If it is, we need to check if it's a new room or not
+                  var remoteRoom = candidates[idx];
                   if (isDiff(remoteRoom, localRoom)) {
                     response.roomsToUpdate.push(remoteRoom);
                   }
-                  remoteRooms.splice(idx, 1);
+                  candidates.splice(idx, 1);
                 } else if (localRoom.roomOwner === Controller.identity) {
                   // Delete local rooms which are not in the server and I am
                   // the owner (otherwise I was invited and this must not be

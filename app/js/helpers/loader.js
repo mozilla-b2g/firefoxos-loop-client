@@ -39,6 +39,19 @@
         );
       });
     },
+    getNotificationHelper: function() {
+      if (window.NotificationHelper) {
+        return Promise.resolve(NotificationHelper);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          ['libs/notification_helper.js'],
+          () => {
+            resolve(NotificationHelper);
+          }
+        );
+      });
+    },
     getWizard: function() {
       if (window.Wizard) {
         return Promise.resolve(Wizard);

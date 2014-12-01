@@ -159,7 +159,7 @@
     },
 
     removeFakeVideo: function() {
-      localStream.stop();
+      localStream && localStream.stop();
       localStream = null;
       try {
         localVideo && fakeLocalVideo && localVideo.removeChild(fakeLocalVideo);
