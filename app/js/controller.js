@@ -200,12 +200,25 @@
       });
     },
 
+    editRoom: function(room) {
+      Loader.getRoomCreate().then((RoomCreate) => {
+        RoomCreate.show(room);
+      });
+    },
+
     joinRoom: function() {
       // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1104003
     },
 
     onRoomCreated: function(room) {
       CallLog.addRoom(room).then(Controller.showRoomDetails);
+    },
+
+    onRoomUpdated: function(room) {
+      Loader.getRoomDetail().then((RoomDetail) => {
+        RoomDetail.update(room);
+      });
+      CallLog.updateRooms([room]);
     },
 
     onRoomDeleted: function(token) {
