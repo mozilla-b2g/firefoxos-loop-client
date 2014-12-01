@@ -174,6 +174,7 @@
         _isLogged = true;
         _isIdFlowRunning = false;
         _isIdCheckNeeded = false;
+        _dispatchEvent('onlogin');
         _dispatchEvent('onaccount', {
           identity: assertionParsed['fxa-verifiedEmail'] ||
                     assertionParsed['verifiedMSISDN']

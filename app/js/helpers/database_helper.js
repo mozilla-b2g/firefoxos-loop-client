@@ -155,12 +155,6 @@ DatabaseHelper.prototype = {
     if (!aObjectStoreName || !aRecord || !this._dbSchema[aObjectStoreName]) {
       return false;
     }
-    var keys = Object.keys(aRecord);
-    for (var i = 0, l = keys.length; i < l; i++) {
-      if (this._dbSchema[aObjectStoreName].fields.indexOf(keys[i]) == -1) {
-        return false;
-      }
-    }
     return true;
   },
 

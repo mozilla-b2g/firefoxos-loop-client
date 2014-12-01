@@ -151,13 +151,13 @@
   }
 
   var RoomDetail = {
-    show: function(room, token) {
+    show: function(room) {
       // Check if we are the owners
       _isOwner = room.roomOwner === Controller.identity;
 
       // Cache room object for future methods
       _room = room;
-      _token = token;
+      _token = room.roomToken;
 
       // Uncomment the code and get the panel ready
       _restoreStructure();
