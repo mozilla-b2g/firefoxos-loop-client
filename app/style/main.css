@@ -167,6 +167,7 @@ textarea:focus {
   display: none;
 }
 
-#error-screen[data-type="offline"] ul {
+#error-screen[data-type="offline"] ul,
+#error-screen[data-type="signuperror"] ul {
   display: block;
 }
