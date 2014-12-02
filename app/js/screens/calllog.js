@@ -178,8 +178,7 @@
             if (element.dataset.missedCall) {
               isVideo = Settings.isVideoDefault;
             }
-            Controller.callIdentities(identities, null, isVideo);
-            Telemetry.updateReport('callsFromCallLog');
+            callTo(identities, element.dataset.subject, isVideo);
           },
           params: [identities]
         }
@@ -188,6 +187,17 @@
 
     _showSecondaryMenu(items);
   }
+
+  function callTo(identities, subject, isVideo) {
+    Controller.callIdentities({
+      identities: identities,
+      subject: subject,
+      isVideoCall: isVideo
+    }, () => {
+      Telemetry.updateReport('callsFromCallLog');
+    });
+  }
+
   /**
    * Function for updating time related elements marked with 'data-need-update'
    * dataset.
@@ -444,6 +454,7 @@
     callElement.id = call.date.getTime();
     callElement.dataset.timestampIndex = call.date.getTime();
     callElement.dataset.contactId = call.contactId;
+    callElement.dataset.subject = call.subject || '';
     callElement.dataset.identities = call.identities;
     callElement.dataset.revoked = call.revoked;
     if (call.urlToken) {
@@ -795,7 +806,7 @@
     });
 
     toolbarFooter.querySelector('.new-conversation').addEventListener('click', () => {
-      _toggleToolbar(Controller.pickAndCall);
+      _toggleToolbar(Controller.startConversation);
     });
 
     document.addEventListener('visibilitychange', () => {
@@ -913,8 +924,7 @@
         if (callElement.dataset.missedCall) {
           isVideo = Settings.isVideoDefault;
         }
-        Controller.callIdentities(identities, null, isVideo);
-        Telemetry.updateReport('callsFromCallLog');
+        callTo(identities, callElement.dataset.subject, isVideo);
       }
     );
 

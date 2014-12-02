@@ -262,11 +262,15 @@
       activity.onerror = onerror;
     },
 
-    pickAndCall: function() {
+    startConversation: function() {
       Controller.pickContact(
         function onContactRetrieved(contact) {
-          Controller.callContact(contact, Settings.isVideoDefault);
-          Telemetry.updateReport('callsFromContactPicker');
+          Controller.callContact({
+            contact: contact,
+            isVideoCall: Settings.isVideoDefault
+          }, () => {
+            Telemetry.updateReport('callsFromContactPicker');
+          });
         },
         function onError() {
           // TODO Check if needed to show any prompt to the user
@@ -274,27 +278,38 @@
       )
     },
 
-    callIdentities: function(identities, contact, isVideoCall) {
-      _getCallScreenManager().then((csm) => {
-        csm.launch(
-          'outgoing',
-          {
-            identities: identities,
-            video: isVideoCall,
-            contact: contact,
-            frontCamera: Settings.isFrontalCamera
-          }
-        );
-        _oncall();
+    callIdentities: function(params, done) {
+      params = params || {};
+      Loader.getConversationDetail().then((ConversationDetail) => {
+        ConversationDetail.show(params.subject).then((conversationParams) => {
+          _getCallScreenManager().then((csm) => {
+            csm.launch(
+              'outgoing',
+              {
+                identities: params.identities,
+                video: params.isVideoCall,
+                contact: params.contact,
+                frontCamera: conversationParams.isFrontCamera,
+                subject: conversationParams.subject
+              }
+            );
+            _oncall();
+          });
+          typeof done === 'function' && done();
+        }, () => {
+          // Dismissed conversation
+        });
       });
     },
 
-    callContact: function(contact, isVideoCall) {
+    callContact: function(params, done) {
+      params = params || {};
       if (!AccountHelper.logged) {
         alert(Branding.getTranslation('notLoggedIn'));
         return;
       }
 
+      var contact = params.contact;
       if (!contact ||
           (!contact.email &&
            !contact.tel)) {
@@ -320,10 +335,11 @@
         return;
       }
 
-      Controller.callIdentities(identities, contact, isVideoCall);
+      params.identities = identities;
+      Controller.callIdentities(params, done);
     },
 
-    callUrl: function(params) {
+    callUrl: function(params, done) {
       params = params || {};
       if (!AccountHelper.logged) {
         alert(Branding.getTranslation('notLoggedIn'));
@@ -335,17 +351,25 @@
         return;
       }
 
-      _getCallScreenManager().then((csm) => {
-        csm.launch(
-          'outgoing',
-          {
-            token: params.token,
-            video: params.isVideoCall,
-            frontCamera: Settings.isFrontalCamera
-          }
-        );
+      Loader.getConversationDetail().then((ConversationDetail) => {
+        ConversationDetail.show(params.subject).then((conversationParams) => {
+          _getCallScreenManager().then((csm) => {
+            csm.launch(
+              'outgoing',
+              {
+                token: params.token,
+                video: params.isVideoCall,
+                frontCamera: conversationParams.isFrontCamera,
+                subject: conversationParams.subject
+              }
+            );
 
-        _oncall();
+            _oncall();
+          });
+          typeof done === 'function' && done();
+        }, () => {
+          // Dismissed conversation
+        });
       });
     },
 

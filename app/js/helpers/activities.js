@@ -73,21 +73,26 @@
           console.error('Activity is not sending required data');
           return;
         }
-        Controller.callContact(activityParams.contact, activityParams.video);
-        Telemetry.updateReport('callsFromContactDetails');
+        Controller.callContact({
+          contact: activityParams.contact,
+          isVideoCall: activityParams.video,
+          subject: activityParams.subject
+        }, () => {
+          Telemetry.updateReport('callsFromContactDetails');
+        });
         break;
       case LOOP_CALL:
         if (!activityParams.token) {
           console.error('Activity is not sending required data');
           return;
         }
-        // TODO: set subject value Bug 1097685
         Controller.callUrl({
           token: activityParams.token,
           isVideoCall: activityParams.video != false,
-          subject: ''
+          subject: activityParams.subject
+        }, () => {
+          Telemetry.updateReport('callsFromUrl');
         });
-        Telemetry.updateReport('callsFromUrl');
         break;
       case ROOM_CALL:
         if (!activityParams.token) {

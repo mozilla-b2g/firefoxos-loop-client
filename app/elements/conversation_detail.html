@@ -1,0 +1,44 @@
+<element name="conversation-detail" extends="section">
+
+  <link rel="stylesheet" type="text/css" href="style/conversation_detail.css"></link>
+  <script src="js/screens/conversation_detail.js"></script>
+
+  <template>
+    <header>
+      <button class="icon icon-close"></button>
+      <h1 data-l10n-id="conversationDetailTitle"></h1>
+    </header>
+    <section class="fit">
+      <form>
+        <p>
+          <input type="text" dir="auto"></input>
+          <button type="reset"></button>
+        </p>
+        <p class="counter"></p>
+      </form>
+      <section class="gaia-list">
+        <header data-l10n-id="defaultCamera"></header>
+        <ul class="camera-container">
+          <li class="icon icon-camera-back">
+            <label class="pack-radio">
+              <input type="radio" value="camera-back" name="select-camera"></input>
+              <span data-l10n-id="back"></span>
+            </label>
+          </li>
+          <li class="icon icon-camera-front">
+            <label class="pack-radio">
+              <input type="radio" value="camera-front" name="select-camera"></input>
+              <span data-l10n-id="front"></span>
+            </label>
+          </li>
+          <li class="reminder">
+            <span data-l10n-id="defaultCamereReminder"></span>
+          </li>
+        </ul>
+      </section>
+    </section>
+    <footer class="gaia-footer vbox">
+      <button class="call" data-l10n-id="call"></button>
+    </footer>
+  </template>
+</element>
