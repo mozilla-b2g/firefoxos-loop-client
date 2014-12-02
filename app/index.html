@@ -31,6 +31,7 @@
       properly.
     -->
     <link rel="import" href="elements/create_room.html" is="new-room">
+    <link rel="import" href="elements/room_detail.html" is="room-detail-panel">
 
     <link rel="manifest" href="manifest.webapp">
     <link rel="localization" href="locales/loop.{locale}.properties">
@@ -228,41 +229,7 @@
       </footer>
     </section>
 
-    <section id="room-detail-panel" class="panel vbox skin-comms" role="region">
-      <!--
-      <header>
-        <button id="rdp-back-button" class="icon icon-back"></button>
-        <menu type="toolbar">
-          <button id="rdp-edit-button" data-l10n-id="edit"></button>
-        </menu>
-        <h1 data-l10n-id="roomDetail"></h1>
-      </header>
-      <section id="" class="gaia-list fit scroll">
-        <ul>
-          <li class="vbox">
-            <p id="rdp-name"></p>
-            <p id="rdp-creation-date"></p>
-            <p id="rdp-owner"></p>
-          </li>
-          <li id="rdp-share-section" class="vbox">
-            <p data-l10n-id="shareRoom"></p>
-            <button data-l10n-id="pickContact" id="rdp-share-contact"></button>
-          </li>
-          <li id="rdp-history-section" class="vbox">
-            <p data-l10n-id="history"></p>
-            <button  data-l10n-id="checkChanges" id="rdp-show-history" class="icon icon-view">
-            </button>
-          </li>
-          <li  id="rdp-expiration-section" class="vbox">
-            <p data-l10n-id="roomExpiration"></p>
-            <p id="rdp-expiration"></p>
-          </li>
-          <div class="rdp-delete-container">
-            <button data-l10n-id="delete" id="rdp-delete" class="danger"></button>
-          </div>
-        </ul>
-      </section>
-      -->
+    <section id="room-detail-panel" is="room-detail-panel" class="panel vbox skin-comms" role="region">
     </section>
     <section id="new-room" is="new-room" role="region" class="modal skin-comms hide">
     </section>

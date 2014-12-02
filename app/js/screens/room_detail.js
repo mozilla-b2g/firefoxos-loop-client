@@ -38,7 +38,6 @@
 
     // Extract the commented code to the panel
     _panel = document.getElementById('room-detail-panel');
-    _panel.innerHTML = Template.extract(_panel);
 
     // Cache all elements to be used in the rest of code
     _backButton = document.getElementById('rdp-back-button');

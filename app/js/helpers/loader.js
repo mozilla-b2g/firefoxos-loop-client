@@ -20,7 +20,8 @@
 
   const PANELS_ID = {
     feedback: 'feedback',
-    create_room: 'new-room'
+    create_room: 'new-room',
+    room_detail: 'room-detail-panel'
   }
 
   var Loader = {
@@ -72,15 +73,9 @@
       }
 
       return new Promise((resolve, reject) => {
-        LazyLoader.load(
-          [
-            'style/room_detail.css',
-            'js/screens/room_detail.js'
-          ],
-          () => {
-            resolve(RoomDetail);
-          }
-        );
+        HtmlImports.populate(function() {
+          resolve(RoomDetail);
+        }, PANELS_ID.room_detail);
       });
     },
     getFeedback: function(attention) {
