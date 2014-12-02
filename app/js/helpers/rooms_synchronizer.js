@@ -19,6 +19,16 @@
     return remoteRoom.roomName !== localRoom.roomName;
   }
 
+  function isDeleted(remoteRoom) {
+    return remoteRoom.deleted;
+  }
+
+  function cleanDeletedRooms(remoteRooms) {
+    return remoteRooms.find((room) => {
+      return !isDeleted(room);
+    });
+  }
+
   function synchronize() {
     return new Promise(function(resolve, reject) {
       onConnected().then(() => {
@@ -43,6 +53,7 @@
               cursor.onsuccess = function onsuccess(event) {
                 var item = event.target.result;
                 if (!item) {
+                  response.roomsToAdd = cleanDeletedRooms(remoteRooms);
                   return resolve(response);
                 }
 
@@ -50,7 +61,9 @@
                 var idx = remoteRooms.findIndex(matching.bind(null, localRoom));
                 if (idx > -1) {
                   var remoteRoom = remoteRooms[idx];
-                  if (isDiff(remoteRoom, localRoom)) {
+                  if (isDeleted(remoteRoom)) {
+                    response.roomsToDelete.push(localRoom);
+                  } else if (isDiff(remoteRoom, localRoom)) {
                     response.roomsToUpdate.push(remoteRoom);
                   }
                   remoteRooms.splice(idx, 1);
