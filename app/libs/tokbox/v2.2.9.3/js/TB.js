@@ -15813,10 +15813,9 @@ waitForDomReady();
 
           var res = stats[key];
           if ((!res.isRemote && res.type === 'outboundrtp') ||
-            (res.isRemote && res.type === 'inboundrtp')){
+            (res.isRemote && res.type === 'inboundrtp')) {
             OT.outboundStats[key] = res;
-          } else if ((!res.isRemote && res.type === 'inboundrtp') ||
-            (res.isRemote && res.type === 'outboundrtp')){
+          } else {
             OT.inboundStats[key] = res;
           }
           var statsString = 'WebRTC stats - ' + key + ' * ';
