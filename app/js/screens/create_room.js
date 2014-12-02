@@ -11,7 +11,7 @@
       room = null;
 
   const CONFIG = {
-    expiresIn: 24,
+    expiresIn: 24 * 8 * 7, // 8 weeks
     maxSize: 2,
     maxRoomNamesSize: 100
   };
@@ -154,7 +154,8 @@
   function updateRoom() {
     var name = roomNameInput.value.trim();
     return Rooms.update(room.roomToken, {
-      roomName: name
+      roomName: name,
+      expiresIn: CONFIG.expiresIn
     }).then((response) => {
       room.roomName = name;
       room.expiresAt = response.expiresAt;
