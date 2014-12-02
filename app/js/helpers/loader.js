@@ -105,7 +105,7 @@
           // the 'import' we need to load feedback, so we are going to load just
           // this panel.
           link.setAttribute('is', 'feedback');
-          document.body.appendChild(link);
+          document.head.appendChild(link);
         }
 
         HtmlImports.populate(function() {
