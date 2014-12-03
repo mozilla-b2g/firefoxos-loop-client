@@ -32,6 +32,7 @@
     -->
     <link rel="import" href="elements/create_room.html" is="new-room">
     <link rel="import" href="elements/room_detail.html" is="room-detail-panel">
+    <link rel="import" href="elements/room_ui.html" is="room-ui">
 
     <link rel="manifest" href="manifest.webapp">
     <link rel="localization" href="locales/loop.{locale}.properties">
@@ -235,6 +236,8 @@
     </section>
     <section id="room-history-panel" class="panel skin-comms">
       Panel ready to add the history given a room token
+    </section>
+    <section id="room-ui" is="room-ui" role="region" class="panel vbox skin-comms hide">
     </section>
     <section id="share-panel" class="modal share skin-comms hide" role="region">
       <!--

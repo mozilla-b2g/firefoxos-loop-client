@@ -1,0 +1,24 @@
+#room-ui {
+  background: white;
+}
+
+#room-ui button {
+  display: block;
+  width: 100%;
+  height: 3rem;
+  line-height: 2rem;
+  font-size: 1.6rem;
+}
+
+/* Drop the stuff below once the final UI gets added. */
+#room-local-video .OT_video-container,
+#room-remote-video .OT_video-container {
+  position: relative !important;
+  width: 264px !important;
+  height: 198px !important;
+}
+
+#room-local-video .OT_audio-level-meter,
+#room-remote-video .OT_audio-level-meter {
+  display: none !important;
+}

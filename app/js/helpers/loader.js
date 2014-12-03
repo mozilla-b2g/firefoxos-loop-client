@@ -21,8 +21,9 @@
   const PANELS_ID = {
     feedback: 'feedback',
     create_room: 'new-room',
-    room_detail: 'room-detail-panel'
-  }
+    room_detail: 'room-detail-panel',
+    room_ui: 'room-ui'
+  };
 
   var Loader = {
     getShare: function() {
@@ -120,6 +121,49 @@
           ],
           () => {
             resolve(RoomsSynchronizer);
+          }
+        );
+      });
+    },
+    getRoomController: function() {
+      if (window.RoomController) {
+        return Promise.resolve(RoomController);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          [
+            'js/helpers/room/room_controller.js'
+          ],
+          () => {
+            resolve(RoomController);
+          }
+        );
+      });
+    },
+    getRoomUI: function() {
+      if (window.RoomUI) {
+        return Promise.resolve(RoomUI);
+      }
+      return new Promise((resolve, reject) => {
+        HtmlImports.populate(function() {
+          resolve(RoomUI);
+        }, PANELS_ID.room_ui);
+      });
+    },
+    getRoomManager: function() {
+      if (window.RoomManager) {
+        return Promise.resolve(RoomManager);
+      }
+
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          [
+            'libs/tokbox/' + window.OTProperties.version + '/js/TB.js',
+            'libs/opentok.js',
+            'js/helpers/room/room_manager.js'
+          ],
+          () => {
+            resolve(RoomManager);
           }
         );
       });
