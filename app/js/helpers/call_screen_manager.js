@@ -150,22 +150,25 @@
                 break;
               case 'unavailable':
                 // Get URL to share and show prompt
-                CallHelper.generateCallUrl(_params.identities[0],
-                  function onCallUrlSuccess(result) {
-                    getShareUI().then((ui) => {
-                      ui.show(result,
-                              _params.identities,
-                              'unavailable',
-                              _closeAttentionScreen);
-                    });
-                  },
-                  function(e) {
-                    console.error(
-                      'Unable to retrieve link to share ' + e
-                    );
-                    _closeAttentionScreen();
-                  }
-                );
+                // TODO: set subject value Bug 1097685
+                CallHelper.generateCallUrl({
+                  callerId: _params.identities[0],
+                  subject: ''
+                },
+                function onCallUrlSuccess(result) {
+                  getShareUI().then((ui) => {
+                    ui.show(result,
+                            _params.identities,
+                            'unavailable',
+                            _closeAttentionScreen);
+                  });
+                },
+                function(e) {
+                  console.error(
+                    'Unable to retrieve link to share ' + e
+                  );
+                  _closeAttentionScreen();
+                });
                 // We don't need to record this as a call cause we
                 // already recording it as a shared URL, so we bail
                 // out here.
@@ -328,9 +331,11 @@
             break;
           case 'outgoing':
             if (!params.token) {
-              CallHelper.callUser(
-                params.identities,
-                params.video,
+              CallHelper.callUser({
+                  calleeId: params.identities,
+                  isVideoCall: params.video,
+                  subject: ''
+                },
                 function onLoopIdentity(call) {
                   _postCall(type,
                             call,
@@ -384,9 +389,12 @@
 		            _abortCall({reason: 'offline'});
 		            return;
 		          }
-              CallHelper.callUrl(
-                params.token,
-                params.video,
+              // TODO: set subject value Bug 1097685
+              CallHelper.callUrl({
+                  token: params.token,
+                  isVideoCall: params.video,
+                  subject: ''
+                },
                 function(call, calleeFriendlyName) {
                   params.identities = [calleeFriendlyName];
                   _postCall(type, call, params.identities, params.frontCamera,

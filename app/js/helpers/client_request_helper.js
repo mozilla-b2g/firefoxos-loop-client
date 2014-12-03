@@ -59,7 +59,6 @@
     req.setRequestHeader('Content-Type', 'application/json');
     req.responseType = 'json';
     req.timeout = TIMEOUT;
-
     var authorization = '';
     if (options.credentials) {
       switch (options.credentials.type) {
@@ -82,7 +81,6 @@
 
     req.onload = function() {
       _updateClockOffset(req.getResponseHeader('Date'));
-
       // We may fail because of clock skew issues. In that cases we retry once
       // after setting the clock offset.
       if (req.status === 401) {
@@ -190,7 +188,8 @@
      * Methods related with Shared URLs. This will be deprecated in the future
      * based on the new version of the API.
      */
-    generateCallUrl: function generateCallUrl(callerId, onsuccess, onerror) {
+    generateCallUrl: function generateCallUrl(params, onsuccess, onerror) {
+      params = params || {};
       if (!_hawkCredentials) {
         _callback(onerror, [new Error('No HAWK credentials')]);
         return;
@@ -199,7 +198,8 @@
           method: 'POST',
           url: SERVER_URL + '/call-url',
           body: {
-            callerId: callerId
+            callerId: params.callerId,
+            subject: params.subject || ''
           },
           credentials: _hawkCredentials
         },
@@ -218,12 +218,13 @@
       }, onsuccess, onerror);
     },
 
-    callUrl: function callUrl(token, isVideoCall, onsuccess, onerror) {
+    callUrl: function callUrl(params, onsuccess, onerror) {
       _request({
         method: 'POST',
-        url: SERVER_URL + '/calls/' + token,
+        url: SERVER_URL + '/calls/' + params.token,
         body: {
-          callType: isVideoCall ? 'audio-video' : 'audio'
+          callType: params.isVideoCall ? 'audio-video' : 'audio',
+          subject: params.subject || ''
         }
       }, onsuccess, onerror);
     },
@@ -291,20 +292,20 @@
       }, onsuccess, onerror);
     },
 
-    callUser: function callUser(calleeId, isVideoCall, onsuccess, onerror) {
+    callUser: function callUser(params, onsuccess, onerror) {
       if (!_hawkCredentials) {
         _callback(onerror, [new Error('No HAWK credentials')]);
         return;
       }
 
-      if (!calleeId) {
+      if (!params.calleeId) {
         _callback(onerror, [new Error('No callee ID')]);
         return;
       }
 
       // In order to allow the server to normalize the given identity as an
       // MSISDN, we need to also provide the current MCC if it is available.
-      var _calleeId = calleeId.slice(0);
+      var _calleeId = params.calleeId.slice(0);
       var mcc = '';
       var conn = navigator.mozMobileConnections;
       if (conn && (conn[0] || conn[1])) {
@@ -320,16 +321,16 @@
           mcc = mccParts[0];
         }
 
-        for (var i = 0, l = calleeId.length; i < l; i++) {
+        for (var i = 0, l = params.calleeId.length; i < l; i++) {
           // Ignore email based identities.
-          if (calleeId[i].indexOf('@') != -1) {
+          if (params.calleeId[i].indexOf('@') != -1) {
             continue;
           }
           // The server expects an array of single strings or objects with the
           // form {phoneNumber: <string>, mcc: <string>} for the callee
           // identities.
           _calleeId[i] = {
-            phoneNumber: calleeId[i],
+            phoneNumber: params.calleeId[i],
             mcc: mcc
           };
         }
@@ -340,8 +341,9 @@
         url: SERVER_URL + '/calls/',
         body: {
           calleeId: _calleeId,
-          callType: isVideoCall ? 'audio-video' : 'audio',
-          channel: CHANNEL
+          callType: params.isVideoCall ? 'audio-video' : 'audio',
+          channel: CHANNEL,
+          subject: params.subject || ''
         },
         credentials: _hawkCredentials
       }, onsuccess, onerror);

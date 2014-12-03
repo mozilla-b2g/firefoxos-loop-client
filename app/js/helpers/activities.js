@@ -81,7 +81,12 @@
           console.error('Activity is not sending required data');
           return;
         }
-        Controller.callUrl(activityParams.token, activityParams.video != false);
+        // TODO: set subject value Bug 1097685
+        Controller.callUrl({
+          token: activityParams.token,
+          isVideoCall: activityParams.video != false,
+          subject: ''
+        });
         Telemetry.updateReport('callsFromUrl');
         break;
       case ROOM_CALL:

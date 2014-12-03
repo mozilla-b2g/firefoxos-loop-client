@@ -316,13 +316,14 @@
       Controller.callIdentities(identities, contact, isVideoCall);
     },
 
-    callUrl: function(token, isVideoCall) {
+    callUrl: function(params) {
+      params = params || {};
       if (!AccountHelper.logged) {
         alert(Branding.getTranslation('notLoggedIn'));
         return;
       }
 
-      if (!token) {
+      if (!params.token) {
         alert(_('invalidURL'));
         return;
       }
@@ -331,8 +332,8 @@
         csm.launch(
           'outgoing',
           {
-            token: token,
-            video: isVideoCall,
+            token: params.token,
+            video: params.isVideoCall,
             frontCamera: Settings.isFrontalCamera
           }
         );
