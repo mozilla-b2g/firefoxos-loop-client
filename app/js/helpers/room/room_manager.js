@@ -66,6 +66,23 @@
       session = OT.initSession(params.apiKey, params.sessionId);
       session.on(
         {
+          streamPropertyChanged: function(event) {
+            if (publisher && event.stream && publisher.stream &&
+                event.stream.streamId === publisher.stream.streamId) {
+              return;
+            }
+            if (event.changedProperty === 'hasVideo') {
+              if (event.newValue) {
+                this.dispatchEvent(
+                  new OT.Event(OT.RoomManager.EventNames.PARTICIPANT_VIDEO_ADDED)
+                );
+              } else {
+                this.dispatchEvent(
+                  new OT.Event(OT.RoomManager.EventNames.PARTICIPANT_VIDEO_DELETED)
+                );
+              }
+            }
+          },
           sessionConnected: function(event) {
             // Fire an OT.RoomManager.EventNames.JOINING event.
             this.dispatchEvent(new OT.Event(OT.RoomManager.EventNames.JOINING));
@@ -83,6 +100,7 @@
                                       error.message));
                 } else {
                   self.publishVideo(video);
+                  self.forceSpeaker(video);
                   // Fire an OT.RoomManager.EventNames.JOINED event.
                   self.dispatchEvent(
                       new OT.Event(OT.RoomManager.EventNames.JOINED)
@@ -179,6 +197,10 @@
       return publisher && publisher.stream && publisher.stream.hasVideo;
     },
 
+    get isRemotePublishingVideo() {
+      return subscriber && subscriber.stream && subscriber.stream.hasVideo;
+    },
+
     subscribeToAudio: function(value) {
       // Note: the first verison of the room implementatio define a room with
       // only two participants. Let's consider for the future that more
@@ -219,6 +241,8 @@
     PARTICIPANT_JOINED: 'participantJoined',
     PARTICIPANT_LEAVING: 'participantLeaving',
     PARTICIPANT_LEFT: 'participantLeft',
+    PARTICIPANT_VIDEO_DELETED: 'participantVideoDeleted',
+    PARTICIPANT_VIDEO_ADDED: 'participantVideoAdded',
     LEFT: 'left',
     ERROR: 'error'
   };
