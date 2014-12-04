@@ -59,7 +59,7 @@
           if (!result.apiKey || !result.sessionId || !result.sessionToken ||
               !result.expires) {
             // TODO: we should show some kind of error in the UI.
-            debug && console.log('Error while joining room');
+            debug && console.log('Error while joining room. Some params missing');
 
             RoomUI.hide();
             Rooms.leave(params.token);
@@ -80,9 +80,7 @@
               },
               left: function(event) {
                 debug && console.log('Room left');
-
                 window.clearTimeout(refreshTimeOut);
-                Rooms.leave(params.token);
               },
               participantJoining: function(event) {
                 debug && console.log('Room participant joining');
@@ -109,6 +107,8 @@
             });
 
             RoomUI.onLeave = function() {
+              Rooms.leave(params.token);
+              RoomUI.removeFakeVideo();
               roomManager.leave();
             };
 
@@ -133,6 +133,9 @@
         function(error) {
           // TODO: we should show some kind of error in the UI.
           debug && console.log('Error while joining room');
+          alert('Room is full of participants');
+          RoomUI.removeFakeVideo();
+          RoomUI.hide();
         });
       });
     }
