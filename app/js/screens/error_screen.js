@@ -10,6 +10,9 @@
   var _errorMessage;
   var _okButton;
   var _settingsButton;
+  var _onSettingsClicked;
+
+  var _noop = function() {};
 
   function _attachHandlers() {
     _okButton.addEventListener('click', _hide);
@@ -27,15 +30,31 @@
     _screen.dataset.type === 'offline' && _hide();
   }
 
-  function _onSettingsClicked(evt) {
+  function _openConnectivitySettings(evt) {
     _hide(evt);
 
     var activity = new window.MozActivity({
       name: 'configure',
       data: {
-         target: 'device',
+        target: 'device',
         section: 'root',
         filterBy: 'connectivity'
+      }
+    });
+
+    activity.onerror = function() {
+      console.warn('Configure activity error:', activity.error.name);
+    };
+  }
+
+  function _openFxASettings(evt) {
+    _hide(evt);
+
+    var activity = new window.MozActivity({
+      name: 'configure',
+      data: {
+        target: 'device',
+        section: 'fxa'
       }
     });
 
@@ -61,6 +80,17 @@
     _init();
     _screen.dataset.type = screenObj.type;
     _screen.dataset.unrecoverable = screenObj.unrecoverable;
+    switch(screenObj.type) {
+      case 'offline':
+        _onSettingsClicked = _openConnectivitySettings;
+        break;
+      case 'signuperror':
+        _onSettingsClicked = _openFxASettings;
+        break;
+      default:
+        _onSettingsClicked = _noop;
+        break;
+    }
     _attachHandlers();
     _errorMessage.textContent = message;
     _screen.classList.add('show');
@@ -73,6 +103,7 @@
     }
 
     delete _screen.dataset.type;
+    _onSettingsClicked = _noop;
     _removeHandlers();
     _screen.classList.remove('show');
   }
@@ -95,6 +126,16 @@
     _show(this, message);
   };
 
+  function SignUpErrorScreen() {
+    this.type = 'signuperror';
+    this.unrecoverable = false;
+  }
+
+  SignUpErrorScreen.prototype.show = function(message) {
+    _show(this, message);
+  };
+
   exports.ErrorScreen = new ErrorScreen();
   exports.OfflineScreen = new OfflineScreen();
+  exports.SignUpErrorScreen = new SignUpErrorScreen();
 }(this));
