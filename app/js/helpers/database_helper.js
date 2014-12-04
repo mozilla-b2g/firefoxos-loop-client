@@ -19,7 +19,7 @@
  *     primary: 'date',
  *     indexes: [{
  *       name: 'indexName',
- *       field: 'indexField',
+ *       fields: 'indexField' | [ 'indexField1', 'indexField2', ...],
  *       params: {...}
  *     }],
  *     fields: [...fieldNames...]
@@ -91,17 +91,28 @@ DatabaseHelper.prototype = {
           for (var _schema = 0; _schema < schemaKeysLength; _schema++) {
             var schemaName = schemaKeys[_schema];
             var schemaData = self._dbSchema[schemaName];
-            var schemaIndexes = schemaData.indexes;
-            var schemaIndexesLength = schemaIndexes.length;
 
-            var auxStore = db.createObjectStore(schemaName, {
-              keyPath: schemaData.primary
-            });
+            var auxStore = null;
+            if (!db.objectStoreNames.contains(schemaName)) {
+              auxStore = db.createObjectStore(schemaName, {
+                keyPath: schemaData.primary
+              });
+            } else {
+              auxStore = event.currentTarget.transaction.objectStore(schemaName);
+            }
 
-            for (var _index = 0; _index < schemaIndexesLength; _index++) {
-              auxStore.createIndex(schemaIndexes[_index].name,
-                                   schemaIndexes[_index].field,
-                                   schemaIndexes[_index].params);
+            // Regenerate all indexes
+            var auxIndexes = auxStore.indexNames;
+            var auxIndexesLength = auxIndexes.length;
+            for (var _index = 0; _index < auxIndexesLength; _index++) {
+              auxStore.deleteIndex(auxIndexes[_index]);
+            }
+            auxIndexes = schemaData.indexes;
+            auxIndexesLength = auxIndexes.length;
+            for (var _index = 0; _index < auxIndexesLength; _index++) {
+              auxIndex = schemaData.indexes[_index];
+              auxStore.createIndex(auxIndex.name, auxIndex.fields,
+                                   auxIndex.params);
             }
           }
         });

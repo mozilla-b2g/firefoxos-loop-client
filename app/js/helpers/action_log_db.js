@@ -53,13 +53,13 @@
       primary: 'date',
       indexes: [{
         name: 'identities',
-        field: 'identities',
+        fields: 'identities',
         params: {
           multientry: true
         }
       }, {
         name: 'contactId',
-        field: 'contactId',
+        fields: 'contactId',
         params: {
           multientry: true
         }
@@ -84,16 +84,16 @@
       primary: 'date',
       indexes: [{
         name: 'urlToken',
-        field: 'urlToken'
+        fields: 'urlToken'
       }, {
         name: 'identities',
-        field: 'identities',
+        fields: 'identities',
         params: {
           multientry: true
         }
       }, {
         name: 'contactId',
-        field: 'contactId',
+        fields: 'contactId',
         params: {
           multientry: true
         }

@@ -49,7 +49,7 @@
   const _eventsStore = 'roomEvents';
   var _dbHelper = new DatabaseHelper({
     name: 'roomsLog',
-    version: 1,
+    version: 2,
     maxNumerOfRecords: 200,
     numOfRecordsToDelete: 50
   }, {
@@ -57,25 +57,25 @@
       primary: 'roomToken',
       indexes: [{
         name: 'roomName',
-        field: 'roomName',
+        fields: 'roomName',
         params: {
           multientry: true
         }
       }, {
         name: 'creationTime',
-        field: 'creationTime',
+        fields: [ 'user', 'creationTime' ],
         params: {
           multientry: true
         }
       }, {
         name: 'localCtime',
-        field: 'localCtime',
+        fields: 'localCtime',
         params: {
           multientry: true
         }
       }, {
         name: 'user',
-        field: 'user',
+        fields: 'user',
         params: {
           multientry: true
         }
@@ -97,13 +97,13 @@
       primary: 'id',
       indexes: [{
         name: 'roomToken',
-        field: 'roomToken',
+        fields: 'roomToken',
         params: {
           multientry: true
         }
       }, {
         name: 'date',
-        field: 'date',
+        fields: 'date',
         params: {
           multientry: true
         }
@@ -116,6 +116,59 @@
         'params'
       ]}
   });
+
+  function FilteredCursor(cursor, filter) {
+    this.cursor = cursor;
+    this.filter = filter;
+    this.returnedItems = 0;
+    this._onsuccess = this._onerror = null;
+  }
+
+  FilteredCursor.prototype = {
+    set onsuccess(success) {
+      this._onsuccess = success;
+      this._perform();
+    },
+
+    set onerror(error) {
+      this._onerror = error;
+      this._perform();
+    },
+
+    _perform: function() {
+      if (!this._onsuccess || !this._onerror) {
+        return;
+      }
+
+      var cursor = this.cursor;
+      var filter = this.filter;
+
+      cursor.onsuccess = (event) => {
+        var item = event.target.result;
+        if (!item) {
+          return this._onsuccess(event);
+        }
+
+        if (item.value[filter.name] === filter.value) {
+          this.returnedItems++;
+          this._onsuccess(event);
+        } else {
+          if (this.returnedItems > 0) {
+            // That's all folks !
+            return this._onsuccess({
+              target: {
+                result: null
+              }});
+          }
+          item.continue();
+        }
+      };
+
+      cursor.onerror = (event) => {
+        this._onerror(event);
+      };
+    }
+  };
 
   var RoomsDB = {
     /**
@@ -196,7 +249,18 @@
           if (error) {
             return reject(error);
           } else {
-            resolve(cursor);
+            if (!field || field === '' || field === 'creationTime') {
+              // These are special cases. We want to filter & sort
+              // since this isn't directly supported by IndexedDB, we'll
+              // create a filteredCursor in which we'll filter by logged user
+              var filteredCursor = new FilteredCursor(cursor, {
+                name: 'user',
+                value: Controller.identity
+              });
+              resolve(filteredCursor);
+            } else {
+              resolve(cursor);
+            }
           }
         }, _roomsStore, aFilter);
       });
@@ -251,9 +315,10 @@
       return new Promise(function(resolve, reject) {
         _dbHelper.updateRecord(function(error) {
           if (error) {
-            return reject(error);
+            reject(error);
+          } else {
+            resolve();
           }
-          resolve();
         }, _roomsStore, { key: token }, {
           roomName: name,
           expiresAt: expiresAt,
