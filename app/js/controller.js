@@ -343,7 +343,7 @@
     callIdentities: function(params, done) {
       params = params || {};
       Loader.getConversationDetail().then((ConversationDetail) => {
-        ConversationDetail.show(params.subject).then((conversationParams) => {
+        ConversationDetail.show(params).then((conversationParams) => {
           _getCallScreenManager().then((csm) => {
             csm.launch(
               'outgoing',
@@ -414,7 +414,7 @@
       }
 
       Loader.getConversationDetail().then((ConversationDetail) => {
-        ConversationDetail.show(params.subject).then((conversationParams) => {
+        ConversationDetail.show(params).then((conversationParams) => {
           _getCallScreenManager().then((csm) => {
             csm.launch(
               'outgoing',

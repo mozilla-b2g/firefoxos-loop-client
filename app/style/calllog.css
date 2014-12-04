@@ -118,10 +118,15 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 .calllog-section .call-time,
 .calllog-section .room-time,
 .calllog-section .retry-count,
-.calllog-section .room-owner {
+.calllog-section .room-owner,
+.calllog-section .subject {
   font-size: 1.5rem;
   color: #858585;
   white-space: nowrap;
+}
+
+.calllog-section .subject {
+  font-size: 1.6rem;
 }
 
 .calllog-section .missed .call-time {
@@ -223,7 +228,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   left: -100%;
   font-size: 1.4rem;
   color: #575757;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 /* This layer contains the icon for action buttons (room and conversation) */

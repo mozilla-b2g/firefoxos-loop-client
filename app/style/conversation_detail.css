@@ -4,6 +4,10 @@
   border-bottom: 0.1rem solid #e7e7e7;
 }
 
+#conversation-detail[data-is-video="false"] form {
+  border-bottom: none;
+}
+
 #conversation-detail form p.counter {
   margin-top: -.5rem;
   font-size: 1.4rem;
@@ -55,6 +59,10 @@
 
 #conversation-detail .icon-camera-back {
   background-image: url("images/ico_Camerarear.png");
+}
+
+#conversation-detail[data-is-video="false"] .camera-container {
+  display: none;
 }
 
 #conversation-detail .camera-container[data-camera="camera-back"] .icon-camera-front::before,
