@@ -29,7 +29,7 @@ html, body {
   width: 100%;
   height: 100%;
   position: relative;
-  background: #424242;
+  background: #1c5e6f;
 }
 
 .hide {
@@ -54,12 +54,12 @@ h1, h2, h3 {
 
 .action-button {
   position: absolute;
-  height: 5.4rem;
-  width: 5.4rem;
+  height: 6.6rem;
+  width: 6.6rem;
   z-index: 10;
   position: absolute;
-  border-radius: 2.8rem;
-  border: none;
+  border-radius: 3.3rem;
+  border: 0.3rem solid rgba(0,0,0,0.2);
   margin: 0;
   background-clip: padding-box !important;
 }
@@ -78,8 +78,8 @@ h1, h2, h3 {
  */
 
 #hang-up {
-  bottom: 4rem;
-  left: 3rem;
+  bottom: 3rem;
+  left: 2.7rem;
   z-index: 10;
   background: #d74345;
 }
@@ -89,18 +89,14 @@ h1, h2, h3 {
 }
 
 #hang-up:active {
-  transform: translate(-0.8rem, 0.8rem);
-  height: 7rem;
-  width: 7rem;
-  border-radius: 3.5rem;
-  border: .8rem solid rgba(215, 67, 69, 0.5);
+  background: #9d3638;
 }
 
 
 #answer {
-  bottom: 4rem;
-  right: 3rem;
-  background: #00a9dc;
+  bottom: 3rem;
+  right: 2.7rem;
+  background-color: #5bc0a4;
 }
 
 #answer span {
@@ -108,9 +104,9 @@ h1, h2, h3 {
 }
 
 #answer-video {
-  right: calc(50% - 2.5rem);
-  bottom: 13rem;
-  background: #00a9dc;
+  right: calc(50% - 3.3rem);
+  bottom: 12.6rem;
+  background-color: #5bc0a4;
 }
 
 #answer-video span {
@@ -119,11 +115,7 @@ h1, h2, h3 {
 
 #answer:active,
 #answer-video:active{
-  transform: translate(0.8rem, 0.8rem);
-  height: 7rem;
-  width: 7rem;
-  border-radius: 3.5rem;
-  border: .8rem solid rgba(0, 172, 172, 0.5);
+  background-color: #a4e8fc;
 }
 
 /*
@@ -132,105 +124,71 @@ h1, h2, h3 {
  */
 
 .setting-button {
-  background: rgba(255, 255, 255, 0.7);
+  background-color: #00a9dc;
 }
 
 .setting-button:active {
-  background: #00a9dc;
-  transform: translate(0.8rem, 0.8rem);
-  height: 7rem;
-  width: 7rem;
-  border-radius: 3.5rem;
-  border: .8rem solid rgba(0, 172, 172, 0.5);
+  background-color: #a4e8fc;
 }
 
 .setting-disabled,
 .setting-enabled {
-  background: #00a9dc;
+  background: #fff;
 }
 
 #call-settings-video {
-  bottom: 4rem;
-  right: 3rem;
+  bottom: 3rem;
+  right: 2.7rem;
 }
 
 #call-settings-video span {
-  background-position: -4rem -4rem;
+  background-position: 0 -4rem;
 }
 
-#call-settings-video.setting-disabled span{
-  background-position: 0rem -4rem;
-}
-
-#call-settings-video:active span {
-  background-position: -4rem -4rem;
-}
-
-#call-settings-video.setting-disabled:active span{
-  background-position: 0rem -4rem;
+#call-settings-video.setting-disabled span {
+  background-position: -8rem -4rem;
 }
 
 #call-settings-mute {
-  bottom: 10.2rem;
-  right: 3rem;
+  bottom: 10.3rem;
+  right: 2.7rem;
 }
 
 #call-settings-mute span {
-  background-position: -4rem -8rem;
+  background-position: 0 -8rem;
 }
 
-#call-settings-mute:active span {
-  background-position: 0rem -8rem;
+#call-settings-mute.setting-disabled span {
+  background-position: -8rem -8rem;
 }
 
-#call-settings-mute.setting-disabled span{
-  background-position: 0rem -8rem;
-}
-
-#call-settings-mute:active span {
-  background-position: -4rem -8rem;
-}
-
-#call-settings-mute.setting-disabled:active span{
-  background-position: 0rem -8rem;
+#call-settings-mute.setting-disabled span {
+  background-position: -8rem -8rem;
 }
 
 #call-settings-speaker {
-  bottom: 16.4rem;
-  right: 3rem;
+  bottom: 17.6rem;
+  right: 2.7rem;
 }
 
 #call-settings-speaker span {
-  background-position: -4rem -12rem;
+  background-position: 0 -12rem;
 }
 
-#call-settings-speaker:active span {
-  background-position: 0rem -12rem;
-}
-
-#call-settings-speaker.setting-enabled span{
-  background-position: 0rem -12rem;
-}
-
-#call-settings-speaker:active span {
-  background-position: -4rem -12rem;
-}
-
-#call-settings-speaker.setting-disabled:active span{
-  background-position: 0rem -12rem;
+#call-settings-speaker.setting-enabled span {
+  background-position: -8rem -12rem;
 }
 
 #resume-button {
-  bottom: 4rem;
-  right: 3rem;
-  background: #00a9dc;
-  width: 19rem;
+  bottom: 3rem;
+  right: 2.7rem;
+  background: #5bc0a4;
   color: white;
+  width: calc(100% - 13.7rem);
 }
 
 #resume-button:active {
-  background: white;
-  color: #00a9dc;
+  background-color: #a4e8fc;
 }
 
 /*
@@ -240,35 +198,33 @@ h1, h2, h3 {
 
 .remote-bubble {
   position: absolute;
-  top: 8rem;
-  left: calc(50% - 7.5rem);
-  width: 15rem;
-  height: 15rem;
-  background-color: #474747;
-  background-size: 15rem 15rem;
+  top: 7rem;
+  left: calc(50% - 8rem);
+  width: 16rem;
+  height: 16rem;
+  background-size: 16rem 16rem;
   background-repeat: no-repeat;
   color: #27c8c2;
   opacity: 1;
   z-index: 10;
   font-weight: 300;
-  mask: url("images/big_mask.svg#logo_mask");
+  border-radius: 50%;
 }
 
 .remote-bubble-shadow {
   position: absolute;
-  top: 8rem;
-  left: calc(50% - 7.5rem);
-  width: 15rem;
-  height: 15rem;
-  background-image: url(images/big_shadow@1x.png);
-  background-size: 15rem 15rem;
-  background-repeat: no-repeat;
+  top: 6.7rem;
+  left: calc(50% - 8.3rem);
+  width: 16.6rem;
+  height: 16.6rem;
+  border-radius: 50%;
+  background: linear-gradient(#5bc0a4 0, #00a9dc 100%);
   z-index: 5;
 }
 
 .remote-bubble.default {
-  background-image: url(images/thumb-generic.png);
-  background-size: 100%;
+  background: #1c5e6f url(images/avatar_x.png) no-repeat center;
+  background-size: 100% auto;
 }
 
 .remote-bubble {
@@ -276,12 +232,12 @@ h1, h2, h3 {
 }
 
 .local-bubble {
-  height: 7.5rem !important;
-  width: 7.5rem !important;
+  height: 8.5rem !important;
+  width: 8.5rem !important;
 
   position: absolute !important;
-  bottom: 2.5rem !important;
-  left: calc(50% - 3.75rem) !important;
+  bottom: 1.6rem !important;
+  left: calc(50% - 4.25rem) !important;
   z-index: 10;
 
   border-radius: 50% !important;
@@ -289,28 +245,25 @@ h1, h2, h3 {
 }
 
 .local-bubble-shadow {
-  height: 6.7rem;
-  width: 6.7rem;
-
+  height: 9.1rem;
+  width: 9.1rem;
   position: absolute;
-  bottom: 2rem;
-  left: calc(50% - 2.5rem);
-  z-index: 10;
-  background-image: url(images/small_shadow.png);
-  background-size: 6.7rem;
-  background-repeat: no-repeat;
+  bottom: 1.3rem;
+  left: calc(50% - 4.55rem);
+  border-radius: 50%;
   z-index: 5;
+  background: linear-gradient(#5bc0a4 0, #00a9dc 100%);
 }
 
 #local-video {
-  background: #474747;
+  background: #113843;
 }
 
 #local-video progress{
   display: block !important;
   position: absolute;
-  left: 2.5rem;
-  top: 2.25rem;
+  left: 2.75rem;
+  top: 2.75rem;
 }
 
 .fake-local-video {
@@ -325,8 +278,8 @@ h1, h2, h3 {
   margin: 0;
   text-align: center;
   position: absolute;
-  top: 4rem;
-  font-size: 2.5rem;
+  top: 2rem;
+  font-size: 2.7rem;
   font-style: italic;
   font-weight: 300;
   width: 100%;
@@ -342,7 +295,7 @@ h1, h2, h3 {
 #call-info {
   display: flex;
   text-align: center;
-  transform: translateY(24rem);
+  transform: translateY(24.5rem);
   z-index: 10;
   justify-content: center;
 }
@@ -350,13 +303,13 @@ h1, h2, h3 {
 #counter {
   font-style: italic;
   font-weight: normal;
-  font-size: 1.9rem;
+  font-size: 2rem;
   padding: 0 0.5rem;
 }
 
 .counter {
   display: none;
-  color: #80e7e3;
+  color: #97e0f6;
   -moz-font-feature-settings: 'tnum';
   font-feature-settings: 'tnum';
 }
@@ -369,11 +322,11 @@ body[data-call-status='remotehold'] .counter {
 
 #call-status-info {
   color: white;
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   font-style: italic;
   font-weight: 300;
   box-sizing: border-box;
-  padding: 0 0.5rem;
+  padding: 0.2rem 0.5rem 0;
 }
 
 .call-status-info {
@@ -447,7 +400,7 @@ body[data-call-status='outgoing'] .call-status-info {
   width: 100%;
   bottom: 0;
   left: 0;
-  background-color: #424242;
+  background-color: #1c5e6f;
   height: 4rem;
   background-image: url(images/ico_callstatusbar.png);
   background-size: 2rem;
@@ -562,7 +515,7 @@ body[data-call-status='unavailable'] .local-bubble-shadow {
   z-index: 0;
   width: 100% !important;
   height: 100% !important;
-  background: #424242 !important;
+  background: #1c5e6f !important;
 }
 
 #fullscreen-image {
@@ -572,7 +525,7 @@ body[data-call-status='unavailable'] .local-bubble-shadow {
   left: 0;
   width: 100% !important;
   height: 100% !important;
-  background: #424242;
+  background: #1c5e6f;
   background-size: auto 100%;
   background-position: 50%;
   background-repeat: no-repeat;
@@ -589,7 +542,7 @@ body[data-call-status='unavailable'] .local-bubble-shadow {
 
 #fullscreen-video .OT_video-container {
   display: block !important;
-  background: #424242 !important;
+  background: #1c5e6f !important;
 }
 
 #fullscreen-video .OT_video-container video{
@@ -676,7 +629,12 @@ body[data-call-status='ended'] .local-bubble-shadow {
 
 body[data-call-status='connected'][data-remote-video="on"][data-rotation="0"] #call-info,
 body[data-call-status='connected'][data-remote-video="on"][data-rotation="180"] #call-info {
-  transform: translateY(8rem);
+  transform: translateY(6rem);
+}
+
+body[data-call-status='hold'] .remote-bubble-shadow,
+body[data-call-status='remotehold'] .remote-bubble-shadow {
+  background: rgba(255,255,255,0.5);
 }
 
 body[data-call-status='connected'][data-remote-video="on"] .remote-bubble,
@@ -741,19 +699,19 @@ body[data-rotation="270"] #hang-up {
 
 body[data-rotation="90"] #call-settings-video,
 body[data-rotation="270"] #call-settings-video {
-  bottom: 8rem;
+  bottom: 8.9rem;
   left: 1.5rem;
 }
 
 body[data-rotation="90"] #call-settings-mute,
 body[data-rotation="270"] #call-settings-mute {
-  bottom: 14.5rem;
+  bottom: 16.4rem;
   left: 1.5rem;
 }
 
 body[data-rotation="90"] #call-settings-speaker,
 body[data-rotation="270"] #call-settings-speaker {
-  bottom: 21rem;
+  bottom: 23.9rem;
   left: 1.5rem;
 }
 
@@ -766,16 +724,34 @@ body[data-rotation="270"] #call-settings-speaker:active {
   transform: translate(-0.8rem, 0.8rem);
 }
 
+body[data-rotation="90"] .remote-bubble,
+body[data-rotation="270"] .remote-bubble {
+  top: 8rem;
+  left: calc(50% - 7rem);
+  width: 14rem;
+  height: 14rem;
+}
+
+body[data-rotation="90"] .remote-bubble-shadow,
+body[data-rotation="270"] .remote-bubble-shadow {
+    position: absolute;
+    top: 7.7rem;
+    left: calc(50% - 7.3rem);
+    width: 14.6rem;
+    height: 14.6rem;
+}
+
 body[data-rotation="90"] .local-bubble-shadow,
 body[data-rotation="270"] .local-bubble-shadow {
   left: unset;
   right: 1.5rem;
+  bottom: 1.5rem;
 }
 
 body[data-rotation="90"] #local-video,
 body[data-rotation="270"] #local-video {
-  right: 2rem !important;
-  bottom: 2.5rem !important;
+  right: 1.8rem !important;
+  bottom: 1.8rem !important;
   left: unset !important;
   transform: rotate(90deg)
 }
@@ -787,8 +763,9 @@ body[data-rotation="270"] #local-video {
 body[data-rotation="90"] #resume-button,
 body[data-rotation="270"] #resume-button  {
   right: unset;
+  width: 18rem;
   bottom: 1.5rem;
-  left: calc(50% - 9.5rem);
+  left: calc(50% - 9rem);
 }
 
 
@@ -803,15 +780,7 @@ body[data-rotation="270"] #resume-button  {
   }
 
   .remote-bubble.default {
-    background-image: url(images/thumb-generic@1.5x.png);
-  }
-
-  .remote-bubble-shadow {
-    background-image: url(images/big_shadow@1.5x.png);
-  }
-
-  .local-bubble-shadow {
-    background-image: url(images/small_shadow@1.5x.png);
+    background-image: url(images/avatar_x@1.5x.png);
   }
 
   .action-button span,
@@ -836,15 +805,7 @@ body[data-rotation="270"] #resume-button  {
   }
 
   .remote-bubble.default {
-    background-image: url(images/thumb-generic@2x.png);
-  }
-
-  .remote-bubble-shadow {
-    background-image: url(images/big_shadow@2x.png);
-  }
-
-  .local-bubble-shadow {
-    background-image: url(images/small_shadow@2x.png);
+    background-image: url(images/avatar_x@2x.png);
   }
 
   .action-button span,
@@ -869,15 +830,7 @@ body[data-rotation="270"] #resume-button  {
   }
 
   .remote-bubble.default {
-    background-image: url(images/thumb-generic@2.25x.png);
-  }
-
-  .remote-bubble-shadow {
-    background-image: url(images/big_shadow@2.25x.png);
-  }
-
-  .local-bubble-shadow {
-    background-image: url(images/small_shadow@2.25x.png);
+    background-image: url(images/avatar_x@2.25x.png);
   }
 
   .action-button span,
