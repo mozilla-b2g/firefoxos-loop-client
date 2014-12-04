@@ -150,10 +150,9 @@
                 break;
               case 'unavailable':
                 // Get URL to share and show prompt
-                // TODO: set subject value Bug 1097685
                 CallHelper.generateCallUrl({
                   callerId: _params.identities[0],
-                  subject: ''
+                  subject: _params.subject || ''
                 },
                 function onCallUrlSuccess(result) {
                   getShareUI().then((ui) => {
@@ -198,7 +197,8 @@
             revoked: false,
             contactId: null,
             contactPrimaryInfo: null,
-            contactPhoto: null
+            contactPhoto: null,
+            subject: _params.subject || ''
           };
 
           // Add object & update the UI
@@ -334,7 +334,7 @@
               CallHelper.callUser({
                   calleeId: params.identities,
                   isVideoCall: params.video,
-                  subject: ''
+                  subject: params.subject || ''
                 },
                 function onLoopIdentity(call) {
                   _postCall(type,
@@ -389,11 +389,10 @@
 		            _abortCall({reason: 'offline'});
 		            return;
 		          }
-              // TODO: set subject value Bug 1097685
               CallHelper.callUrl({
                   token: params.token,
                   isVideoCall: params.video,
-                  subject: ''
+                  subject: params.subject || ''
                 },
                 function(call, calleeFriendlyName) {
                   params.identities = [calleeFriendlyName];
@@ -498,6 +497,7 @@
           }
 
           params.identities = [call.callerId];
+          params.subject = call.subject;
           _launchAttention(type, params, call);
         },
         function onerror(e) {

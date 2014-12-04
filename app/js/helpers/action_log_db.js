@@ -21,7 +21,8 @@
  *   revoked: <Boolean>,
  *   contactId: [<string>],
  *   contactPrimaryInfo: <string>,
- *   contactPhoto: blob
+ *   contactPhoto: blob,
+ *   subject: <string>
  * }
  *
  * url: {
@@ -75,7 +76,8 @@
         'revoked',
         'contactId',
         'contactPrimaryInfo',
-        'contactPhoto'
+        'contactPhoto',
+        'subject'
       ]
     },
     'actionLogUrls': {
