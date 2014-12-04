@@ -25,6 +25,10 @@
  *   creationTime: <Date> (index),
  *   expiresAt: <Date>,
  *   ctime: <Date>,
+ *   identities: [<string>],
+ *   contactId: [<string>],
+ *   contactPrimaryInfo: <string>,
+ *   contactPhoto: blob,
  *   localCtime: <Date> (index), // Automatically updated
  *   user: <string> (index), // Automatically updated
  *   events: [
@@ -89,6 +93,10 @@
         'creationTime',
         'expiresAt',
         'ctime',
+        'identities',
+        'contactId',
+        'contactPrimaryInfo',
+        'contactPhoto',
         'localCtime',
         'user'
       ]},
@@ -182,17 +190,48 @@
     },
 
     /**
+     * Update Room object with contactInfo
+     * param room
+     *       Object with the room
+     * param contactInfo
+     *       Object with the contact information
+     */
+    setContactInfo: function(room, contactInfo) {
+      if (contactInfo) {
+        room.contactId = contactInfo.contactIds || null;
+        var contact = contactInfo.contacts ? contactInfo.contacts[0] : null;
+        if (contact) {
+          room.contactPrimaryInfo = ContactsHelper.getPrimaryInfo(contact);
+          room.contactPhoto = contact.photo ? contact.photo[0] : null;
+        }
+
+        var identities = [];
+        ['tel', 'email'].forEach(function(field) {
+          if (contact[field]) {
+            for (var i = 0, l = contact[field].length; i < l; i++) {
+              identities.push(contact[field][i].value);
+            }
+          }
+        });
+        room.identities = identities;
+      }
+    },
+
+    /**
      * Store a room in our DB.
      *
      * param room
      *       Object created from the API.
+     * param contactInfo
+     *       Contact information object
      * return Promise.  The resolved promise will contain the stored record.
      *                  The rejected promise, an error string.
      */
-    create: function(room) {
+    create: function(room, contactInfo) {
       return new Promise(function(resolve, reject) {
         RoomsDB.setLocalCtime(room);
         room.user = Controller.identity;
+        RoomsDB.setContactInfo(room, contactInfo);
         _dbHelper.addRecord(function(error, storedRecord) {
           if (error) {
             reject(error);
