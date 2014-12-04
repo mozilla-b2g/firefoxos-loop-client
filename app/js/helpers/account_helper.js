@@ -184,7 +184,8 @@
   }
 
   function _onlogin(assertion) {
-    debug && console.log('onlogin ' + _isIdFlowRunning + ' ' + assertion);
+    debug && console.log('onlogin ' + (_isIdFlowRunning ? 'with' : 'without') +
+                         ' ID flow running.');
 
     var assertionParsed = Utils.parseClaimAssertion(assertion);
 
@@ -204,12 +205,24 @@
           identity: assertionParsed['fxa-verifiedEmail'] ||
                     assertionParsed['verifiedMSISDN']
         });
-      }, function onError() {
+      }, function onError(error) {
         LazyLoader.load([
           'js/screens/error_screen.js'
         ], function() {
           var _ = navigator.mozL10n.get;
-          ErrorScreen.show(_('genericServerError'));
+          var message = _('genericServerError');
+          if (error && (error.code === 401) && (error.errno === 110)) {
+            console.error('Unexpected authentication error while signing up');
+            var unpackedAssertion = Utils.unpackAssertion(assertion);
+            console.error('assertion.header is ' + unpackedAssertion.header);
+            console.error('assertion.claim is ' + unpackedAssertion.claim);
+            console.error('assertion.payload is ' + unpackedAssertion.payload);
+
+            message = _('signUpFail');
+            SignUpErrorScreen.show(message);
+          } else {
+            ErrorScreen.show(message, true);
+          }
           _onloginerror();
         });
       });

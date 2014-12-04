@@ -88,6 +88,49 @@
     }
   };
 
+  function SignUpErrorScreen() {}
+  SignUpErrorScreen.prototype = {
+    _init: function() {
+      this._initialized = true;
+      _init();
+
+      var _ = navigator.mozL10n.get;
+      var settings = document.createElement('button');
+      settings.textContent = _('checkSettings');
+      settings.classList.add('icon');
+      settings.classList.add('icon-settings');
+      settings.onclick = function() {
+        var activity = new window.MozActivity({
+          name: 'configure',
+          data: {
+            target: 'device',
+            section: 'fxa'
+          }
+        });
+        activity.onerror = function() {
+          console.warn('Configure activity error:', activity.error.name);
+        };
+      };
+
+      var li = document.createElement('li');
+      li.appendChild(settings);
+
+      var ul = document.createElement('ul');
+      ul.classList.add('skin-dark');
+      ul.appendChild(li);
+
+      var section = _screen.querySelector('section');
+      section.appendChild(ul);
+    },
+    show: function(message) {
+      if (!this._initialized) {
+        this._init();
+      }
+      _show(message);
+    }
+  };
+
   exports.ErrorScreen = new ErrorScreen();
   exports.OfflineScreen = new OfflineScreen();
+  exports.SignUpErrorScreen = new SignUpErrorScreen();
 }(this));
