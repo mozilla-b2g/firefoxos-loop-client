@@ -23,6 +23,7 @@
         );
       }
 
+      var _channels = channels.slice();
       return new Promise(function(resolve, reject) {
         // Cache endpoint per channel created
         var endpoints = {};
@@ -36,14 +37,14 @@
         }
 
         function _registerChannel() {
-          if (channels.length === 0) {
+          if (_channels.length === 0) {
             // Once we are done, we resolve the promise and we start listening
             SimplePush.start();
             resolve(endpoints);
             return;
           }
 
-          var channel = channels.pop();
+          var channel = _channels.pop();
           if (!channel.name ||
               !channel.handler ||
               typeof channel.handler !== 'function') {
