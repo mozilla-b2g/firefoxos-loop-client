@@ -38,12 +38,12 @@
       _url,
       function onSMSShared() {
         CallLog.addUrl(_generateUrlObject(), _contactInfo);
-        Share.hide();
       },
       function onError() {
         // TODO Do we need to show something to the user?
       }
     );
+    Share.hide();
   }
     
   function _newMail(id) {

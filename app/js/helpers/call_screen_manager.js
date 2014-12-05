@@ -350,13 +350,13 @@
                     // Get URL to share and show prompt
                     CallHelper.generateCallUrl(params.identities[0],
                       function onCallUrlSuccess(result) {
+                        _closeAttentionScreen();
                         var speaker = params.video && params.video === true;
                         Share.show(
                           result,
                           params.identities,
                           'notAUser',
                           function onShareScreen() {
-                            _closeAttentionScreen();
                             TonePlayerHelper.init('telephony');
                             TonePlayerHelper.playFailed(speaker).then(
                               function onplaybackcompleted() {
