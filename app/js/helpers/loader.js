@@ -20,6 +20,7 @@
 
   const PANELS_ID = {
     feedback: 'feedback',
+    join_room: 'join-room',
     create_room: 'new-room',
     room_detail: 'room-detail-panel',
     room_ui: 'room-ui',
@@ -172,6 +173,16 @@
         HtmlImports.populate(function() {
           resolve(RoomUI);
         }, PANELS_ID.room_ui);
+      });
+    },
+    getJoinRoom: function() {
+      if (window.JoinRoom) {
+        return Promise.resolve(JoinRoom);
+      }
+      return new Promise((resolve, reject) => {
+        HtmlImports.populate(function() {
+          resolve(JoinRoom);
+        }, PANELS_ID.join_room);
       });
     },
     getRoomManager: function() {

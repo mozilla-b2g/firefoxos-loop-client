@@ -14,7 +14,7 @@
   var panel, elementList, leaveButton, toggleMicButton, switchSpeakerButton,
       toggleVideoButton, localVideo, fakeVideoContainer, fakeLocalVideo,
       localStream, remoteVideo, localVideoContainer, remoteVideoContainer,
-      roomName, participantName, roomAvatar;
+      roomName, participantName, roomAvatar, roomControls;
 
   var noop = function() {};
 
@@ -27,7 +27,7 @@
       isSpeakerEnabled = true,
       isVideoEnabled = true;
 
-  var sessionConstraints, frontCamera, mode, cameraConstraints;
+  var sessionConstraints, frontCamera, cameraConstraints;
 
   function updateButtonStatus() {
     toggleMicButton.dataset.enabled = !isMicEnabled;
@@ -69,22 +69,12 @@
       roomAvatar = document.getElementById('rui-name-avatar');
 
       participantName = document.getElementById('rui-participant-name');
+      roomControls = document.querySelector('.room-controls');
       Countdown.init();
     }
 
-    // Tokbox is removing the elements where the video is appended to, so
-    // we need to restore them if missing
-    appendTokboxTargets();
-
-    isSpeakerEnabled = isVideoEnabled = params.video;
-    isMicEnabled = true;
-    panel.dataset.localVideo = isVideoEnabled;
-    frontCamera = params.frontCamera;
-    mode = !!frontCamera ? 'user': 'environment';
-    cameraConstraints = {facingMode: mode, require: ['facingMode']};
-    sessionConstraints = {video: cameraConstraints, audio: true};
-
-    updateButtonStatus();
+    roomControls.classList.add('hide');
+    roomName.textContent = params.roomName;
   }
 
   function leaveButtonClicked() {
@@ -164,9 +154,10 @@
     panel.dataset.status = '';
     removeFakeVideo();
     removeHandlers();
-    cleanUI();
-    Countdown.reset();
-    Navigation.to('calllog-panel', 'bottom');
+    Navigation.to('calllog-panel', 'bottom').then(() => {
+      cleanUI();
+      Countdown.reset();
+    });
   }
 
   function showFakeVideo() {
@@ -204,6 +195,27 @@
       debug && console.log('Error while removing fake local video');
     }
     fakeLocalVideo = null;
+  }
+
+  function join(params) {
+    roomControls.classList.remove('hide');
+    RoomUI.setWaiting();
+    attachHandlers();
+
+    // Tokbox is removing the elements where the video is appended to, so
+    // we need to restore them if missing
+    appendTokboxTargets();
+
+    isSpeakerEnabled = isVideoEnabled = params.video !== 'false';
+    isMicEnabled = true;
+    panel.dataset.localVideo = isVideoEnabled;
+
+    var mode = params.frontCamera ? 'user': 'environment';
+    cameraConstraints = {facingMode: mode, require: ['facingMode']};
+    sessionConstraints = {video: cameraConstraints, audio: true};
+
+    updateButtonStatus();
+    showFakeVideo();
   }
 
   var RoomUI = {
@@ -250,8 +262,6 @@
       var guestText = _('guest');
         roomAvatar.textContent = guestText[0];
         participantName.textContent = guestText;
-
-      showFakeVideo();
     },
 
     setConnected: function(isRemoteVideo) {
@@ -289,10 +299,6 @@
       panel.dataset.remoteVideo = isRemoteVideo;
     },
 
-    updateName: function(name) {
-      roomName.textContent = name;
-    },
-
     updateParticipant: function(name, account) {
       if (name && name.length > 0) {
         participantName.textContent = name;
@@ -319,10 +325,25 @@
     },
 
     show: function(params) {
-      render(params);
-      RoomUI.setWaiting();
-      attachHandlers();
-      Navigation.to('room-ui', 'top');
+      return new Promise((resolve, reject) => {
+        render(params);
+        if (params.video !== 'false') {
+          Loader.getJoinRoom(params.roomName).then((JoinRoom) => {
+            JoinRoom.show().then((roomParams) => {
+              params.frontCamera = roomParams.isFrontCamera;
+              join(params);
+              resolve();
+            }, () => {
+              reject();
+            });
+            Navigation.to('room-ui', 'top');
+          });
+        } else {
+          join(params);
+          Navigation.to('room-ui', 'top');
+          resolve();
+        }
+      });
     },
 
     hide: hide

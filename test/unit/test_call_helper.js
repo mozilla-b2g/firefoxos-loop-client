@@ -1,5 +1,9 @@
 'use strict';
 
+require('js/config.js');
+require('js/helpers/call_helper.js');
+require('js/helpers/client_request_helper.js');
+
 suite('CallHelper >', function() {
 
   suite('Generate Call Url function', function() {
