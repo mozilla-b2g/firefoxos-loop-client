@@ -219,8 +219,21 @@
             // notification (due we are connected and waiting the other
             // peer)
             if (!room.participants ||
-                room.participants.length === 0 ||
-                room.participants.length === MAX_PARTICIPANTS) {
+                room.participants.length === 0) {
+              return;
+            }
+
+            if (room.participants.length === MAX_PARTICIPANTS) {
+              for (var i = 0, l = room.participants.length; i < l; i++) {
+                if (room.participants[i].account !== Controller.identity) {
+                  RoomController.addParticipant(
+                    room.roomToken,
+                    room.participants[i].displayName,
+                    room.participants[i].account
+                  );
+                  break;
+                }
+              }
               return;
             }
 
@@ -240,9 +253,6 @@
                     }
                   );
                 });
-                // TODO Add logic to let the room UI that the other
-                // peer has joined.
-                // https://bugzilla.mozilla.org/show_bug.cgi?id=1107033
                 break;
               }
             }

@@ -4,6 +4,7 @@
   var debug = Config.debug;
 
   var refreshTimeOut;
+  var isConnected = false, currentToken;
 
   const ROOM_ACTION_JOIN = 'join';
   const ROOM_CLIENT_MAX_SIZE = 2;
@@ -65,13 +66,20 @@
             Rooms.leave(params.token);
             return;
           }
+
+          isConnected = true;
+          currentToken = params.token;
+
+          Rooms.get(params.token).then(function(room) {
+            RoomUI.updateName(room.roomName);
+          });
+
           Loader.getRoomManager().then((RoomManager) => {
             var roomManager = new RoomManager();
             roomManager.on({
               joining: function(event) {
                 debug && console.log('Room joining');
 
-                RoomUI.removeFakeVideo();
               },
               joined: function(event) {
                 debug && console.log('Room joined');
@@ -87,19 +95,26 @@
               },
               participantJoined: function(event) {
                 debug && console.log('Room participant joined');
+                RoomUI.setConnected();
+              },
+              participantVideoAdded: function(event) {
+                RoomUI.showRemoteVideo(true);
+              },
+              participantVideoDeleted: function(event) {
+                RoomUI.showRemoteVideo(false);
               },
               participantLeaving: function(event) {
                 debug && console.log('Room participant leaving');
               },
               participantLeft: function(event) {
                 debug && console.log('Room participant left');
-
-                RoomUI.appendRemoteTargetElement();
+                RoomUI.setWaiting();
               },
               error: function(event) {
                 // TODO: we should show some kind of error in the UI.
                 debug && console.log('Error while joining room');
-
+                isConnected = false;
+                currentToken = null;
                 RoomUI.hide();
                 window.clearTimeout(refreshTimeOut);
                 Rooms.leave(params.token);
@@ -108,8 +123,9 @@
 
             RoomUI.onLeave = function() {
               Rooms.leave(params.token);
-              RoomUI.removeFakeVideo();
               roomManager.leave();
+              isConnected = false;
+              currentToken = null;
             };
 
             RoomUI.onToggleMic = function() {
@@ -134,10 +150,16 @@
           // TODO: we should show some kind of error in the UI.
           debug && console.log('Error while joining room');
           alert('Room is full of participants');
-          RoomUI.removeFakeVideo();
+          currentToken = null;
+          isConnected = false;
           RoomUI.hide();
         });
       });
+    },
+    addParticipant: function(token, name, account) {
+      if (isConnected && currentToken && (currentToken === token)) {
+        RoomUI.updateParticipant(name, account);
+      }
     }
   };
 
