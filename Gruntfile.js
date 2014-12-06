@@ -37,7 +37,7 @@ module.exports = function(grunt) {
       all: {
         options: {
           run: true,
-          urls: ['http://0.0.0.0:9002/index.html'],
+          urls: ['http://127.0.0.1:9002/index.html'],
           bail: true,
           logErrors: true,
           reporter: 'Spec'
