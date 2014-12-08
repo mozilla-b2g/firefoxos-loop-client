@@ -53,6 +53,34 @@
       params: [element]
     });
 
+    // Share a room
+    items.push({
+      name: 'Share',
+      l10nId: 'shareRoom',
+      method: function(element) {
+        var roomToken = element.dataset.roomToken;
+        roomToken && RoomsDB.get(roomToken).then((room) => {
+          Loader.getShare().then(() => {
+            Share.toContact(
+              {
+                type: 'room',
+                url: room.roomUrl
+              },
+              function onShared() {
+                console.log('Lets add this to DB');
+                // TODO Implement when
+                // https://bugzilla.mozilla.org/show_bug.cgi?id=1102849
+              },
+              function onError() {
+                // Currently we dont need to show any error here, add if needed
+              }
+            );
+          });
+        });
+      },
+      params: [element]
+    });
+
     // Delete a room
     items.push({
       name: 'Delete',
