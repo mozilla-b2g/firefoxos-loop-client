@@ -42,13 +42,13 @@
   function _showRoomSecondaryMenu(element) {
     var items = [];
 
-    // Join a room
+    // Show details
     items.push({
-      name: 'Join',
-      l10nId: 'join',
+      name: 'Show details',
+      l10nId: 'showDetails',
       method: function(element) {
         var roomToken = element.dataset.roomToken;
-        roomToken && Controller.joinRoom(roomToken);
+        roomToken && RoomsDB.get(roomToken).then(Controller.showRoomDetails);
       },
       params: [element]
     });
@@ -958,7 +958,7 @@
 
     roomsSectionEntries.addEventListener('click', (event) => {
       var roomToken = event.target.dataset.roomToken;
-      roomToken && RoomsDB.get(roomToken).then(Controller.showRoomDetails);
+      roomToken && Controller.joinRoom(roomToken);
     });
   }
 
