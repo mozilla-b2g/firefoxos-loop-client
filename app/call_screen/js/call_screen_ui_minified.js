@@ -42,6 +42,12 @@
         }
       });
 
+      var subject = callParams.subject;
+      if (subject) {
+        document.getElementById('subject').textContent = subject;
+        document.body.dataset.subject = true;
+      }
+
       // Based on the type of the call, we are going to render the maximum
       // info available
       if (callParams.layout === 'incoming') {

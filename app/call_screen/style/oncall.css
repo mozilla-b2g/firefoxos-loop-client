@@ -211,6 +211,10 @@ h1, h2, h3 {
   border-radius: 50%;
 }
 
+body[data-subject="true"] .remote-bubble {
+  top: 9.5rem; /* Translated 2.5rem to show subject */
+}
+
 .remote-bubble-shadow {
   position: absolute;
   top: 6.7rem;
@@ -220,6 +224,10 @@ h1, h2, h3 {
   border-radius: 50%;
   background: linear-gradient(#5bc0a4 0, #00a9dc 100%);
   z-index: 5;
+}
+
+body[data-subject="true"] .remote-bubble-shadow {
+  top: 9.2rem; /* Translated 2.5rem to show subject */
 }
 
 .remote-bubble.default {
@@ -274,22 +282,35 @@ h1, h2, h3 {
  * Contact info.
  */
 
-#contact-name-details {
+#contact-name-details, #subject {
   margin: 0;
   text-align: center;
   position: absolute;
-  top: 2rem;
-  font-size: 2.7rem;
   font-style: italic;
   font-weight: 300;
   width: 100%;
   color: white;
   box-sizing: border-box;
-  padding: .5rem 3rem;
   overflow: hidden !important;
   white-space: nowrap;
   text-overflow: ellipsis;
   z-index: 10;
+}
+
+#contact-name-details {
+  top: 2rem;
+  font-size: 2.7rem;
+  padding: .5rem 3rem;
+}
+
+body[data-subject="true"] #contact-name-details {
+  top: 1rem;
+}
+
+#subject {
+  top: 5rem;
+  font-size: 2rem;
+  padding: 0 3rem;
 }
 
 #call-info {
@@ -298,6 +319,10 @@ h1, h2, h3 {
   transform: translateY(24.5rem);
   z-index: 10;
   justify-content: center;
+}
+
+body[data-subject="true"] #call-info {
+  transform: translateY(27rem);
 }
 
 #counter {
@@ -632,6 +657,11 @@ body[data-call-status='connected'][data-remote-video="on"][data-rotation="180"] 
   transform: translateY(6rem);
 }
 
+body[data-subject='true'][data-call-status='connected'][data-remote-video="on"][data-rotation="0"] #call-info,
+body[data-subject='true'][data-call-status='connected'][data-remote-video="on"][data-rotation="180"] #call-info {
+  transform: translateY(8.5rem);
+}
+
 body[data-call-status='hold'] .remote-bubble-shadow,
 body[data-call-status='remotehold'] .remote-bubble-shadow {
   background: rgba(255,255,255,0.5);
@@ -681,9 +711,30 @@ body[data-rotation="270"] #contact-name-details {
   padding: 0 1.5rem;
 }
 
+body[data-subject="true"][data-rotation="90"] #contact-name-details,
+body[data-subject="true"][data-rotation="90"] #contact-name-details {
+  top: 1rem;
+}
+
+body[data-subject="true"][data-rotation="90"] #subject,
+body[data-subject="true"][data-rotation="90"] #subject {
+  top: 4.5rem;
+  padding: 0 3rem;
+}
+
 body[data-rotation="90"] #call-info,
 body[data-rotation="270"] #call-info{
   transform: translateY(4.5rem);
+}
+
+body[data-subject="true"][data-rotation="90"] #call-info,
+body[data-subject="true"][data-rotation="270"] #call-info{
+  transform: translateY(23rem);
+}
+
+body[data-subject="true"][data-call-status='connected'][data-remote-video="on"][data-rotation="90"] #call-info,
+body[data-subject="true"][data-call-status='connected'][data-remote-video="on"][data-rotation="270"] #call-info{
+  transform: translateY(8rem);
 }
 
 body[data-rotation="90"] #fullscreen-video .OT_video-container video,
