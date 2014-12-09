@@ -129,51 +129,70 @@
     this.cursor = cursor;
     this.filter = filter;
     this.returnedItems = 0;
-    this._onsuccess = this._onerror = null;
+    this._attachHandlers();
   }
 
   FilteredCursor.prototype = {
     set onsuccess(success) {
       this._onsuccess = success;
-      this._perform();
+      this._dispatchOnReady();
     },
 
     set onerror(error) {
       this._onerror = error;
-      this._perform();
+      this._dispatchOnReady();
     },
 
-    _perform: function() {
-      if (!this._onsuccess || !this._onerror) {
-        return;
+    _dispatchOnReady: function() {
+      if (this._onsuccess && this._onerror) {
+        this._onReady && this._onReady();
+      }
+    },
+
+    _isReady: function() {
+      if (this._onsuccess && this._onerror) {
+        this._isReady = () => {
+          return Promise.resolve();
+        }
+        return this._isReady();
       }
 
+      return new Promise((resolve, reject) => {
+        this._onReady = resolve;
+      });
+    },
+
+    _attachHandlers: function() {
       var cursor = this.cursor;
       var filter = this.filter;
 
       cursor.onsuccess = (event) => {
-        var item = event.target.result;
-        if (!item) {
-          return this._onsuccess(event);
-        }
-
-        if (item.value[filter.name] === filter.value) {
-          this.returnedItems++;
-          this._onsuccess(event);
-        } else {
-          if (this.returnedItems > 0) {
-            // That's all folks !
-            return this._onsuccess({
-              target: {
-                result: null
-              }});
+        this._isReady().then(() => {
+          var item = event.target.result;
+          if (!item) {
+            return this._onsuccess(event);
           }
-          item.continue();
-        }
+
+          if (!filter || item.value[filter.name] === filter.value) {
+            this.returnedItems++;
+            this._onsuccess(event);
+          } else {
+            if (this.returnedItems > 0) {
+              // That's all folks !
+              return this._onsuccess({
+                target: {
+                  result: null
+                }});
+            }
+            item.continue();
+          }
+        });
       };
 
       cursor.onerror = (event) => {
-        this._onerror(event);
+        this._isReady().then(() => {
+          this._onerror(event);
+        });
       };
     }
   };
@@ -298,7 +317,8 @@
               });
               resolve(filteredCursor);
             } else {
-              resolve(cursor);
+              var myCursor = new FilteredCursor(cursor);
+              resolve(myCursor);
             }
           }
         }, _roomsStore, aFilter);
