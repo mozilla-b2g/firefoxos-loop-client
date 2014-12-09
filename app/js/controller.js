@@ -351,6 +351,9 @@
     },
 
     callIdentities: function(params, done) {
+      // The user could make a call from the contact app and the share screen
+      // might be shown. Let's hide it.
+      window.ShareScreen && ShareScreen.hide();
       params = params || {};
       Loader.getConversationDetail().then((ConversationDetail) => {
         ConversationDetail.show(params).then((conversationParams) => {
@@ -445,7 +448,7 @@
       });
     },
 
-    shareUrl: function (url, onsuccess, onerror) {
+    shareUrl: function (params, onsuccess, onerror) {
       debug && console.log('Loop web URL ' + url);
 
       if (typeof onerror !== 'function') {

@@ -351,8 +351,10 @@
                   }
                   _abortCall(null);
                   // Get URL to share and show prompt
-                  CallHelper.generateCallUrl(
-                    params.identities[0],
+                  CallHelper.generateCallUrl({
+                      callerId: params.identities[0],
+                      subject: params.subject || ''
+                    },
                     function onCallUrlSuccess(result) {
                       var speaker = params.video && params.video === true;
                       getShareUI().then((ui) => {

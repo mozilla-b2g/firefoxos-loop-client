@@ -1,3 +1,7 @@
+#conversation-detail {
+  z-index: 200;
+}
+
 #conversation-detail form {
   padding: 3rem 0 2.6rem;
   margin: 0 1.5rem;
