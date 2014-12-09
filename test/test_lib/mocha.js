@@ -4246,8 +4246,8 @@ Runner.prototype.fail = function(test, err){
   if ('string' == typeof err) {
     err = new Error('the string "' + err + '" was thrown, throw an Error :)');
   }
-  
-  this.emit('fail', test, err);
+
+  this.emit('fail', test, {message: err.message, stack: err.stack});
 };
 
 /**

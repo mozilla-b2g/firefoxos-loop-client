@@ -25,18 +25,17 @@
 
     <!-- run mocha -->
     <script type="text/javascript">
-        mocha.run(); // run mocha
-    </script>
-
-    <!-- Hack to make bind work with phantomJS  -->
-    <!-- https://github.com/ariya/phantomjs/issues/10522 -->
-    <!-- https://github.com/c9/smith/blob/master/tests/public/test.js#L2-L7 -->
-    <script type="text/javascript">
-        Function.prototype.bind = Function.prototype.bind || function(thisp) {
-            var fn = this;
-            return function() {
-                return fn.apply(thisp, arguments);
-            };
-        };
+      window.addEventListener('load', function() {
+        // Ok, this kinda sucks, but without the kinda part. There's also no
+        // but there's no other way around it that I can think.
+        // The mocha-slimer module injects some code after the page is loaded.
+        // If we run run() before that's loaded, then the tests don't count, so
+        // the only real way is to use run: true on the mocha-slimer options. But
+        // then we have to avoid running it here or we end running the tests twice.
+        // Concurrently (or interleaved) with themselves. Which usually isn't good.
+        if (navigator.userAgent.search('SlimerJS') < 0) {
+           mocha.run(); // run mocha
+        }
+      });
     </script>
 
