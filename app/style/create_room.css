@@ -1,3 +1,7 @@
+#new-room {
+  z-index: 150;
+}
+
 #new-room button {
   color: white;
 }
