@@ -126,57 +126,74 @@
   });
 
   function FilteredCursor(cursor, filter) {
-    this.cursor = cursor;
-    this.filter = filter;
-    this.returnedItems = 0;
-    this._onsuccess = this._onerror = null;
-  }
+    var buffer = [];
+    var cursorPosition = -1;
+    var mainCursorFinished = false;
+    var newItemEvent = new Event('filteredcursor_new_item');
 
-  FilteredCursor.prototype = {
-    set onsuccess(success) {
-      this._onsuccess = success;
-      this._perform();
-    },
+    function getNextFilteredItem() {
+      if (!mainCursorFinished && cursorPosition === (buffer.length - 1)) {
+        // We should wait for more buffer items
+        return new Promise(function(resolve) {
+          window.addEventListener('filteredcursor_new_item',
+            function onNewItem() {
+              window.removeEventListener('filteredcursor_new_item',
+                onNewItem, false);
 
-    set onerror(error) {
-      this._onerror = error;
-      this._perform();
-    },
-
-    _perform: function() {
-      if (!this._onsuccess || !this._onerror) {
-        return;
+              resolve(buffer[++cursorPosition]);
+            }, false);
+        });
       }
-
-      var cursor = this.cursor;
-      var filter = this.filter;
-
-      cursor.onsuccess = (event) => {
-        var item = event.target.result;
-        if (!item) {
-          return this._onsuccess(event);
-        }
-
-        if (item.value[filter.name] === filter.value) {
-          this.returnedItems++;
-          this._onsuccess(event);
-        } else {
-          if (this.returnedItems > 0) {
-            // That's all folks !
-            return this._onsuccess({
-              target: {
-                result: null
-              }});
-          }
-          item.continue();
-        }
-      };
-
-      cursor.onerror = (event) => {
-        this._onerror(event);
-      };
+      return Promise.resolve(buffer[++cursorPosition]);
     }
-  };
+
+    var self = this;
+    function nextFilteredItem() {
+      var responseEvent = {
+        target: {
+          result: null
+        }
+      };
+      if (mainCursorFinished && cursorPosition === (buffer.length - 1)) {
+        // That's all folks !
+        return self.onsuccess(responseEvent);
+      }
+      getNextFilteredItem().then(function(value) {
+        responseEvent.target.result = {
+          value: value,
+          continue: nextFilteredItem
+        };
+        self.onsuccess(responseEvent);
+      });
+    }
+
+    cursor.onsuccess = function _filteredCursorBuffering(evt) {
+      var item = evt.target.result;
+      if (!item) {
+        return mainCursorFinished = true;
+      }
+      if (item.value[filter.name] === filter.value) {
+        buffer.push(item.value);
+        if (cursorPosition < 0) {
+          // Shot first item !
+          nextFilteredItem();
+        } else {
+          window.dispatchEvent(newItemEvent);
+        }
+      } else {
+        if (buffer.length > 0) {
+          // They are sorted, so no more items to recover
+          return mainCursorFinished = true;
+        }
+      }
+      item.continue();
+    };
+    cursor.onerror = this.onerror;
+  }
+  FilteredCursor.prototype = {
+    onerror: function() {},
+    onsuccess: function() {}
+  }
 
   var RoomsDB = {
     /**
@@ -286,7 +303,7 @@
       return new Promise(function(resolve, reject) {
         _dbHelper.getList(function(error, cursor) {
           if (error) {
-            return reject(error);
+            reject(error);
           } else {
             if (!field || field === '' || field === 'creationTime') {
               // These are special cases. We want to filter & sort
