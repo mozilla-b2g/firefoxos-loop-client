@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Mocha tests</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="test_lib/mocha.css">
+
+    <!-- include mocha + chai + sinon -->
+    <script src="test_lib/mocha.js" type="text/javascript"></script>
+    <script src="test_lib/chai.js" type="text/javascript"></script>
+    <script src="test_lib/sinon.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+    <!-- required for browser reporter -->
+    <div id="mocha"></div>
+
+    <script type="text/javascript">
+        mocha.setup('tdd');
+        mocha.globals([ // acceptable globals
+        ]);
+    </script>
+
+    <!-- run mocha -->
+    <script type="text/javascript">
+        mocha.run(); // run mocha
+    </script>
+
+    <!-- Hack to make bind work with phantomJS  -->
+    <!-- https://github.com/ariya/phantomjs/issues/10522 -->
+    <!-- https://github.com/c9/smith/blob/master/tests/public/test.js#L2-L7 -->
+    <script type="text/javascript">
+        Function.prototype.bind = Function.prototype.bind || function(thisp) {
+            var fn = this;
+            return function() {
+                return fn.apply(thisp, arguments);
+            };
+        };
+    </script>
+

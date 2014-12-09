@@ -17,6 +17,11 @@ module.exports = function(grunt) {
     'grunt-mocha'
   ].forEach(grunt.loadNpmTasks);
 
+  var TEST_HEADER = grunt.file.read('test/test_header.html');
+  var TEST_FOOTER = grunt.file.read('test/test_footer.html');
+  var TEST_DIR = 'test/test_scripts/';
+  var TEST_DIR_LENGTH = TEST_DIR.length;
+
   grunt.initConfig({
     connect: {
       test: {
@@ -37,7 +42,17 @@ module.exports = function(grunt) {
       all: {
         options: {
           run: true,
-          urls: ['http://0.0.0.0:9002/index.html'],
+
+          // Generate the test file list automatically... Maybe there's an
+          // easier way to do this.
+          urls: grunt.file.expand({}, [TEST_DIR + '*.html']).map(
+            function(value) {
+              var testContent = grunt.file.read(value);
+              var outputFile = 'gtest_' + value.substring(TEST_DIR_LENGTH);
+              grunt.file.write('test/' + outputFile, TEST_HEADER + testContent +
+                               TEST_FOOTER);
+              return 'http://0.0.0.0:9002/' + outputFile;
+          }),
           bail: true,
           logErrors: true,
           reporter: 'Spec'
@@ -49,11 +64,8 @@ module.exports = function(grunt) {
       server: [
         '.tmp'
       ],
-      preTest: [
-        'test/index.html'
-      ],
       postTest: [
-        'src/'
+        'test/gtest_*.html'
       ],
       app: [
         'application.zip'
@@ -61,17 +73,6 @@ module.exports = function(grunt) {
     },
 
     copy: {
-      test: {
-        files: [{
-          expand: true,
-          cwd: 'src',
-          src: ['index.template.html'],
-          dest: 'test',
-          rename: function() {
-            return 'test/index.html';
-          }
-        }]
-      },
       build: {
           expand: true,
           cwd: 'app',
@@ -83,27 +84,6 @@ module.exports = function(grunt) {
           cwd: '.',
           src: ['application.zip', 'metadata.json'],
           dest: '<%= (process.env.GAIA_OUTOFTREE_DIR || "deliver") + "/" + grunt.config.get("origin") %>'
-      }
-    },
-
-    // We use htmlbuild to add the tests dependencies to test/index.html
-    // This avoid us to manually add the dependencies every time we add a
-    // new test or script file.
-    htmlbuild: {
-      src: 'test/index.template.html',
-      // "dest" is not working with the current htmlbuild version, so we need
-      // to manually move src/index.html to test/index.html
-      // dest: 'test/',
-      options: {
-        beautify: true,
-        relative: true,
-        scripts: {
-          libs: 'app/libs/*.js',
-          tokbox: 'app/libs/tokbox/**/*.js',
-          helpers: 'app/js/helpers/*.js',
-          screens: 'app/js/screens/*.js',
-          js: 'app/js/*.js',
-        }
       }
     },
 
@@ -149,12 +129,9 @@ module.exports = function(grunt) {
 
   grunt.registerTask('test', 'Launch tests in shell with PhantomJS', [
     'clean:server',
-    'clean:preTest',
-    'htmlbuild',
-    'copy:test',
-    'clean:postTest',
     'connect:test',
-    'mocha'
+    'mocha',
+    'clean:postTest'
   ]);
 
   grunt.registerTask('saveRevision', function() {
