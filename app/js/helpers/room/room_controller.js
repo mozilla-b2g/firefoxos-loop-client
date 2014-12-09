@@ -72,6 +72,10 @@
 
           Rooms.get(params.token).then(function(room) {
             RoomUI.updateName(room.roomName);
+            if (Controller.identity !== room.roomOwner) {
+              room.roomToken = params.token;
+              CallLog.addRoom(room);
+            }
           });
 
           Loader.getRoomManager().then((RoomManager) => {

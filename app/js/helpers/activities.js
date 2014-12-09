@@ -99,11 +99,7 @@
           console.error('Activity is not sending required data');
           return;
         }
-        // TODO Bug 1104057
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1104057
-        // Connect standalone UI with the 'Basic room' screen via activity
-        debug && console.log ("TODO: Bug 1104057: Connect standalone UI with " +
-                              "the 'Basic room' screen via activity");
+        Controller.joinRoom(activityParams.token);
         // TODO: Perhaps some Telemetry here
         break;
     }
