@@ -47,6 +47,11 @@ This is the task that builds the app for releasing it.
 This is the task we have for unit testing. It launches tests in shell with
 PhantomJS.
 
+To add a new test, you only have to write the test (and add it somewhere under
+the test/ directory, preferably on test/unit) and then add a new .html file to
+test/test_scripts. That file should have the <script> tags to load your unit
+test and any other script file you need (like the one you're actually testing).
+
 #### Grunt options
 
 There are many flags that allow you to configure different parameters of the
