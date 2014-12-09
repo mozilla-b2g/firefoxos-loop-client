@@ -45,7 +45,6 @@
 
   function show(cb) {
     modal.classList.remove('hide');
-    initCameraByDefault();
     // We emit this event to center properly the header
     window.dispatchEvent(new CustomEvent('lazyload', {
       detail: modal
@@ -108,13 +107,19 @@
     callButton.disabled = countdown < 0;
   }
 
-  function initSubject(subject) {
-    if (!subject) {
-      return;
-    }
+  function init(params) {
+    params = params || {};
 
-    subjectInput.value = subject;
+    var subject = params.subject;
+    if (subject) {
+      subjectInput.value = subject;
+    }
     calculateCounter();
+
+    var isVideoCall = modal.dataset.isVideo = 'isVideoCall' in params ?
+                      params.isVideoCall : Settings.isVideoDefault;
+
+    isVideoCall && initCameraByDefault();
   }
 
   function attachHandlers() {
@@ -140,12 +145,12 @@
   }
 
   exports.ConversationDetail = {
-    show: function(subject) {
+    show: function(params) {
       return new Promise((resolve, reject) => {
         callAction = resolve;
         dismissAction = reject;
         render();
-        initSubject(subject);
+        init(params);
         show(attachHandlers);
       });
     }

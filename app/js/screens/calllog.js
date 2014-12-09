@@ -454,7 +454,7 @@
     callElement.id = call.date.getTime();
     callElement.dataset.timestampIndex = call.date.getTime();
     callElement.dataset.contactId = call.contactId;
-    callElement.dataset.subject = call.subject || '';
+    var subject = callElement.dataset.subject = call.subject || '';
     callElement.dataset.identities = call.identities;
     callElement.dataset.revoked = call.revoked;
     if (call.urlToken) {
@@ -480,7 +480,8 @@
         type: call.type,
         primary: call.contactPrimaryInfo || call.identities[0] || _('unknown'),
         time: datePretty,
-        duration: durationPretty
+        duration: durationPretty,
+        subject: subject
       });
     } else {
       callElement.innerHTML = _templateUrlCalls.interpolate({
@@ -489,7 +490,8 @@
         primary: call.contactPrimaryInfo || call.identities[0] || _('unknown'),
         link: call.revoked ? _('revoked') : call.url,
         time: datePretty,
-        duration: durationPretty
+        duration: durationPretty,
+        subject: subject
       });
     }
     return callElement;
