@@ -4,7 +4,7 @@
   var _sharePanel, _closeButton, _shareOthers, _shareSMS,
       _shareEmail, _contactName, _urlshown, _shareInfo,
       _shareInfoPhoto, _sharingReason;
-  
+
   var _contact, _contactInfo, _url, _urlObject, _identities = [];
   var _tels = [], _mails = [];
 
@@ -48,7 +48,7 @@
       }
     );
   }
-    
+
   function _newMail(id) {
     Controller.sendUrlByEmail(
       {
@@ -172,13 +172,13 @@
     if (_tels.length === 0) {
       _shareSMS.style.display = 'none';
     } else {
-      _shareSMS.style.display = 'block';
+      _shareSMS.style.display = 'flex';
     }
 
     if (_mails.length === 0) {
       _shareEmail.style.display = 'none';
     } else {
-      _shareEmail.style.display = 'block';
+      _shareEmail.style.display = 'flex';
     }
   }
 
@@ -193,7 +193,7 @@
     }
     return identities;
   }
-  
+
   function _render(identities, url, sharingReason) {
     _identities = identities;
     // Firsf of all we update the basics, the reason and
