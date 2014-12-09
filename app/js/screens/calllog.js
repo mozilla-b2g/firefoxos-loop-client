@@ -67,14 +67,7 @@
               },
               function onShared(contact, identity) {
                 console.log('Lets add this to DB');
-                Loader.getRoomEvent().then(RoomEvent => {
-                  RoomEvent.save({type: RoomEvent.type.shared,
-                                  token: roomToken,
-                                  contactId: contact.id,
-                                  identity: identity});
-                });
-                // TODO Implement when
-                // https://bugzilla.mozilla.org/show_bug.cgi?id=1102849
+                Controller.onRoomShared(room, contact, identity);
               },
               function onError() {
                 // Currently we dont need to show any error here, add if needed
@@ -606,18 +599,21 @@
     var creationTime = _getRoomCreationDate(rawRoom);
     roomElement.dataset.timestampIndex = creationTime.getTime();
     roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
-    roomElement.dataset.identities = roomElement.dataset.roomOwner =
-                                     rawRoom.roomOwner;
+    roomElement.dataset.roomOwner = rawRoom.roomOwner;
+    roomElement.dataset.identities = rawRoom.identities;
     roomElement.dataset.participants =
       rawRoom.participants.length === MAX_PARTICIPANTS ?
         'full':rawRoom.participants.length;
     roomElement.dataset.contactId = rawRoom.contactId;
     var roomName = roomElement.dataset.roomName = rawRoom.roomName;
-
+    var lastSharedPerson = rawRoom.contactPrimaryInfo;
+    if (lastSharedPerson) {
+      roomElement.dataset.shared = true;
+    }
     roomElement.innerHTML = _templateRoom.interpolate({
       roomToken: rawRoom.roomToken,
       roomName: roomName,
-      roomOwner: rawRoom.contactPrimaryInfo || rawRoom.roomOwner,
+      lastSharedPerson: lastSharedPerson,
       creationTime: Utils.getFormattedHour(creationTime)
     });
 
@@ -710,7 +706,7 @@
   function _updateContactInfo(aElement, aContact) {
     // '.primary-info > p' -> Calls in call log | '.primary-info' -> Rooms
     var primaryInfo = aElement.querySelector('.primary-info > p') ||
-                      aElement.querySelector('.room-owner');
+                      aElement.querySelector('.last-shared-with');
 
     if (aContact) {
       var identities = [];
@@ -1017,8 +1013,8 @@
     return new Date(+room.creationTime * 1000);
   }
 
-  function _addRoom(room, contactInfo) {
-    return RoomsDB.create(room, contactInfo).then((room) => {
+  function _addRoom(room) {
+    return RoomsDB.create(room).then((room) => {
       Loader.getRoomEvent().then(RoomEvent => {
         RoomEvent.save({type: RoomEvent.type.created,
                         token: room.roomToken,
@@ -1143,15 +1139,7 @@
     },
 
     addRoom: function(room) {
-      return new Promise(function(resolve, reject) {
-        ContactsHelper.find({
-          identities: room.roomOwner
-        }, function(result) {
-          _addRoom(room, result).then(resolve, reject);
-        }, function() {
-          _addRoom(room).then(resolve, reject);
-        });
-      });
+      return _addRoom(room);
     },
 
     removeRooms: function(roomTokens) {

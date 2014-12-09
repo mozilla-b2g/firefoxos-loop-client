@@ -134,7 +134,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
 .calllog-section .call-time,
 .calllog-section .retry-count,
-.calllog-section .room-owner,
+.calllog-section .last-shared-with,
 .calllog-section .subject {
   font-size: 1.5rem;
   color: #858585;
@@ -143,6 +143,10 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
 #rooms-section-entries li {
   padding: 0;
+}
+
+#rooms-section-entries li:not([data-shared]) .primary-info {
+  line-height: 4rem;
 }
 
 #rooms-section-entries li[data-participants]:before {
@@ -154,6 +158,10 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   width: 1.6rem;
   background: url("images/rooms_list_sprite.png") 0 -1.6rem no-repeat;
   background-size: 1.6rem auto;
+}
+
+#rooms-section-entries li:not([data-shared])[data-participants]:before {
+  top: 2.1rem;
 }
 
 #rooms-section-entries li[data-participants="0"]:before {
@@ -173,7 +181,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   margin-right: 1.5rem !important;
 }
 
-.room-time span {
+#rooms-section-entries li[data-shared] .room-time span {
   margin-top: -1.5rem;
 }
 
@@ -189,7 +197,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   flex: 0.4
 }
 
-#rooms-section .room-owner {
+#rooms-section .last-shared-with {
   white-space: normal;
 }
 

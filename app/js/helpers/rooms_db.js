@@ -40,6 +40,14 @@
  *       date: <Date> (index),
  *       params: {}
  *     }
+ *   ],
+ *   sharedWith: [
+ *     {
+ *       contactId: [<String>],
+ *       contactPrimaryInfo: <String>,
+ *       contactPhoto: Blob,
+ *       identities: [<String>]
+ *     }
  *   ]
  * }
  *
@@ -138,31 +146,33 @@
     },
 
     /**
-     * Update Room object with contactInfo
+     * Update Room object with the last person whom the room was shared with
      * param room
      *       Object with the room
-     * param contactInfo
-     *       Object with the contact information
+     * param contact
+     *       MozContact object that represents the last person whom the room was
+     *       shared with
      */
-    setContactInfo: function(room, contactInfo) {
-      if (contactInfo) {
-        room.contactId = contactInfo.contactIds || null;
-        var contact = contactInfo.contacts ? contactInfo.contacts[0] : null;
-        if (contact) {
-          room.contactPrimaryInfo = ContactsHelper.getPrimaryInfo(contact);
-          room.contactPhoto = contact.photo ? contact.photo[0] : null;
-        }
-
-        var identities = [];
-        ['tel', 'email'].forEach(function(field) {
-          if (contact[field]) {
-            for (var i = 0, l = contact[field].length; i < l; i++) {
-              identities.push(contact[field][i].value);
-            }
-          }
-        });
-        room.identities = identities;
+    addLastSharedPerson: function(room, contact, identity) {
+      if (!contact) {
+        return;
       }
+
+      var person = {
+        contactId: contact.id,
+        contactPrimaryInfo: ContactsHelper.getPrimaryInfo(contact),
+        contactPhoto: contact.photo ? contact.photo[0] : null,
+        identities: [identity]
+      };
+
+      Object.keys(person).forEach(function(key) {
+        room[key] = person[key];
+      });
+
+      room.sharedWith = room.sharedWith || [];
+      // TODO Bug 1109560. Maybe we want to update existing people instead
+      // having dupes.
+      room.sharedWith.push(person);
     },
 
     /**
@@ -170,16 +180,13 @@
      *
      * param room
      *       Object created from the API.
-     * param contactInfo
-     *       Contact information object
      * return Promise.  The resolved promise will contain the stored record.
      *                  The rejected promise, an error string.
      */
-    create: function(room, contactInfo) {
+    create: function(room) {
       return new Promise(function(resolve, reject) {
         RoomsDB.setLocalCtime(room);
         room.user = Controller.identity;
-        RoomsDB.setContactInfo(room, contactInfo);
         _dbHelper.addRecord(function(error, storedRecord) {
           if (error) {
             reject(error);
