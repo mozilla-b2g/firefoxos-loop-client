@@ -38,12 +38,17 @@
       _url,
       function onSMSShared() {
         CallLog.addUrl(_generateUrlObject(), _contactInfo);
-        Share.hide();
+        // See bug https://bugzilla.mozilla.org/show_bug.cgi?id=1107862
+        // The 'websms/sms' activity only executes the `onsuccess` callback of
+        // the activity when the user hits the close button in the Messaging
+        // app. We took out the action of hidding the share screen from here for
+        // that reason.
       },
       function onError() {
         // TODO Do we need to show something to the user?
       }
     );
+    Share.hide();
   }
     
   function _newMail(id) {
