@@ -311,6 +311,7 @@ body[data-subject="true"] #contact-name-details {
   top: 5rem;
   font-size: 2rem;
   padding: 0 3rem;
+  font-weight: 400;
 }
 
 #call-info {
