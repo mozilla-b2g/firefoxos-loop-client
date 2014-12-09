@@ -13,6 +13,7 @@
  *   - Anyone Joined: Time and Who
  *   - I joined: Time
  *   - Communication established: Time and with who
+ *   - Shared With: Time and whom
  *
  * The object will have the following schema:
  *

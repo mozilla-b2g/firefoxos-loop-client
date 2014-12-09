@@ -24,7 +24,8 @@
     create_room: 'new-room',
     room_detail: 'room-detail-panel',
     room_ui: 'room-ui',
-    conversation_detail: 'conversation-detail'
+    conversation_detail: 'conversation-detail',
+    room_history: 'room-history-panel'
   };
 
   var Loader = {
@@ -102,6 +103,17 @@
         HtmlImports.populate(function() {
           resolve(RoomDetail);
         }, PANELS_ID.room_detail);
+      });
+    },
+    getRoomHistory: function() {
+      if (window.RoomHistory) {
+        return Promise.resolve(RoomHistory);
+      }
+
+      return new Promise((resolve, reject) => {
+        HtmlImports.populate(function() {
+          resolve(RoomHistory);
+        }, PANELS_ID.room_history);
       });
     },
     getFeedback: function(attention) {
@@ -199,6 +211,21 @@
           ],
           () => {
             resolve(RoomManager);
+          }
+        );
+      });
+    },
+    getRoomEvent: function() {
+      if (window.RoomEvent) {
+        return Promise.resolve(RoomEvent);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          [
+            'js/helpers/room/room_event.js'
+          ],
+          () => {
+            resolve(RoomEvent);
           }
         );
       });

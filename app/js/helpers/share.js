@@ -60,13 +60,15 @@
 
           // If just a phone number is found, we send SMS directly
           if (emailsLength === 0 && telsLength === 1) {
-            Share.useSMS(params, tels[0], onsuccess, onerror);
+            Share.useSMS(params, tels[0],
+                         onsuccess.bind(null, contact, tels[0]), onerror);
             return;
           }
 
           // If just a email is found, we send email directly
           if (emailsLength === 1 && telsLength === 0) {
-            Share.useEmail(params, emails[0], onsuccess, onerror);
+            Share.useEmail(params, emails[0],
+                           onsuccess.bind(null, contact, emails[0]), onerror);
             return;
           }
 
@@ -75,10 +77,11 @@
           var items = [];
 
           function _solveActivity(identity) {
+            var onShared = onsuccess.bind(null, contact, identity);
             if (identity.indexOf('@') !== -1) {
-              Share.useEmail(params, identity, onsuccess, onerror);
+              Share.useEmail(params, identity, onShared, onerror);
             } else {
-              Share.useSMS(params, identity, onsuccess, onerror);
+              Share.useSMS(params, identity, onShared, onerror);
             }
           }
 
