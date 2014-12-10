@@ -8,12 +8,37 @@
 
   const ROOM_ACTION_JOIN = 'join';
   const ROOM_CLIENT_MAX_SIZE = 2;
+  const ROOM_FEEDBACK_TYPE = 'room';
 
   const DEFAULT_JOIN_PARAMS = {
     displaName: '',
     video: true,
     frontCamera: false
   };
+
+  function rate(callback) {
+    if (typeof callback !== 'function') {
+      callback = function() {};
+    }
+    Loader.getFeedback(false /*isAttention = false*/).then(
+      function(FeedbackScreen){
+        FeedbackScreen.show(function(feedback) {
+          if (!feedback) {
+            callback();
+            return;
+          }
+          LazyLoader.load([
+            'js/helpers/metrics.js',
+            'js/helpers/feedback.js'
+          ], function() {
+            // We distinguish between calls and room chats with the type prop.
+            feedback.type = ROOM_FEEDBACK_TYPE;
+            Feedback.send(feedback);
+            callback();
+          });
+        });
+    });
+  }
 
   function refreshMembership(token, before) {
     refreshTimeOut = window.setTimeout(function() {
@@ -67,6 +92,7 @@
             return;
           }
 
+          var shouldRate = false;
           isConnected = true;
           currentToken = params.token;
 
@@ -100,6 +126,7 @@
               participantJoined: function(event) {
                 debug && console.log('Room participant joined');
                 RoomUI.setConnected();
+                shouldRate = true;
               },
               participantVideoAdded: function(event) {
                 RoomUI.showRemoteVideo(true);
@@ -130,6 +157,8 @@
               roomManager.leave();
               isConnected = false;
               currentToken = null;
+
+              shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
             };
 
             RoomUI.onToggleMic = function() {
