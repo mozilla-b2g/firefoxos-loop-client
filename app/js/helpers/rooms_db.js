@@ -125,76 +125,6 @@
       ]}
   });
 
-  function FilteredCursor(cursor, filter) {
-    var buffer = [];
-    var cursorPosition = -1;
-    var mainCursorFinished = false;
-    var newItemEvent = new Event('filteredcursor_new_item');
-
-    function getNextFilteredItem() {
-      if (!mainCursorFinished && cursorPosition === (buffer.length - 1)) {
-        // We should wait for more buffer items
-        return new Promise(function(resolve) {
-          window.addEventListener('filteredcursor_new_item',
-            function onNewItem() {
-              window.removeEventListener('filteredcursor_new_item',
-                onNewItem, false);
-
-              resolve(buffer[++cursorPosition]);
-            }, false);
-        });
-      }
-      return Promise.resolve(buffer[++cursorPosition]);
-    }
-
-    var self = this;
-    function nextFilteredItem() {
-      var responseEvent = {
-        target: {
-          result: null
-        }
-      };
-      if (mainCursorFinished && cursorPosition === (buffer.length - 1)) {
-        // That's all folks !
-        return self.onsuccess(responseEvent);
-      }
-      getNextFilteredItem().then(function(value) {
-        responseEvent.target.result = {
-          value: value,
-          continue: nextFilteredItem
-        };
-        self.onsuccess(responseEvent);
-      });
-    }
-
-    cursor.onsuccess = function _filteredCursorBuffering(evt) {
-      var item = evt.target.result;
-      if (!item) {
-        return mainCursorFinished = true;
-      }
-      if (item.value[filter.name] === filter.value) {
-        buffer.push(item.value);
-        if (cursorPosition < 0) {
-          // Shot first item !
-          nextFilteredItem();
-        } else {
-          window.dispatchEvent(newItemEvent);
-        }
-      } else {
-        if (buffer.length > 0) {
-          // They are sorted, so no more items to recover
-          return mainCursorFinished = true;
-        }
-      }
-      item.continue();
-    };
-    cursor.onerror = this.onerror;
-  }
-  FilteredCursor.prototype = {
-    onerror: function() {},
-    onsuccess: function() {}
-  }
-
   var RoomsDB = {
     /**
      * Update the localCtime of a room
@@ -305,18 +235,19 @@
           if (error) {
             reject(error);
           } else {
+            var filteredCursor = null;
             if (!field || field === '' || field === 'creationTime') {
               // These are special cases. We want to filter & sort
               // since this isn't directly supported by IndexedDB, we'll
               // create a filteredCursor in which we'll filter by logged user
-              var filteredCursor = new FilteredCursor(cursor, {
+              filteredCursor = new FilteredCursor(cursor, {
                 name: 'user',
                 value: Controller.identity
               });
-              resolve(filteredCursor);
             } else {
-              resolve(cursor);
+              filteredCursor = new FilteredCursor(cursor);
             }
+            resolve(filteredCursor);
           }
         }, _roomsStore, aFilter);
       });
@@ -546,7 +477,7 @@
           if (error) {
             reject(error);
           } else {
-            resolve(cursor);
+            resolve(new FilteredCursor(cursor));
           }
         }, _eventsStore, { index: { name: 'roomToken', value: token }});
       });
