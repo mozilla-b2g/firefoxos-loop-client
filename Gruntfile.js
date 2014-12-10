@@ -21,6 +21,18 @@ module.exports = function(grunt) {
   var TEST_DIR = 'test/test_scripts/';
   var TEST_DIR_LENGTH = TEST_DIR.length;
 
+  // We'll use XVFB by default in linux (where it's easy to get).
+  var USE_XVFB_DV = (process.platform === 'linux');
+
+  // In any case, we can disable it with the --no-useXvfb and
+  // --useXvfb options
+  // We should check that the two options are not provided
+  // simultaneously but for the time being, this is not really
+  // needed. We'll just make whatever changes the default value
+  // the one with most priority, and we just ignore the other
+  var XVFB_TOGGLE = USE_XVFB_DV ? 'no-useXvfb' : 'useXvfb';
+  var USE_XVFB = !!(USE_XVFB_DV ^ grunt.option(XVFB_TOGGLE));
+
   grunt.initConfig({
     connect: {
       test: {
@@ -57,7 +69,7 @@ module.exports = function(grunt) {
           // Please note that the Spec reporter does *not* dump the stack on errors.
           // If you need the stack, use the JSON reporter.
           reporter: grunt.option('testReporter') || 'Spec',
-          xvfb: true
+          xvfb: USE_XVFB
         }
       }
     },
