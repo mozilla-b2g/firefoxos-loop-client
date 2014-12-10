@@ -70,7 +70,7 @@
 }
 
 .wizard-tutorial-step p {
-  color: #99f5f5;
+  color: #baeaf8;
   font-size: 1.6rem;
   font-weight: 300;
   font-style: italic;
@@ -101,7 +101,7 @@
   height: 130%;
   width: 100%;
   z-index: -1;
-  background-color: #00adad;
+  background-color: #00a9dc;
 }
 
 #wizard-elements div {
@@ -176,6 +176,7 @@
   background-image: url(images/wizard/dottedline.png);
   background-position: center calc(50% - 8rem);
   opacity: 0;
+  background-size: 100% auto;
 }
 
 #wizard-elements .pins-container {
@@ -200,7 +201,7 @@
   height: 100%;
   width: 100%;
   background: url(images/wizard/pin.png) no-repeat;
-  background-size: 100% auto;
+  background-size: 32rem auto;
 }
 
 #wizard-elements .pins-container li span {
@@ -210,18 +211,16 @@
   top: 0;
   left: 0;
   background-repeat: no-repeat;
-  background-size: 100% auto;
+  background-size: 32rem auto;
 }
 
 #wizard-elements .pins-container li.left span {
   background-image: url(images/wizard/bubble_s_left.png);
-  opacity: 0.5;
   opacity: 0;
 }
 
 #wizard-elements .pins-container li.right span {
   background-image: url(images/wizard/bubble_s_right.png);
-  opacity: 1;
   opacity: 0;
 }
 
@@ -235,12 +234,12 @@
 
 #wizard-elements #wizard-main-pins #pin-1 {
   top: calc(50% - 16.5rem);
-  left: 18.5rem;
+  left: 58%;
 }
 
 #wizard-elements #wizard-main-pins #pin-2 {
-  top: calc(50% + 2.1rem);
-  left: 4.6rem;
+  top: calc(50% + 1rem);
+  left: 16%;
 }
 
 #wizard-elements #wizard-pins #pin-3 {
@@ -280,12 +279,12 @@
 
 #wizard-elements #wizard-pins #pin-10 {
   top: calc(50% - 11.5rem);
-  left: 17.7rem;
+  left: 60%;
 }
 
 #wizard-elements #wizard-pins #pin-11 {
   top: calc(50% - 13.5rem);
-  left: 24rem;
+  left: 77%;
 }
 
 #wizard-elements #wizard-pins #pin-12 {
@@ -365,7 +364,7 @@
 }
 
 [data-step="2"] #wizard-elements .pins-container.move {
-  transform: translateY(0) !important;
+  transform: translateY(2rem) !important;
   opacity: 1;
   transition: all 0.4s ease-in-out;
 }
@@ -409,7 +408,7 @@
 
 #wizard-login {
   display: flex;
-  background-color: rgba(0, 173, 173, 0.6);
+  background-color: rgba(0, 153, 204, 0.75);
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease-in-out;
