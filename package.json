@@ -27,8 +27,8 @@
     "grunt-mocha": "~0.4.11",
     "grunt-mocha-slimer": "~0.0.2",
     "grunt-html-build": "~0.3.2",
-    "grunt-firefoxos": "~0.1.1",
-    "grunt-git-describe": "~2.3.2",
+    "grunt-firefoxos": "git://github.com/dcoloma/grunt-firefoxos#stop-and-launch",
+    "grunt-gitinfo": "~0.1.7",
     "grunt-bower-task": "~0.4.0",
     "grunt-contrib-compress": "~0.12.0"
   }
