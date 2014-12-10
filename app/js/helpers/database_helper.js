@@ -475,7 +475,7 @@ FilteredCursor.prototype = {
         this._buffer.push(item.value);
         if (this._cursorPosition < 0) {
           // First shoot !
-          this.onsuccessReady.then(this.filteredContinue().bind(this));
+          this.onsuccessReady.then(this.filteredContinue.bind(this));
         } else {
           this.onNewItemResolve && this.onNewItemResolve();
         }
