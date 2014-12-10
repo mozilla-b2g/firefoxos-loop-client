@@ -412,3 +412,130 @@ DatabaseHelper.prototype = {
     }, 'readwrite', [aObjectStore]);
   }
 };
+
+///////////////////////////////////////////////
+// IDB doesn't allow to filter and sort in the same query
+// this FilteredCursor is used as a wrapper for IDBCursor which filters
+// the results. It's suggested to use an index with two fields.
+// Also if the cursor is returned as a Promise (Async) you can loose the first
+// IDBCursor.onsuccess so if you use Promises, I also suggest to use this
+// wrapper (with filter = null).
+//
+// cursor is the IDBCursor to wrap
+// filter is an object with the field name and filter value:
+// { name: '<FieldName>', value: <ValueToFilter> }
+///////////////////////////////////////////////
+
+function FilteredCursor(cursor, filter) {
+  this._buffer = [];
+  this._cursorPosition = -1;
+  this._mainCursorFinished = false;
+
+  this.attachCursorHandlers(cursor, filter);
+}
+
+FilteredCursor.prototype = {
+  set onsuccess(success) {
+    this._onsuccess = success;
+    this._onSuccessReadyResolve && this._onSuccessReadyResolve();
+  },
+
+  set onerror(error) {
+    this._onerror = error;
+    this._onErrorReadyResolve && this._onErrorReadyResolve();
+  },
+
+  get onsuccessReady() {
+    if (this._onsuccess) {
+      return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+      this._onSuccessReadyResolve = resolve;
+    });
+  },
+
+  get onerrorReady() {
+    if (this._onerror) {
+      return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+      this._onerrorReadyResolve = resolve;
+    });
+  },
+
+  attachCursorHandlers: function(cursor, filter) {
+    // IDB Cursor management
+    cursor.onsuccess = (evt) => {
+      var item = evt.target.result;
+      if (!item) {
+        this.onNewItemResolve && this.onNewItemResolve();
+        return this._mainCursorFinished = true;
+      }
+      if (filter === null || item.value[filter.name] === filter.value) {
+        this._buffer.push(item.value);
+        if (this._cursorPosition < 0) {
+          // First shoot !
+          this.onsuccessReady.then(this.filteredContinue().bind(this));
+        } else {
+          this.onNewItemResolve && this.onNewItemResolve();
+        }
+      } else if (this._buffer.length > 0) {
+        // They are sorted, so no more items to recover
+        this.onNewItemResolve && this.onNewItemResolve();
+        return this._mainCursorFinished = true;
+      }
+      item.continue();
+    };
+
+    cursor.onerror = (error) => {
+      this.onerrorReady.then(() => {
+        this._onerror(error);
+      });
+    };
+  },
+
+  // Buffered cursor management
+  filteredContinue: function() {
+    var responseEvent = {
+      target: {
+        result: null
+      }
+    };
+    this.getNextBufferedItem().then((value) => {
+      responseEvent.target.result = {
+        value: value,
+        continue: this.filteredContinue.bind(this)
+      };
+      this._onsuccess(responseEvent);
+    }, () => {
+      // Promise rejected => Finish
+      this._onsuccess(responseEvent);
+    });
+  },
+
+  getNextBufferedItem: function() {
+    if (this._mainCursorFinished && this._cursorPosition ===
+        (this._buffer.length - 1)) {
+
+      // That's all folks !
+      return Promise.reject();
+    } else if (!this._mainCursorFinished && this._cursorPosition ===
+               (this._buffer.length - 1)) {
+
+      // We should wait for more buffer items
+      return new Promise((resolve, reject) => {
+        this.onNewItemResolve = () => {
+          if (this._mainCursorFinished) {
+            reject();
+          } else {
+            resolve(this._buffer[++this._cursorPosition]);
+          }
+          this.onNewItemResolve = null;
+        };
+      });
+    } else {
+      // There're enough items into the buffer \o/
+      return Promise.resolve(this._buffer[++this._cursorPosition]);
+    }
+  }
+};

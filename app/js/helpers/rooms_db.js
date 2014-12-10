@@ -125,59 +125,6 @@
       ]}
   });
 
-  function FilteredCursor(cursor, filter) {
-    this.cursor = cursor;
-    this.filter = filter;
-    this.returnedItems = 0;
-    this._onsuccess = this._onerror = null;
-  }
-
-  FilteredCursor.prototype = {
-    set onsuccess(success) {
-      this._onsuccess = success;
-      this._perform();
-    },
-
-    set onerror(error) {
-      this._onerror = error;
-      this._perform();
-    },
-
-    _perform: function() {
-      if (!this._onsuccess || !this._onerror) {
-        return;
-      }
-
-      var cursor = this.cursor;
-      var filter = this.filter;
-
-      cursor.onsuccess = (event) => {
-        var item = event.target.result;
-        if (!item) {
-          return this._onsuccess(event);
-        }
-
-        if (item.value[filter.name] === filter.value) {
-          this.returnedItems++;
-          this._onsuccess(event);
-        } else {
-          if (this.returnedItems > 0) {
-            // That's all folks !
-            return this._onsuccess({
-              target: {
-                result: null
-              }});
-          }
-          item.continue();
-        }
-      };
-
-      cursor.onerror = (event) => {
-        this._onerror(event);
-      };
-    }
-  };
-
   var RoomsDB = {
     /**
      * Update the localCtime of a room
@@ -286,20 +233,21 @@
       return new Promise(function(resolve, reject) {
         _dbHelper.getList(function(error, cursor) {
           if (error) {
-            return reject(error);
+            reject(error);
           } else {
+            var filteredCursor = null;
             if (!field || field === '' || field === 'creationTime') {
               // These are special cases. We want to filter & sort
               // since this isn't directly supported by IndexedDB, we'll
               // create a filteredCursor in which we'll filter by logged user
-              var filteredCursor = new FilteredCursor(cursor, {
+              filteredCursor = new FilteredCursor(cursor, {
                 name: 'user',
                 value: Controller.identity
               });
-              resolve(filteredCursor);
             } else {
-              resolve(cursor);
+              filteredCursor = new FilteredCursor(cursor);
             }
+            resolve(filteredCursor);
           }
         }, _roomsStore, aFilter);
       });
@@ -529,7 +477,7 @@
           if (error) {
             reject(error);
           } else {
-            resolve(cursor);
+            resolve(new FilteredCursor(cursor));
           }
         }, _eventsStore, { index: { name: 'roomToken', value: token }});
       });
