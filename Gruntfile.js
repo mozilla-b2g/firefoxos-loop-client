@@ -13,8 +13,7 @@ module.exports = function(grunt) {
     'grunt-bower-task',
     'grunt-firefoxos',
     'grunt-git-describe',
-    'grunt-html-build',
-    'grunt-mocha'
+    'grunt-mocha-slimer'
   ].forEach(grunt.loadNpmTasks);
 
   var TEST_HEADER = grunt.file.read('test/test_header.html');
@@ -38,7 +37,7 @@ module.exports = function(grunt) {
       }
     },
 
-    mocha: {
+    mocha_slimer: {
       all: {
         options: {
           run: true,
@@ -55,7 +54,10 @@ module.exports = function(grunt) {
           }),
           bail: true,
           logErrors: true,
-          reporter: 'Spec'
+          // Please note that the Spec reporter does *not* dump the stack on errors.
+          // If you need the stack, use the JSON reporter.
+          reporter: grunt.option('testReporter') || 'Spec',
+          xvfb: true
         }
       }
     },
@@ -130,7 +132,7 @@ module.exports = function(grunt) {
   grunt.registerTask('test', 'Launch tests in shell with PhantomJS', [
     'clean:server',
     'connect:test',
-    'mocha',
+    'mocha_slimer',
     'clean:postTest'
   ]);
 
