@@ -20,6 +20,8 @@
   var FAILED_TONE = '../../resources/media/tones/failed.wav';
   var ENDED_TONE = '../../resources/media/tones/ended.wav';
 
+  var SOMEONE_JOINED_ROOM_TONE = '../../resources/media/tones/someoneJoined.wav';
+
   function _playTone(src, isSpeaker, cb) {
     debug && console.log('Playing tone with channel ' + _audioElement.mozAudioChannelType);
     _audioElement.src = src;
@@ -134,6 +136,19 @@
           resolve();
         });
         _playTone(ENDED_TONE, isSpeaker);
+      });
+    },
+
+    playSomeoneJoinedARoomYouOwn: function tph_playSomeoneJoinedARoomYouOwn() {
+      _audioElement.loop = false;
+      return new Promise(function(resolve, reject) {
+        var timeout = window.setTimeout(resolve, TONE_TIMEOUT);
+        _audioElement.addEventListener('ended', function onplaybackcompleted() {
+          _audioElement.removeEventListener('ended', onplaybackcompleted);
+          window.clearTimeout(timeout);
+          resolve();
+        });
+        _playTone(SOMEONE_JOINED_ROOM_TONE, true /*isSpeaker*/);
       });
     },
 

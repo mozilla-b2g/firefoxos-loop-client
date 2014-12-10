@@ -202,7 +202,6 @@
 
   function join(params) {
     roomControls.classList.remove('hide');
-    RoomUI.setWaiting();
     attachHandlers();
 
     // Tokbox is removing the elements where the video is appended to, so
@@ -218,7 +217,7 @@
     sessionConstraints = {video: cameraConstraints, audio: true};
 
     updateButtonStatus();
-    isVideoEnabled && showFakeVideo();
+    RoomUI.setWaiting();
   }
 
   var RoomUI = {
@@ -251,6 +250,10 @@
       onSwitchSpeakerButtonClicked = onSwitchSpeaker;
     },
 
+    get isSpeakerEnabled() {
+      return isSpeakerEnabled;
+    },
+
     set onToggleVideo(onToggleVideo) {
       if (typeof onToggleVideo !== 'function') {
         return;
@@ -259,6 +262,7 @@
     },
 
     setWaiting: function() {
+      isVideoEnabled && showFakeVideo();
       panel.dataset.status = 'waiting';
       panel.dataset.remoteVideo = false;
 
