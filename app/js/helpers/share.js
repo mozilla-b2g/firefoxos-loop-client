@@ -3,7 +3,7 @@
 
   // In our code 'params' will be the following:
   // var params = {
-  //   type: 'call' || 'room' 
+  //   type: 'call' || 'room'
   //   value: 'http://foo.es' || 'foo' // This is just an example
   // }
 
@@ -39,7 +39,7 @@
         onerror(new Error('Share.toContact: No params'));
         return;
       }
-      
+
       Controller.pickContact(
         function onContactRetrieved(contact) {
           // Given a contact we get the array of identities
@@ -139,12 +139,12 @@
       activity.onerror = onerror;
     },
 
-    broadcast: function(url, onsuccess, onerror) {
+    broadcast: function(params, onsuccess, onerror) {
       var activity = new MozActivity({
         name: 'share',
         data: {
           type: 'url',
-          url: url
+          url: _generateText(params)
         }
       });
       activity.onsuccess = onsuccess;
