@@ -33,7 +33,9 @@
   }
 
   function initCameraByDefault() {
-    var camera = Settings.isFrontalCamera !== 'false' ? frontCamera : rearCamera;
+    var isFrontalCamera = Settings.isFrontalCamera;
+    var camera = (isFrontalCamera === true || isFrontalCamera === 'true') ?
+                  frontCamera : rearCamera;
     camera.checked = true;
     onCameraChange(camera);
   }
