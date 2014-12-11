@@ -74,7 +74,7 @@
     }
 
     roomControls.classList.add('hide');
-    roomName.textContent = params.roomName;
+    RoomUI.updateName(params.roomName);
   }
 
   function leaveButtonClicked() {
@@ -97,6 +97,9 @@
     isVideoEnabled = !isVideoEnabled;
     panel.dataset.localVideo = isVideoEnabled;
     updateButtonStatus();
+    if (panel.dataset.status !== 'connected') {
+      isVideoEnabled ? showFakeVideo() : removeFakeVideo();
+    }
     onToggleVideoButtonClicked();
   }
 
@@ -215,7 +218,7 @@
     sessionConstraints = {video: cameraConstraints, audio: true};
 
     updateButtonStatus();
-    showFakeVideo();
+    isVideoEnabled && showFakeVideo();
   }
 
   var RoomUI = {
@@ -297,6 +300,12 @@
 
     showRemoteVideo: function(isRemoteVideo) {
       panel.dataset.remoteVideo = isRemoteVideo;
+    },
+
+    updateName: function(name) {
+      if (name) {
+        roomName.textContent = name;
+      }
     },
 
     updateParticipant: function(name, account) {
