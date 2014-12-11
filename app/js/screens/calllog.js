@@ -1009,7 +1009,12 @@
 
   var CallLog = {
     init: function w_init(identity) {
+      callsRenderedIndex = 0;
+      roomsRenderedIndex = 0;
+
       if (_initialized) {
+        _changeSection('rooms');
+        _renderLogs();
         return;
       }
 
@@ -1092,6 +1097,7 @@
         callsSectionEntries.innerHTML = '';
         _isCallsSectionEmpty = true;
         _checkEmptyCalls();
+        _ready = false; // Once cleaned the log is not ready
       });
     },
 
