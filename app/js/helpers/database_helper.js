@@ -468,23 +468,24 @@ FilteredCursor.prototype = {
     cursor.onsuccess = (evt) => {
       var item = evt.target.result;
       if (!item) {
+        this._mainCursorFinished = true;
         this.onNewItemResolve && this.onNewItemResolve();
-        return this._mainCursorFinished = true;
-      }
-      if (!filter || item.value[filter.name] === filter.value) {
-        this._buffer.push(item.value);
-        if (this._cursorPosition < 0) {
-          // First shoot !
-          this.onsuccessReady.then(this.filteredContinue.bind(this));
-        } else {
-          this.onNewItemResolve && this.onNewItemResolve();
+      } else {
+        if (!filter || item.value[filter.name] === filter.value) {
+          this._buffer.push(item.value);
+          if (this._cursorPosition < 0) {
+            // First shoot !
+            this.onsuccessReady.then(this.filteredContinue.bind(this));
+          } else {
+            this.onNewItemResolve && this.onNewItemResolve();
+          }
+        } else if (this._buffer.length > 0) {
+          // They are sorted, so no more items to recover
+          this._mainCursorFinished = true;
+          return this.onNewItemResolve && this.onNewItemResolve();
         }
-      } else if (this._buffer.length > 0) {
-        // They are sorted, so no more items to recover
-        this.onNewItemResolve && this.onNewItemResolve();
-        return this._mainCursorFinished = true;
+        item.continue();
       }
-      item.continue();
     };
 
     cursor.onerror = (error) => {
