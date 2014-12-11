@@ -13,6 +13,8 @@
   var _params = null;
   var _isWaitingFeedback = false;
 
+  const CALL_FEEDBACK_TYPE = 'call';
+
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
@@ -118,6 +120,8 @@
               '../js/helpers/metrics.js',
               '../js/helpers/feedback.js'
             ], function() {
+              // We distinguish between calls and room chats with the type prop.
+              feedbackParams.feedback.type = CALL_FEEDBACK_TYPE;
               var url = feedbackParams.call.callUrl;
               if (url) {
                 // We include the URL that the user clicked on to

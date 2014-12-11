@@ -89,7 +89,6 @@
 
   function leaveButtonClicked() {
     onLeaveButtonClicked();
-    hide();
   }
 
   function toggleMicButtonClicked() {
