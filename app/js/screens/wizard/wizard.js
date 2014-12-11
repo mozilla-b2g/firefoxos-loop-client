@@ -6,7 +6,7 @@
   var _ = navigator.mozL10n.get;
 
   function localize() {
-    termsOfServiceElement.innerHTML = _('termsOfService');
+    termsOfServiceElement.innerHTML = _('termsOfServiceAndPrivacyNotice');
   }
 
   function render() {
@@ -22,7 +22,8 @@
 
   function postRendering() {
     wizardLogin = document.getElementById('wizard-login');
-    termsOfServiceElement = document.getElementById('terms-of-service');
+    termsOfServiceElement =
+              document.getElementById('terms-of-service-and-privacy-notice');
     Branding.naming(wizardPanel);
     Wizard.localize();
     window.addEventListener('localized', localize);
@@ -31,7 +32,7 @@
 
   var Wizard = {
     init: function w_init(isFirstUse, success, error) {
-      
+
       render();
 
       Authenticate.init();

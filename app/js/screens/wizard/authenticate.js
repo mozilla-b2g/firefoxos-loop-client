@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
 
-  var _fxaButton, _mobileIdButton, _wizardLogin, _termsOfService;
+  var _fxaButton, _mobileIdButton, _wizardLogin, _termsOfService, _privacyNotice;
 
   function _onButtonClick(id) {
     if (!navigator.onLine) {
@@ -47,6 +47,15 @@
           evt.preventDefault();
           evt.stopPropagation();
           window.open(Config.tos_url);
+        });
+      }
+
+      if (!_privacyNotice) {
+        _privacyNotice = document.getElementById('privacy-notice');
+        _privacyNotice.addEventListener('click', (evt) => {
+          evt.preventDefault();
+          evt.stopPropagation();
+          window.open(Config.pn_url);
         });
       }
     }
