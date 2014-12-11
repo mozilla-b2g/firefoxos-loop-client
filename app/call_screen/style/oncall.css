@@ -426,22 +426,45 @@ body[data-call-status='outgoing'] .call-status-info {
   width: 100%;
   bottom: 0;
   left: 0;
-  background-color: #1c5e6f;
+  background-color: #4e4e4e;
   height: 4rem;
   background-image: url(images/ico_callstatusbar.png);
-  background-size: 2rem;
-  background-position: 0.5rem 1rem;
+  background-size: 3rem;
+  background-position: .5rem;
   background-repeat: no-repeat;
 }
 
-#call-bar .title {
+#call-bar .call-info {
   float: left;
-  padding-left: 3rem;
+  padding-left: 4.3rem;
+  max-width: 50%;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-/* This is the "Firefox" string */
-#call-bar .title span:first-child {
+#call-bar .call-info .contact-name {
+  font-size: 1.5rem;
   font-weight: 500;
+  line-height: 4rem;
+  display: block;
+}
+
+body[data-subject='true'] #call-bar .call-info .contact-name {
+  margin-top: .2rem;
+  line-height: 2rem;
+}
+
+#call-bar .call-info .subject {
+  margin-top: -0.4rem;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 2rem;
+  display: none;
+}
+
+body[data-subject='true'] #call-bar .call-info .subject {
+  display: inline-block;
 }
 
 #call-bar > span {

@@ -6,7 +6,7 @@
     of elements needed
   */
 
-  var _title, _callStatusInfo, _remoteVideo, _remoteImage;
+  var _title, _callBarContactName, _callStatusInfo, _remoteVideo, _remoteImage;
 
   var _; // l10n get
 
@@ -17,6 +17,7 @@
       // Cache just the basic elements. The rest will be added by
       // lazy loading.
       _title = document.getElementById('contact-name-details');
+      _callBarContactName = document.querySelector('#call-bar .contact-name');
       _callStatusInfo = document.getElementById('call-status-info');
       _remoteVideo = document.getElementById('remote-video');
       _remoteImage = document.getElementById('fullscreen-image');
@@ -44,7 +45,8 @@
 
       var subject = callParams.subject;
       if (subject) {
-        document.getElementById('subject').textContent = subject;
+        document.getElementById('subject').textContent =
+        document.querySelector('#call-bar .subject').textContent = subject;
         document.body.dataset.subject = true;
       }
 
@@ -106,13 +108,14 @@
             },
             function onContact(result) {
               if (!result) {
-                 _title.textContent = identities[0];
+                 _title.textContent = _callBarContactName.textContent = identities[0];
                 return;
               }
               // We don't want to show the whole list of contacts in the call screen
               // so we just take the first one.
               var contact = result.contacts[0];
-              _title.textContent = ContactsHelper.prettyPrimaryInfo(contact);
+              _title.textContent = _callBarContactName.textContent =
+                                   ContactsHelper.prettyPrimaryInfo(contact);
 
               if (contact && contact.photo && contact.photo[0]) {
                 var url = URL.createObjectURL(contact.photo[0]);
@@ -126,7 +129,7 @@
               }
             },
             function onError() {
-               _title.textContent = identities[0];
+               _title.textContent = _callBarContactName.textContent = identities[0];
             }
           );
         }
