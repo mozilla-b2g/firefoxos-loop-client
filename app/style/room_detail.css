@@ -11,10 +11,29 @@
   box-sizing: border-box;
 }
 
+#room-detail-panel .gaia-list li > p {
+  font-style: italic;
+  color: #858585;
+}
+#room-detail-panel .gaia-list li > p.title {
+  font-style: normal;
+  color: #5a6061;
+}
+
 #room-detail-panel #rdp-name {
   width: calc(100% - 1rem);
   white-space: pre-line;
   word-wrap: break-word;
+  color: #333333;
+  font-weight: bold;
+}
+
+#room-detail-panel #rdp-url {
+  width: calc(100% - 1rem);
+  color: #444444;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #room-detail-panel.invited #rdp-history-section,
