@@ -428,9 +428,6 @@ DatabaseHelper.prototype = {
 
 function FilteredCursor(cursor, filter) {
   this._buffer = [];
-  this._cursorPosition = -1;
-  this._mainCursorFinished = false;
-
   this.attachCursorHandlers(cursor, filter);
 }
 
@@ -468,24 +465,21 @@ FilteredCursor.prototype = {
     cursor.onsuccess = (evt) => {
       var item = evt.target.result;
       if (!item) {
-        this._mainCursorFinished = true;
-        this.onNewItemResolve && this.onNewItemResolve();
-      } else {
-        if (!filter || item.value[filter.name] === filter.value) {
+        return this._dispatchItems();
+      }
+
+      if (filter) {
+        if (item.value[filter.name] === filter.value) {
           this._buffer.push(item.value);
-          if (this._cursorPosition < 0) {
-            // First shoot !
-            this.onsuccessReady.then(this.filteredContinue.bind(this));
-          } else {
-            this.onNewItemResolve && this.onNewItemResolve();
-          }
         } else if (this._buffer.length > 0) {
           // They are sorted, so no more items to recover
-          this._mainCursorFinished = true;
-          return this.onNewItemResolve && this.onNewItemResolve();
+          return this._dispatchItems();
         }
-        item.continue();
+      } else {
+        this._buffer.push(item.value);
       }
+
+      item.continue();
     };
 
     cursor.onerror = (error) => {
@@ -495,48 +489,32 @@ FilteredCursor.prototype = {
     };
   },
 
-  // Buffered cursor management
-  filteredContinue: function() {
-    var responseEvent = {
-      target: {
-        result: null
-      }
-    };
-    this.getNextBufferedItem().then((value) => {
-      responseEvent.target.result = {
-        value: value,
-        continue: this.filteredContinue.bind(this)
-      };
-      this._onsuccess(responseEvent);
-    }, () => {
-      // Promise rejected => Finish
-      this._onsuccess(responseEvent);
-    });
-  },
+  _dispatchItems: function() {
+    this.onsuccessReady.then(() => {
+      var index = 0;
+      var length = this._buffer.length;
 
-  getNextBufferedItem: function() {
-    if (this._mainCursorFinished && this._cursorPosition ===
-        (this._buffer.length - 1)) {
-
-      // That's all folks !
-      return Promise.reject();
-    } else if (!this._mainCursorFinished && this._cursorPosition ===
-               (this._buffer.length - 1)) {
-
-      // We should wait for more buffer items
-      return new Promise((resolve, reject) => {
-        this.onNewItemResolve = () => {
-          if (this._mainCursorFinished) {
-            reject();
-          } else {
-            resolve(this._buffer[++this._cursorPosition]);
+      var doDispatchItem = () => {
+        var responseEvent = {
+          target: {
+            result: null
           }
-          this.onNewItemResolve = null;
         };
-      });
-    } else {
-      // There're enough items into the buffer \o/
-      return Promise.resolve(this._buffer[++this._cursorPosition]);
-    }
+
+        if (index < length) {
+          responseEvent.target.result = {
+            value: this._buffer[index],
+            continue: () => {
+              ++index;
+              doDispatchItem();
+            }
+          };
+        }
+
+        this._onsuccess(responseEvent);
+      }
+
+      doDispatchItem();
+    });
   }
 };
