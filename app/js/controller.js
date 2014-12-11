@@ -209,7 +209,7 @@
         name: 'share',
         data: {
           type: 'url',
-          url: url
+          url: _('shareMessage') + ' ' + url
         }
       });
       activity.onsuccess = function() {
