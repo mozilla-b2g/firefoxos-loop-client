@@ -278,10 +278,11 @@
       });
     },
 
-    joinRoom: function(token) {
+    joinRoom: function(token, roomName) {
       Loader.getRoomController().then((RoomController) => {
         RoomController.join({
           token: token,
+          roomName: roomName,
           displaName: Controller.identity,
           video: Settings.isVideoDefault,
           frontCamera: Settings.isFrontalCamera

@@ -1,0 +1,34 @@
+<element name="join-room" extends="section">
+
+  <link rel="stylesheet" type="text/css" href="style/join_room.css"></link>
+  <script src="js/screens/room/join_room.js"></script>
+
+  <template>
+    <form role="dialog">
+      <section>
+        <section class="camera-container gaia-list">
+          <header data-l10n-id="selectCamera"></header>
+          <header class="subheader" data-l10n-id="selectCameraSubTitle"></header>
+          <ul>
+            <li class="icon icon-camera-back">
+              <label class="pack-radio white">
+                <input type="radio" value="camera-back" name="select-camera"></input>
+                <span data-l10n-id="back"></span>
+              </label>
+            </li>
+            <li class="icon icon-camera-front">
+              <label class="pack-radio white">
+                <input type="radio" value="camera-front" name="select-camera"></input>
+                <span data-l10n-id="front"></span>
+              </label>
+            </li>
+          </ul>
+        </section>
+      </section>
+      <menu>
+        <button type="button" class="cancel" data-l10n-id="cancel"></button>
+        <button type="button" class="join" data-l10n-id="join"></button>
+      </menu>
+    </form>
+  </template>
+</element>

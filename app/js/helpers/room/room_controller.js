@@ -69,122 +69,125 @@
       }
 
       Loader.getRoomUI().then((RoomUI) => {
-        RoomUI.show(params);
+        RoomUI.show(params).then(() => {
 
-        params.localTargetElement = RoomUI.localTargetElement;
-        params.remoteTargetElement = RoomUI.remoteTargetElement;
+          params.localTargetElement = RoomUI.localTargetElement;
+          params.remoteTargetElement = RoomUI.remoteTargetElement;
 
-        Rooms.join(
-          params.token,
-          {
-            action: ROOM_ACTION_JOIN,
-            displayName: params.displaName,
-            clientMaxSize: ROOM_CLIENT_MAX_SIZE
-          }
-        ).then(function(result) {
-          if (!result.apiKey || !result.sessionId || !result.sessionToken ||
-              !result.expires) {
-            // TODO: we should show some kind of error in the UI.
-            debug && console.log('Error while joining room. Some params missing');
-
-            RoomUI.hide();
-            Rooms.leave(params.token);
-            return;
-          }
-
-          var shouldRate = false;
-          isConnected = true;
-          currentToken = params.token;
-
-          Rooms.get(params.token).then(function(room) {
-            RoomUI.updateName(room.roomName);
-            if (Controller.identity !== room.roomOwner) {
-              room.roomToken = params.token;
-              CallLog.addRoom(room);
+          Rooms.join(
+            params.token,
+            {
+              action: ROOM_ACTION_JOIN,
+              displayName: params.displaName,
+              clientMaxSize: ROOM_CLIENT_MAX_SIZE
             }
-          });
+          ).then(function(result) {
+            if (!result.apiKey || !result.sessionId || !result.sessionToken ||
+                !result.expires) {
+              // TODO: we should show some kind of error in the UI.
+              debug && console.log('Error while joining room. Some params missing');
 
-          Loader.getRoomManager().then((RoomManager) => {
-            var roomManager = new RoomManager();
-            roomManager.on({
-              joining: function(event) {
-                debug && console.log('Room joining');
+              RoomUI.hide();
+              Rooms.leave(params.token);
+              return;
+            }
 
-              },
-              joined: function(event) {
-                debug && console.log('Room joined');
+            var shouldRate = false;
+            isConnected = true;
+            currentToken = params.token;
 
-                refreshMembership(params.token, result.expires);
-              },
-              left: function(event) {
-                debug && console.log('Room left');
-                window.clearTimeout(refreshTimeOut);
-              },
-              participantJoining: function(event) {
-                debug && console.log('Room participant joining');
-              },
-              participantJoined: function(event) {
-                debug && console.log('Room participant joined');
-                RoomUI.setConnected();
-                shouldRate = true;
-              },
-              participantVideoAdded: function(event) {
-                RoomUI.showRemoteVideo(true);
-              },
-              participantVideoDeleted: function(event) {
-                RoomUI.showRemoteVideo(false);
-              },
-              participantLeaving: function(event) {
-                debug && console.log('Room participant leaving');
-              },
-              participantLeft: function(event) {
-                debug && console.log('Room participant left');
-                RoomUI.setWaiting();
-              },
-              error: function(event) {
-                // TODO: we should show some kind of error in the UI.
-                debug && console.log('Error while joining room');
-                isConnected = false;
-                currentToken = null;
-                RoomUI.hide();
-                window.clearTimeout(refreshTimeOut);
-                Rooms.leave(params.token);
+            Rooms.get(params.token).then(function(room) {
+              if (Controller.identity !== room.roomOwner) {
+                room.roomToken = params.token;
+                CallLog.addRoom(room);
               }
             });
 
-            RoomUI.onLeave = function() {
-              Rooms.leave(params.token);
-              roomManager.leave();
-              isConnected = false;
-              currentToken = null;
+            Loader.getRoomManager().then((RoomManager) => {
+              var roomManager = new RoomManager();
+              roomManager.on({
+                joining: function(event) {
+                  debug && console.log('Room joining');
 
-              shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
-            };
+                },
+                joined: function(event) {
+                  debug && console.log('Room joined');
 
-            RoomUI.onToggleMic = function() {
-              roomManager.publishAudio(!roomManager.isPublishingAudio);
-            };
+                  refreshMembership(params.token, result.expires);
+                },
+                left: function(event) {
+                  debug && console.log('Room left');
+                  window.clearTimeout(refreshTimeOut);
+                },
+                participantJoining: function(event) {
+                  debug && console.log('Room participant joining');
+                },
+                participantJoined: function(event) {
+                  debug && console.log('Room participant joined');
+                  RoomUI.setConnected();
+                  shouldRate = true;
+                },
+                participantVideoAdded: function(event) {
+                  RoomUI.showRemoteVideo(true);
+                },
+                participantVideoDeleted: function(event) {
+                  RoomUI.showRemoteVideo(false);
+                },
+                participantLeaving: function(event) {
+                  debug && console.log('Room participant leaving');
+                },
+                participantLeft: function(event) {
+                  debug && console.log('Room participant left');
+                  RoomUI.setWaiting();
+                },
+                error: function(event) {
+                  // TODO: we should show some kind of error in the UI.
+                  debug && console.log('Error while joining room');
+                  isConnected = false;
+                  currentToken = null;
+                  RoomUI.hide();
+                  window.clearTimeout(refreshTimeOut);
+                  Rooms.leave(params.token);
+                }
+              });
 
-            RoomUI.onSwitchSpeaker = function() {
-              roomManager.forceSpeaker(!roomManager.isSpeakerEnabled);
-            };
+              RoomUI.onLeave = function() {
+                Rooms.leave(params.token);
+                roomManager.leave();
+                isConnected = false;
+                currentToken = null;
 
-            RoomUI.onToggleVideo = function() {
-              roomManager.publishVideo(!roomManager.isPublishingVideo);
-            };
+                shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
+              };
 
-            params.apiKey = result.apiKey;
-            params.sessionId = result.sessionId;
-            params.sessionToken = result.sessionToken;
-            roomManager.join(params);
+              RoomUI.onToggleMic = function() {
+                roomManager.publishAudio(!roomManager.isPublishingAudio);
+              };
+
+              RoomUI.onSwitchSpeaker = function() {
+                roomManager.forceSpeaker(!roomManager.isSpeakerEnabled);
+              };
+
+              RoomUI.onToggleVideo = function() {
+                roomManager.publishVideo(!roomManager.isPublishingVideo);
+              };
+
+              params.apiKey = result.apiKey;
+              params.sessionId = result.sessionId;
+              params.sessionToken = result.sessionToken;
+              roomManager.join(params);
+            });
+          },
+          function(error) {
+            // TODO: we should show some kind of error in the UI.
+            debug && console.log('Error while joining room');
+            alert('Room is full of participants');
+            currentToken = null;
+            isConnected = false;
+            RoomUI.hide();
           });
-        },
-        function(error) {
-          // TODO: we should show some kind of error in the UI.
-          debug && console.log('Error while joining room');
-          alert('Room is full of participants');
-          currentToken = null;
-          isConnected = false;
+        }, () => {
+          // The user cancels
           RoomUI.hide();
         });
       });

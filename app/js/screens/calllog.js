@@ -607,9 +607,10 @@
     roomElement.dataset.identities = roomElement.dataset.roomOwner =
                                      rawRoom.roomOwner;
     roomElement.dataset.contactId = rawRoom.contactId;
+    var roomName = roomElement.dataset.roomName = rawRoom.roomName;
 
     roomElement.innerHTML = _templateRoom.interpolate({
-      roomName: rawRoom.roomName,
+      roomName: roomName,
       roomOwner: rawRoom.contactPrimaryInfo || rawRoom.roomOwner,
       creationTime: Utils.getFormattedHour(creationTime)
     });
@@ -987,8 +988,9 @@
     roomsSection.addEventListener('scroll', _manageScroll);
 
     roomsSectionEntries.addEventListener('click', (event) => {
-      var roomToken = event.target.dataset.roomToken;
-      roomToken && Controller.joinRoom(roomToken);
+      var element = event.target;
+      var roomToken = element.dataset.roomToken;
+      roomToken && Controller.joinRoom(roomToken, element.dataset.roomName);
     });
   }
 

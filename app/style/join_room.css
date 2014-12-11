@@ -1,0 +1,159 @@
+#join-room {
+  position: absolute;
+  width: 100%;
+  height: 29.5rem;
+  top: calc(100% - 29.5rem);
+  left: 0;
+  right: 0;
+}
+
+#join-room menu {
+  white-space: nowrap;
+  margin: 0;
+  padding: 1.5rem;
+  display: block;
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+#join-room menu button {
+  margin: 0;
+  width: calc((100% - 1rem) / 2);
+  font-weight: 400;
+  font-size: 1.6rem;
+  background-color: #e7e7e7;
+}
+
+#join-room menu button:last-child {
+  margin-left: .5rem;
+  color: #00a9dc;
+  background-color: white;
+}
+
+#join-room .gaia-list {
+  background: linear-gradient(345deg, #00a9dc 0%, #5bc0a4 100%);
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#join-room .gaia-list header {
+  line-height: 2.3rem;
+  height: auto;
+  text-align: center;
+  text-transform: none;
+  font-size: 2.3rem;
+  font-style: italic;
+  color: #fff;
+  font-weight: 300;
+  background: none;
+  margin: 2.5rem 0 0 0;
+  padding: 0;
+}
+
+#join-room .gaia-list header.subheader {
+  font-size: 1.6rem;
+  line-height: 1.6rem;
+  margin: 1rem 0 0 0;
+  font-weight: 400;
+}
+
+#join-room .gaia-list ul {
+  margin-top: 1.6rem;
+}
+
+#join-room .gaia-list li.icon {
+  padding-left: 4.5rem;
+}
+
+#join-room .gaia-list li.icon:before {
+  content: '';
+  background-size: 3rem;
+  background-position: 2.2rem center;
+  background-repeat: no-repeat;
+  opacity: 1;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+
+#join-room .icon-camera-back:after {
+  border-bottom: 1px solid #5eeded;
+}
+
+#join-room .icon-camera-front:after {
+  border-bottom: none;
+}
+
+#join-room .icon-camera-front:before {
+  background-image: url("images/ico_Camerafront_white.png");
+}
+
+#join-room .icon-camera-back:before {
+  background-image: url("images/ico_Camerarear_white.png");
+}
+
+#join-room .camera-container[data-camera="camera-back"] .icon-camera-front:before,
+#join-room .camera-container[data-camera="camera-front"] .icon-camera-back:before {
+  opacity: .5;
+}
+
+#join-room label.pack-radio input ~ span {
+  font-weight: 300;
+  font-style: italic;
+  font-size: 2.1rem;
+  color: #fff;
+}
+
+#join-room label.pack-radio input:checked ~ span {
+  font-weight: 400;
+}
+
+/*
+  MEDIA QUERIES FOR device-pixel-ratio
+*/
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+
+  #join-room .icon-camera-front:before {
+    background-image: url("images/ico_Camerafront_white@1.5x.png");
+  }
+
+  #join-room .icon-camera-back:before {
+    background-image: url("images/ico_Camerarear_white@1.5x.png");
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+
+  #join-room .icon-camera-front:before {
+    background-image: url("images/ico_Camerafront_white@2x.png");
+  }
+
+  #join-room .icon-camera-back:before {
+    background-image: url("images/ico_Camerarear_white@2x.png");
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+
+  #join-room .icon-camera-front:before {
+    background-image: url("images/ico_Camerafront_white@2.25x.png");
+  }
+
+  #join-room .icon-camera-back:before {
+    background-image: url("images/ico_Camerarear_white@2.25x.png");
+  }
+
+}

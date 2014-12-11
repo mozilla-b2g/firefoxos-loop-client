@@ -18,9 +18,10 @@ module.exports = function(grunt) {
 
   grunt.loadTasks('tasks');
 
-  var TEST_HEADER = grunt.file.read('test/test_header.html');
-  var TEST_FOOTER = grunt.file.read('test/test_footer.html');
-  var TEST_DIR = 'test/test_scripts/';
+  var TEST_BASE_DIR = 'test/';
+  var TEST_HEADER = grunt.file.read(TEST_BASE_DIR + 'test_header.html');
+  var TEST_FOOTER = grunt.file.read(TEST_BASE_DIR + 'test_footer.html');
+  var TEST_DIR = TEST_BASE_DIR + 'unit/';
   var TEST_DIR_LENGTH = TEST_DIR.length;
 
   // We'll use XVFB by default in linux (where it's easy to get).
@@ -58,11 +59,11 @@ module.exports = function(grunt) {
 
           // Generate the test file list automatically... Maybe there's an
           // easier way to do this.
-          urls: grunt.file.expand({}, [TEST_DIR + '*.html']).map(
-            function(value) {
-              var testContent = grunt.file.read(value);
-              var outputFile = 'gtest_' + value.substring(TEST_DIR_LENGTH);
-              grunt.file.write('test/' + outputFile, TEST_HEADER + testContent +
+          urls: grunt.file.expand({}, [TEST_DIR + 'test_*.js']).map(
+            function(path) {
+              var testContent = '<script src="' + path.replace(TEST_BASE_DIR, '') + '"></script>'
+              var outputFile = ('gtest_' + path.substring(TEST_DIR_LENGTH)).replace('.js', '.html');
+              grunt.file.write(TEST_BASE_DIR + outputFile, TEST_HEADER + testContent +
                                TEST_FOOTER);
               return 'http://0.0.0.0:9002/' + outputFile;
           }),
