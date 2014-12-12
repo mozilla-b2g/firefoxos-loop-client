@@ -3,7 +3,7 @@
 
   // In our code 'params' will be the following:
   // var params = {
-  //   type: 'call' || 'room' 
+  //   type: 'call' || 'room'
   //   value: 'http://foo.es' || 'foo' // This is just an example
   // }
 
@@ -39,7 +39,7 @@
         onerror(new Error('Share.toContact: No params'));
         return;
       }
-      
+
       Controller.pickContact(
         function onContactRetrieved(contact) {
           // Given a contact we get the array of identities
@@ -125,18 +125,20 @@
     },
 
     useEmail: function(params, identity, onsuccess, onerror) {
-      var text = _generateText(params);
-      var activity = new MozActivity({
-        name: 'new',
-        data: {
-          type: 'mail',
-          url: 'mailto:' + identity +
-                '?subject=' + MAIL_SUBJECT +
-                '&body= '+ text
-        }
-      });
-      activity.onsuccess = onsuccess;
-      activity.onerror = onerror;
+      setTimeout(function() {
+        var text = _generateText(params);
+        var activity = new MozActivity({
+          name: 'new',
+          data: {
+            type: 'mail',
+            url: 'mailto:' + identity +
+                  '?subject=' + MAIL_SUBJECT +
+                  '&body= '+ text
+          }
+        });
+        activity.onsuccess = onsuccess;
+        activity.onerror = onerror;
+      }, 600); // Workaround to avoid black screen invoking Email activity.
     },
 
     broadcast: function(url, onsuccess, onerror) {
