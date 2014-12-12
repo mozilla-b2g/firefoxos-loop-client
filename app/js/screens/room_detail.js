@@ -2,7 +2,7 @@
   'use strict';
   var _panel;
   var _roomNameUI, _ctimeUI, _ownerUI, _shareContactButton, _editButton,
-      _showHistoryButton, _deleteButton, _backButton, _expirationUI;
+      _showHistoryButton, _deleteButton, _backButton, _expirationUI, _urlUI;
   var _room = null, _token = null;
   var _isOwner = false;
   var _ = navigator.mozL10n.get;
@@ -27,6 +27,7 @@
     _ctimeUI.textContent = '';
     _expirationUI.textContent = '';
     _ownerUI.textContent = '';
+    _urlUI.textContent = '';
 
     _panel.classList.remove('invited');
   }
@@ -46,6 +47,7 @@
     _ctimeUI = document.getElementById('rdp-creation-date');
     _expirationUI = document.getElementById('rdp-expiration');
     _ownerUI = document.getElementById('rdp-owner');
+    _urlUI = document.getElementById('rdp-url');
     _shareContactButton = document.getElementById('rdp-share-contact');
     _showHistoryButton = document.getElementById('rdp-show-history');
     _deleteButton = document.getElementById('rdp-delete');
@@ -88,8 +90,9 @@
           });
         }
       );
-
     }
+
+    _urlUI.textContent = room.roomUrl;
   }
   function _delete() {
     LazyLoader.load('js/screens/delete_room.js', () => {
