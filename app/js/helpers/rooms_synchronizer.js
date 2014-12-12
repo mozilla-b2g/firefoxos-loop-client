@@ -16,7 +16,8 @@
   }
 
   function isDiff(remoteRoom, localRoom) {
-    return remoteRoom.roomName !== localRoom.roomName;
+    return (remoteRoom.roomName !== localRoom.roomName) ||
+           (remoteRoom.expiresAt > localRoom.expiresAt);
   }
 
   function synchronize() {
