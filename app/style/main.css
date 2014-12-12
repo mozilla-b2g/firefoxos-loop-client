@@ -95,7 +95,7 @@ section.skin-comms[role="region"] > header:first-child {
 }
 
 .skin-comms .gaia-list header {
-  color: #757575;
+  color: #00a9dc;
 }
 
 form[role="dialog"][data-type="confirm"],
@@ -170,17 +170,26 @@ label.pack-radio.white input ~ span:after {
   label.pack-radio.white input ~ span:after {
     background-image: url(images/switches/images/radio/white@1.5x.png);
   }
+  li button.icon-view:before {
+    background-image: url("bb/buttons/images/next@1.5x.png");
+  }
 }
 
 @media (min--moz-device-pixel-ratio: 2) {
   label.pack-radio.white input ~ span:after {
     background-image: url(images/switches/images/radio/white@2x.png);
   }
+  li button.icon-view:before {
+    background-image: url("bb/buttons/images/next@2x.png");
+  }
 }
 
 @media (min--moz-device-pixel-ratio: 2.25) {
   label.pack-radio.white input ~ span:after {
     background-image: url(images/switches/images/radio/white@2.25x.png);
+  }
+  li button.icon-view:before {
+    background-image: url("bb/buttons/images/next@2.25x.png");
   }
 }
 

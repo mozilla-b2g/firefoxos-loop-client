@@ -200,7 +200,7 @@
           </ul>
         </nav>
         <div class="calllog-sections-container hbox fit">
-          <div id="rooms-section" class="calllog-section gaia-list active sticky">
+          <div id="rooms-section" class="calllog-section gaia-list sticky">
             <div class="section-empty">
               <p class="section-empty-label" data-l10n-id="emptyLinks">
               </p>
@@ -387,12 +387,14 @@
     </div>
     <div id="rooms-tmpl" class="hide">
       <!--
-      <div class="vbox no-overflow expand">
-        <div class="hbox">
-          <p class="primary-info fit ellipsis">${roomName}</p>
-          <span class="room-time">${creationTime}</span>
+      <div class="hbox expand">
+        <div class="vbox fit no-overflow">
+          <p class="primary-info ellipsis">${roomName}</p>
+          <p class="room-owner">${roomOwner}</p>
         </div>
-        <p class="room-owner">${roomOwner}</p>
+        <button class="room-time icon icon-view">
+          <span>${creationTime}</span>
+        </button>
       </div>
       -->
     </div>
