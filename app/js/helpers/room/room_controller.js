@@ -222,12 +222,12 @@
               });
 
               RoomUI.onLeave = function() {
-                Rooms.leave(params.token);
+                shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
+
                 roomManager.leave();
+                Rooms.leave(params.token);
                 isConnected = false;
                 currentToken = null;
-
-                shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
               };
 
               RoomUI.onToggleMic = function() {
