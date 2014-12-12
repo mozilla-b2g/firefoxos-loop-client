@@ -111,18 +111,49 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   margin-left: 0;
 }
 
-.call-time, .room-time {
+.call-time {
   line-height: 2rem;
 }
 
 .calllog-section .call-time,
-.calllog-section .room-time,
 .calllog-section .retry-count,
 .calllog-section .room-owner,
 .calllog-section .subject {
   font-size: 1.5rem;
   color: #858585;
   white-space: nowrap;
+}
+
+#rooms-section-entries li[data-participants]:before {
+  position: absolute;
+  content: "";
+  top: 1.3rem;
+  left: 0.8rem;
+  height: 1.6rem;
+  width: 1.6rem;
+  background: url("images/rooms_list_sprite.png") 0 -1.6rem no-repeat;
+  background-size: 1.6rem auto;
+}
+
+#rooms-section-entries li[data-participants="0"]:before {
+  background-position: 0 -3.2rem;
+}
+
+#rooms-section-entries li[data-participants="full"]:before {
+  background-position: 0 0;
+}
+
+.room-time {
+  width: auto;
+  margin: 0 -1rem 0 0;
+  background-color: transparent;
+  border: none;
+  height: 100%;
+  color: #858585;
+}
+
+.room-time span {
+  margin-top: -1.5rem;
 }
 
 .calllog-section .subject {
@@ -367,6 +398,9 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
     background-image: url(images/ComLog_200x200_clock@1.5x.png);
   }
 
+  #rooms-section-entries li:before {
+    background-image: url("images/rooms_list_sprite@1.5x.png");
+  }
 }
 
 @media (min--moz-device-pixel-ratio: 2) {
@@ -400,6 +434,10 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
   #calls-section.empty .section-empty {
     background-image: url(images/ComLog_200x200_clock@2x.png);
+  }
+
+  #rooms-section-entries li:before {
+    background-image: url("images/rooms_list_sprite@2x.png");
   }
 
 }
@@ -436,6 +474,10 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
   #calls-section.empty .section-empty {
     background-image: url(images/ComLog_200x200_clock@2.25x.png);
+  }
+
+  #rooms-section-entries li:before {
+    background-image: url("images/rooms_list_sprite@2.25x.png");
   }
 
 }

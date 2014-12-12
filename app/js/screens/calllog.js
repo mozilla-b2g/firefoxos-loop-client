@@ -14,6 +14,7 @@
   const CHUNK_SIZE = 10;
   const ONSCROLL_CHUNK_SIZE = 50;
   const SCROLL_EDGE = 50;
+  const MAX_PARTICIPANTS = 2;
 
   var callsRenderedIndex = 0;
   var roomsRenderedIndex = 0;
@@ -606,6 +607,9 @@
     roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
     roomElement.dataset.identities = roomElement.dataset.roomOwner =
                                      rawRoom.roomOwner;
+    roomElement.dataset.participants =
+      rawRoom.participants.length === MAX_PARTICIPANTS ?
+        'full':rawRoom.participants.length;
     roomElement.dataset.contactId = rawRoom.contactId;
     var roomName = roomElement.dataset.roomName = rawRoom.roomName;
 
