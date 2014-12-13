@@ -222,12 +222,16 @@
               });
 
               RoomUI.onLeave = function() {
+		document.addEventListener('transitionend',
+                  function onTransitionEnd() {
+		    document.removeEventListener('transitionend',
+                                                 onTransitionEnd);
+		    roomManager.leave();
+		    Rooms.leave(params.token);
+		    isConnected = false;
+		    currentToken = null;
+		});
                 shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
-
-                roomManager.leave();
-                Rooms.leave(params.token);
-                isConnected = false;
-                currentToken = null;
               };
 
               RoomUI.onToggleMic = function() {

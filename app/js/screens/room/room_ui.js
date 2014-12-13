@@ -154,10 +154,10 @@
   }
 
   function hide() {
-    panel.dataset.status = '';
-    removeFakeVideo();
-    removeHandlers();
     Navigation.to('calllog-panel', 'bottom').then(() => {
+      panel.dataset.status = '';
+      removeFakeVideo();
+      removeHandlers();
       cleanUI();
       Countdown.reset();
     });
