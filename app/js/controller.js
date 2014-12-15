@@ -298,16 +298,20 @@
                     TonePlayerHelper.init('publicnotification');
                     TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
                   }
-                  NotificationHelper.send(
-                    room.roomName,
-                    _('hasJoined', {
-                      name: participant.displayName
+                  NotificationHelper.send({
+                    raw: room.roomName
+                  }, {
+                    body: _('hasJoined', {
+                        name: room.participants[i].displayName
                     }),
-                    _ownAppInfo.icon,
-                    function onClick() {
+                    icon: _ownAppInfo.icon,
+                    tag: room.roomUrl
+                  }).then((notification) => {
+                    notification.onclick = function() {
+                      debug && console.log('Notification clicked for room: ' + room.roomUrl);
                       _ownAppInfo.app.launch();
-                    }
-                  );
+                    };
+                  });
                 });
                 break;
               }
