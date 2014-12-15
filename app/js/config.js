@@ -6,6 +6,7 @@ Config = {
   //   Stage: 'https://loop.stage.mozaws.net'
   //   Prod: 'https://loop.services.mozilla.com'
   server_url: 'https://loop.services.mozilla.com',
+  request_timeout: 15000,
   channel: 'mobile', // The release channel of the calling client.
   // cfg perfLog
   performanceLog: {
