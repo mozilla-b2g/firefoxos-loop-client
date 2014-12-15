@@ -467,7 +467,7 @@
      *
      * param token
      *       String which identify a room.
-     * return Promise.  The resolved promise will contain as result a cursor
+     * return Promise.  The resolved promise will contain as result an array
      *                  with all the events given a room token.
      *                  The rejected promise, an error string.
      */
@@ -475,10 +475,19 @@
       return new Promise(function(resolve, reject) {
         _dbHelper.getList(function(error, cursor) {
           if (error) {
-            reject(error);
-          } else {
-            resolve(new FilteredCursor(cursor));
+            return reject(error);
           }
+
+          var eventsArray = [];
+          cursor.onsuccess = function(evt) {
+            var item = evt.target.result;
+            if (!item) {
+              return resolve(eventsArray);
+            }
+            eventsArray.push(item.value);
+            item.continue();
+          };
+          cursor.onerror = reject;
         }, _eventsStore, { index: { name: 'roomToken', value: token }});
       });
     }
