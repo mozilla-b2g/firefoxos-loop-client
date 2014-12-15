@@ -314,6 +314,21 @@
           }
         );
       });
+    },
+    getSignUpErrorScreen: function() {
+      if (window.SignUpErrorScreen) {
+        return Promise.resolve(SignUpErrorScreen);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          [
+            'js/screens/error_screen.js'
+          ],
+          () => {
+            resolve(SignUpErrorScreen);
+          }
+        );
+      });
     }
   };
 
