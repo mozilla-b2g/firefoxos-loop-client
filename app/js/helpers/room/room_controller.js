@@ -376,6 +376,10 @@
               params.sessionToken = result.sessionToken;
               roomManager.join(params);
             });
+            Telemetry.updateReport('roomCamera',
+              (params.frontCamera === true || params.frontCamera === 'true') ?
+                'front' :
+                'back');
           },
           function(error) {
             debug && console.log('Error while joining room');

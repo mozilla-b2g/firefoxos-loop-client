@@ -24,8 +24,16 @@
 
   function initCameraByDefault() {
     var isFrontalCamera = Settings.isFrontalCamera;
-    var camera = (isFrontalCamera === true || isFrontalCamera === 'true') ?
-                  frontCamera : rearCamera;
+    var camera;
+    var defaultCameraReport;
+    if (isFrontalCamera === true || isFrontalCamera === 'true') {
+      camera = frontCamera;
+      defaultCameraReport = 'front';
+    } else {
+      camera = rearCamera;
+      defaultCameraReport = 'back';
+    }
+    Telemetry.updateReport('defaultRoomCamera', defaultCameraReport);
     camera.checked = true;
     onCameraChange(camera);
   }
