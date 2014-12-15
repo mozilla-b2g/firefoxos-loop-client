@@ -15,7 +15,7 @@
 
 .wizard-section header {
   font-size: 2rem;
-  font-weight: 300;
+  font-weight: 400;
   font-style: italic;
   text-align: center;
   color: #fff;
@@ -447,6 +447,7 @@
 #wizard-login .gaia-footer p a {
   color: #fff;
   outline: none;
+  text-decoration: underline;
 }
 
 #wizard-login .gaia-footer p a:active {

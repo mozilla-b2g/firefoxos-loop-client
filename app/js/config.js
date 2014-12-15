@@ -32,7 +32,8 @@ Config = {
     maxSignInAttempts: 3 // Max number of sign in attempts before logging out.
   },
   maxVersionCheckAttempts: 3, // Max number of retries checking version.
-  tos_url: 'http://www.mozilla.com'
+  tos_url: 'https://www.mozilla.org/about/legal/terms/firefox-hello/',
+  pn_url: 'https://www.mozilla.org/privacy/firefox-hello/'
 };
 
 window.OTProperties = {
