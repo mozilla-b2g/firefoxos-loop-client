@@ -28,7 +28,7 @@
 
 .section-empty {
   display: none;
-  height: 100%;
+  height: calc(100% - 10rem);
   position: relative;
   margin: 0 1.5rem;
 }
@@ -40,6 +40,7 @@
   line-height: 3rem;
   font-weight: 300;
   padding: 1rem 1.5rem;
+  margin-top: 10rem;
   flex: 1;
 }
 
@@ -52,19 +53,21 @@
 }
 
 #rooms-section.empty .section-empty {
-  background: url(images/link_wmark.png) center no-repeat;
-  background-size: 18.1rem auto;
+  background-image: url(images/empty_rooms_log.png);
 }
 
 #calls-section.empty .section-empty {
-  background: url(images/ComLog_200x200_clock.png) center no-repeat;
-  background-size: 20rem auto;
+  background-image: url(images/empty_conversations_log.png);
 }
 
 #calls-section.empty .section-empty,
 #rooms-section.empty .section-empty {
   display: flex;
   align-items: center;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 19.4rem auto;
+  font-style: italic;
 }
 
 #calls-section.empty .calls-section-entries,
@@ -391,11 +394,11 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   }
 
   #rooms-section.empty .section-empty {
-    background-image: url(images/link_wmark@1.5x.png);
+    background-image: url(images/empty_rooms_log@1.5x.png);
   }
 
   #calls-section.empty .section-empty {
-    background-image: url(images/ComLog_200x200_clock@1.5x.png);
+    background-image: url(images/empty_conversations_log@1.5x.png);
   }
 
   #rooms-section-entries li:before {
@@ -429,11 +432,11 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   }
 
   #rooms-section.empty .section-empty {
-    background-image: url(images/link_wmark@2x.png);
+    background-image: url(images/empty_rooms_log@2x.png);
   }
 
   #calls-section.empty .section-empty {
-    background-image: url(images/ComLog_200x200_clock@2x.png);
+    background-image: url(images/empty_conversations_log@2x.png);
   }
 
   #rooms-section-entries li:before {
@@ -469,11 +472,11 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   }
 
   #rooms-section.empty .section-empty {
-    background-image: url(images/link_wmark@2.25x.png);
+    background-image: url(images/empty_rooms_log@2.25x.png);
   }
 
   #calls-section.empty .section-empty {
-    background-image: url(images/ComLog_200x200_clock@2.25x.png);
+    background-image: url(images/empty_conversations_log@2.25x.png);
   }
 
   #rooms-section-entries li:before {
