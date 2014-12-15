@@ -48,7 +48,17 @@
           showError();
         }
       },
-      function() {
+      function(error) {
+        if (error) {
+          // See https://docs.services.mozilla.com/loop/apis.html
+          if (error.code === 403 && error.errno === 999) {
+            // The room was full and we were trying to remove the user who is
+            // neither a participant of the room nor the room owner. As the
+            // remove process failed, let's show the full room error then.
+            showError('roomFull');
+            return;
+          }
+        }
         showError();
       }
     );
