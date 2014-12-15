@@ -18,7 +18,7 @@
   const ROOM_FEEDBACK_TYPE = 'room';
 
   const DEFAULT_JOIN_PARAMS = {
-    displaName: '',
+    displayName: '',
     video: true,
     frontCamera: false
   };
@@ -365,8 +365,22 @@
                 participantJoined: function(event) {
                   debug && console.log('Room participant joined');
                   Rooms.get(currentToken).then(room => {
-                    _participants = room.participants
+                    _participants = room.participants;
                     setNumberParticipants(_participants.length);
+                    // If we joined a room we don't own we are not receiving
+                    // push notification for that room. That means we have to
+                    // set the participant name in the UI from here once he
+                    // joins the room. For the time being as there is only
+                    // room for two participant the participant name to set is
+                    // the one that doesn't correspond to ours.
+                    for (var i = 0, l = _participants.length; i < l; i++) {
+                      var participant = _participants[i];
+                      if (participant.displayName !== params.displayName) {
+                        RoomUI.updateParticipant(participant.displayName,
+                                                 participant.account);
+                        break;
+                      }
+                    }
                   });
                   // The communication has started exactly in this moment
                   _initCommunicationEvent();
