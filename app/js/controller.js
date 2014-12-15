@@ -242,6 +242,10 @@
             for (var i = 0, l = room.participants.length; i < l; i++) {
               if (room.participants[i].account !== Controller.identity) {
                 Loader.getNotificationHelper().then(function(NotificationHelper) {
+                  if (room.roomOwner === Controller.identity) {
+                    TonePlayerHelper.init('publicnotification');
+                    TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
+                  }
                   NotificationHelper.send(
                     room.roomName,
                     _('hasJoined', {
@@ -283,7 +287,7 @@
         RoomController.join({
           token: token,
           roomName: roomName,
-          displaName: Controller.identity,
+          displayName: Controller.identity,
           video: Settings.isVideoDefault,
           frontCamera: Settings.isFrontalCamera
         });

@@ -78,7 +78,7 @@
             params.token,
             {
               action: ROOM_ACTION_JOIN,
-              displayName: params.displaName,
+              displayName: params.displayName,
               clientMaxSize: ROOM_CLIENT_MAX_SIZE
             }
           ).then(function(result) {
@@ -93,10 +93,12 @@
             }
 
             var shouldRate = false;
+            var currentRoom = null;
             isConnected = true;
             currentToken = params.token;
 
             Rooms.get(params.token).then(function(room) {
+              currentRoom = room;
               RoomUI.updateName(room.roomName);
               if (Controller.identity !== room.roomOwner) {
                 room.roomToken = params.token;
@@ -114,6 +116,11 @@
                 joined: function(event) {
                   debug && console.log('Room joined');
 
+                  if (currentRoom &&
+                      (currentRoom.roomOwner === params.displayName)) {
+                    TonePlayerHelper.init('telephony');
+                    TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);
+                  }
                   refreshMembership(params.token, result.expires);
                 },
                 left: function(event) {
@@ -125,6 +132,8 @@
                 },
                 participantJoined: function(event) {
                   debug && console.log('Room participant joined');
+                  TonePlayerHelper.init('telephony');
+                  TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);
                   RoomUI.setConnected();
                   shouldRate = true;
                 },
@@ -139,6 +148,11 @@
                 },
                 participantLeft: function(event) {
                   debug && console.log('Room participant left');
+                  if (currentRoom &&
+                      (currentRoom.roomOwner === params.displayName)) {
+                    TonePlayerHelper.init('telephony');
+                    TonePlayerHelper.playEnded(RoomUI.isSpeakerEnabled);
+                  }
                   RoomUI.setWaiting();
                 },
                 error: function(event) {
