@@ -160,6 +160,11 @@
       room.roomName = name;
       room.expiresAt = response.expiresAt;
       Controller.onRoomUpdated(room);
+      Loader.getRoomEvent().then(RoomEvent => {
+        RoomEvent.save({type: RoomEvent.type.renamed,
+                        token: room.roomToken,
+                        name: name});
+      });
       hide();
     }).catch((error) => {
       console.error(JSON.stringify(error));

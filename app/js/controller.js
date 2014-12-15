@@ -16,10 +16,53 @@
   const ROOMS_CHANNEL_NAME = 'rooms';
   const MAX_PARTICIPANTS = 2;
 
+  var _lastChangedRooms = [];
+
   var _ownAppInfo = {
     app: null,
     icon: null
   };
+
+  function _getLastStateRoom(aRoom) {
+    if (!aRoom) {
+      return;
+    }
+
+    var lastState = _lastChangedRooms.find(function(room) {
+      return room.roomToken === aRoom.roomToken;
+    });
+
+    return lastState || {};
+  }
+
+  function _registerOtherJoinEvt(token, aNewParticipant, aLastStateRoom) {
+    if (!aNewParticipant) {
+      console.error ('we have not received a user to compare');
+      return;
+    }
+
+    var userPreviouslyPresent = [];
+    if (aLastStateRoom && aLastStateRoom.participants) {
+      var accountNewP = aNewParticipant.account;
+      var nameNewP = aNewParticipant.displayName;
+      var lastParticipants = aLastStateRoom.participants;
+      userPreviouslyPresent = lastParticipants.find(function(participant) {
+        if (participant.account) {
+          return participant.account === accountNewP;
+        } else if (!accountNewP) {
+          return participant.displayName === nameNewP;
+        }
+      });
+    }
+
+    if (!userPreviouslyPresent) {
+      Loader.getRoomEvent().then(RoomEvent => {
+        RoomEvent.save({type: RoomEvent.type.otherJoin,
+                        token: token,
+                        identity: accountNewP  || RoomEvent.identityUnknown });
+      });
+    }
+  }
 
   function _getApp() {
     if (_ownAppInfo.app && _ownAppInfo.icon) {
@@ -223,14 +266,19 @@
               return;
             }
 
+            var lastStateRoom = _getLastStateRoom(room);
             if (room.participants.length === MAX_PARTICIPANTS) {
               for (var i = 0, l = room.participants.length; i < l; i++) {
-                if (room.participants[i].account !== Controller.identity) {
+                var participant = room.participants[i];
+                if (participant.account !== Controller.identity) {
                   RoomController.addParticipant(
                     room.roomToken,
-                    room.participants[i].displayName,
-                    room.participants[i].account
+                    participant.displayName,
+                    participant.account
                   );
+                  _registerOtherJoinEvt(room.roomToken,
+                                        participant,
+                                        lastStateRoom);
                   break;
                 }
               }
@@ -240,7 +288,11 @@
             var _ = navigator.mozL10n.get;
 
             for (var i = 0, l = room.participants.length; i < l; i++) {
-              if (room.participants[i].account !== Controller.identity) {
+              participant = room.participants[i];
+              if (participant.account !== Controller.identity) {
+                _registerOtherJoinEvt(room.roomToken,
+                                      participant,
+                                      lastStateRoom);
                 Loader.getNotificationHelper().then(function(NotificationHelper) {
                   if (room.roomOwner === Controller.identity) {
                     TonePlayerHelper.init('publicnotification');
@@ -249,7 +301,7 @@
                   NotificationHelper.send(
                     room.roomName,
                     _('hasJoined', {
-                      name: room.participants[i].displayName
+                      name: participant.displayName
                     }),
                     _ownAppInfo.icon,
                     function onClick() {
@@ -261,6 +313,7 @@
               }
             }
           });
+          _lastChangedRooms = rooms;
         });
       });
     },

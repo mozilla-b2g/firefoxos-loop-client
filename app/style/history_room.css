@@ -1,0 +1,47 @@
+#room-history-panel {
+  overflow: hidden;
+  background-color: white;
+}
+
+#room-history-panel .events-section {
+  overflow-y: scroll;
+  height: calc(100% - 5rem);
+}
+
+#room-history-panel section {
+  height: 100%;
+}
+
+#room-history-panel .gaia-list.active li:active,
+#room-history-panel .gaia-list li.active:active {
+  background-color: transparent;
+}
+
+#room-history-panel .events-section .room-evt-text {
+  font-size: 1.6rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+#room-history-panel .events-section .room-evt-time,
+#room-history-panel .events-section .room-evt-details {
+  font-size: 1.5rem;
+  color: #858585;
+  white-space: nowrap;
+}
+
+#rooms-section.empty .rooms-section-entries {
+  display: none;
+}
+
+#room-history-panel .room-evt-time {
+  line-height: 2rem;
+}
+
+#room-history-panel .room-details {
+  white-space: normal;
+}
+
+#room-history-panel .hidden {
+  display: none !important;
+}

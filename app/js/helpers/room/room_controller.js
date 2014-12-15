@@ -6,6 +6,12 @@
   var refreshTimeOut;
   var isConnected = false, currentToken;
 
+  //miliseg timestamp start Communication
+  var _startCommunicationTime = 0;
+  var _participants = [];
+  var _communicationEnd = true;
+  var _communicationToken = null;
+
   const ROOM_ACTION_JOIN = 'join';
   const ROOM_CLIENT_MAX_SIZE = 2;
   const ROOM_FEEDBACK_TYPE = 'room';
@@ -37,6 +43,40 @@
             callback();
           });
         });
+    });
+  }
+
+  function _initCommunicationEvent() {
+    _startCommunicationTime = new Date().getTime();
+    _communicationEnd = false;
+    _communicationToken = currentToken;
+  }
+
+  function _logEventCommunication(aCurrentTime) {
+    if (_communicationEnd || !_communicationToken) {
+      return;
+    }
+    _communicationEnd = true;
+
+    // We need the lenght in seconds
+    var duration = Math.floor((aCurrentTime - _startCommunicationTime) / 1000);
+    Loader.getRoomEvent().then(RoomEvent => {
+      var other = RoomEvent.identityUnknown;
+      // For now we assume that only other User and I will make a communication
+      for (var i = 0, l = _participants.length;
+           i < l && other === RoomEvent.identityUnknown;
+           i++) {
+        // If participants[i] is not logged he hasn't account and we want
+        // to keep RoomEvent identifier
+        if (_participants[i].account &&
+            _participants[i].account !== Controller.identity) {
+          other = _participants[i].account;
+        }
+      }
+      RoomEvent.save({type: RoomEvent.type.communication,
+                      token: _communicationToken,
+                      otherIdentity: other,
+                      length: duration });
     });
   }
 
@@ -97,6 +137,11 @@
             isConnected = true;
             currentToken = params.token;
 
+            Loader.getRoomEvent().then(RoomEvent => {
+              RoomEvent.save({type: RoomEvent.type.iJoin,
+                              token: currentToken });
+            });
+
             Rooms.get(params.token).then(function(room) {
               currentRoom = room;
               RoomUI.updateName(room.roomName);
@@ -124,13 +169,19 @@
                   refreshMembership(params.token, result.expires);
                 },
                 left: function(event) {
+                  // We take time here because we trying to set the count
+                  // as exact than we can
+                  var current = new Date().getTime();
                   debug && console.log('Room left');
                   window.clearTimeout(refreshTimeOut);
+                  _logEventCommunication (current);
                 },
                 participantJoining: function(event) {
                   debug && console.log('Room participant joining');
                 },
                 participantJoined: function(event) {
+                  // The communication has started exactly in this moment
+                  _initCommunicationEvent();
                   debug && console.log('Room participant joined');
                   TonePlayerHelper.init('telephony');
                   TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);
@@ -147,6 +198,9 @@
                   debug && console.log('Room participant leaving');
                 },
                 participantLeft: function(event) {
+                  // We take time here because we trying to set the count
+                  // as exact than we can
+                  var current = new Date().getTime();
                   debug && console.log('Room participant left');
                   if (currentRoom &&
                       (currentRoom.roomOwner === params.displayName)) {
@@ -154,6 +208,7 @@
                     TonePlayerHelper.playEnded(RoomUI.isSpeakerEnabled);
                   }
                   RoomUI.setWaiting();
+                  _logEventCommunication (current);
                 },
                 error: function(event) {
                   // TODO: we should show some kind of error in the UI.

@@ -112,9 +112,9 @@
   }
 
   function _showHistory() {
-    console.log('Show history panel');
-    // TODO Implement when history panel will be created
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1102849
+    Loader.getRoomHistory().then((RoomHistory) => {
+      RoomHistory.show(_room);
+    });
   }
 
   function _shareToContact() {
@@ -124,10 +124,13 @@
           type: 'room',
           url: _room.roomUrl
         },
-        function onShared() {
-          console.log('Lets add this to DB');
-          // TODO Implement when
-          // https://bugzilla.mozilla.org/show_bug.cgi?id=1104749
+        function onShared(contact, identity) {
+          Loader.getRoomEvent().then(RoomEvent => {
+            RoomEvent.save({type: RoomEvent.type.shared,
+                            token: _room.roomToken,
+                            contactId: contact.id,
+                            identity: identity});
+          });
         },
         function onError() {
           // TOOD Implement if needed

@@ -67,8 +67,14 @@
                 type: 'room',
                 url: room.roomUrl
               },
-              function onShared() {
+              function onShared(contact, identity) {
                 console.log('Lets add this to DB');
+                Loader.getRoomEvent().then(RoomEvent => {
+                  RoomEvent.save({type: RoomEvent.type.shared,
+                                  token: roomToken,
+                                  contactId: contact.id,
+                                  identity: identity});
+                });
                 // TODO Implement when
                 // https://bugzilla.mozilla.org/show_bug.cgi?id=1102849
               },
@@ -1004,6 +1010,12 @@
 
   function _addRoom(room, contactInfo) {
     return RoomsDB.create(room, contactInfo).then((room) => {
+      Loader.getRoomEvent().then(RoomEvent => {
+        RoomEvent.save({type: RoomEvent.type.created,
+                        token: room.roomToken,
+                        name: room.roomName,
+                        date: new Date(room.creationTime * 1000) });
+      });
       _appendRoom(room);
       return room;
     }, (error) => {
