@@ -69,7 +69,15 @@
       time: Utils.getFormattedHour(ms)
     });
 
-    _expirationUI.textContent = Utils.getRevokeDate(+_room.expiresAt * 1000);
+    Utils.serverTime.then(
+      serverTime => {
+        _expirationUI.textContent =
+          Utils.getRevokeDate((+_room.expiresAt * 1000), +serverTime);
+      },
+      () => {
+        _expirationUI.textContent = Utils.getRevokeDate(+_room.expiresAt * 1000);
+      }
+    );
 
     if (_isOwner) {
       _ownerUI.textContent = _('createdByYou');
@@ -95,7 +103,7 @@
     }
 
     _urlUI.textContent = room.roomUrl;
-    
+
     _isOwner ? _sharedWithItem.classList.remove('hidden') : _sharedWithItem.classList.add('hidden');
     _sharedWithButton.disabled = !_room.sharedWith || _room.sharedWith.length < 1;
   }
@@ -144,7 +152,7 @@
 
   function _showSharedWith(){
     var people = _room.sharedWith || [];
-    var peopleFiltered = [];    
+    var peopleFiltered = [];
     people.forEach(function(element){
       var exist = peopleFiltered.some(function(item){
         if(element.contactId == item.contactId) {
