@@ -362,6 +362,19 @@
       CallLog.updateRooms([room]);
     },
 
+    onRoomShared: function(room, contact, identity) {
+      Loader.getRoomEvent().then(RoomEvent => {
+        RoomEvent.save({
+          type: RoomEvent.type.shared,
+          token: room.roomToken,
+          contactId: contact.id,
+          identity: identity
+        });
+      });
+      RoomsDB.addLastSharedPerson(room, contact, identity);
+      CallLog.updateRooms([room]);
+    },
+
     onRoomDeleted: function(token) {
       CallLog.removeRooms(token);
     },

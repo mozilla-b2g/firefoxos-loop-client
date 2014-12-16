@@ -125,12 +125,7 @@
           url: _room.roomUrl
         },
         function onShared(contact, identity) {
-          Loader.getRoomEvent().then(RoomEvent => {
-            RoomEvent.save({type: RoomEvent.type.shared,
-                            token: _room.roomToken,
-                            contactId: contact.id,
-                            identity: identity});
-          });
+          Controller.onRoomShared(_room, contact, identity);
         },
         function onError() {
           // TOOD Implement if needed
