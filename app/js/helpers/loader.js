@@ -25,7 +25,8 @@
     room_detail: 'room-detail-panel',
     room_ui: 'room-ui',
     conversation_detail: 'conversation-detail',
-    room_history: 'room-history-panel'
+    room_history: 'room-history-panel',
+    shared_with: 'shared-with'
   };
 
   var Loader = {
@@ -82,6 +83,16 @@
         HtmlImports.populate(function() {
           resolve(RoomCreate);
         }, PANELS_ID.create_room);
+      });
+    },
+    getSharedWith: function() {
+      if (window.SharedWith) {
+        return Promise.resolve(SharedWith);
+      }
+      return new Promise(function(resolve, reject) {
+        HtmlImports.populate(function() {
+          resolve(SharedWith);
+        }, PANELS_ID.shared_with);
       });
     },
     getConversationDetail: function() {

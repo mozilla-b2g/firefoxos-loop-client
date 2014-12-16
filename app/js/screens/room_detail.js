@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
   var _panel;
-  var _roomNameUI, _ctimeUI, _ownerUI, _shareContactButton, _editButton,
+  var _roomNameUI, _ctimeUI, _ownerUI, _shareContactButton, _sharedWithButton, _editButton,
       _showHistoryButton, _deleteButton, _backButton, _expirationUI, _urlUI;
   var _room = null, _token = null;
   var _isOwner = false;
@@ -49,6 +49,7 @@
     _ownerUI = document.getElementById('rdp-owner');
     _urlUI = document.getElementById('rdp-url');
     _shareContactButton = document.getElementById('rdp-share-contact');
+    _sharedWithButton = document.getElementById('rdp-show-invitees');
     _showHistoryButton = document.getElementById('rdp-show-history');
     _deleteButton = document.getElementById('rdp-delete');
   }
@@ -93,7 +94,10 @@
     }
 
     _urlUI.textContent = room.roomUrl;
+    
+    _sharedWithButton.disabled = !_room.sharedWith || _room.sharedWith.length < 1;
   }
+  
   function _delete() {
     LazyLoader.load('js/screens/delete_room.js', () => {
       RoomDelete.show(_token, _isOwner).then(
@@ -135,10 +139,18 @@
     });
   }
 
+  function _showSharedWith(){
+    var people = _room.sharedWith || [];
+    Loader.getSharedWith().then(function(SharedWith) {
+        SharedWith.show(people);
+    });
+  }
+
   function _removeListeners() {
     _backButton.removeEventListener('click', _onBack);
     _editButton.removeEventListener('click', _onEdit);
     _shareContactButton.removeEventListener('click', _shareToContact);
+    _sharedWithButton.removeEventListener('click', _showSharedWith);
     _showHistoryButton.removeEventListener('click', _showHistory);
     _deleteButton.removeEventListener('click', _delete);
     window.removeEventListener('localized', _handleLocalization);
@@ -148,6 +160,7 @@
     _backButton.addEventListener('click', _onBack);
     _editButton.addEventListener('click', _onEdit);
     _shareContactButton.addEventListener('click', _shareToContact);
+    _sharedWithButton.addEventListener('click', _showSharedWith);
     _showHistoryButton.addEventListener('click', _showHistory);
     _deleteButton.addEventListener('click', _delete);
     window.addEventListener('localized', _handleLocalization);
