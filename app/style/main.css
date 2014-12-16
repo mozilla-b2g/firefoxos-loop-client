@@ -78,6 +78,14 @@ button::-moz-focus-inner {
   width: 100%;
 }
 
+.max-height {
+  height: 100%;
+}
+
+.italic {
+  font-style: italic;
+}
+
 /* General overrides for BB and lib/components */
 section.skin-comms[role="region"] > header:first-child {
   background-color: #00a9dc;
@@ -154,6 +162,15 @@ form[role="dialog"][data-type="confirm"] menu button:active,
 [role="dialog"][data-type="action"] > menu > button:active {
   background-color: #b2f2ff;
   color: #fff;
+}
+
+li button.icon-view {
+  background-color: transparent;
+  border: none;
+}
+
+li button.icon-view:before {
+  right: -10px;
 }
 
 input:focus,

@@ -11,29 +11,49 @@
   box-sizing: border-box;
 }
 
-#room-detail-panel .gaia-list li > p {
-  font-style: italic;
-  color: #858585;
-}
-#room-detail-panel .gaia-list li > p.title {
-  font-style: normal;
-  color: #5a6061;
-}
-
 #room-detail-panel #rdp-name {
-  width: calc(100% - 1rem);
+  width: calc(100% - 1.5rem);
   white-space: pre-line;
   word-wrap: break-word;
   color: #333333;
-  font-weight: bold;
+  font-weight: 600;
+  font-size: 1.8rem;
+  margin: 0.5rem 0 0.5rem 1.5rem;
 }
 
 #room-detail-panel #rdp-url {
-  width: calc(100% - 1rem);
+  width: calc(100% - 1.5rem);
   color: #444444;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+#room-detail-panel label {
+  color: #5a6061;
+  font-size: 1.6rem;
+  line-height: 2rem;
+}
+
+#room-detail-panel .icon-view {
+  font-size: 1.8rem;
+  font-style: normal;
+}
+#room-detail-panel .icon-view label {
+  margin-left: 0;
+}
+
+#room-detail-panel .icon-view:active label {
+  color: #fff;
+}
+
+/* fake content: remove 'display: none' this after we have real content */
+#rdp-invitees-section {
+  display: none
+}
+
+.icon.icon-pick-contact:before {
+  background-image: url("images/Roomdetail_pickcontact.png")
 }
 
 #room-detail-panel.invited #rdp-history-section,
@@ -41,4 +61,26 @@
 #room-detail-panel.invited #rdp-share-section,
 #room-detail-panel.invited #rdp-edit-button {
   display: none;
+}
+
+/*
+  MEDIA QUERIES FOR device-pixel-ratio
+*/
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+  .icon.icon-pick-contact:before {
+    background-image: url("images/Roomdetail_pickcontact@1.5x.png")
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+  .icon.icon-pick-contact:before {
+    background-image: url("images/Roomdetail_pickcontact@2x.png")
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+  .icon.icon-pick-contact:before {
+    background-image: url("images/Roomdetail_pickcontact@2.25x.png")
+  }
 }
