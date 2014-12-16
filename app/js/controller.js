@@ -298,6 +298,7 @@
                     TonePlayerHelper.init('publicnotification');
                     TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
                   }
+
                   NotificationHelper.send({
                     raw: room.roomName
                   }, {
@@ -359,6 +360,19 @@
       Loader.getRoomDetail().then((RoomDetail) => {
         RoomDetail.update(room);
       });
+      CallLog.updateRooms([room]);
+    },
+
+    onRoomShared: function(room, contact, identity) {
+      Loader.getRoomEvent().then(RoomEvent => {
+        RoomEvent.save({
+          type: RoomEvent.type.shared,
+          token: room.roomToken,
+          contactId: contact.id,
+          identity: identity
+        });
+      });
+      RoomsDB.addLastSharedPerson(room, contact, identity);
       CallLog.updateRooms([room]);
     },
 
