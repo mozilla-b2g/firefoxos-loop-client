@@ -1154,8 +1154,9 @@
     },
 
     updateRooms: function(rooms) {
-      rooms.forEach(_updateRoom);
-      RoomsDB.update(rooms);
+      RoomsDB.update(rooms).then(_rooms => {
+        _rooms.forEach(_updateRoom);
+      });
     },
 
     get roomsSectionEmpty() {

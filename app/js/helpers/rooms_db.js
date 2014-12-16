@@ -338,6 +338,7 @@
       var roomsLength = rooms.length;
       var processed = 0;
       return new Promise(function(resolve, reject) {
+        var result = [];
         for (var i = 0; i < roomsLength; i++) {
           var room = rooms[i];
           if (typeof room !== 'object') {
@@ -349,13 +350,14 @@
 
           RoomsDB.setLocalCtime(room);
 
-          _dbHelper.updateRecord(function(error) {
+          _dbHelper.updateRecord(function(error, record) {
             if (error) {
               return reject(error);
             }
 
+            result.push(record);
             if (++processed === roomsLength) {
-              resolve();
+              resolve(result);
             }
           }, _roomsStore, { key: room.roomToken }, room);
         }
