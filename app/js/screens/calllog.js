@@ -60,7 +60,7 @@
         l10nId: 'shareRoom',
         method: function(element) {
           Loader.getShare().then(() => {
-            Share.toContact(
+            Share.pickContact(
               {
                 type: 'room',
                 url: room.roomUrl
@@ -1178,6 +1178,10 @@
           resolve();
         });
       });
+    },
+
+    showRooms: function() {
+      _changeSection('rooms');
     }
   };
 

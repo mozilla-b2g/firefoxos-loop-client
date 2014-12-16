@@ -1,7 +1,7 @@
 'use strict';
 
 (function(exports) {
-  
+
   var _name = 'Firefox Hello';
 
   var _htmlName = '';
@@ -16,17 +16,17 @@
   var mozL10n = navigator.mozL10n;
   var _ = mozL10n.get;
 
-  function getTranslation(id, asHTMLMarkup) {
-    return _(id, {
-      serviceName: getName(asHTMLMarkup)
-    });
+  function getTranslation(id, params) {
+    params = params || {};
+    params.serviceName = getName(params.asHTMLMarkup);
+    return _(id, params);
   }
 
   function translate(element) {
     // We have to use innerHTML instead of textContent because of interpreting
     // presentation elements like `<br>`.
     element.innerHTML = getTranslation(element.dataset.brandingServiceName,
-                                      'brandingHtmlMarkup' in element.dataset);
+                   {asHTMLMarkup : 'brandingHtmlMarkup' in element.dataset});
   }
 
   function naming(container) {

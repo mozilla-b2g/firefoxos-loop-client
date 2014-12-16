@@ -30,8 +30,8 @@
     // Flag for handling both methods
     var isAttentionLoaded = false;
 
-    // Method to use when available. Currently is not working
-    // so tracked in bug XXX
+    // attention.onload to use when available. Currently is not always working,
+    // only sometimes
     function _onloaded() {
       // Update flag
       isAttentionLoaded = true;
@@ -39,12 +39,6 @@
       // Execute CB
       callback();
     }
-
-    attention.onload = function() {
-      _onloaded();
-    };
-
-
 
     // Workaround while the bug is being fixed
     window.addEventListener(
@@ -87,15 +81,6 @@
   function cleanCallParams() {
     _callType = null;
     _params = null;
-  }
-
-  function getShareUI() {
-    return new Promise((resolve, reject) => {
-      LazyLoader.load(['style/share.css',
-                       'js/screens/share.js'], () => {
-        resolve(ShareScreen);
-      });
-    });
   }
 
   function onHandShakingEvent(event) {
@@ -153,25 +138,12 @@
                 Controller.showError(callscreenParams.error.reason);
                 break;
               case 'unavailable':
-                // Get URL to share and show prompt
-                CallHelper.generateCallUrl({
-                  callerId: _params.identities[0],
-                  subject: _params.subject || ''
-                },
-                function onCallUrlSuccess(result) {
-                  getShareUI().then((ui) => {
-                    ui.show(result,
-                            _params.identities,
-                            'unavailable',
-                            _closeAttentionScreen);
-                  });
-                },
-                function(e) {
-                  console.error(
-                    'Unable to retrieve link to share ' + e
-                  );
+                Loader.getShareScreen().then(ShareScreen => {
+                  ShareScreen.show(_params.identities[0], 'unavailable',
+                                   _params.subject);
                   _closeAttentionScreen();
                 });
+
                 // We don't need to record this as a call cause we
                 // already recording it as a shared URL, so we bail
                 // out here.
@@ -358,41 +330,13 @@
                     return;
                   }
                   _abortCall(null);
-                  // Get URL to share and show prompt
-                  CallHelper.generateCallUrl({
-                      callerId: params.identities[0],
-                      subject: params.subject || ''
-                    },
-                    function onCallUrlSuccess(result) {
-                      var speaker = params.video && params.video === true;
-                      getShareUI().then((ui) => {
-                        ui.show(
-                          result,
-                          params.identities,
-                          'notAUser',
-                          function onShareScreen() {
-                            _closeAttentionScreen();
-                            LazyLoader.load('js/helpers/tone_player_helper.js',
-                              function onTonePlayerLoaded() {
-                                TonePlayerHelper.init('telephony');
-                                TonePlayerHelper.playFailed(speaker).then(
-                                  function onplaybackcompleted() {
-                                    TonePlayerHelper.stop();
-                                    TonePlayerHelper.releaseResources();
-                                  });
-                              }
-                            );
-                          });
-                      });
-                    },
-                    function(e) {
-                      console.error('Unable to retrieve link to share ' + e);
-                      _listenToCallScreenMessages();
-                      _abortCall({reason: 'genericServerError'});
-                      return;
-                    }
-                  );
-                });
+                  Loader.getShareScreen().then(ShareScreen => {
+                    ShareScreen.show(params.identities[0], 'notAUser',
+                                     params.subject);
+                    _closeAttentionScreen();
+                  });
+                }
+              );
             } else {
 		          if (!navigator.onLine) {
 		            _listenToCallScreenMessages();

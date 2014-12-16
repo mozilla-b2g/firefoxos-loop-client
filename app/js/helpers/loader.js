@@ -43,6 +43,16 @@
         );
       });
     },
+    getShareScreen: function() {
+      if (window.ShareScreen) {
+        return Promise.resolve(ShareScreen);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(['js/screens/share.js'], () => {
+          resolve(ShareScreen);
+        });
+      });
+    },
     getNotificationHelper: function() {
       if (window.NotificationHelper) {
         return Promise.resolve(NotificationHelper);
@@ -73,6 +83,16 @@
             resolve(Wizard);
           }
         );
+      });
+    },
+    getRoomCreateObj: function() {
+      if (window.RoomCreate) {
+        return Promise.resolve(RoomCreate);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load('js/screens/create_room.js', () => {
+          resolve(RoomCreate);
+        });
       });
     },
     getRoomCreate: function() {

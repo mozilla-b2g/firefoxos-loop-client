@@ -3,7 +3,7 @@
 (function(exports) {
 
   var modal, roomNameInput, saveButton, closeButton, resetButton, form, counter,
-      roomNumber;
+      roomNumber, roomNameByDefault, userInteraction;
 
   var _ = navigator.mozL10n.get;
 
@@ -49,9 +49,12 @@
     return new Promise((resolve, reject) => {
       asyncStorage.getItem(ROOM_NAME_COUNTER_KEY, function onCounter(number) {
         roomNumber = number || 1;
-        roomNameInput.placeholder = _('roomNamePlaceHolder', {
+        roomNameByDefault = _('roomNamePlaceHolder', {
           number: roomNumber
         });
+        if (roomNameInput) {
+          roomNameInput.placeholder = roomNameByDefault;
+        }
         resolve();
       });
     });
@@ -119,11 +122,10 @@
     });
   }
 
-  function newRoom() {
-    var roomName = roomNameInput.value.trim();
-    var roomNameLength = roomName.length;
+  function newRoom(roomName) {
+    roomName = roomName || roomNameInput.value.trim();
     var params = {
-      roomName: roomNameLength ? roomName : roomNameInput.placeholder,
+      roomName: roomName.length ? roomName : roomNameByDefault,
       expiresIn: CONFIG.expiresIn,
       roomOwner: Controller.identity,
       maxSize: CONFIG.maxSize
@@ -135,9 +137,11 @@
       return Rooms.get(token);
     }).then((room) => {
       room.roomToken = token;
-      Controller.onRoomCreated(room);
-      !roomNameLength && asyncStorage.setItem(ROOM_NAME_COUNTER_KEY, ++roomNumber);
-      hide();
+      Controller.onRoomCreated(room, userInteraction);
+      roomName === roomNameByDefault &&
+                   asyncStorage.setItem(ROOM_NAME_COUNTER_KEY, ++roomNumber);
+      userInteraction && hide();
+      return room;
     }).catch((error) => {
       console.error(JSON.stringify(error));
       if (token) {
@@ -207,6 +211,7 @@
 
   exports.RoomCreate = {
     show: (room) => {
+      userInteraction = true;
       render();
       init(room);
       initRoomName().then(() => {
@@ -218,6 +223,13 @@
           var cursorPos = roomNameInput.value.length;
           roomNameInput.setSelectionRange(cursorPos, cursorPos);
         });
+      });
+    },
+
+    create: (subject) => {
+      userInteraction = false;
+      return initRoomName().then(() => {
+        return newRoom(subject || roomNameByDefault);
       });
     }
   };;

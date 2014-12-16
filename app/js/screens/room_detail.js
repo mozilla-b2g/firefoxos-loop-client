@@ -94,10 +94,10 @@
     }
 
     _urlUI.textContent = room.roomUrl;
-    
+
     _sharedWithButton.disabled = !_room.sharedWith || _room.sharedWith.length < 1;
   }
-  
+
   function _delete() {
     LazyLoader.load('js/screens/delete_room.js', () => {
       RoomDelete.show(_token, _isOwner).then(
@@ -123,7 +123,7 @@
 
   function _shareToContact() {
     Loader.getShare().then(() => {
-      Share.toContact(
+      Share.pickContact(
         {
           type: 'room',
           url: _room.roomUrl
