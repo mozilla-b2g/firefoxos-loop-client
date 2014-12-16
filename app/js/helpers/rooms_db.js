@@ -451,22 +451,9 @@
     deleteAllEvents: function(token) {
       var itemsToRemove = [];
       return new Promise(function(resolve, reject) {
-        RoomsDB.getEvents(token).then(function(cursor) {
-
-          cursor.onsuccess = function onsuccess(event) {
-            var item = event.target.result;
-            if (!item) {
-              RoomsDB.deleteEvent(token, itemsToRemove).then(resolve, reject);
-              return;
-            }
-
-            itemsToRemove.push(item.value.id);
-            item.continue();
-          };
-
-          cursor.onerror = function onerror(event) {
-            reject(event.target.error.name);
-          };
+        RoomsDB.getEvents(token).then(function(roomEvents) {
+          RoomsDB.deleteEvent(token, roomEvents.map(e => e.id)).then(
+            resolve, reject);
         }, reject);
       });
     },
