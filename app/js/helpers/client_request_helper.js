@@ -23,9 +23,29 @@
 
   var _localtimeOffsetMsec = 0;
 
+  // Until either the user is signed up or signed in we enqueue every request.
+  var _ready = false;
+  var _requestQueue;
+
   function _callback(cb, args) {
     if (cb && typeof cb === 'function') {
       cb.apply(null, args);
+    }
+  }
+
+  function _onready() {
+    _ready = true;
+    if (!_requestQueue) {
+      return;
+    }
+    while (_requestQueue.length) {
+      var params = _requestQueue.pop();
+      debug && console.log('Pop request to ' + params.options.url);
+      params.options.credentials = _hawkCredentials;
+      _request(params.options,
+               params.onsuccess,
+               params.onerror,
+               params.skipRetry);
     }
   }
 
@@ -44,7 +64,6 @@
    * https://github.com/hueniverse/hawk#replay-protection
    */
   function _updateClockOffset(dateString) {
-    debug && console.log('We need to fix the timestamp in the request. Server date: ' + dateString);
     try {
       var serverDateMsec = Date.parse(dateString);
       _localtimeOffsetMsec = serverDateMsec - hawk.utils.now();
@@ -54,6 +73,20 @@
   }
 
   function _request(options, onsuccess, onerror, skipRetry) {
+    if (!_ready && (!options.skipQueue)) {
+      if (!_requestQueue) {
+        _requestQueue = [];
+      }
+      debug && console.log('Enqueue request to ' + options.url);
+      _requestQueue.push({
+        options: options,
+        onsuccess: onsuccess,
+        onerror: onerror,
+        skipRetry: skipRetry
+      });
+      return;
+    }
+
     var req = new XMLHttpRequest({mozSystem: true});
     req.open(options.method, Utils.getSecureURL(options.url), true);
     req.setRequestHeader('Content-Type', 'application/json');
@@ -63,12 +96,10 @@
     if (options.credentials) {
       switch (options.credentials.type) {
         case 'BrowserID':
-          debug && console.log('Request using BrowserID');
           authorization =
             options.credentials.type + ' ' + options.credentials.value;
           break;
         default:
-          debug && console.log('Request using HAWK');
           var hawkHeader = hawk.client.header(options.url, options.method, {
             credentials: options.credentials.value,
             localtimeOffsetMsec: _localtimeOffsetMsec
@@ -80,6 +111,8 @@
     }
 
     req.onload = function() {
+      debug && console.log('Response to request ' + options.url +
+                           ' is: ' + JSON.stringify(req.response));
       _updateClockOffset(req.getResponseHeader('Date'));
       // We may fail because of clock skew issues. In that cases we retry once
       // after setting the clock offset.
@@ -90,7 +123,6 @@
         }
         // Getting a second 401 means that our credentials are incorrect and
         // so we need new ones.
-        debug && console.log('ERROR 401: ' + JSON.stringify(req.response));
         _callback(onerror, [req.response]);
         return;
       }
@@ -105,6 +137,8 @@
     };
 
     req.onerror = req.ontimeout = function(event) {
+      debug && console.log('Response to request ' + options.url +
+                           ' was an error');
       _callback(onerror, [event.target.status]);
     };
 
@@ -121,11 +155,15 @@
     get serverUrl() {
       return SERVER_URL;
     },
+
     /*
      * Methods related with account
      */
     signUp: function signUp(credentials, pushEndpoint, onsuccess, onerror) {
       _request({
+          // The sign up request is not added to the queue as it should be the
+          // first.
+          skipQueue: true,
           method: 'POST',
           url: SERVER_URL + '/registration',
           body: {
@@ -146,6 +184,7 @@
                   type: 'Hawk',
                   value: hawkCredentials
                 };
+                _onready();
                 _callback(onsuccess, [result, _hawkCredentials]);
             });
           });
@@ -155,6 +194,9 @@
 
     signIn: function signIn(credentials, pushEndpoint, onsuccess, onerror) {
       _request({
+          // The sign in request is not added to the queue as it should be the
+          // first.
+          skipQueue: true,
           method: 'POST',
           url: SERVER_URL + '/registration',
           body: {
@@ -164,6 +206,7 @@
         },
         function onSuccess(result) {
           _hawkCredentials = credentials;
+          _onready();
           _callback(onsuccess, [result]);
         },
         onerror
