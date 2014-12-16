@@ -40,27 +40,25 @@
     });
   }
 
-  function _showRoomSecondaryMenu(element) {
+  function _showRoomSecondaryMenu(room) {
     var items = [];
 
     // Show details
     items.push({
-      name: 'Show details',
-      l10nId: 'showDetails',
-      method: function(element) {
-        var roomToken = element.dataset.roomToken;
-        roomToken && RoomsDB.get(roomToken).then(Controller.showRoomDetails);
+      name: 'Join',
+      l10nId: 'join',
+      method: function(room) {
+        Controller.joinRoom(room.roomToken, room.roomName);
       },
-      params: [element]
+      params: [room]
     });
 
-    // Share a room
-    items.push({
-      name: 'Share',
-      l10nId: 'shareRoom',
-      method: function(element) {
-        var roomToken = element.dataset.roomToken;
-        roomToken && RoomsDB.get(roomToken).then((room) => {
+    // We can share a room *only* if we are the owners.
+    if (room.roomOwner === Controller.identity) {
+      items.push({
+        name: 'Share',
+        l10nId: 'shareRoom',
+        method: function(element) {
           Loader.getShare().then(() => {
             Share.toContact(
               {
@@ -83,25 +81,21 @@
               }
             );
           });
-        });
-      },
-      params: [element]
-    });
+        },
+        params: [room]
+      });
+    }
 
     // Delete a room
     items.push({
       name: 'Delete',
       l10nId: 'delete',
-      method: function(element) {
-        var roomToken = element.dataset.roomToken;
-        var roomOwner = element.dataset.roomOwner;
-        if (roomToken && roomOwner) {
-          LazyLoader.load('js/screens/delete_room.js', () => {
-            RoomDelete.show(roomToken, roomOwner === Controller.identity);
-          });
-        }
+      method: function(room) {
+        LazyLoader.load('js/screens/delete_room.js', () => {
+          RoomDelete.show(room.roomToken, room.roomOwner === Controller.identity);
+        });
       },
-      params: [element]
+      params: [room]
     });
 
     _showSecondaryMenu(items);
@@ -608,6 +602,7 @@
 
   function _createRoomDOM(rawRoom, element) {
     var roomElement = element || document.createElement('li');
+    roomElement.classList.add('active');
     var creationTime = _getRoomCreationDate(rawRoom);
     roomElement.dataset.timestampIndex = creationTime.getTime();
     roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
@@ -620,6 +615,7 @@
     var roomName = roomElement.dataset.roomName = rawRoom.roomName;
 
     roomElement.innerHTML = _templateRoom.interpolate({
+      roomToken: rawRoom.roomToken,
       roomName: roomName,
       roomOwner: rawRoom.contactPrimaryInfo || rawRoom.roomOwner,
       creationTime: Utils.getFormattedHour(creationTime)
@@ -987,11 +983,14 @@
         event.preventDefault();
 
         var roomElement = event.target;
-        if (roomElement.tagName !== 'LI') {
+        var roomToken = roomElement.dataset.roomToken;
+
+        if (!roomToken) {
+          console.error('Longpress: action target is wrong');
           return;
         }
 
-        _showRoomSecondaryMenu(roomElement);
+        RoomsDB.get(roomToken).then(_showRoomSecondaryMenu)
       }
     );
 
@@ -1000,7 +999,17 @@
     roomsSectionEntries.addEventListener('click', (event) => {
       var element = event.target;
       var roomToken = element.dataset.roomToken;
-      roomToken && Controller.joinRoom(roomToken, element.dataset.roomName);
+
+      if (!roomToken) {
+        console.error('No token in the target');
+        return;
+      }
+
+      if (element.classList.contains('primary-action')) {
+        Controller.joinRoom(roomToken, element.dataset.roomName);
+      } else {
+        RoomsDB.get(roomToken).then(Controller.showRoomDetails);
+      }
     });
   }
 

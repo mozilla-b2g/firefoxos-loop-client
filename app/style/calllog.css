@@ -52,6 +52,20 @@
   pointer-events: none;
 }
 
+.section-entries li .primary-action,
+.section-entries li .secondary-action {
+  pointer-events: all;
+}
+
+.section-entries li .primary-action {
+  padding: 1rem 1.5rem;
+}
+
+.section-entries li .secondary-action:active {
+  background-color: transparent;
+  color: #858585;
+}
+
 #rooms-section.empty .section-empty {
   background-image: url(images/empty_rooms_log.png);
 }
@@ -127,6 +141,10 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   white-space: nowrap;
 }
 
+#rooms-section-entries li {
+  padding: 0;
+}
+
 #rooms-section-entries li[data-participants]:before {
   position: absolute;
   content: "";
@@ -148,11 +166,11 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
 .room-time {
   width: auto;
-  margin: 0 -1rem 0 0;
   background-color: transparent;
   border: none;
-  height: 100%;
   color: #858585;
+  padding: 2rem 0;
+  margin-right: 1.5rem !important;
 }
 
 .room-time span {
