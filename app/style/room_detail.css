@@ -47,11 +47,6 @@
   color: #fff;
 }
 
-/* fake content: remove 'display: none' this after we have real content */
-#rdp-invitees-section {
-  display: none
-}
-
 .icon.icon-pick-contact:before {
   background-image: url("images/Roomdetail_pickcontact.png")
 }
