@@ -22,6 +22,38 @@
     frontCamera: false
   };
 
+  function showError(errorMessage) {
+    errorMessage = errorMessage || 'genericServerError';
+    Loader.getErrorScreen().then(ErrorScreen => {
+      var _ = navigator.mozL10n.get;
+      ErrorScreen.show(_(errorMessage));
+    });
+  }
+
+  function removeMyselfFromRoom(params) {
+    Rooms.get(params.token).then(
+      function(room) {
+        if (room && room.participants && room.participants.length > 1) {
+          var amIin = false;
+          room.participants.forEach(function(participant) {
+            if (participant.account === params.displayName) {
+              Rooms.leave(params.token).then(function() {
+                RoomController.join(params);
+              });
+              amIin = true;
+            }
+          });
+          !amIin && showError('roomFull');
+        } else {
+          showError();
+        }
+      },
+      function() {
+        showError();
+      }
+    );
+  }
+
   function handleBackgroundMode(params) {
     document.hidden && Loader.getNotificationHelper().then(
     function(NotificationHelper) {
@@ -134,10 +166,19 @@
     join: function(params) {
       debug && console.log('Join room with params: ' + JSON.stringify(params));
 
+      if (!navigator.onLine) {
+        Loader.getOfflineScreen().then(OfflineScreen => {
+          var _ = navigator.mozL10n.get;
+          OfflineScreen.show(_('noConnection'));
+        });
+        return;
+      }
+
       params = params || {};
       if (!params.token) {
-        // TODO: we should show some kind of error in the UI.
         debug && console.log('Error while joining room');
+
+        showError();
         return;
       }
       for (var param in params) {
@@ -160,11 +201,12 @@
           ).then(function(result) {
             if (!result.apiKey || !result.sessionId || !result.sessionToken ||
                 !result.expires) {
-              // TODO: we should show some kind of error in the UI.
-              debug && console.log('Error while joining room. Some params missing');
+              debug &&
+                console.log('Error while joining room. Some params missing');
 
               RoomUI.hide();
               Rooms.leave(params.token);
+              showError();
               return;
             }
 
@@ -258,7 +300,6 @@
                   _logEventCommunication (current);
                 },
                 error: function(event) {
-                  // TODO: we should show some kind of error in the UI.
                   debug && console.log('Error while joining room');
                   isConnected = false;
                   currentToken = null;
@@ -267,6 +308,7 @@
                   RoomUI.hide();
                   window.clearTimeout(refreshTimeOut);
                   Rooms.leave(params.token);
+                  showError();
                 }
               });
 
@@ -300,14 +342,16 @@
             });
           },
           function(error) {
-            // TODO: we should show some kind of error in the UI.
             debug && console.log('Error while joining room');
-            alert('Room is full of participants');
             currentToken = null;
             isConnected = false;
-            document.removeEventListener('visibilitychange',
-                                         backgroundModeHandler);
             RoomUI.hide();
+            // Room full. See https://docs.services.mozilla.com/loop/apis.html
+            if (error && (error.code === 400) && (error.errno === 202)) {
+              removeMyselfFromRoom(params);
+              return;
+            }
+            showError();
           });
         }, () => {
           // The user cancels

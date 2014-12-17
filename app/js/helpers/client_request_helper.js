@@ -128,7 +128,7 @@
       }
 
       if (req.status !== 201 && req.status !== 200 && req.status !== 204 && req.status !== 302) {
-        _callback(onerror, [req.statusText]);
+        _callback(onerror, [req.response]);
         return;
       }
       _callback(
