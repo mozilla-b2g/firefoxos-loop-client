@@ -223,7 +223,11 @@
           Telemetry.updateReport('callsDuration',
                                  callObject.duration);
           Telemetry.updateReport('defaultCamera',
-                                 callscreenParams.defaultCamera);
+                                 (Settings.isFrontalCamera &&
+                                  Settings.isFrontalCamera != 'false') ?
+                                 'front' : 'back');
+          Telemetry.updateReport('usedCamera',
+                                 callscreenParams.usedCamera);
           break;
       }
     } catch(e) {}

@@ -76,7 +76,8 @@
     // The network type used for the call.
     audioCodecName: [],
     videoCodecName: [],
-    defaultCamera: []
+    defaultCamera: [],
+    usedCamera: []
   };
 
   function Telemetry() {
