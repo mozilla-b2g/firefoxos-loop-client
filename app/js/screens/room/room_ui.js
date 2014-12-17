@@ -78,6 +78,7 @@
   }
 
   function leaveButtonClicked() {
+    debug && console.log('leaveButtonClicked');
     onLeaveButtonClicked();
   }
 
@@ -132,6 +133,7 @@
     // TODO Enable this in:
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1107868
     // startRotationHandler();
+    debug && console.log('attachHandlers');
   }
 
   function removeHandlers() {
@@ -201,7 +203,6 @@
   }
 
   function join(params) {
-    roomControls.classList.remove('hide');
     attachHandlers();
 
     // Tokbox is removing the elements where the video is appended to, so
@@ -218,6 +219,7 @@
 
     updateButtonStatus();
     RoomUI.setWaiting();
+    roomControls.classList.remove('hide');
   }
 
   var RoomUI = {
