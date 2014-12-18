@@ -67,6 +67,16 @@
         );
       });
     },
+    getHawkCredentials: function() {
+      if (window.hawkCredentials) {
+        return window.hawkCredentials;
+      } else {
+        return new Promise((resolve,reject) => {
+          LazyLoader.load(['js/helpers/hawk_creds.js'],
+                          () => window.hawkCredentials.then(hc => resolve(hc)));
+        });
+      }
+    },
     getNotificationHelper: function() {
       if (window.NotificationHelper) {
         return Promise.resolve(NotificationHelper);
