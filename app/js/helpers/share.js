@@ -144,12 +144,12 @@
       }, 600); // Workaround to avoid black screen invoking Email activity.
     },
 
-    broadcast: function(url, onsuccess, onerror) {
+    broadcast: function(params, onsuccess, onerror) {
       var activity = new MozActivity({
         name: 'share',
         data: {
           type: 'url',
-          url: url
+          url: _generateText(params)
         }
       });
       activity.onsuccess = onsuccess;

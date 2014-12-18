@@ -539,7 +539,7 @@
 
       Loader.getShare().then((Share) => {
         Share.broadcast(
-          params.url,
+          params,
           function onSent() {
             _onsharedurl();
 

@@ -59,7 +59,7 @@
       {
         email: id,
         url: _url,
-        type: 'conversation'
+        type: 'call'
       }
     );
     ShareScreen.hide();
@@ -98,7 +98,8 @@
   function _onOtherClicked() {
     Controller.shareUrl(
       {
-        url: _url
+        url: _url,
+        type: 'call'
       },
       function onShared() {
         ShareScreen.hide();
