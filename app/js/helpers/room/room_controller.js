@@ -222,11 +222,16 @@
               });
 
               RoomUI.onLeave = function() {
-                Rooms.leave(params.token);
-                roomManager.leave();
-                isConnected = false;
-                currentToken = null;
-
+                RoomUI.setWaiting();
+                document.addEventListener('transitionend',
+                  function onTransitionEnd() {
+                    document.removeEventListener('transitionend',
+                                                 onTransitionEnd);
+                    roomManager.leave();
+                    Rooms.leave(params.token);
+                    isConnected = false;
+                    currentToken = null;
+                });
                 shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
               };
 
