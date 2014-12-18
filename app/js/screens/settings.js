@@ -356,6 +356,9 @@
       return _settingValues.vibrate !== undefined ?
                _settingValues.vibrate :
                _settingPromises.vibrate;
+    },
+    get isShown() {
+      return ((_settingsPanel) && (_settingsPanel.classList.contains('show')));
     }
   };
 
