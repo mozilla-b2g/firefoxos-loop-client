@@ -379,7 +379,7 @@
     },
 
     onRoomDeleted: function(token) {
-      CallLog.removeRooms(token);
+      return CallLog.removeRooms(token);
     },
 
     showRoomDetails: function (room) {

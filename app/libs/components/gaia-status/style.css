@@ -1,0 +1,13 @@
+section[role="status"] {
+  transition-duration: .5s;
+  transition-property: transform;
+  transform: translateY(100%);
+}
+
+section[role="status"].show {
+  transform: translateY(0);
+}
+
+section[role="status"].hidden {
+  display: none;
+}
