@@ -3,6 +3,7 @@
 
   var debug = Config.debug;
 
+  var roomManager = null;
   var refreshTimeOut;
   var isConnected = false, currentToken;
 
@@ -94,6 +95,21 @@
     }, before * 1000);
   }
 
+  function leave() {
+    return new Promise(function(resolve, reject) {
+      Rooms.leave(currentToken);
+      isConnected = false;
+      currentToken = null;
+      roomManager.on({
+        left: function(event) {
+          resolve();
+        }
+      });
+      roomManager.leave();
+      RoomUI.hide();
+    });
+  }
+
   var RoomController = {
     join: function(params) {
       debug && console.log('Join room with params: ' + JSON.stringify(params));
@@ -109,6 +125,38 @@
       }
 
       Loader.getRoomUI().then((RoomUI) => {
+        if (isConnected && (currentToken === params.token)) {
+          Navigation.to('room-ui', 'top');
+          return;
+        }
+        if (isConnected && (currentToken !== params.token)) {
+          // Let the user decide about leaving current room.
+          var _ = navigator.mozL10n.get;
+          var options = new OptionMenu({
+            section: _('leaveRequest'),
+            type: 'confirm',
+            items: [
+              {
+                name: 'Cancel',
+                l10nId: 'cancel',
+                method: () => {
+                  Navigation.to('room-ui', 'top');
+                }
+              },
+              {
+                name: 'OK',
+                l10nId: 'ok',
+                method: (params) => {
+                  leave().then(() => {
+                    RoomController.join(params);
+                  });
+                },
+                params: [params]
+              }
+            ]
+          });
+          return;
+        }
         RoomUI.show(params).then(() => {
 
           params.localTargetElement = RoomUI.localTargetElement;
@@ -152,7 +200,7 @@
             });
 
             Loader.getRoomManager().then((RoomManager) => {
-              var roomManager = new RoomManager();
+              roomManager = new RoomManager();
               roomManager.on({
                 joining: function(event) {
                   debug && console.log('Room joining');
@@ -175,6 +223,7 @@
                   debug && console.log('Room left');
                   window.clearTimeout(refreshTimeOut);
                   _logEventCommunication (current);
+                  roomManager = null;
                 },
                 participantJoining: function(event) {
                   debug && console.log('Room participant joining');
@@ -218,6 +267,7 @@
                   RoomUI.hide();
                   window.clearTimeout(refreshTimeOut);
                   Rooms.leave(params.token);
+                  roomManager = null;
                 }
               });
 
@@ -254,6 +304,7 @@
             alert('Room is full of participants');
             currentToken = null;
             isConnected = false;
+            roomManager = null;
             RoomUI.hide();
           });
         }, () => {
@@ -262,6 +313,7 @@
         });
       });
     },
+
     addParticipant: function(token, name, account) {
       if (isConnected && currentToken && (currentToken === token)) {
         RoomUI.updateParticipant(name, account);

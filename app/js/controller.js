@@ -310,6 +310,10 @@
                     notification.onclick = function() {
                       debug && console.log('Notification clicked for room: ' + room.roomUrl);
                       _ownAppInfo.app.launch();
+                      Settings.isShown && Settings.hide();
+                      Navigation.to('calllog-panel', 'left').then(() => {
+                        CallLog.showRooms();
+                      });
                       notification.close();
                     };
                   });
