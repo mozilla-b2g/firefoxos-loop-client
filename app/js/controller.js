@@ -268,9 +268,40 @@
 
             var lastStateRoom = _getLastStateRoom(room);
             if (room.participants.length === MAX_PARTICIPANTS) {
-              for (var i = 0, l = room.participants.length; i < l; i++) {
-                var participant = room.participants[i];
+              room.participants.forEach((participant) => {
                 if (participant.account !== Controller.identity) {
+		  document.hidden && Loader.getNotificationHelper().then(
+		    function(NotificationHelper) {
+		      NotificationHelper.send({
+			raw: room.roomName
+		      }, {
+			body: _('hasJoined', {
+			  name: participant.displayName
+			}),
+			icon: _ownAppInfo.icon,
+			tag: room.roomUrl
+		      }).then((notification) => {
+			var onVisibilityChange = function() {
+			  if (!document.hidden) {
+			    notification.close();
+			  }
+			};
+			document.addEventListener('visibilitychange',
+						  onVisibilityChange);
+			notification.onclose = function() {
+			  document.removeEventListener('visibilitychange',
+						       onVisibilityChange);
+			  notification.onclose = notification.onclick = null;
+			};
+			notification.onclick = function() {
+			  debug && console.log(
+			    'Notification clicked for room: ' + room.roomUrl
+			  );
+			  _ownAppInfo.app.launch();
+			  notification.close();
+			};
+		      });
+		  });
                   RoomController.addParticipant(
                     room.roomToken,
                     participant.displayName,
@@ -279,16 +310,12 @@
                   _registerOtherJoinEvt(room.roomToken,
                                         participant,
                                         lastStateRoom);
-                  break;
                 }
-              }
+              });
               return;
             }
 
-            var _ = navigator.mozL10n.get;
-
-            for (var i = 0, l = room.participants.length; i < l; i++) {
-              participant = room.participants[i];
+            room.participants.forEach((participant) => {
               if (participant.account !== Controller.identity) {
                 _registerOtherJoinEvt(room.roomToken,
                                       participant,
@@ -302,7 +329,7 @@
                     raw: room.roomName
                   }, {
                     body: _('hasJoined', {
-                        name: room.participants[i].displayName
+                      name: participant.displayName
                     }),
                     icon: _ownAppInfo.icon,
                     tag: room.roomUrl
@@ -314,9 +341,8 @@
                     };
                   });
                 });
-                break;
               }
-            }
+            });
           });
           _lastChangedRooms = rooms;
         });
