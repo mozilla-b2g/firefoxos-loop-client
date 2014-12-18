@@ -55,13 +55,13 @@
         name: 'identities',
         fields: 'identities',
         params: {
-          multientry: true
+          multiEntry: true
         }
       }, {
         name: 'contactId',
         fields: 'contactId',
         params: {
-          multientry: true
+          multiEntry: true
         }
       }],
       fields: [
@@ -89,13 +89,13 @@
         name: 'identities',
         fields: 'identities',
         params: {
-          multientry: true
+          multiEntry: true
         }
       }, {
         name: 'contactId',
         fields: 'contactId',
         params: {
-          multientry: true
+          multiEntry: true
         }
       }],
       fields: [

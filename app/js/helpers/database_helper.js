@@ -98,7 +98,8 @@ DatabaseHelper.prototype = {
                 keyPath: schemaData.primary
               });
             } else {
-              auxStore = event.currentTarget.transaction.objectStore(schemaName);
+              auxStore = event.currentTarget.transaction.objectStore(
+                schemaName);
             }
 
             // Regenerate all indexes

@@ -62,7 +62,7 @@
   const _eventsStore = 'roomEvents';
   var _dbHelper = new DatabaseHelper({
     name: 'roomsLog',
-    version: 2,
+    version: 1,
     maxNumerOfRecords: 200,
     numOfRecordsToDelete: 50
   }, {
@@ -70,27 +70,21 @@
       primary: 'roomToken',
       indexes: [{
         name: 'roomName',
-        fields: 'roomName',
-        params: {
-          multientry: true
-        }
+        fields: 'roomName'
       }, {
         name: 'creationTime',
-        fields: [ 'user', 'creationTime' ],
-        params: {
-          multientry: true
-        }
+        fields: [ 'user', 'creationTime' ]
       }, {
         name: 'localCtime',
-        fields: 'localCtime',
-        params: {
-          multientry: true
-        }
+        fields: 'localCtime'
       }, {
         name: 'user',
-        fields: 'user',
+        fields: 'user'
+      }, {
+        name: 'identities',
+        fields: 'identities',
         params: {
-          multientry: true
+          multiEntry: true
         }
       }],
       fields: [
@@ -114,16 +108,10 @@
       primary: 'id',
       indexes: [{
         name: 'roomToken',
-        fields: 'roomToken',
-        params: {
-          multientry: true
-        }
+        fields: 'roomToken'
       }, {
         name: 'date',
-        fields: 'date',
-        params: {
-          multientry: true
-        }
+        fields: 'date'
       }],
       fields: [
         'id',
