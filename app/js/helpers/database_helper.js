@@ -349,7 +349,7 @@ DatabaseHelper.prototype = {
 
         var req = store.put(record);
         req.onsuccess = function() {
-          aCallback();
+          aCallback(null, record);
         };
         req.onerror = function(e) {
           console.error('Record not updated', e);
