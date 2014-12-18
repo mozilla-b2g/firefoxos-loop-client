@@ -352,8 +352,10 @@
       });
     },
 
-    onRoomCreated: function(room) {
-      CallLog.addRoom(room).then(Controller.showRoomDetails);
+    onRoomCreated: function(room, navigateToDetail) {
+      CallLog.addRoom(room).then(room => {
+        navigateToDetail && Controller.showRoomDetails(room);
+      });
     },
 
     onRoomUpdated: function(room) {
