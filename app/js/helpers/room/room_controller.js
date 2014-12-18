@@ -22,6 +22,42 @@
     frontCamera: false
   };
 
+  function handleBackgroundMode(params) {
+    document.hidden && Loader.getNotificationHelper().then(
+    function(NotificationHelper) {
+      Utils.getAppInfo().then(appInfo => {
+        var _ = navigator.mozL10n.get;
+        NotificationHelper.send({
+          raw: params.roomName
+        }, {
+          body: _('tapToReturn'),
+          icon: appInfo.icon,
+          tag: params.roomUrl
+        }).then((notification) => {
+          var onVisibilityChange = function() {
+            if (!document.hidden) {
+              notification.close();
+            }
+          };
+          document.addEventListener('visibilitychange',
+                                    onVisibilityChange);
+          notification.onclose = function() {
+            document.removeEventListener('visibilitychange',
+                                         onVisibilityChange);
+            notification.onclose = notification.onclick = null;
+          };
+          notification.onclick = function() {
+            debug && console.log(
+              'Notification clicked for room: ' + params.roomUrl
+            );
+            appInfo.app.launch();
+            notification.close();
+          };
+        });
+      });
+    });
+  }
+
   function rate(callback) {
     if (typeof callback !== 'function') {
       callback = function() {};
@@ -136,6 +172,7 @@
             var currentRoom = null;
             isConnected = true;
             currentToken = params.token;
+            var backgroundModeHandler = null;
 
             Loader.getRoomEvent().then(RoomEvent => {
               RoomEvent.save({type: RoomEvent.type.iJoin,
@@ -144,6 +181,11 @@
 
             Rooms.get(params.token).then(function(room) {
               currentRoom = room;
+              params.roomName = room.roomName;
+              params.roomUrl = room.roomUrl;
+              backgroundModeHandler = handleBackgroundMode.bind(null, params);
+              document.addEventListener('visibilitychange',
+                                        backgroundModeHandler);
               RoomUI.updateName(room.roomName);
               if (Controller.identity !== room.roomOwner) {
                 room.roomToken = params.token;
@@ -215,6 +257,8 @@
                   debug && console.log('Error while joining room');
                   isConnected = false;
                   currentToken = null;
+                  document.removeEventListener('visibilitychange',
+                                               backgroundModeHandler);
                   RoomUI.hide();
                   window.clearTimeout(refreshTimeOut);
                   Rooms.leave(params.token);
@@ -226,6 +270,8 @@
                 roomManager.leave();
                 isConnected = false;
                 currentToken = null;
+                document.removeEventListener('visibilitychange',
+                                             backgroundModeHandler);
 
                 shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
               };
@@ -254,6 +300,8 @@
             alert('Room is full of participants');
             currentToken = null;
             isConnected = false;
+            document.removeEventListener('visibilitychange',
+                                         backgroundModeHandler);
             RoomUI.hide();
           });
         }, () => {

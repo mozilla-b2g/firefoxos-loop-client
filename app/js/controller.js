@@ -18,11 +18,6 @@
 
   var _lastChangedRooms = [];
 
-  var _ownAppInfo = {
-    app: null,
-    icon: null
-  };
-
   function _getLastStateRoom(aRoom) {
     if (!aRoom) {
       return;
@@ -62,22 +57,6 @@
                         identity: accountNewP  || RoomEvent.identityUnknown });
       });
     }
-  }
-
-  function _getApp() {
-    if (_ownAppInfo.app && _ownAppInfo.icon) {
-      return Promise.resolve(_ownAppInfo);
-    }
-
-    return new Promise(function(resolve, reject) {
-      navigator.mozApps.getSelf().onsuccess = function(evt) {
-        _ownAppInfo.app = evt.target.result;
-        Loader.getNotificationHelper().then(function(NotificationHelper) {
-          _ownAppInfo.icon = NotificationHelper.getIconURI(_ownAppInfo.app);
-          resolve(_ownAppInfo);
-        });
-      };
-    });
   }
 
   function _hideSplash() {
@@ -256,7 +235,7 @@
       // Launch notifications if anyone joined
       Rooms.getChanges(version).then(function(rooms) {
         debug && console.log('Rooms changed ' + JSON.stringify(rooms));
-        _getApp().then(function() {
+        Utils.getAppInfo().then(appInfo => {
           rooms.forEach(function(room) {
             // Avoid auto-push effect. If the room is full there is no
             // notification (due we are connected and waiting the other
@@ -278,7 +257,7 @@
 			body: _('hasJoined', {
 			  name: participant.displayName
 			}),
-			icon: _ownAppInfo.icon,
+			icon: appInfo.icon,
 			tag: room.roomUrl
 		      }).then((notification) => {
 			var onVisibilityChange = function() {
@@ -297,7 +276,7 @@
 			  debug && console.log(
 			    'Notification clicked for room: ' + room.roomUrl
 			  );
-			  _ownAppInfo.app.launch();
+			  appInfo.app.launch();
 			  notification.close();
 			};
 		      });
@@ -331,12 +310,12 @@
                     body: _('hasJoined', {
                       name: participant.displayName
                     }),
-                    icon: _ownAppInfo.icon,
+                    icon: appInfo.icon,
                     tag: room.roomUrl
                   }).then((notification) => {
                     notification.onclick = function() {
                       debug && console.log('Notification clicked for room: ' + room.roomUrl);
-                      _ownAppInfo.app.launch();
+                      appInfo.app.launch();
                       notification.close();
                     };
                   });
