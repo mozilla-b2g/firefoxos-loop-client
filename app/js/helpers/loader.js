@@ -53,6 +53,20 @@
         });
       });
     },
+    getStatus: function() {
+      if (window.Status) {
+        return Promise.resolve(Status);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          ['libs/components/gaia-status/style.css',
+           'libs/components/gaia-status/status.js'],
+          () => {
+            resolve(Status);
+          }
+        );
+      });
+    },
     getNotificationHelper: function() {
       if (window.NotificationHelper) {
         return Promise.resolve(NotificationHelper);

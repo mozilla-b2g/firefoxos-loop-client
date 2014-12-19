@@ -580,7 +580,7 @@
     if (!Array.isArray(tokens)) {
       tokens = [tokens];
     }
-    RoomsDB.delete(tokens).then(() => {
+    return RoomsDB.delete(tokens).then(() => {
       _deleteElementsFromGroup(tokens, 'rooms');
     }, (error) => {
       error && console.error('Error when deleting rooms from DB ' +
@@ -1150,7 +1150,7 @@
     },
 
     removeRooms: function(roomTokens) {
-      _deleteRooms(roomTokens);
+      return _deleteRooms(roomTokens);
     },
 
     updateRooms: function(rooms) {

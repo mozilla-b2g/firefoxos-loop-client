@@ -4,7 +4,7 @@
 
   var _ = navigator.mozL10n.get;
 
-  function _deleteRoomDB(token) {
+  function _deleteRoom(token) {
     return new Promise((resolve, reject) => {
       Rooms.delete(token).then(() => {
         Controller.onRoomDeleted(token);
@@ -15,7 +15,16 @@
 
   function _delete(token, isOwner) {
     if (!isOwner) {
-      return _deleteRoomDB(token);
+      return new Promise((resolve, reject) => {
+        Loader.getStatus().then(Status => {
+          Controller.onRoomDeleted(token).then(() => {
+            Status.show(_('roomsDeleted', {
+              value: 1
+            }));
+            resolve();
+          });
+        }, reject);
+      });
     }
 
     if (!navigator.onLine) {
@@ -24,7 +33,7 @@
       });
       return Promise.reject('NO_CONNECTION');
     }
-      
+
     return new Promise((resolve, reject) => {
       var options = new OptionMenu({
         section: _('deleteRoomConfirmation'),
@@ -40,7 +49,7 @@
             class: 'danger',
             l10nId: 'delete',
             method: (token) => {
-              _deleteRoomDB(token).then(resolve, reject);
+              _deleteRoom(token).then(resolve, reject);
             },
             params: [token]
           }
@@ -54,7 +63,7 @@
       return _delete(token, isOwner);
     }
   };
- 
+
   exports.RoomDelete = RoomDelete;
- 
+
 }(window));
