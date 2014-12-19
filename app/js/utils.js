@@ -163,6 +163,24 @@
         return url;
       }
       return url.replace(/^(http|ws):\/\//i,"$1s:\/\/");
+    },
+
+    getAppInfo: function u_getAppInfo() {
+      if (window.appInfo && window.appInfo.app && window.appInfo.icon) {
+        return Promise.resolve(window.appInfo);
+      }
+
+      return new Promise(function(resolve, reject) {
+        navigator.mozApps.getSelf().onsuccess = function(evt) {
+          window.appInfo = {};
+          window.appInfo.app = evt.target.result;
+          Loader.getNotificationHelper().then(function(NotificationHelper) {
+            window.appInfo.icon =
+              NotificationHelper.getIconURI(window.appInfo.app);
+            resolve(window.appInfo);
+          });
+        };
+      });
     }
   };
 
