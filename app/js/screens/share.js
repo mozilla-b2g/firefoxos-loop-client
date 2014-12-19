@@ -10,6 +10,16 @@
 
   var _; // l10n
 
+  function _cleanVars() {
+    // Clean vars
+    _contact = null;
+    _url = null;
+    _tels = [];
+    _mails = [];
+    _identities = null;
+    _contactInfo = null;
+  }
+
   function _generateUrlObject() {
     var expirationDate = new Date(+_urlObject.expiresAt * 1000);
     var tokenTmp = _url.split('/');
@@ -43,8 +53,10 @@
         // the activity when the user hits the close button in the Messaging
         // app. We took out the action of hidding the share screen from here for
         // that reason.
+        _cleanVars();
       },
       function onError() {
+        _cleanVars();
         // TODO Do we need to show something to the user?
       }
     );
@@ -57,6 +69,7 @@
       _url
     );
     CallLog.addUrl(_generateUrlObject(), _contactInfo);
+    _cleanVars();
     Share.hide();
   }
 
@@ -110,6 +123,7 @@
     _closeButton.addEventListener(
       'click',
       function() {
+        _cleanVars();
         Share.hide();
       }
     );
@@ -121,9 +135,11 @@
           _url,
           function onShared() {
             CallLog.addUrl(_generateUrlObject(), _contactInfo);
+            _cleanVars();
             Share.hide();
           },
           function onError() {
+            _cleanVars();
             // TODO Do we need to show something to the user?
           }
         );
@@ -253,14 +269,6 @@
       _sharePanel.classList.add('show');
     },
     hide: function s_hide() {
-      // Clean vars
-      _contact = null;
-      _url = null;
-      _tels = [];
-      _mails = [];
-      _identities = null;
-      _contactInfo = null;
-
       // Clean UI
       _shareSMS.style.display = 'none';
       _shareEmail.style.display = 'none';
