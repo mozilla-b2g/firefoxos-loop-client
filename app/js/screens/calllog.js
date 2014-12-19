@@ -692,15 +692,34 @@
             return;
           }
 
+          var pendingCallbacks = 2;
+          function checkInvalidateFinished() {
+            if (!--pendingCallbacks) {
+              _contactsCache = true;
+              resolve();
+            }
+          }
+
+          RoomsDB.invalidateContactsCache(function(error) {
+            if (error) {
+              console.error('Could not invalidate rooms contacts cache ' + error);
+              reject();
+              return;
+            }
+
+            checkInvalidateFinished();
+          });
+
           ActionLogDB.invalidateContactsCache(function(error) {
             if (error) {
               console.error('Could not invalidate contacts cache ' + error);
               reject();
               return;
             }
-            _contactsCache = true;
-            resolve();
+
+            checkInvalidateFinished();
           });
+
         };
 
         req.onerror = function(event) {
@@ -1048,6 +1067,7 @@
 
       _ = navigator.mozL10n.get;
       ActionLogDB.init();
+      RoomsDB.init();
 
       callsSection = document.getElementById('calls-section');
       callsSectionEntries = document.getElementById('calls-section-entries');
