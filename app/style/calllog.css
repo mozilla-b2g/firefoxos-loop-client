@@ -143,17 +143,40 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
 #rooms-section-entries li {
   padding: 0;
+  min-height: 6rem;
+  font-size: 1.5rem;
+  color: #858585;
+  font-weight: 400;
+}
+
+#rooms-section-entries header {
+  padding: 0 3.5rem;
+}
+
+#rooms-section-entries .last-shared-with {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin: -0.5rem 0 .5rem 2rem;
+}
+
+#rooms-section-entries li .primary-info {
+  font-size: 1.9rem;
+  color: #333333;
+  padding: .5rem 2rem 1rem .5rem;
 }
 
 #rooms-section-entries li:not([data-shared]) .primary-info {
-  line-height: 4rem;
+  line-height: 6rem;
+  padding: 0 0 0 .5rem;
 }
 
 #rooms-section-entries li[data-participants]:before {
   position: absolute;
   content: "";
-  top: 1.3rem;
-  left: 0.8rem;
+  top: 1.7rem;
+  left: 1rem;
   height: 1.6rem;
   width: 1.6rem;
   background: url("images/rooms_list_sprite.png") 0 -1.6rem no-repeat;
@@ -161,7 +184,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 }
 
 #rooms-section-entries li:not([data-shared])[data-participants]:before {
-  top: 2.1rem;
+  top: 3.2rem;
 }
 
 #rooms-section-entries li[data-participants="0"]:before {
@@ -172,17 +195,27 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   background-position: 0 0;
 }
 
-.room-time {
+#rooms-section-entries .room-time {
   width: auto;
   background-color: transparent;
   border: none;
   color: #858585;
   padding: 2rem 0;
   margin-right: 1.5rem !important;
+  font-size: 1.5rem;
+}
+
+#rooms-section-entries li .room-time span {
+  margin-right: 3rem;
+  font-style: normal;
 }
 
 #rooms-section-entries li[data-shared] .room-time span {
-  margin-top: -1.5rem;
+  margin: -2.2rem 3rem 0 0;
+}
+
+#rooms-section-entries li[data-participants="full"] .room-time {
+  color: #bc1515;
 }
 
 .calllog-section .subject {
@@ -195,15 +228,6 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
 #calls-section .retry-count {
   flex: 0.4
-}
-
-#rooms-section .last-shared-with {
-  white-space: normal;
-}
-
-#rooms-section .retry-count {
-  font-style: italic;
-  color: #00a9dc;
 }
 
 /* FOOTER */
