@@ -137,17 +137,22 @@
             isConnected = true;
             currentToken = params.token;
 
-            Loader.getRoomEvent().then(RoomEvent => {
-              RoomEvent.save({type: RoomEvent.type.iJoin,
-                              token: currentToken });
-            });
-
             Rooms.get(params.token).then(function(room) {
               currentRoom = room;
               RoomUI.updateName(room.roomName);
               if (Controller.identity !== room.roomOwner) {
                 room.roomToken = params.token;
-                CallLog.addRoom(room);
+                CallLog.addRoom(room).then(() => {
+                  Loader.getRoomEvent().then(RoomEvent => {
+                    RoomEvent.save({type: RoomEvent.type.iJoin,
+                                    token: currentToken });
+                  });
+                });
+              } else {
+                Loader.getRoomEvent().then(RoomEvent => {
+                  RoomEvent.save({type: RoomEvent.type.iJoin,
+                                  token: currentToken });
+                });
               }
             });
 

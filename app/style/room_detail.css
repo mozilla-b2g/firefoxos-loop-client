@@ -51,7 +51,6 @@
   background-image: url("images/Roomdetail_pickcontact.png")
 }
 
-#room-detail-panel.invited #rdp-history-section,
 #room-detail-panel.invited #rdp-expiration-section,
 #room-detail-panel.invited #rdp-share-section,
 #room-detail-panel.invited #rdp-edit-button {
