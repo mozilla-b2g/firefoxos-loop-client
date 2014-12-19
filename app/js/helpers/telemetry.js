@@ -19,6 +19,7 @@
 
   var _updateLock = null;
   var _updateQueue = [];
+  var _updateResetLock = false;
 
   function _getReportUrl(report) {
     if (!report) {
@@ -77,7 +78,8 @@
     audioCodecName: [],
     videoCodecName: [],
     defaultCamera: [],
-    usedCamera: []
+    usedCamera: [],
+    roomRenamingCount: []
   };
 
   function Telemetry() {
@@ -105,21 +107,23 @@
       DEBUG && console.log('Scheduled next report in ' + timeout + 'ms');
 
       setTimeout(function() {
-        self.get(function(report) {
-          if (!report) {
-            return;
-          }
+        // first add roomRenamingCount to Telemetry report, then transmit
+        self.countRoomRenamings().then(function(){
+          self.get(function(report) {
+            if (!report) {
+              return;
+            }
 
-          if (Array.isArray(report)) {
-            report = report[0] || null;
-          }
-
-          self.transmit(report, _getReportUrl(report), THROTTLE_DELAY,
-            function() {
-              DEBUG && console.log('Setting ' + LAST_REPORT);
-              asyncStorage.setItem(LAST_REPORT, Date.now());
-            });
-        });
+            if (Array.isArray(report)) {
+              report = report[0] || null;
+            }
+            self.transmit(report, _getReportUrl(report), THROTTLE_DELAY,
+              function() {
+                DEBUG && console.log('Setting ' + LAST_REPORT);
+                asyncStorage.setItem(LAST_REPORT, Date.now());
+              });
+          });
+        }, function(error){ console.log(error.message)} );
       }, timeout);
     });
   }
@@ -176,6 +180,26 @@
       });
     },
 
+    _resetReport: function(name) {
+      if (_updateResetLock){
+        return;
+      }
+      _updateResetLock = true;
+      self = this;
+      this.get(function(report) {
+        if (report[name] !== undefined) {
+          if (Array.isArray(report[name])) {
+            report[name] = [];
+          }
+          else {
+            report[name] = 0;
+          }
+        }
+        self.save(report, function() {});
+        _updateResetLock = false;
+      });
+    },
+
     updateReport: function(name, value) {
       if (TelemetryReport.prototype[name] === undefined ||
           Array.isArray(TelemetryReport.prototype[name]) &&
@@ -183,8 +207,40 @@
         return;
       }
       this._updateReport(name, value);
-    }
+    },
 
+    resetReport: function(name) {
+      if (TelemetryReport.prototype[name] === undefined) {
+        return;
+      }
+      this._resetReport(name);
+    },
+
+    countRoomRenamings: function(){
+      var counter = 0;
+      var error = { message: ''};
+      self = this;
+      self.resetReport('roomRenamingCount');
+      return new Promise(function(resolve, reject){
+        Rooms.getAll().then(function(rooms){
+          rooms.forEach(function(room){
+            // now for each room get their events
+            RoomsDB.getEvents(room.roomToken).then(function(events){
+              events.forEach(function(evt){
+                // look for those that are renaming events
+                if (evt.action === 'renamed'){
+                  counter += 1;
+                }
+              });
+              // renamed events have been counted, add the result to telemetry
+              self.updateReport('roomRenamingCount', counter);
+              counter = 0;
+            }, function() { error.message = 'error events'; reject(error);});
+          });
+        }, function() {error.message = 'error rooms'; reject(error);});
+        resolve();
+      });
+    }
   };
 
   exports.Telemetry = new Telemetry();
