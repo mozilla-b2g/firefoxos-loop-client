@@ -1,7 +1,7 @@
 (function(exports) {
   'use strict';
   var _panel;
-  var _roomNameUI, _ctimeUI, _ownerUI, _shareContactButton, _sharedWithButton, _editButton,
+  var _roomNameUI, _ctimeUI, _ownerUI, _shareContactButton, _sharedWithItem, _sharedWithButton, _editButton,
       _showHistoryButton, _deleteButton, _backButton, _expirationUI, _urlUI;
   var _room = null, _token = null;
   var _isOwner = false;
@@ -49,6 +49,7 @@
     _ownerUI = document.getElementById('rdp-owner');
     _urlUI = document.getElementById('rdp-url');
     _shareContactButton = document.getElementById('rdp-share-contact');
+    _sharedWithItem = document.getElementById('rdp-invitees-section');
     _sharedWithButton = document.getElementById('rdp-show-invitees');
     _showHistoryButton = document.getElementById('rdp-show-history');
     _deleteButton = document.getElementById('rdp-delete');
@@ -94,7 +95,8 @@
     }
 
     _urlUI.textContent = room.roomUrl;
-
+    
+    _isOwner ? _sharedWithItem.classList.remove('hidden') : _sharedWithItem.classList.add('hidden');
     _sharedWithButton.disabled = !_room.sharedWith || _room.sharedWith.length < 1;
   }
 
@@ -130,6 +132,7 @@
         },
         function onShared(contact, identity) {
           Controller.onRoomShared(_room, contact, identity);
+          _sharedWithButton.disabled = false;
         },
         function onError() {
           // TOOD Implement if needed
@@ -141,8 +144,19 @@
 
   function _showSharedWith(){
     var people = _room.sharedWith || [];
+    var peopleFiltered = [];    
+    people.forEach(function(element){
+      var exist = peopleFiltered.some(function(item){
+        if(element.contactId == item.contactId) {
+          return true;
+        }
+      });
+      if(!exist) {
+        peopleFiltered.push(element);
+      }
+    });
     Loader.getSharedWith().then(function(SharedWith) {
-        SharedWith.show(people);
+        SharedWith.show(peopleFiltered);
     });
   }
 

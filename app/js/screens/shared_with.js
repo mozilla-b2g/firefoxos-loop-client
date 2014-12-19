@@ -38,7 +38,7 @@
 
   function createSharedWithList() {
     var list = document.createElement('ul');
-    for(var i = 0, l = sharedWith.length; i < l; i++){
+    for(var i = sharedWith.length-1; i >= 0; i--){
       var li = document.createElement('li');
       li.innerHTML = templateSharedWith.interpolate({
         person: sharedWith[i].contactPrimaryInfo || sharedWith[i].identities[0]

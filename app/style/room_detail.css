@@ -11,6 +11,10 @@
   box-sizing: border-box;
 }
 
+#room-detail-panel .hidden {
+  display: none;
+}
+
 #room-detail-panel #rdp-name {
   width: calc(100% - 1.5rem);
   white-space: pre-line;
