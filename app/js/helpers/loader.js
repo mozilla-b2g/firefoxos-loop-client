@@ -274,6 +274,36 @@
           }
         );
       });
+    },
+    getErrorScreen: function() {
+      if (window.ErrorScreen) {
+        return Promise.resolve(ErrorScreen);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          [
+            'js/screens/error_screen.js'
+          ],
+          () => {
+            resolve(ErrorScreen);
+          }
+        );
+      });
+    },
+    getOfflineScreen: function() {
+      if (window.OfflineScreen) {
+        return Promise.resolve(OfflineScreen);
+      }
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          [
+            'js/screens/error_screen.js'
+          ],
+          () => {
+            resolve(OfflineScreen);
+          }
+        );
+      });
     }
   };
 
