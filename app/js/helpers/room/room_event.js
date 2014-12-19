@@ -35,7 +35,7 @@
       params: aParam
     };
     RoomsDB.addEvent(aToken, evtObj).catch(function (error) {
-      console.error('Error saving event [' + JSON.stringify(evtObjt) +
+      console.error('Error saving event [' + JSON.stringify(evtObj) +
                     '] of room '+ aToken +
                     '. Error:' + JSON.stringify(error));
     });

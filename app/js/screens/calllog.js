@@ -1022,12 +1022,14 @@
 
   function _addRoom(room) {
     return RoomsDB.create(room).then((room) => {
-      Loader.getRoomEvent().then(RoomEvent => {
-        RoomEvent.save({type: RoomEvent.type.created,
-                        token: room.roomToken,
-                        name: room.roomName,
-                        date: new Date(room.creationTime * 1000) });
-      });
+      if (Controller.identity === room.roomOwner) {
+        Loader.getRoomEvent().then(RoomEvent => {
+          RoomEvent.save({type: RoomEvent.type.created,
+                          token: room.roomToken,
+                          name: room.roomName,
+                          date: _getRoomCreationDate(room) });
+        });
+      }
       _appendRoom(room);
       return room;
     }, (error) => {
