@@ -580,6 +580,13 @@
     if (!Array.isArray(tokens)) {
       tokens = [tokens];
     }
+    tokens.forEach(function (token) {
+      RoomsDB.get(token).then(function (room) {
+        if (room.roomOwner !== Controller.identity) {
+          Telemetry.updateReport('receivedRooms');
+        }
+      });
+    });
     return RoomsDB.delete(tokens).then(() => {
       _deleteElementsFromGroup(tokens, 'rooms');
     }, (error) => {

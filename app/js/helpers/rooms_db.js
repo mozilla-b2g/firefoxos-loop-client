@@ -107,7 +107,9 @@
         'contactPrimaryInfo',
         'contactPhoto',
         'localCtime',
-        'user'
+        'user',
+        'notificationSMS',
+        'notificationEmail'
       ]},
 
     'roomEvents': {

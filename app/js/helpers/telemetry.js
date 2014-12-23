@@ -71,13 +71,15 @@
     outgoingCallsWithFxA: 0,
     incomingCallsWithMobileId: 0,
     incomingCallsWithFxA: 0,
+    receivedRooms: 0,
     // The duration of the calls.
     callsDuration: [],
     // The network type used for the call.
     audioCodecName: [],
     videoCodecName: [],
     defaultCamera: [],
-    usedCamera: []
+    usedCamera: [],
+    roomDataReporting: []
   };
 
   function Telemetry() {
@@ -105,6 +107,34 @@
       DEBUG && console.log('Scheduled next report in ' + timeout + 'ms');
 
       setTimeout(function() {
+        RoomsDB.getAll().then(function(roomsCursor) {
+          if (!roomsCursor) {
+            console.error('No cursor!');
+            return;
+          }
+
+          roomsCursor.onsuccess = function onsuccess(event) {
+            var item = event.target.result
+            if (!item) {
+              console.error('reached the end!');
+            }
+            else {
+              var room = item.value;
+              if(room.roomOwner !== Controller.identity) {
+                self.updateReport('receivedRooms');
+              }
+              var data = self.buildRoomReport(room);
+              self.updateReport('roomDataReporting', JSON.stringify(data));
+              item.continue();
+            }
+          };
+
+          roomsCursor.onerror = function(event) {
+            console.error('error iterating roomsCursor');
+          };
+        }, function() {
+          console.log('could not retrieve rooms from DB');
+        });
         self.get(function(report) {
           if (!report) {
             return;
@@ -176,6 +206,26 @@
       });
     },
 
+    _resetReport: function(name) {
+      if (_updateResetLock){
+        return;
+      }
+      _updateResetLock = true;
+      self = this;
+      this.get(function(report) {
+        if (report[name] !== undefined) {
+          if (Array.isArray(report[name])) {
+            report[name] = [];
+          }
+          else {
+            report[name] = 0;
+          }
+        }
+        self.save(report, function() {});
+        _updateResetLock = false;
+      });
+    },
+
     updateReport: function(name, value) {
       if (TelemetryReport.prototype[name] === undefined ||
           Array.isArray(TelemetryReport.prototype[name]) &&
@@ -183,6 +233,32 @@
         return;
       }
       this._updateReport(name, value);
+    },
+
+    resetReport: function(name) {
+      if (TelemetryReport.prototype[name] === undefined) {
+        return;
+      }
+      this._resetReport(name);
+    },
+
+    _buildRoomReport: function(room) {
+      var telemetryRoomData = {};
+      telemetryRoomData.notificationSMS = room.notificationSMS;
+      telemetryRoomData.notificationEmail = room.notificationEmail;
+      telemetryRoomData.subject = (room.subject !== '' && room.subject !== undefined) ?
+        true : false;
+      return telemetryRoomData;
+    },
+
+    buildRoomReport: function(room) {
+      if (room.notificationSMS === undefined) {
+        room.notificationSMS = 0;
+      }
+      if (room.notificationEmail === undefined) {
+        room.notificationEmail = 0;
+      }
+      return this._buildRoomReport(room);
     }
 
   };
