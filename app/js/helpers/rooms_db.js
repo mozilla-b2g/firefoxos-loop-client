@@ -107,7 +107,12 @@
         'contactPrimaryInfo',
         'contactPhoto',
         'localCtime',
-        'user'
+        'user',
+        'notificationSMS',
+        'notificationEmail',
+        'otherJoined',
+        'IJoined',
+        'connectionEstablished'
       ]},
 
     'roomEvents': {

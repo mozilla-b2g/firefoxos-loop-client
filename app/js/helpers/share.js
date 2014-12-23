@@ -11,6 +11,11 @@
 
   var _ = navigator.mozL10n.get;
 
+  function _getToken(url){
+    var slices = url.split('/');
+    return slices[slices.length-1];
+  }
+
   function _generateText(params) {
     var body;
     switch(params.type) {
@@ -163,6 +168,21 @@
         activity.onsuccess = onsuccess;
         activity.onerror = onerror;
       }, 600); // Workaround to get the SMS activity working.
+      var token = _getToken(params.url);
+      RoomsDB.get(token).then(function(room) {
+        if (room.notificationSMS === undefined) {
+          room.notificationSMS = 1;
+        } else {
+          room.notificationSMS += 1;
+        }
+        RoomsDB.update([room]).then(function() {
+          console.log('registered SMS notification');
+        },function(){
+          console.log('error while updating room');
+        });
+      }, function(){
+        console.log('Couldnt find room with such token ' + token);
+      });
     },
 
     useEmail: function(params, identity, onsuccess, onerror) {
@@ -180,6 +200,21 @@
         activity.onsuccess = onsuccess;
         activity.onerror = onerror;
       }, 600); // Workaround to avoid black screen invoking Email activity.
+      var token = _getToken(params.url);
+      RoomsDB.get(token).then(function(room) {
+        if (room.notificationEmail === undefined){
+          room.notificationEmail = 1;
+        } else {
+          room.notificationEmail += 1;
+        }
+        RoomsDB.update([room]).then(function() {
+          console.log('registered Email notification');
+        },function(){
+          console.log('error while updating room');
+        });
+      }, function(){
+        console.log('Couldnt find room with such token ' + token);
+      });
     },
 
     broadcast: function(url, onsuccess, onerror) {

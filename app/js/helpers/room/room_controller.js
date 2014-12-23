@@ -148,6 +148,18 @@
     _startCommunicationTime = new Date().getTime();
     _communicationEnd = false;
     _communicationToken = currentToken;
+    RoomsDB.get(currentToken).then(function (room) {
+      if (room.connectionEstablished === undefined){
+        room.connectionEstablished = 1;
+      } else  {
+        room.connectionEstablished += 1;
+      }
+      RoomsDB.update(room).then(function () {
+        debug && console.log('connectionEstablished successfully set');
+      }, function () {
+        console.error('error when setting rooms connectionEstablished');
+      });
+    });
   }
 
   function _logEventCommunication(aCurrentTime) {
@@ -268,6 +280,20 @@
                                   token: currentToken });
                 });
               }
+              RoomsDB.get(params.token).then(function(roomdb){
+                if( roomdb.IJoined === undefined){
+                  roomdb.IJoined = 1;
+                } else {
+                  roomdb.IJoined += 1;
+                }
+                RoomsDB.update(roomdb).then(function (){
+                  debug && console.log('room IJoined parameter successfully set');
+                }, function () {
+                  console.error('IJoined could not be set');
+                });
+              }, function(){
+                console.error("could not find room in local DB!");
+              });
             });
 
             Loader.getRoomManager().then((RoomManager) => {
