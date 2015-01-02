@@ -71,6 +71,7 @@
     outgoingCallsWithFxA: 0,
     incomingCallsWithMobileId: 0,
     incomingCallsWithFxA: 0,
+    backgroundMode: 0,
     // The duration of the calls.
     callsDuration: [],
     // The network type used for the call.
