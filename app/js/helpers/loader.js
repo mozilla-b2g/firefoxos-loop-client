@@ -217,6 +217,22 @@
         );
       });
     },
+    getRoomDelete: function() {
+      if (window.RoomDelete) {
+        return Promise.resolve(RoomDelete);
+      }
+
+      return new Promise((resolve, reject) => {
+        LazyLoader.load(
+          [
+            'js/screens/delete_room.js'
+          ],
+          () => {
+            resolve(RoomDelete);
+          }
+        );
+      });
+    },
     getRoomController: function() {
       if (window.RoomController) {
         return Promise.resolve(RoomController);

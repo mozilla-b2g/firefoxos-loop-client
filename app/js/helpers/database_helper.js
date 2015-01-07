@@ -472,9 +472,6 @@ FilteredCursor.prototype = {
       if (filter) {
         if (item.value[filter.name] === filter.value) {
           this._buffer.push(item.value);
-        } else if (this._buffer.length > 0) {
-          // They are sorted, so no more items to recover
-          return this._dispatchItems();
         }
       } else {
         this._buffer.push(item.value);

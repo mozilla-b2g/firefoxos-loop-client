@@ -39,10 +39,13 @@
         ClientRequestHelper.getRoom(token, resolve, reject);
       });
     },
-    // Delete a room given a token
-    delete: function(token) {
+    // Delete rooms given a list of tokens
+    delete: function(tokens) {
+      if (!Array.isArray(tokens)) {
+        tokens = [tokens];
+      }
       return new Promise(function(resolve, reject) {
-        ClientRequestHelper.deleteRoom(token, resolve, reject);
+        ClientRequestHelper.deleteRooms(tokens, resolve, reject);
       });
     },
     // Join a room given a token
