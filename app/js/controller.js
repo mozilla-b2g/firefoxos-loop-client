@@ -372,8 +372,8 @@
       });
     },
 
-    onRoomUpdated: function(room) {
-      Loader.getRoomDetail().then((RoomDetail) => {
+    onRoomUpdated: function(room, showDetail) {
+      showDetail && Loader.getRoomDetail().then((RoomDetail) => {
         RoomDetail.update(room);
       });
       CallLog.updateRooms([room]);

@@ -54,6 +54,36 @@
     );
   }
 
+  function onRoomNotFound(params) {
+    var token = params.token;
+    var options = new OptionMenu({
+      section: navigator.mozL10n.get('roomNotFound'),
+      type: 'confirm',
+      items: [
+        {
+          name: 'Cancel',
+          l10nId: 'cancel',
+          method: (token) => {
+            RoomsDB.get(token).then(room => {
+              room.deleted = true;
+              Controller.onRoomUpdated(room);
+            });
+          },
+          params: [token]
+        },
+        {
+          name: 'Delete',
+          class: 'danger',
+          l10nId: 'delete',
+          method: (token) => {
+            Controller.onRoomDeleted(token);
+          },
+          params: [token]
+        }
+      ]
+    });
+  }
+
   function handleBackgroundMode(params) {
     document.hidden && Loader.getNotificationHelper().then(
     function(NotificationHelper) {
@@ -346,11 +376,16 @@
             currentToken = null;
             isConnected = false;
             RoomUI.hide();
-            // Room full. See https://docs.services.mozilla.com/loop/apis.html
-            if (error && (error.code === 400) && (error.errno === 202)) {
-              removeMyselfFromRoom(params);
-              return;
+            // See https://docs.services.mozilla.com/loop/apis.html
+            if (error) {
+              if (error.code === 400 && error.errno === 202) {
+                // Room full
+                return removeMyselfFromRoom(params);
+              } else if (error.code === 404) {
+                return onRoomNotFound(params);
+              }
             }
+
             showError();
           });
         }, () => {

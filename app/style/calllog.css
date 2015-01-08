@@ -134,7 +134,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 
 .calllog-section .call-time,
 .calllog-section .retry-count,
-.calllog-section .last-shared-with,
+.calllog-section .secondary-info,
 .calllog-section .subject {
   font-size: 1.5rem;
   color: #858585;
@@ -203,7 +203,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   flex: 0.4
 }
 
-#rooms-section .last-shared-with {
+#rooms-section .secondary-info {
   white-space: normal;
 }
 
