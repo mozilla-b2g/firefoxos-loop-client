@@ -179,7 +179,16 @@
       window.addEventListener('onauthentication', _onauthentication);
       window.addEventListener('onlogin', _onlogin);
       window.addEventListener('onaccount', _onAccount);
-      window.addEventListener('onlogout', _onlogout);
+      window.addEventListener('onlogout', function() {
+        if (document.hidden) {
+          window.addEventListener('visibilitychange', function onPropChange() {
+            window.removeEventListener('visibilitychange', onPropChange);
+            _onlogout();
+          });
+        } else {
+          _onlogout();
+        }
+      });
       window.addEventListener('onloginerror', _onloginerror);
 
       // Start listening activities
