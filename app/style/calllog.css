@@ -160,6 +160,12 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   background-size: 1.6rem auto;
 }
 
+
+#rooms-section-entries li[data-is-owner="false"]:before {
+  display: none;
+}
+
+
 #rooms-section-entries li:not([data-shared])[data-participants]:before {
   top: 2.1rem;
 }

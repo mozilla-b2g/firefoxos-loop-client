@@ -606,6 +606,8 @@
     var creationTime = _getRoomCreationDate(rawRoom);
     roomElement.dataset.timestampIndex = creationTime.getTime();
     roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
+    roomElement.dataset.isOwner =
+      (rawRoom.roomOwner === Controller.identity);
     roomElement.dataset.roomOwner = rawRoom.roomOwner;
     roomElement.dataset.identities = rawRoom.identities;
     roomElement.dataset.participants =
