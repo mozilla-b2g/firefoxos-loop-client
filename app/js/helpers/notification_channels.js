@@ -27,7 +27,7 @@
       return new Promise(function(resolve, reject) {
         // Cache endpoint per channel created
         var endpoints = {};
-        
+
         function _rollback() {
           // If there is any issue, we will remove all channels
           SimplePush.reset();
@@ -72,7 +72,7 @@
 
         // Let's start registering all channels
         _registerChannel();
-      }); 
+      });
     },
     reset: function() {
       SimplePush.reset();

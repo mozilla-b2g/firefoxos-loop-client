@@ -24,6 +24,34 @@
 
   var acm = navigator.mozAudioChannelManager;
 
+  // Connected users connectionId per room
+  var connectionIds = {};
+
+  function addConnectionId(roomToken, connectionId) {
+    debug && console.log("RoomConnections: Adding " + connectionId +
+                         " to room " + roomToken);
+    if (!connectionIds[roomToken]) {
+      connectionIds[roomToken] = [];
+    }
+    var room = connectionIds[roomToken];
+    if (room.indexOf(connectionId) < 0) {
+      room.push(connectionId);
+    }
+  }
+
+  function updateConnectionIds(roomToken, connectionIds) {
+    debug && console.log("RoomConnections: Updating " + roomToken +
+                         " with connections: " + connectionIds);
+    connectionIds[roomToken] = connectionIds;
+  }
+
+  function checkConnectionId(roomToken, connectionId) {
+    debug && console.log("RoomConnections: Checking " + connectionId +
+                         " in room " + roomToken);
+    return connectionIds[roomToken] &&
+           (connectionIds[roomToken].indexOf(connectionId) >= 0);
+  }
+
   function onHeadPhonesChange() {
     RoomUI.headphonesPresent = RoomController.headphonesPresent;
   }
@@ -432,10 +460,17 @@
         });
       });
     },
-    addParticipant: function(token, name, account) {
+    addParticipant: function(token, name, account, connectionId) {
       if (isConnected && currentToken && (currentToken === token)) {
         RoomUI.updateParticipant(name, account);
       }
+      addConnectionId(token, connectionId);
+    },
+    updateParticipants: function(token, connectionIds) {
+      updateConnectionIds(token, connectionIds);
+    },
+    isParticipant: function(token, connectionId) {
+      return checkConnectionId(token, connectionId);
     },
     get headphonesPresent() {
       return acm && acm.headphones;
