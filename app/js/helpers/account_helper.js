@@ -261,8 +261,7 @@
 
   function _onlogout() {
     debug && console.log('onlogout');
-
-    AccountHelper.logout();
+    Controller.logout();
   }
 
   function _onloginerror(error) {
