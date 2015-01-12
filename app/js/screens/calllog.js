@@ -606,7 +606,7 @@
     var creationTime = _getRoomCreationDate(rawRoom);
     roomElement.dataset.timestampIndex = creationTime.getTime();
     roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
-    roomElement.dataset.isOwner =
+    var isOwner = roomElement.dataset.isOwner =
       (rawRoom.roomOwner === Controller.identity);
     roomElement.dataset.roomOwner = rawRoom.roomOwner;
     roomElement.dataset.identities = rawRoom.identities;
@@ -615,16 +615,23 @@
         'full':rawRoom.participants.length;
     roomElement.dataset.contactId = rawRoom.contactId;
     var roomName = roomElement.dataset.roomName = rawRoom.roomName;
-    var lastSharedPerson = rawRoom.contactPrimaryInfo;
-    if (lastSharedPerson) {
+    var info = rawRoom.contactPrimaryInfo;
+    if (info) {
       roomElement.dataset.shared = true;
     }
-    roomElement.innerHTML = _templateRoom.interpolate({
+
+    var params = {
       roomToken: rawRoom.roomToken,
       roomName: roomName,
-      lastSharedPerson: lastSharedPerson || rawRoom.identities[0],
+      info: info || rawRoom.identities[0],
       creationTime: Utils.getFormattedHour(creationTime)
-    });
+    };
+
+    if (!isOwner && rawRoom.deleted) {
+      params.info = _('roomDeletedRemotely');
+    }
+
+    roomElement.innerHTML = _templateRoom.interpolate(params);
 
     return roomElement;
   }
@@ -734,7 +741,7 @@
   function _updateContactInfo(aElement, aContact) {
     // '.primary-info > p' -> Calls in call log | '.primary-info' -> Rooms
     var primaryInfo = aElement.querySelector('.primary-info > p') ||
-                      aElement.querySelector('.last-shared-with');
+                      aElement.querySelector('.secondary-info');
 
     if (aContact) {
       var identities = [];

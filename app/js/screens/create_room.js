@@ -163,7 +163,7 @@
     }).then((response) => {
       room.roomName = name;
       room.expiresAt = response.expiresAt;
-      Controller.onRoomUpdated(room);
+      Controller.onRoomUpdated(room, true);
       Loader.getRoomEvent().then(RoomEvent => {
         RoomEvent.save({type: RoomEvent.type.renamed,
                         token: room.roomToken,
