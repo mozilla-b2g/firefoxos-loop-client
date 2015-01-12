@@ -91,7 +91,14 @@
 
   function _onAccount(event) {
     if (!event.detail || !event.detail.identity) {
-      log.error('Unexpected malformed onlogin event');
+      log.error('Unexpected malformed onaccount event');
+      return;
+    }
+
+    // We have to shield from a second "onaccountevent" that could be fired once
+    // the account has been checked in the server side ("onlogin").
+    if (_identity === event.detail.identity) {
+      // We have this account already running...
       return;
     }
 
@@ -127,10 +134,15 @@
     });
   }
 
+  function _reset() {
+    _identity = null;
+  }
+
   function _onlogout() {
     CallLog.clean();
     _initWizard(false).then(() => {
       _hideSplash();
+      _reset();
       Settings.reset();
       LoadingOverlay.hide();
     });
