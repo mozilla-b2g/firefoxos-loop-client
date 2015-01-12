@@ -244,6 +244,14 @@
   height: 100%;
 }
 
+#room-local-video .OT_video-container {
+  position: relative !important;
+  top: -10% !important;
+  height: auto !important;
+  width: 110% !important;
+  left: -5% !important;
+}
+
 /*
   Landscape layout
 */
@@ -260,60 +268,66 @@
   transform: rotate(90deg) translate(0, -100%);
 }
 
-#room-ui[data-rotation="90"] #room-contact-name,
-#room-ui[data-rotation="270"] #room-contact-name {
+
+#room-ui[data-rotation="90"] #remote-video-avatar,
+#room-ui[data-rotation="270"] #remote-video-avatar {
+  top: 5.7rem;
+  left: calc(50% - 6.8rem);
+  width: 13.6rem;
+  height: 13.6rem;
+}
+
+
+#room-ui[data-rotation="90"] #remote-video-avatar .content,
+#room-ui[data-rotation="270"] #remote-video-avatar .content {
+  width: 13rem;
+  height: 13rem;
+  line-height: 11rem;
+}
+
+#room-ui[data-rotation="90"] #rui-name,
+#room-ui[data-rotation="270"] #rui-name {
   top: 1.5rem;
   padding: 0 1.5rem;
 }
 
-#room-ui[data-rotation="90"] #room-info,
-#room-ui[data-rotation="270"] #room-info {
-  transform: translateY(4.5rem);
+#room-ui[data-status="connected"][data-remote-video="false"][data-rotation="90"] .room-info,
+#room-ui[data-status="connected"][data-remote-video="false"][data-rotation="270"] .room-info {
+  transform: translateY(20rem);
 }
 
-#room-ui[data-rotation="90"] #room-status,
-#room-ui[data-rotation="270"] #room-status {
-  color: white;
-  font-size: 1.7rem;
-  font-style: italic;
-  font-weight: 300;
-  box-sizing: border-box;
-  padding: 0 0.5rem;
+#room-ui[data-rotation="90"] .room-info h3 {
+  margin: 0;
 }
 
-#room-ui[data-rotation="90"] #leave-room,
-#room-ui[data-rotation="270"] #leave-room {
-  bottom: 1.5rem;
-  left: 1.5rem;
+#room-ui[data-rotation="90"] #fake-remote-video-wrapper,
+#room-ui[data-rotation="270"] #fake-remote-video-wrapper {
+  height: 100vh;
+  top: -50%;
+  transform: rotate(270deg);
 }
 
-#room-ui[data-rotation="90"] #room-settings-togglevideo,
-#room-ui[data-rotation="270"] #room-settings-togglevideo {
-  bottom: 8rem;
-  left: 1.5rem;
+#room-ui[data-rotation="90"][data-is-front-camera="false"] #fake-remote-video-wrapper,
+#room-ui[data-rotation="270"][data-is-front-camera="true"] #fake-remote-video-wrapper {
+  top: 0;
+  transform: rotate(90deg);
 }
 
-#room-ui[data-rotation="90"] #room-settings-togglemic,
-#room-ui[data-rotation="270"] #room-settings-togglemic {
-  bottom: 14.5rem;
-  left: 1.5rem;
+#room-ui[data-rotation="90"] #room-local-video .OT_video-container,
+#room-ui[data-rotation="270"] #room-local-video .OT_video-container {
+  top: -30% !important;
+  width: 120% !important;
+  transform: rotate(90deg);
 }
 
-#room-ui[data-rotation="90"] #room-settings-switchspeaker,
-#room-ui[data-rotation="270"] #room-settings-switchspeaker {
-  bottom: 21rem;
-  left: 1.5rem;
+#room-ui[data-rotation="90"][data-is-front-camera="false"] #room-local-video .OT_video-container,
+#room-ui[data-rotation="270"][data-is-front-camera="true"] #room-local-video .OT_video-container {
+  transform: rotate(270deg);
 }
 
-#room-ui[data-rotation="90"] #room-local-video,
-#room-ui[data-rotation="270"] #room-local-video {
-  left: unset;
-  right: 1.5rem;
-}
-
-#room-ui[data-rotation="90"] #room-local-video .content,
-#room-ui[data-rotation="270"] #room-local-video .content {
-  transform: rotate(90deg)
+#room-ui[data-rotation="90"] #first-one-label,
+#room-ui[data-rotation="270"] #first-one-label {
+  display: none !important;
 }
 
 
@@ -386,22 +400,4 @@
   #room-ui button:before {
     background-image: url("images/CallSprite@2.25x.png");
   }
-}
-
-
-/* Drop the stuff below once the final UI gets added. */
-#room-local-video .OT_video-container {
-  position: relative !important;
-  top: -50% !important;
-  height: auto !important;
-}
-
-#room-remote-video .OT_video-container {
-  position: relative !important;
-  top: 0% !important;
-}
-
-#room-local-video .OT_audio-level-meter,
-#room-remote-video .OT_audio-level-meter {
-  display: none !important;
 }

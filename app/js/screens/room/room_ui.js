@@ -129,9 +129,6 @@
     toggleMicButton.addEventListener('click', toggleMicButtonClicked);
     switchSpeakerButton.addEventListener('click', switchSpeakerButtonClicked);
     toggleVideoButton.addEventListener('click', toggleVideoButtonClicked);
-    // TODO Enable this in:
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1107868
-    // startRotationHandler();
   }
 
   function removeHandlers() {
@@ -140,9 +137,6 @@
     switchSpeakerButton.removeEventListener('click',
       switchSpeakerButtonClicked);
     toggleVideoButton.removeEventListener('click', toggleVideoButtonClicked);
-    // TODO Enable this in:
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1107868
-    // stopRotationHandler();
     onLeaveButtonClicked = onToggleMicButtonClicked =
       onSwitchSpeakerButtonClicked = onToggleVideoButtonClicked = noop;
   }
@@ -216,6 +210,9 @@
     cameraConstraints = {facingMode: mode, require: ['facingMode']};
     sessionConstraints = {video: cameraConstraints, audio: true};
 
+    // Set picked camera to perform proper UI rotation
+    panel.dataset.isFrontCamera = params.frontCamera;
+
     updateButtonStatus();
     RoomUI.setWaiting();
   }
@@ -265,6 +262,7 @@
       isVideoEnabled && showFakeVideo();
       panel.dataset.status = 'waiting';
       panel.dataset.remoteVideo = false;
+      stopRotationHandler();
 
       var guestText = _('guest');
         roomAvatar.textContent = guestText[0];
@@ -273,6 +271,8 @@
 
     setConnected: function(isRemoteVideo) {
       Countdown.reset();
+      startRotationHandler();
+
       // The mozPaintedFrames hack added below solved the long lantency
       // issue described on bug 1087068. Bug 1105707 was filed to get
       // rid of it.
