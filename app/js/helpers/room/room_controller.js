@@ -54,10 +54,10 @@
     );
   }
 
-  function onRoomNotFound(params) {
+  function onInvalidToken(params) {
     var token = params.token;
     var options = new OptionMenu({
-      section: navigator.mozL10n.get('roomNotFound'),
+      section: navigator.mozL10n.get('invalidRoomToken'),
       type: 'confirm',
       items: [
         {
@@ -65,7 +65,7 @@
           l10nId: 'cancel',
           method: (token) => {
             RoomsDB.get(token).then(room => {
-              room.deleted = true;
+              room.noLongerAvailable = true;
               Controller.onRoomUpdated(room);
             });
           },
@@ -76,7 +76,11 @@
           class: 'danger',
           l10nId: 'delete',
           method: (token) => {
-            Controller.onRoomDeleted(token);
+            // Step 1: Delete from loop server
+            // Step 2: Delete from DB (if the first step fails, this means
+            //         the user is not the owner)
+            var deleteFromDB = Controller.onRoomDeleted.bind(null, token);
+            Rooms.delete(token).then(deleteFromDB, deleteFromDB);
           },
           params: [token]
         }
@@ -382,7 +386,7 @@
                 // Room full
                 return removeMyselfFromRoom(params);
               } else if (error.code === 404) {
-                return onRoomNotFound(params);
+                return onInvalidToken(params);
               }
             }
 
