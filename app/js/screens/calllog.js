@@ -606,8 +606,7 @@
     var creationTime = _getRoomCreationDate(rawRoom);
     roomElement.dataset.timestampIndex = creationTime.getTime();
     roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
-    var isOwner = roomElement.dataset.isOwner =
-      (rawRoom.roomOwner === Controller.identity);
+    roomElement.dataset.isOwner = (rawRoom.roomOwner === Controller.identity);
     roomElement.dataset.roomOwner = rawRoom.roomOwner;
     roomElement.dataset.identities = rawRoom.identities;
     roomElement.dataset.participants =
@@ -627,8 +626,9 @@
       creationTime: Utils.getFormattedHour(creationTime)
     };
 
-    if (!isOwner && rawRoom.deleted) {
-      params.info = _('roomDeletedRemotely');
+    if (rawRoom.noLongerAvailable) {
+      params.info = _('noLongerAvailable');
+      roomElement.dataset.noLongerAvailable = true;
     }
 
     roomElement.innerHTML = _templateRoom.interpolate(params);

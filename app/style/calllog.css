@@ -207,6 +207,10 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   white-space: normal;
 }
 
+#rooms-section li[data-no-longer-available] .secondary-info {
+  color: #d74345;
+}
+
 #rooms-section .retry-count {
   font-style: italic;
   color: #00a9dc;
