@@ -205,6 +205,7 @@
     isSpeakerEnabled = isVideoEnabled = params.video !== 'false';
     isMicEnabled = true;
     panel.dataset.localVideo = isVideoEnabled;
+    frontCamera = params.frontCamera;
 
     var mode = params.frontCamera ? 'user': 'environment';
     cameraConstraints = {facingMode: mode, require: ['facingMode']};
