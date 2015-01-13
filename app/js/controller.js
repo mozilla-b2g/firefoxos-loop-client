@@ -388,7 +388,7 @@
       showDetail && Loader.getRoomDetail().then((RoomDetail) => {
         RoomDetail.update(room);
       });
-      CallLog.updateRooms([room]);
+      CallLog.updateRoom(room);
     },
 
     onRoomShared: function(room, contact, identity) {
@@ -401,7 +401,7 @@
         });
       });
       RoomsDB.addLastSharedPerson(room, contact, identity);
-      CallLog.updateRooms([room]);
+      CallLog.updateRoom(room);
     },
 
     onRoomDeleted: function(token) {

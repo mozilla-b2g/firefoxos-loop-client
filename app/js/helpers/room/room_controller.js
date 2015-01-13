@@ -263,9 +263,11 @@
                   });
                 });
               } else {
-                Loader.getRoomEvent().then(RoomEvent => {
-                  RoomEvent.save({type: RoomEvent.type.iJoin,
-                                  token: currentToken });
+                CallLog.updateRoom(room).then(() => {
+                  Loader.getRoomEvent().then(RoomEvent => {
+                    RoomEvent.save({type: RoomEvent.type.iJoin,
+                                    token: currentToken });
+                  });
                 });
               }
             });
