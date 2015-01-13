@@ -123,17 +123,21 @@ h1, h2, h3 {
  * with the Settings of the call
  */
 
-.setting-button {
+.setting-button,
+#call-settings-speaker.setting-enabled {
   background-color: #00a9dc;
+  border: 0.3rem solid rgba(0,169,220,0.2);
 }
 
-.setting-button:active {
+.setting-button:active,
+#call-settings-speaker:active {
   background-color: #a4e8fc;
+  border: 0.3rem solid rgba(255,255,255,0.2);
 }
 
-.setting-disabled,
-.setting-enabled {
-  background: #fff;
+.setting-disabled {
+  background: rgba(0,0,0,0.5);
+  border: 0.3rem solid rgba(0,0,0,0.2);
 }
 
 #call-settings-video {
@@ -142,11 +146,11 @@ h1, h2, h3 {
 }
 
 #call-settings-video span {
-  background-position: 0 -4rem;
+  background-position: -4rem -4rem;
 }
 
 #call-settings-video.setting-disabled span {
-  background-position: -8rem -4rem;
+  background-position: 0 -4rem;
 }
 
 #call-settings-mute {
@@ -155,28 +159,26 @@ h1, h2, h3 {
 }
 
 #call-settings-mute span {
+  background-position: 0 -20rem;
+}
+
+#call-settings-mute.setting-disabled span {
   background-position: 0 -8rem;
-}
-
-#call-settings-mute.setting-disabled span {
-  background-position: -8rem -8rem;
-}
-
-#call-settings-mute.setting-disabled span {
-  background-position: -8rem -8rem;
 }
 
 #call-settings-speaker {
   bottom: 17.6rem;
   right: 2.7rem;
+  background: rgba(0,0,0,0.5);
+  border: 0.3rem solid rgba(0,0,0,0.2);
 }
 
 #call-settings-speaker span {
-  background-position: 0 -12rem;
+  background-position: -4.3rem -12rem;
 }
 
 #call-settings-speaker.setting-enabled span {
-  background-position: -8rem -12rem;
+  background-position: 0 -12rem;
 }
 
 #resume-button {

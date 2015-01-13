@@ -68,7 +68,7 @@
   height: 9rem;
   line-height: 9rem;
   text-align: center;
-  top: calc(50% - 4.5rem);
+  top: calc(50% - 7.5rem);
   color: white;
   font-size: 1.9rem;
   background: linear-gradient(#5bc0a4, #00a9dc);
@@ -83,11 +83,15 @@
   height: 6.6rem;
   width: 6.6rem;
   margin: 0;
-  background-color: #00a9dc;
-  border: 0.3rem solid rgba(0, 0, 0, 0.2);
   border-radius: 3.3rem;
   background-clip: padding-box !important;
   z-index: 10;
+}
+
+#room-ui button,
+#room-ui #room-settings-switchspeaker {
+  background: #00A9DC;
+  border: 0.3rem solid rgba(0,169,220,0.2);
 }
 
 #room-ui button:before {
@@ -101,13 +105,19 @@
   background-size: 12.8rem auto;
 }
 
-#room-ui button:active {
+#room-ui button:active,
+#room-ui button[data-enabled]:active,
+#room-ui #room-settings-switchspeaker:active,
+#room-ui #room-settings-switchspeaker[data-enabled]:active {
   background-color: #a4e8fc;
+  border: 0.3rem solid rgba(255,255,255,0.2);
 }
 
 
-#room-ui button[data-enabled="true"] {
-  background: #ffffff;
+#room-ui button[data-enabled="true"],
+#room-ui #room-settings-switchspeaker[data-enabled="false"] {
+  background: rgba(0,0,0,0.5);
+  border: 0.3rem solid rgba(0,0,0,0.2);
 }
 
 #room-settings-switchspeaker {
@@ -116,11 +126,11 @@
 }
 
 #room-settings-switchspeaker:before {
-  background-position: 0rem -12rem !important;
+  background-position: -4.3rem -12rem !important;
 }
 
 #room-settings-switchspeaker[data-enabled="true"]:before {
-  background-position: -8rem -12rem !important;
+  background-position: 0 -12rem !important;
 }
 
 #room-settings-togglemic {
@@ -129,11 +139,11 @@
 }
 
 #room-settings-togglemic:before {
-  background-position: 0rem -8rem !important;
+  background-position: -4rem -8rem !important;
 }
 
 #room-settings-togglemic[data-enabled="true"]:before {
-  background-position: -8rem -8rem !important;
+  background-position: 0 -8rem !important;
 }
 
 #room-settings-togglevideo {
@@ -142,11 +152,11 @@
 }
 
 #room-settings-togglevideo:before {
-  background-position: 0rem -4rem !important;
+  background-position: -4rem -4rem !important;
 }
 
 #room-settings-togglevideo[data-enabled="true"]:before {
-  background-position: -8rem -4rem !important;
+  background-position: 0 -4rem !important;
 }
 
 #leave-room {
