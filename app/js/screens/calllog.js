@@ -603,8 +603,8 @@
   function _createRoomDOM(rawRoom, element) {
     var roomElement = element || document.createElement('li');
     roomElement.classList.add('active');
-    var creationTime = _getRoomCreationDate(rawRoom);
-    roomElement.dataset.timestampIndex = creationTime.getTime();
+    var lastActivityTime = _getLastActivityDate(rawRoom);
+    roomElement.dataset.timestampIndex = lastActivityTime.getTime();
     roomElement.id = roomElement.dataset.roomToken = rawRoom.roomToken;
     roomElement.dataset.isOwner = (rawRoom.roomOwner === Controller.identity);
     roomElement.dataset.roomOwner = rawRoom.roomOwner;
@@ -623,7 +623,7 @@
       roomToken: rawRoom.roomToken,
       roomName: roomName,
       info: info || rawRoom.identities[0],
-      creationTime: Utils.getFormattedHour(creationTime)
+      lastActivityTime: Utils.getFormattedHour(lastActivityTime)
     };
 
     if (rawRoom.noLongerAvailable) {
@@ -647,7 +647,7 @@
     }
 
     // Create elements needed
-    var group = _getGroup('rooms', _getRoomCreationDate(rawRoom));
+    var group = _getGroup('rooms', _getLastActivityDate(rawRoom));
     var element = _createRoomDOM(rawRoom);
     roomsRenderedIndex++;
     if (isFirstPaint && roomsRenderedIndex > CHUNK_SIZE) {
@@ -662,14 +662,10 @@
       return;
     }
 
-    if (_isRoomsSectionEmpty) {
-      _isRoomsSectionEmpty = false;
-      _checkEmptyRooms();
-    }
-
-    var query = 'li[id="' + room.roomToken + '"]';
-    var element = roomsSectionEntries.querySelector(query);
-    _createRoomDOM(room, element);
+    // We have to remove the existing item and promote this one to the first
+    // position in the room list.
+    _deleteElementsFromGroup([room.roomToken], 'rooms');
+    _appendRoom(room);
   }
 
   /*****************************
@@ -884,7 +880,7 @@
 
   function _renderRoomsFromDB(update) {
     return new Promise((resolve, reject) => {
-      RoomsDB.getAll('creationTime', 'DESC').then((cursor) => {
+      RoomsDB.getAll('localCtime', 'DESC').then((cursor) => {
         if (!cursor) {
           return resolve();
         }
@@ -1048,6 +1044,10 @@
     return new Date(+room.creationTime * 1000);
   }
 
+  function _getLastActivityDate(room) {
+    return new Date(+room.localCtime);
+  }
+
   function _addRoom(room) {
     return RoomsDB.create(room).then((room) => {
       if (Controller.identity === room.roomOwner) {
@@ -1185,9 +1185,13 @@
     },
 
     updateRooms: function(rooms) {
-      RoomsDB.update(rooms).then(_rooms => {
+      return RoomsDB.update(rooms).then(_rooms => {
         _rooms.forEach(_updateRoom);
       });
+    },
+
+    updateRoom: function(room) {
+      return this.updateRooms([room]);
     },
 
     get roomsSectionEmpty() {
