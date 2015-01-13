@@ -29,7 +29,7 @@
     closeButton = modal.querySelector('.icon-close');
     resetButton = modal.querySelector('input + button');
     form = modal.querySelector('form');
-    counter = modal.querySelector('.counter');
+    counter = modal.querySelector('.charCounter');
   }
 
   function init(roomObj) {
