@@ -265,7 +265,7 @@
   }
 
   function _onloginerror(error) {
-    debug && console.log('onloginerror ' + error);
+    debug && console.log('onloginerror');
 
     _isIdFlowRunning = false;
     _isLogged = false;
@@ -293,7 +293,11 @@
       onerror: function(err) {
         var errorName = JSON.parse(err).name;
         if (errorName !== 'OFFLINE') {
-          _onloginerror();
+          Loader.getSignUpErrorScreen().then(SignUpErrorScreen => {
+            var _ = navigator.mozL10n.get;
+            SignUpErrorScreen.show(_('signUpFail'));
+            _onloginerror();
+          });
           return;
         }
         debug && console.log('FxA: OFFLINE error');
@@ -395,7 +399,15 @@
         case 'msisdn':
           navigator.getMobileIdAssertion({
             forceSelection: true
-          }).then(_onlogin, _onloginerror);
+          }).then(
+            _onlogin,
+            () => {
+              Loader.getSignUpErrorScreen().then(SignUpErrorScreen => {
+                var _ = navigator.mozL10n.get;
+                SignUpErrorScreen.show(_('signUpFail'));
+                _onloginerror();
+              });
+            });
           Telemetry.updateReport('mobileIdLogins');
           break;
         default:

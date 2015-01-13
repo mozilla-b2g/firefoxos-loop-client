@@ -47,14 +47,13 @@
     };
   }
 
-  function _openFxASettings(evt) {
+  function _openSettings(evt) {
     _hide(evt);
 
     var activity = new window.MozActivity({
       name: 'configure',
       data: {
-        target: 'device',
-        section: 'fxa'
+        target: 'device'
       }
     });
 
@@ -85,7 +84,7 @@
         _onSettingsClicked = _openConnectivitySettings;
         break;
       case 'signuperror':
-        _onSettingsClicked = _openFxASettings;
+        _onSettingsClicked = _openSettings;
         break;
       default:
         _onSettingsClicked = _noop;
