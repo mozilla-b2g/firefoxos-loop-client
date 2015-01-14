@@ -12,24 +12,23 @@
     var HASH_LENGTH = 32;
 
     // Methods that will be available on the hawkCredential promise
-    // when it's resolved:
+    // when it's resolved. What 'bin' means depends if it's using
+    // webcrypto or sjcl
     var hC = {
       emptyKey: null,
       bin2hex: null,
       str2bin: null,
+      bin2base64: null,
       hex2bin: null,
       concatBin: null,
       hkdf: null,
-      derive: null
+      derive: null,
+      doHMAC: null,
+      bitSlice: null,
+      newEmptyArray: null,
+      doImportKey: null
     };
 
-
-    // Not exported functions whose implementation depends of if we're using
-    // window.crypto or sjcl.
-    var doImportKey,
-        doHMAC,
-        bitSlice,
-        newEmptyArray;
 
     /**
      * hkdf - The HMAC-based Key Derivation Function
@@ -56,7 +55,7 @@
             return doHKDFRound(roundNumber, digest, output, hkdfKey);
           } else {
             return new Promise(function(resolve, reject) {
-              var truncated = bitSlice(hC.hex2bin(output), 0, length * 8);
+              var truncated = hC.bitSlice(hC.hex2bin(output), 0, length * 8);
               resolve(truncated);
             });
           }
@@ -64,13 +63,13 @@
         var input = hC.concatBin(
           hC.concatBin(prevDigest, info),
           hC.str2bin(String.fromCharCode(roundNumber)));
-        return doHMAC(input, hkdfKey).then(addToOutput);
+        return hC.doHMAC(input, hkdfKey).then(addToOutput);
       };
 
-      return doImportKey(salt). // Imports the initial key
-        then(doHMAC.bind(undefined, ikm)). // Generates the key deriving key
-        then(doImportKey). // Imports the key deriving key
-        then(doHKDFRound.bind(undefined, 1, newEmptyArray(), ''));
+      return hC.doImportKey(salt). // Imports the initial key
+        then(hC.doHMAC.bind(undefined, ikm)). // Generates the key deriving key
+        then(hC.doImportKey). // Imports the key deriving key
+        then(doHKDFRound.bind(undefined, 1, hC.newEmptyArray(), ''));
       // Launches the first HKDF round
     };
 
@@ -87,11 +86,11 @@
       var info = hC.str2bin(PREFIX_NAME + context);
 
       return hC.hkdf(token, info, hC.emptyKey, size || 3 * 32).then(out => {
-          var id = hC.bin2hex(bitSlice(out, 0 , 8 * 32));
-          var authKey = hC.bin2hex(bitSlice(out, 8 * 32, 8 * 64));
+          var id = hC.bin2hex(hC.bitSlice(out, 0 , 8 * 32));
+          var authKey = hC.bin2hex(hC.bitSlice(out, 8 * 32, 8 * 64));
           // Note that we're currently not using this. Still, passing it
           // in a portable way, just in case we use it at some point.
-          var bundleKey = hC.bin2hex(bitSlice(out, 8 * 64));
+          var bundleKey = hC.bin2hex(hC.bitSlice(out, 8 * 64));
           return {
             algorithm: 'sha256',
             id: id,
@@ -100,7 +99,6 @@
           };
       });
     };
-
 
     // If we have WebCrypto available, we default to webcrypto implementations.
     // Otherwise, we'll need to load sjcl and use that implementation.
@@ -149,19 +147,27 @@
         name: "HMAC",
         hash: "SHA-256"
       };
-      doImportKey = rawKey => subtle.importKey('raw', rawKey, alg,
+      hC.doImportKey = rawKey => subtle.importKey('raw', rawKey, alg,
                                                false, ['sign']);
 
-      doHMAC = (tbsData, hmacKey) =>
-        subtle.sign(alg.name, hmacKey, tbsData).
-          then(result =>
-                ((result.buffer && result) || new Uint8Array(result)));
+      // Converts a ArrayBuffer into a ArrayBufferView (U8) if it's not that
+      // already.
+      var arrayBuffer2Uint8 =
+            buff => buff.buffer && buff || new Uint8Array(buff);
 
-      bitSlice = (arr, start, end) =>
+      hC.doHMAC = (tbsData, hmacKey) =>
+        subtle.sign(alg.name, hmacKey, tbsData).then(arrayBuffer2Uint8);
+
+      hC.doMAC = (tbhData) =>
+        subtle.digest(alg.hash, hC.str2bin(tbhData)).then(arrayBuffer2Uint8);
+
+      hC.bitSlice = (arr, start, end) =>
         (end !== undefined ? arr.subarray(start / 8, end / 8) :
-         arr.subarray(start / 8));
+                             arr.subarray(start / 8));
 
-      newEmptyArray = () => new Uint8Array(0);
+      hC.newEmptyArray = () => new Uint8Array(0);
+
+      hC.bin2base64 = u8 => window.btoa(String.fromCharCode.apply(null, u8));
 
       defineHC(hC);
 
@@ -171,19 +177,21 @@
         hC.bin2hex = sjcl.codec.hex.fromBits;
         hC.str2bin = sjcl.codec.utf8String.toBits;
         hC.concatBin = sjcl.bitArray.concat;
-        bitSlice = sjcl.bitArray.bitSlice;
-        newEmptyArray = () => sjcl.codec.hex.toBits('');
-        hC.emptyKey = newEmptyArray();
+        hC.bitSlice = sjcl.bitArray.bitSlice;
+        hC.newEmptyArray = () => sjcl.codec.hex.toBits('');
+        hC.emptyKey = hC.newEmptyArray();
+        hC.bin2base64 = sjcl.codec.base64.fromBits;
 
-        doImportKey = rawKey =>
-          Promise.resolve(rawKey);
+        hC.doImportKey = rawKey => Promise.resolve(rawKey);
 
-        doHMAC = (tbsData, hmacKey) =>
+        hC.doHMAC = (tbsData, hmacKey) =>
           new Promise(function(resolve, reject) {
             var mac = new sjcl.misc.hmac(hmacKey, sjcl.hash.sha256);
             mac.update(tbsData);
             resolve(mac.digest());
           });
+
+        hC.doMAC = (tbhData) => Promise.resolve(sjcl.hash.sha256.hash(tbhData));
 
         defineHC(hC);
       });

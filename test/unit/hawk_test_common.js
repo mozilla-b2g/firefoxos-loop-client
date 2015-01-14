@@ -1,5 +1,7 @@
 
-require("./libs/hawk.js");
+window.useSJCLCrypto = true;
+require('libs/lazy_loader.js');
+require('js/helpers/hawk.js');
 
 var testCases = [
   {
@@ -294,21 +296,49 @@ var testCases = [
   }
 ];
 
-var extraUndefinedProperties = ['app', 'dlg', 'ext', 'hash'];
+var extraUndefProperties = ['app', 'dlg', 'ext', 'hash'];
 
-suite("Hawk tests > ", function()  {
+var hawkCrypto = null;
+
+suite("Hawk tests, " + VERSION_USED +" > ", function()  {
+
+  // window.hawk should be defined and hold a crypto and utils elements
+  test("Check that window.hawk exist and is correct", function() {
+    chai.assert.ok(window.hawk,'window.hawk does not exist');
+    chai.assert.ok(window.hawk.utils,'window.hawk.utils does not exist');
+    chai.assert.ok(window.hawk.crypto,'window.hawk.crypto does not exist');
+  });
+
+
+  // window.hawk.crypto should be a Promise, and should fulfill
+  test("Check that window.hawk.crypto is a Promise", function() {
+    chai.assert.ok(window.hawk.crypto && window.hawk.crypto.then,
+      'window.hawk.crypto is not a promise');
+  });
+
+  // The promise should fulfill
+  test("Check that the promise fulfills", function(done) {
+    window.hawk.crypto.then( hc => {
+      hawkCrypto = hc;
+      done();
+    });
+  });
+
   testCases.forEach(function(testCase) {
     // Due to the way we generated the test cases, we need to
     // add some extra properties.
-    for(var i = 0, len = extraUndefinedProperties.length; i < len; i++) {
-      testCase.expectedOutput.artifacts[extraUndefinedProperties[i]] = undefined;
+    for(var i = 0, len = extraUndefProperties.length; i < len; i++) {
+      testCase.expectedOutput.artifacts[extraUndefProperties[i]] = undefined;
     }
+
     test('Key: ' + testCase.options.credentials.id.substring(0,5) +
          ' ' + testCase.method + ' ' + testCase.uri, function(done) {
-      var testOutput =
-        hawk.client.header(testCase.uri, testCase.method, testCase.options);
-      chai.assert.deepEqual(testCase.expectedOutput, testOutput);
-      done();
+         hawkCrypto.getClientHeader(testCase.uri, testCase.method,
+                                    testCase.options).
+             then(testOutput => {
+               chai.assert.deepEqual(testCase.expectedOutput, testOutput);
+               done();
+             });
     });
   });
 });
