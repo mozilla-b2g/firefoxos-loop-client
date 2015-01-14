@@ -92,20 +92,19 @@ h1, h2, h3 {
   background: #9d3638;
 }
 
-
 #answer {
-  bottom: 3rem;
-  right: 2.7rem;
+  right: calc(50% - 3.3rem);
+  bottom: 12.6rem;
   background-color: #5bc0a4;
 }
 
 #answer span {
-  background-position: 0rem -20rem;
+  background-position: 0.2rem -20rem;
 }
 
 #answer-video {
-  right: calc(50% - 3.3rem);
-  bottom: 12.6rem;
+  bottom: 3rem;
+  right: 2.7rem;
   background-color: #5bc0a4;
 }
 
