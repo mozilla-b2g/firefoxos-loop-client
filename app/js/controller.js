@@ -336,6 +336,7 @@
                   }).then((notification) => {
                     notification.onclick = function() {
                       debug && console.log('Notification clicked for room: ' + room.roomUrl);
+                      Telemetry.updateReport('backgroundMode');
                       appInfo.app.launch();
                       notification.close();
                     };
