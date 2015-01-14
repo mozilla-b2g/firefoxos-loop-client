@@ -22,7 +22,7 @@
   width: 100%;
 }
 
-#new-room form p.counter {
+#new-room form p.charCounter {
   margin: -.5rem 0 1rem 0;
   font-size: 1.4rem;
   font-weight: 200;
@@ -31,11 +31,11 @@
   font-feature-settings: 'tnum';
 }
 
-#new-room form p.counter[data-countdown='100'] {
+#new-room form p.charCounter[data-countdown='100'] {
   visibility: hidden;
 }
 
-#new-room form p.counter[data-countdown^='-'] {
+#new-room form p.charCounter[data-countdown^='-'] {
   color: #b90000;
 }
 

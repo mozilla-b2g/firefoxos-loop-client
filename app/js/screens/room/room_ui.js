@@ -153,6 +153,7 @@
     removeHandlers();
     Navigation.to('calllog-panel', 'bottom').then(() => {
       cleanUI();
+      Countdown.stop();
       Countdown.reset();
     });
   }
