@@ -122,15 +122,7 @@
    */
   function _synchronizeRooms() {
     Loader.getRoomsSynchronizer().then((RoomsSynchronizer) => {
-      RoomsSynchronizer.synchronize().then((response) => {
-        CallLog.removeRooms(response.roomsToDelete.map((currentValue) => {
-          return currentValue.roomToken;
-        }));
-        CallLog.updateRooms(response.roomsToUpdate);
-        response.roomsToAdd.forEach(CallLog.addRoom);
-      }, (error) => {
-        console.error('Could not synchronize the call log', error);
-      });
+      RoomsSynchronizer.synchronize();
     });
   }
 

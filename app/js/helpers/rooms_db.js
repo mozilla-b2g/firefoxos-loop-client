@@ -270,7 +270,7 @@
       }
       var tokensLen = tokensArray.length;
       if (tokensLen === 0) {
-        return Promise.resolve();
+        return Promise.resolve([]);
       }
       return new Promise(function(resolve, reject) {
         tokensArray.forEach(function(token) {
@@ -330,6 +330,9 @@
         rooms = [ rooms ];
       }
       var roomsLength = rooms.length;
+      if (roomsLength === 0) {
+        return Promise.resolve([]);
+      }
       var processed = 0;
       return new Promise(function(resolve, reject) {
         var result = [];
