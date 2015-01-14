@@ -77,7 +77,9 @@
     audioCodecName: [],
     videoCodecName: [],
     defaultCamera: [],
-    usedCamera: []
+    usedCamera: [],
+    defaultRoomCamera: [],
+    roomCamera: []
   };
 
   function Telemetry() {
