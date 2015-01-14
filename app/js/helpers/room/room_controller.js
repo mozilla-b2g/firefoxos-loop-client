@@ -162,6 +162,7 @@
     _startCommunicationTime = new Date().getTime();
     _communicationEnd = false;
     _communicationToken = currentToken;
+    Rooms.get(currentToken).then(room => _participants = room.participants);
   }
 
   function _logEventCommunication(aCurrentTime) {
@@ -180,9 +181,9 @@
            i++) {
         // If participants[i] is not logged he hasn't account and we want
         // to keep RoomEvent identifier
-        if (_participants[i].account &&
-            _participants[i].account !== Controller.identity) {
-          other = _participants[i].account;
+        var account = _participants[i].account;
+        if (account && (account !== Controller.identity)) {
+          other = account;
         }
       }
       RoomEvent.save({type: RoomEvent.type.communication,

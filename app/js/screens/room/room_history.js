@@ -115,42 +115,15 @@
 
   function _renderEvt(aEvtItem) {
     if (!aEvtItem) {
-      return;
+      return Promise.reject();
     }
     var group = _getGroup(aEvtItem.date);
-    _createEventDOM(aEvtItem).then(element => {;
+    return _createEventDOM(aEvtItem).then(element => {
       _renderedIndex++;
       if (_renderedIndex > CHUNK_SIZE) {
         element.classList.add('hidden');
       }
       _appendElementToContainer(group, element);
-    });
-  }
-
-  function _getAll(aToken) {
-    var _elements = [];
-    return new Promise((resolve, reject) => {
-      RoomsDB.getEvents(aToken).then((cursor) => {
-        if (!cursor) {
-          return resolve();
-        }
-
-        cursor.onsuccess = function onsuccess(evt) {
-          var item = evt.target.result;
-          if (!item) {
-            return resolve();
-          }
-          _elements.push(item.value);
-          item.continue();
-        };
-
-        cursor.onerror = function onerror(evt) {
-          console.error('Error iterating events cursor', error);
-          return resolve();
-        };
-      }, (error) => {
-        console.error('Error getEvents', error);
-      });
     });
   }
 
@@ -168,7 +141,13 @@
           // We want desc sorting
           return b.date.getTime() - a.date.getTime();
         });
-        _elements.forEach(_renderEvt);
+        // The scroll based on chunks requires items have to be rendered
+        // once the previous one was done because of "_renderedIndex". Some
+        // items here take more time than others because of mozContacts so we
+        // have to wait for them.
+        var renderNextEvent = idx =>
+          _renderEvt(_elements[idx]).then(renderNextEvent.bind(null, ++idx));
+        renderNextEvent(0);
       }
     });
   };
