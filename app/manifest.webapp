@@ -57,7 +57,8 @@
     }
   },
   "messages": [
-     { "push": "/index.html" }
+     { "push": "/index.html" },
+     { "notification": "/index.html" }
   ],
   "activities": {
     "webrtc-call": {

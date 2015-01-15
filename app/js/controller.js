@@ -18,6 +18,21 @@
 
   var _lastChangedRooms = [];
 
+  function _handleNotification(notification) {
+    if (!notification.clicked) {
+      return;
+    }
+
+    Utils.getAppInfo().then(appInfo => {
+      appInfo.app.launch();
+      Notification.get({ tag: notification.tag }).then(function(notifications) {
+        for (var i = 0, l = notifications.length; i < l; i++) {
+          notifications[i].close();
+        }
+      });
+    });
+  }
+
   function _getLastStateRoom(aRoom) {
     if (!aRoom) {
       return;
@@ -187,6 +202,8 @@
       // so that when we need the values the promise will be already
       // accomplished
       Settings.init();
+
+      window.navigator.mozSetMessageHandler('notification', _handleNotification);
 
       window.addEventListener('onauthentication', _onauthentication);
       window.addEventListener('onlogin', _onlogin);
