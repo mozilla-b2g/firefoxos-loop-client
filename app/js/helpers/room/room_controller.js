@@ -22,6 +22,20 @@
     frontCamera: false
   };
 
+  var acm = navigator.mozAudioChannelManager;
+
+  function onHeadPhonesChange() {
+    RoomUI.headphonesPresent = RoomController.headphonesPresent;
+  }
+
+  function handleHeadPhonesChange() {
+    acm && acm.addEventListener('headphoneschange', onHeadPhonesChange);
+  }
+
+  function removeHeadPhonesChangeHandler() {
+    acm && acm.removeEventListener('headphoneschange', onHeadPhonesChange);
+  }
+
   function showError(errorMessage) {
     errorMessage = errorMessage || 'genericServerError';
     Loader.getErrorScreen().then(ErrorScreen => {
@@ -232,6 +246,7 @@
 
       Loader.getRoomUI().then((RoomUI) => {
         RoomUI.show(params).then(() => {
+          handleHeadPhonesChange();
 
           params.localTargetElement = RoomUI.localTargetElement;
           params.remoteTargetElement = RoomUI.remoteTargetElement;
@@ -352,6 +367,7 @@
                   currentToken = null;
                   document.removeEventListener('visibilitychange',
                                                backgroundModeHandler);
+                  removeHeadPhonesChangeHandler();
                   RoomUI.hide();
                   window.clearTimeout(refreshTimeOut);
                   Rooms.leave(params.token);
@@ -366,7 +382,7 @@
                 currentToken = null;
                 document.removeEventListener('visibilitychange',
                                              backgroundModeHandler);
-
+                removeHeadPhonesChangeHandler();
                 shouldRate ? rate(RoomUI.hide) : RoomUI.hide();
               };
 
@@ -375,7 +391,7 @@
               };
 
               RoomUI.onSwitchSpeaker = function() {
-                roomManager.forceSpeaker(!roomManager.isSpeakerEnabled);
+                roomManager.forceSpeaker(RoomUI.isSpeakerEnabled);
               };
 
               RoomUI.onToggleVideo = function() {
@@ -396,6 +412,7 @@
             debug && console.log('Error while joining room');
             currentToken = null;
             isConnected = false;
+            removeHeadPhonesChangeHandler();
             RoomUI.hide();
             // See https://docs.services.mozilla.com/loop/apis.html
             if (error) {
@@ -419,6 +436,9 @@
       if (isConnected && currentToken && (currentToken === token)) {
         RoomUI.updateParticipant(name, account);
       }
+    },
+    get headphonesPresent() {
+      return acm && acm.headphones;
     }
   };
 
