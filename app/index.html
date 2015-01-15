@@ -120,19 +120,37 @@
     <section id="wizard-panel" data-step="0" class="panel">
       <!--
       <section id="wizard-tutorial-section"  class="wizard-section vbox current">
-        <header id="wizard-tutorial-header">
-          <p data-branding-service-name="welcome"></p>
-        </header>
         <ul id="wizard-tutorial-slideshow" class="fit">
           <li class="wizard-tutorial-step">
+            <header id="wizard-tutorial-header">
+              <p data-branding-service-name="welcome"></p>
+            </header>
             <p data-l10n-id="tagline"></p>
             <footer data-l10n-id="face2face"></footer>
           </li>
           <li class="wizard-tutorial-step">
+            <header id="talk-to-anyone"></header>
             <footer data-l10n-id="anyoneWithBrowser"></footer>
           </li>
           <li class="wizard-tutorial-step">
-            <footer data-l10n-id="anywhereInTheWorld"></footer>
+            <header id="anywhere-in-the-world"></header>
+            <footer data-l10n-id="itIsVeryEasy"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="start-a-conversation"></header>
+            <footer data-l10n-id="comunicateInstantly"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="create-a-new-room"></header>
+            <footer data-l10n-id="createASpace"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="share-it-with"></header>
+            <footer data-l10n-id="noInstallRequired"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="see-who-is"></header>
+            <footer data-l10n-id="youCanSee"></footer>
           </li>
         </ul>
         <ul id="wizard-tutorial-progress" class="tutorial-progress-indicator">
@@ -162,6 +180,33 @@
             <li id="pin-12" class="right"><span></span></li>
             <li id="pin-13" class="left"><span></span></li>
             <li id="pin-14" class="left "><span></span></li>
+          </ul>
+          <ul id="phone-screens" class="layer-2">
+            <li class="conversation layer-4"></li>
+            <li class="room layer-4"></li>
+            <li class="share-room layer-4">
+              <div>
+                <p data-l10n-id="shareRoom"></p>
+                <button data-l10n-id="pickContact"></button>
+              </div>
+            </li>
+            <li class="wrapper-rooms layer-4 vbox middle">
+              <section class="empty-room hbox middle">
+                <span class="box-image"></span>
+                <p id="room-is-empty"></p>
+              </section>
+              <section class="join-room hbox middle">
+                <span class="box-image"></span>
+                <p id="friend-joined"></p>
+              </section>
+              <section class="full-room hbox middle">
+                <span class="box-image"></span>
+                <p id="room-is-full"></p>
+              </section>
+            </li>
+            <li class="phone-screen-1 layer-3"></li>
+            <li class="phone-screen-2 layer-3"></li>
+            <li class="phone-screen-3 layer-3"></li>
           </ul>
           <ul id="wizard-backgrounds">
             <li id="wizard-map" class="layer-1"></li>
