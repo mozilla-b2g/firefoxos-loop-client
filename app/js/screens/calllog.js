@@ -1061,7 +1061,11 @@
       _appendRoom(room);
       return room;
     }, (error) => {
-      console.error('ERROR when storing the room ' + error);
+      // Sometimes we don't know if the room already exists and we want to
+      // update this one. So we can call to this methods and it ensures that the
+      // room will be created or updated depending on the case.
+      console.log('Storing the room failed. Trying to update the existing one');
+      return CallLog.updateRoom(room);
     });
   }
 
