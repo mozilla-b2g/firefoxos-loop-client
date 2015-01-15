@@ -4,7 +4,7 @@
   var debug = Config.debug;
   var session = null, publisher = null, subscribers = [], speakerManager = null;
 
-  const TARGET_ELEMENT_PROPERTIES = {
+  var TARGET_ELEMENT_PROPERTIES = {
     audioVolume: 100,
     width: "100%",
     height: "100%",
@@ -87,6 +87,7 @@
             // Fire an OT.RoomManager.EventNames.JOINING event.
             this.dispatchEvent(new OT.Event(OT.RoomManager.EventNames.JOINING));
 
+            TARGET_ELEMENT_PROPERTIES.mirror = frontCamera;
             publisher = session.publish(
               params.localTargetElement,
               TARGET_ELEMENT_PROPERTIES,
@@ -136,6 +137,7 @@
           },
 
           streamCreated: function(event) {
+            TARGET_ELEMENT_PROPERTIES.mirror = false;
             var subscriber = session.subscribe(
               event.stream,
               params.remoteTargetElement,
