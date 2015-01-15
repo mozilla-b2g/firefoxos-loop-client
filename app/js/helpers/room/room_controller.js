@@ -9,6 +9,7 @@
   //miliseg timestamp start Communication
   var _startCommunicationTime = 0;
   var _participants = [];
+  var _numberParticipants = 0;
   var _communicationEnd = true;
   var _communicationToken = null;
 
@@ -28,6 +29,10 @@
       var _ = navigator.mozL10n.get;
       ErrorScreen.show(_(errorMessage));
     });
+  }
+
+  function setNumberParticipants(num) {
+    _numberParticipants = RoomUI.numberParticipants = num;
   }
 
   function removeMyselfFromRoom(params) {
@@ -162,7 +167,6 @@
     _startCommunicationTime = new Date().getTime();
     _communicationEnd = false;
     _communicationToken = currentToken;
-    Rooms.get(currentToken).then(room => _participants = room.participants);
   }
 
   function _logEventCommunication(aCurrentTime) {
@@ -269,6 +273,7 @@
               document.addEventListener('visibilitychange',
                                         backgroundModeHandler);
               RoomUI.updateName(room.roomName);
+              setNumberParticipants(room.participants.length);
               if (Controller.identity !== room.roomOwner) {
                 room.roomToken = params.token;
                 CallLog.addRoom(room).then(() => {
@@ -292,7 +297,6 @@
               roomManager.on({
                 joining: function(event) {
                   debug && console.log('Room joining');
-
                 },
                 joined: function(event) {
                   debug && console.log('Room joined');
@@ -316,9 +320,13 @@
                   debug && console.log('Room participant joining');
                 },
                 participantJoined: function(event) {
+                  debug && console.log('Room participant joined');
+                  Rooms.get(currentToken).then(room => {
+                    _participants = room.participants
+                    setNumberParticipants(_participants.length);
+                  });
                   // The communication has started exactly in this moment
                   _initCommunicationEvent();
-                  debug && console.log('Room participant joined');
                   TonePlayerHelper.init('telephony');
                   TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);
                   RoomUI.setConnected();
@@ -338,6 +346,7 @@
                   // as exact than we can
                   var current = new Date().getTime();
                   debug && console.log('Room participant left');
+                  setNumberParticipants(_numberParticipants - 1);
                   if (currentRoom &&
                       (currentRoom.roomOwner === params.displayName)) {
                     TonePlayerHelper.init('telephony');
