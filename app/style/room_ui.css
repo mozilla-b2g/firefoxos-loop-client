@@ -254,6 +254,10 @@
   height: 100%;
 }
 
+#room-remote-video .OT_video-container {
+  background-color: #1c5e6f !important;
+}
+
 #room-local-video .OT_video-container {
   position: relative !important;
   top: -10% !important;
@@ -308,6 +312,30 @@
 
 #room-ui[data-rotation="90"] .room-info h3 {
   margin: 0;
+}
+
+#room-ui[data-rotation="90"] #leave-room,
+#room-ui[data-rotation="270"] #leave-room {
+  bottom: 1.5rem;
+  left: 1.5rem;
+}
+
+#room-ui[data-rotation="90"] #room-settings-togglevideo,
+#room-ui[data-rotation="270"] #room-settings-togglevideo {
+  bottom: 8.9rem;
+  left: 1.5rem;
+}
+
+#room-ui[data-rotation="90"] #room-settings-togglemic,
+#room-ui[data-rotation="270"] #room-settings-togglemic {
+  bottom: 16.4rem;
+  left: 1.5rem;
+}
+
+#room-ui[data-rotation="90"] #room-settings-switchspeaker,
+#room-ui[data-rotation="270"] #room-settings-switchspeaker {
+  bottom: 23.9rem;
+  left: 1.5rem;
 }
 
 #room-ui[data-rotation="90"] #fake-remote-video-wrapper,
