@@ -3,7 +3,7 @@
 
   var debug = Config.debug;
 
-  var wizardHeader, wizardPanel, wizardTutorial, progressBar;
+  var wizardPanel, wizardTutorial, progressBar;
   var wizardWorld, wizardMainPins, wizardPins, wizardDottedLine, wizardLogin;
   var currentStep = 0, stepsLength;
   var viewportWidth;
@@ -169,10 +169,6 @@
         clearAnimation();
         pinsAnimation = false;
       }
-
-      if (promptTimer) {
-        clearTimeout(promptTimer);
-      }
     }
     if (currentStep === 2) {
       pinsAnimation = true;
@@ -183,10 +179,6 @@
             wizardPins.classList.add('move');
             onAnimateEnd(wizardPins, function() {
               wizardPins.classList.add('animate');
-              promptTimer = setTimeout(function timer() {
-                wizardPanel.classList.add('overlay');
-                wizardLogin.classList.add('show');
-              },1000);
             });
           })
         });
@@ -203,7 +195,6 @@
         return;
       }
       // Cache the viewport width
-      wizardHeader = document.getElementById('wizard-tutorial-header');
       wizardPanel = document.getElementById('wizard-panel');
       wizardTutorial = document.getElementById('wizard-tutorial-slideshow');
       progressBar = document.getElementById('wizard-tutorial-progress');
