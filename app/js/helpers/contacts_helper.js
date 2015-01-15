@@ -213,6 +213,29 @@
       }
     },
 
+    /*
+     * It returns the friendly name for a room participant. This object defines
+     * an account and display name.
+     */
+    getParticipantName: function(participant) {
+      if (!participant.account) {
+        return Promise.resolve(participant.displayName);
+      }
+
+      return new Promise(resolve => {
+        _findByIdentity(participant.account, result => {
+          var contacts = result.contacts;
+          if (!Array.isArray(contacts) || contacts.length === 0) {
+            resolve(participant.displayName);
+          } else {
+            resolve(getPrimaryInfo(contacts[0]));
+          }
+        }, error => {
+          resolve(participant.displayName);
+        });
+      });
+    },
+
     getPrimaryInfo: getPrimaryInfo,
 
     prettyPrimaryInfo: prettyPrimaryInfo

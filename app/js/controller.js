@@ -272,35 +272,35 @@
                 if (participant.account !== Controller.identity) {
 		  document.hidden && Loader.getNotificationHelper().then(
 		    function(NotificationHelper) {
-		      NotificationHelper.send({
-			raw: room.roomName
-		      }, {
-			body: _('hasJoined', {
-			  name: participant.displayName
-			}),
-			icon: appInfo.icon,
-			tag: room.roomUrl
-		      }).then((notification) => {
-			var onVisibilityChange = function() {
-			  if (!document.hidden) {
-			    notification.close();
-			  }
-			};
-			document.addEventListener('visibilitychange',
-						  onVisibilityChange);
-			notification.onclose = function() {
-			  document.removeEventListener('visibilitychange',
-						       onVisibilityChange);
-			  notification.onclose = notification.onclick = null;
-			};
-			notification.onclick = function() {
-			  debug && console.log(
-			    'Notification clicked for room: ' + room.roomUrl
-			  );
-			  appInfo.app.launch();
-			  notification.close();
-			};
-		      });
+          ContactsHelper.getParticipantName(participant).then(name => {
+            NotificationHelper.send({
+              raw: room.roomName
+            }, {
+              body: _('hasJoined', {
+                name: name
+              }),
+              icon: appInfo.icon,
+              tag: room.roomUrl
+            }).then((notification) => {
+              var onVisibilityChange = function() {
+                !document.hidden && notification.close();
+              };
+
+              document.addEventListener('visibilitychange', onVisibilityChange);
+
+              notification.onclose = function() {
+                document.removeEventListener('visibilitychange', onVisibilityChange);
+                notification.onclose = notification.onclick = null;
+              };
+
+              notification.onclick = function() {
+                debug && console.log('Notification clicked for room: ' +
+                                      room.roomUrl);
+                appInfo.app.launch();
+                notification.close();
+              };
+            });
+          });
 		  });
                   RoomController.addParticipant(
                     room.roomToken,
@@ -325,20 +325,23 @@
                     TonePlayerHelper.init('publicnotification');
                     TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
                   }
-                  NotificationHelper.send({
-                    raw: room.roomName
-                  }, {
-                    body: _('hasJoined', {
-                      name: participant.displayName
-                    }),
-                    icon: appInfo.icon,
-                    tag: room.roomUrl
-                  }).then((notification) => {
-                    notification.onclick = function() {
-                      debug && console.log('Notification clicked for room: ' + room.roomUrl);
-                      appInfo.app.launch();
-                      notification.close();
-                    };
+                  ContactsHelper.getParticipantName(participant).then(name => {
+                    NotificationHelper.send({
+                      raw: room.roomName
+                    }, {
+                      body: _('hasJoined', {
+                        name: name
+                      }),
+                      icon: appInfo.icon,
+                      tag: room.roomUrl
+                    }).then((notification) => {
+                      notification.onclick = function() {
+                        debug && console.log('Notification clicked for room: ' +
+                                              room.roomUrl);
+                        appInfo.app.launch();
+                        notification.close();
+                      };
+                    });
                   });
                 });
               }
