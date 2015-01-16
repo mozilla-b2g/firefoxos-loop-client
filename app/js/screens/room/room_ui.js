@@ -54,6 +54,27 @@
     }
   }
 
+  function setHeadphonesPresent(status) {
+    var headphonesPresent = !!status;
+    // What we should do on a headphone change is:
+    // Removal (!headphonesPresent)
+    //  - If the communication is audio, removing the headphones should leave
+    //    the speaker on the same status it was.
+    //  - If the communication is video, removing the headphones should turn ON
+    //    the speaker
+    // Insertion (headphonesPresent)
+    //  - If the communication is audio, then inserting the headphones should
+    //    disable the speaker if it was enabled.
+    //  - If the communication is video, then inserting the headphones should
+    //    disable the speaker if it was enabled.
+    if ((!headphonesPresent && isVideoEnabled && !isSpeakerEnabled) ||
+        (headphonesPresent && isSpeakerEnabled)) {
+      // According to the previous description, in those two cases we have
+      // to change the speaker status
+      switchSpeakerButtonClicked();
+    }
+  }
+
   function render(params) {
     if (!localVideoContainer) {
       panel = document.getElementById('room-ui');
@@ -215,6 +236,9 @@
     // Set picked camera to perform proper UI rotation
     panel.dataset.isFrontCamera = params.frontCamera;
 
+    // Set the initial headphone state (and modify the speaker state
+    // accordingly)
+    setHeadphonesPresent(RoomController.headphonesPresent);
     updateButtonStatus();
     RoomUI.setWaiting();
   }
@@ -359,6 +383,10 @@
           resolve();
         }
       });
+    },
+
+    set headphonesPresent(status) {
+      setHeadphonesPresent(status);
     },
 
     hide: hide
