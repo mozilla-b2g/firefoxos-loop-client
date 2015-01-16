@@ -60,6 +60,7 @@
 
   const _roomsStore = 'rooms';
   const _eventsStore = 'roomEvents';
+  const _fieldsToFilterByUser = ['', 'creationTime', 'localCtime'];
   var _dbHelper = new DatabaseHelper({
     name: 'roomsLog',
     version: 1,
@@ -239,7 +240,7 @@
             reject(error);
           } else {
             var filteredCursor = null;
-            if (!field || field === '' || field === 'creationTime') {
+            if (!field || _fieldsToFilterByUser.indexOf(field) !== -1) {
               // These are special cases. We want to filter & sort
               // since this isn't directly supported by IndexedDB, we'll
               // create a filteredCursor in which we'll filter by logged user
