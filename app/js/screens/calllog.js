@@ -738,6 +738,7 @@
     // '.primary-info > p' -> Calls in call log | '.primary-info' -> Rooms
     var primaryInfo = aElement.querySelector('.primary-info > p') ||
                       aElement.querySelector('.secondary-info');
+    var datasetIdentities = aElement.dataset.identities.split(',');
 
     if (aContact) {
       var identities = [];
@@ -749,8 +750,6 @@
           identities.push(aContact[field][i].value);
         }
       });
-
-      var datasetIdentities = aElement.dataset.identities.split(',');
 
       // We check if any of the contact identities matches the identities
       // stored for this call log entry.
@@ -766,7 +765,7 @@
       if (!match.length) {
         if (aElement.dataset.contactId == aContact.id) {
           aElement.dataset.contactId = null;
-          primaryInfo.textContent = aElement.dataset.identities || _('unknown');
+          primaryInfo.textContent = datasetIdentities[0] || _('unknown');
         }
         return;
       }
@@ -778,7 +777,7 @@
       primaryInfo.textContent = ContactsHelper.prettyPrimaryInfo(aContact);
     } else {
       aElement.dataset.contactId = null;
-      primaryInfo.textContent = aElement.dataset.identities || _('unknown');
+      primaryInfo.textContent = datasetIdentities[0] || _('unknown');
     }
   }
 
