@@ -55,7 +55,7 @@
         params.param = params.param || DEFAULT_JOIN_PARAMS.param;
       }
 
-      var video = params.video;
+      var video = (params.video !== 'false') && (params.video !== false);
       var frontCamera = params.frontCamera;
       var mode = !!frontCamera ? 'user': 'environment';
       var cameraConstraints = {facingMode: mode, require: ['facingMode']};
