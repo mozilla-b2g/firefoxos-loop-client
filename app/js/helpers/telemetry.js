@@ -84,7 +84,8 @@
     defaultRoomCamera: [],
     roomCamera: [],
     smsNotification: {},
-    emailNotification: {}
+    emailNotification: {},
+    backgroundMode: {}
   };
 
   function _getReportAttributes() {
@@ -141,7 +142,6 @@
             (_updateObjectFields &&
              _updateObjectFields(report, _getReportAttributes())) ||
             Promise.resolve(report);
-
           updatedReport.then(finalReport => {
             self.transmit(finalReport, _getReportUrl(finalReport), THROTTLE_DELAY,
                           function() {
