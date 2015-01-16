@@ -451,7 +451,7 @@
           }
 
           params.identities = [call.callerId];
-          params.subject = call.subject;
+          params.subject = (call.subject ? call.subject : '');
           _launchAttention(type, params, call);
         },
         function onerror(e) {
