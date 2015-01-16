@@ -169,7 +169,7 @@
   }
 
   function hide() {
-    panel.dataset.status = '';
+    panel.dataset.status = panel.dataset.participants = '';
     removeFakeVideo();
     removeHandlers();
     Navigation.to('calllog-panel', 'bottom').then(() => {
@@ -282,6 +282,12 @@
         return;
       }
       onToggleVideoButtonClicked = onToggleVideo;
+    },
+
+    set numberParticipants(number) {
+      if (panel) {
+        panel.dataset.participants = number;
+      }
     },
 
     setWaiting: function() {

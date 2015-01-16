@@ -376,7 +376,7 @@
   transform: translateY(4rem);
 }*/
 
-#room-ui[data-status="waiting"] #first-one-label {
+#room-ui[data-status="waiting"][data-participants="1"] #first-one-label {
   display: block;
 }
 
