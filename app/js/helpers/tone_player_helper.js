@@ -8,7 +8,6 @@
   var debug = Config.debug;
   var _audioElement = null;
   var _channel = null;
-  var _speakerManager = null;
 
   var TONE_TIMEOUT = 5000;
 
@@ -29,9 +28,7 @@
       'playing',
       function tonePlaying() {
         _audioElement.removeEventListener('playing', tonePlaying);
-        debug && console.log('Speaker will change from  ' + _speakerManager.forcespeaker +
-          ' to ' + isSpeaker);
-        _speakerManager.forcespeaker = isSpeaker;
+        SpeakerManagerHelper.forcespeaker = isSpeaker;
         if (typeof cb === 'function') {
           cb();
         }
@@ -42,9 +39,6 @@
 
   var TonePlayerHelper = {
     init: function tph_init(channel) {
-      if (!_speakerManager) {
-        _speakerManager = new window.MozSpeakerManager();
-      }
       this.setChannel(channel);
     },
 

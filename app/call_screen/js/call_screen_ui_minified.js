@@ -71,9 +71,10 @@
         }
       }
 
-      // Once all basics are loaded, we are goint to lazy load the rest of functions needed
-      // for handling the UI.
+      // Once all basics are loaded, we are goint to lazy load the rest of
+      // functions needed for handling the UI.
       var files = [
+        '../js/helpers/speaker_manager.js',
         '../js/helpers/tone_player_helper.js',
         '../js/helpers/audio_competing_helper.js',
         '../js/helpers/countdown.js',
