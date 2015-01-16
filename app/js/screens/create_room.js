@@ -157,6 +157,16 @@
 
   function updateRoom() {
     var name = roomNameInput.value.trim();
+    if (room.timesRoomRenamed === undefined) {
+      room.timesRoomRenamed = 1;
+    } else {
+      room.timesRoomRenamed++;
+    }
+    RoomsDB.update(room.roomToken).then(function (){
+      debug && console.log('timesRoomRenamed successfully updated');
+    }, function () {
+      console.error('could not update timesRoomRenamed');
+    });
     return Rooms.update(room.roomToken, {
       roomName: name,
       expiresIn: CONFIG.expiresIn
