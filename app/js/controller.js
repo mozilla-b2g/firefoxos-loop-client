@@ -69,7 +69,7 @@
       Loader.getRoomEvent().then(RoomEvent => {
         RoomEvent.save({type: RoomEvent.type.otherJoin,
                         token: token,
-                        identity: accountNewP  || RoomEvent.identityUnknown });
+                        identity: accountNewP || RoomEvent.identityUnknown });
       });
     }
   }
@@ -271,98 +271,86 @@
       // Update the list
       _synchronizeRooms();
       // Launch notifications if anyone joined
-      Rooms.getChanges(version).then(function(rooms) {
-        debug && console.log('Rooms changed ' + JSON.stringify(rooms));
+      Promise.all([Loader.getRoomController(),
+                   Rooms.getChanges(version)]).then(function(args) {
+        var rooms = args[1];
+        debug && console.log('[onRoomsEvent] Rooms changed ' +
+                             JSON.stringify(rooms));
         Utils.getAppInfo().then(appInfo => {
           rooms.forEach(function(room) {
-            // Avoid auto-push effect. If the room is full there is no
-            // notification (due we are connected and waiting the other
-            // peer)
-            if (!room.participants ||
-                room.participants.length === 0) {
-              return;
-            }
-
-            var lastStateRoom = _getLastStateRoom(room);
-            if (room.participants.length === MAX_PARTICIPANTS) {
-              room.participants.forEach((participant) => {
-                if (participant.account !== Controller.identity) {
-		  document.hidden && Loader.getNotificationHelper().then(
-		    function(NotificationHelper) {
-          ContactsHelper.getParticipantName(participant).then(name => {
-            NotificationHelper.send({
-              raw: room.roomName
-            }, {
-              body: _('hasJoined', {
-                name: name
-              }),
-              icon: appInfo.icon,
-              tag: room.roomUrl
-            }).then((notification) => {
-              var onVisibilityChange = function() {
-                !document.hidden && notification.close();
-              };
-
-              document.addEventListener('visibilitychange', onVisibilityChange);
-
-              notification.onclose = function() {
-                document.removeEventListener('visibilitychange', onVisibilityChange);
-                notification.onclose = notification.onclick = null;
-              };
-
-              notification.onclick = function() {
-                debug && console.log('Notification clicked for room: ' +
-                                      room.roomUrl);
-                appInfo.app.launch();
-                notification.close();
-              };
-            });
-          });
-		  });
-                  RoomController.addParticipant(
-                    room.roomToken,
-                    participant.displayName,
-                    participant.account
-                  );
-                  _registerOtherJoinEvt(room.roomToken,
-                                        participant,
-                                        lastStateRoom);
-                }
-              });
+            if (!room.participants || (room.participants.length === 0)) {
+              RoomController.updateParticipants(room.roomToken, []);
               return;
             }
 
             room.participants.forEach((participant) => {
-              if (participant.account !== Controller.identity) {
+              if ((participant.account !== Controller.identity) &&
+                  !RoomController.isParticipant(room.roomToken,
+                                                participant.roomConnectionId)) {
+
+                // If the owner is connected (plenty room) and the app is in
+                // foreground, no notification should be fired.
+                // NOTE: Now, we check owner is connected looking to
+                // MAX_PARTICIPANTS, but this will not be valid in more than 2
+                // participants rooms.
+                if ((room.participants.length !== MAX_PARTICIPANTS) ||
+                    document.hidden) {
+
+                  Loader.getNotificationHelper().then(
+                    function(NotificationHelper) {
+                      TonePlayerHelper.init('publicnotification');
+                      TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
+
+                      ContactsHelper.getParticipantName(participant).then(
+                        name => {
+                          NotificationHelper.send({
+                            raw: room.roomName
+                          }, {
+                            body: _('hasJoined', {
+                              name: name
+                            }),
+                            icon: appInfo.icon,
+                            tag: room.roomUrl
+                          }).then((notification) => {
+                            var onVisibilityChange = function() {
+                              !document.hidden && notification.close();
+                            };
+
+                            document.addEventListener('visibilitychange',
+                                                      onVisibilityChange);
+                            notification.onclose = function() {
+                              document.removeEventListener('visibilitychange',
+                                                           onVisibilityChange);
+                              notification.onclose = notification.onclick = null;
+                            };
+
+                            notification.onclick = function() {
+                              debug && console.log(
+                                'Notification clicked for room: ' + room.roomUrl
+                              );
+                              appInfo.app.launch();
+                              notification.close();
+                            };
+                          });
+                        });
+                    });
+                }
+                RoomController.addParticipant(
+                  room.roomToken,
+                  participant.displayName,
+                  participant.account,
+                  participant.roomConnectionId
+                );
                 _registerOtherJoinEvt(room.roomToken,
                                       participant,
-                                      lastStateRoom);
-                Loader.getNotificationHelper().then(function(NotificationHelper) {
-                  if (room.roomOwner === Controller.identity) {
-                    TonePlayerHelper.init('publicnotification');
-                    TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
-                  }
-                  ContactsHelper.getParticipantName(participant).then(name => {
-                    NotificationHelper.send({
-                      raw: room.roomName
-                    }, {
-                      body: _('hasJoined', {
-                        name: name
-                      }),
-                      icon: appInfo.icon,
-                      tag: room.roomUrl
-                    }).then((notification) => {
-                      notification.onclick = function() {
-                        debug && console.log('Notification clicked for room: ' +
-                                              room.roomUrl);
-                        appInfo.app.launch();
-                        notification.close();
-                      };
-                    });
-                  });
-                });
+                                      _getLastStateRoom(room));
               }
             });
+
+            // Clean disconnected users
+            RoomController.updateParticipants(room.roomToken,
+                                              room.participants.map(
+                                                p => p.roomConnectionId));
           });
           _lastChangedRooms = rooms;
         });
@@ -617,7 +605,8 @@
         onsuccess = function() {};
       }
 
-      debug && console.log('Loop web URL for SMS ' + params.url + ' to ' + params.phonenumber);
+      debug && console.log('Loop web URL for SMS ' + params.url + ' to ' +
+                           params.phonenumber);
       Loader.getShare().then((Share) => {
         Share.useSMS(
           params,
