@@ -79,7 +79,9 @@
     defaultCamera: [],
     usedCamera: [],
     defaultRoomCamera: [],
-    roomCamera: []
+    roomCamera: [],
+    SMSNotification: {},
+    emailNotification: {}
   };
 
   function Telemetry() {
@@ -106,7 +108,30 @@
 
       DEBUG && console.log('Scheduled next report in ' + timeout + 'ms');
 
-      setTimeout(function() {
+      setInterval(function() {
+        RoomsDB.getAll().then(function(roomsCursor) {
+          if (!roomsCursor) {
+            console.error('No cursor!');
+            return;
+          }
+
+          roomsCursor.onsuccess = function onsuccess(event) {
+            var item = event.target.result
+            if (item) {
+              var room = item.value;
+              Object.keys(room).forEach(function(name) {
+                self.updateReport(name,room[name]);
+              });
+              item.continue();
+            }
+          };
+
+          roomsCursor.onerror = function(event) {
+            console.error('error iterating roomsCursor');
+          };
+        }, function() {
+          console.log('could not retrieve rooms from DB');
+        });
         self.get(function(report) {
           if (!report) {
             return;
@@ -115,14 +140,14 @@
           if (Array.isArray(report)) {
             report = report[0] || null;
           }
-
-          self.transmit(report, _getReportUrl(report), THROTTLE_DELAY,
-            function() {
-              DEBUG && console.log('Setting ' + LAST_REPORT);
-              asyncStorage.setItem(LAST_REPORT, Date.now());
-            });
+ 
+          // self.transmit(report, _getReportUrl(report), THROTTLE_DELAY,
+          //   function() {
+          //     DEBUG && console.log('Setting ' + LAST_REPORT);
+          //     asyncStorage.setItem(LAST_REPORT, Date.now());
+          //   });
         });
-      }, timeout);
+      }, 15000);
     });
   }
 
@@ -166,7 +191,20 @@
           throw new Error('Unknown metric type ' + type);
         }
 
-        (report[type].push && report[type].push(value)) || report[type]++;
+        //(report[type].push && report[type].push(value)) || report[type]++;
+        if (typeof(report[type]) === "object") {
+          if (Array.isArray(report[type])) {
+            report[type].push(value);
+          } else {
+            var stringValue = value.toString();
+            if (report[type][stringValue] === undefined){
+              report[type][stringValue] = 0;
+            }
+            report[type][stringValue]++;
+          }
+        } else {
+          report[type]++;
+        }
 
         self.save(report, function() {
           _updateLock = false;
@@ -185,8 +223,34 @@
         return;
       }
       this._updateReport(name, value);
-    }
+    },
 
+    _resetReport: function(name) {
+      if (_updateResetLock){
+        return;
+      }
+      _updateResetLock = true;
+      self = this;
+      this.get(function(report) {
+        if (report[name] !== undefined) {
+          if (Array.isArray(report[name])) {
+            report[name] = [];
+          }
+          else {
+            report[name] = 0;
+          }
+        }
+        self.save(report, function() {});
+        _updateResetLock = false;
+      });
+    },
+
+    resetReport: function(name) {
+      if (TelemetryReport.prototype[name] === undefined) {
+        return;
+      }
+      this._resetReport(name);
+    }
   };
 
   exports.Telemetry = new Telemetry();

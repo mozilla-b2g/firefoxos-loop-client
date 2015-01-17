@@ -580,6 +580,15 @@
     if (!Array.isArray(tokens)) {
       tokens = [tokens];
     }
+    for (var i = 0; i < tokens.length; i++) {
+      RoomsDB.get(tokens[i]).then(function(room){
+        Object.keys(room).forEach(function (name) {
+          Telemetry.udpateReport(name, room[name]);
+        });
+      }, function () {
+        console.log('Error, could not create telemetry room report');
+      });
+    }
     return RoomsDB.delete(tokens).then(() => {
       _deleteElementsFromGroup(tokens, 'rooms');
     }, (error) => {
