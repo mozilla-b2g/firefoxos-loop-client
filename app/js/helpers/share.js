@@ -10,6 +10,7 @@
   const MAIL_SUBJECT = 'Firefox Hello';
 
   var _ = navigator.mozL10n.get;
+  const DEBUG = Config.debug;
 
   function _generateText(params) {
     var body;
@@ -24,6 +25,27 @@
         body = params.url;
     }
     return body;
+  }
+
+  function _updateNotificationField(field, params) {
+    var _getToken = url => {
+      var slices = url.split('/');
+      return slices[slices.length - 1];
+    }
+
+    var token = _getToken(params.url);
+    RoomsDB.get(token).then(function(room) {
+      room[field] = room[field] && room[field] + 1 || 1;
+      RoomsDB.update([room]).then(function() {
+        DEBUG && console.log('Registered notification telemetry field:' +
+                             field);
+      }, function() {
+        console.error('Error updating telemetry notification field: ' + field);
+      });
+    }, function() {
+      console.error('[Telemetry notification] Could not find room with token ' +
+                    token);
+    });
   }
 
   function _onContactRetrieved(params, onsuccess, onerror) {
@@ -163,6 +185,7 @@
         activity.onsuccess = onsuccess;
         activity.onerror = onerror;
       }, 600); // Workaround to get the SMS activity working.
+      _updateNotificationField('smsNotification', params);
     },
 
     useEmail: function(params, identity, onsuccess, onerror) {
@@ -180,6 +203,7 @@
         activity.onsuccess = onsuccess;
         activity.onerror = onerror;
       }, 600); // Workaround to avoid black screen invoking Email activity.
+      _updateNotificationField('emailNotification', params);
     },
 
     broadcast: function(url, onsuccess, onerror) {
