@@ -2,6 +2,7 @@
 
 window.addEventListener('DOMContentLoaded', function load() {
   window.removeEventListener('DOMContentLoaded', load);
+  Telemetry.updateObjectFields = RoomsDB.updateFrequencyValues;
   CompatibilityChecker.check().then(() => {
     LazyLoader.load('js/update_checker.js', () => {
       UpdateChecker.check();
