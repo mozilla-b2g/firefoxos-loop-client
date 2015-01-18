@@ -19,6 +19,8 @@
 
   var _updateLock = null;
   var _updateQueue = [];
+  var _updateObjectFields;
+  var _updateableAttributes = null;
 
   function _getReportUrl(report) {
     if (!report) {
@@ -46,8 +48,9 @@
       appVersion: Config.version || 'unknown'
     };
 
-    Object.keys(TelemetryReport.prototype).forEach((key) => {
-      this[key] = TelemetryReport.prototype[key];
+    Object.keys(TelemetryReport.prototype).forEach(key => {
+      var value = TelemetryReport.prototype[key];
+      this[key] = value.push && [] || typeof value === 'object' && {} || 0;
     });
   }
 
@@ -79,7 +82,21 @@
     defaultCamera: [],
     usedCamera: [],
     defaultRoomCamera: [],
-    roomCamera: []
+    roomCamera: [],
+    smsNotification: {},
+    emailNotification: {}
+  };
+
+  function _getReportAttributes() {
+    if (!_updateableAttributes) {
+      _updateableAttributes = [];
+      var reportAttributes = TelemetryReport.prototype;
+      for (var key in reportAttributes) {
+        var att = reportAttributes[key];
+        !att.push && (typeof att === 'object') && _updateableAttributes.push(key);
+      };
+    }
+    return _updateableAttributes;
   };
 
   function Telemetry() {
@@ -116,10 +133,21 @@
             report = report[0] || null;
           }
 
-          self.transmit(report, _getReportUrl(report), THROTTLE_DELAY,
-            function() {
-              DEBUG && console.log('Setting ' + LAST_REPORT);
-              asyncStorage.setItem(LAST_REPORT, Date.now());
+          if (!report) {
+            report = new TelemetryReport();
+          }
+
+          var updatedReport =
+            (_updateObjectFields &&
+             _updateObjectFields(report, _getReportAttributes())) ||
+            Promise.resolve(report);
+
+          updatedReport.then(finalReport => {
+            self.transmit(finalReport, _getReportUrl(finalReport), THROTTLE_DELAY,
+                          function() {
+                            DEBUG && console.log('Setting ' + LAST_REPORT);
+                            asyncStorage.setItem(LAST_REPORT, Date.now());
+                          });
             });
         });
       }, timeout);
@@ -128,6 +156,10 @@
 
   Telemetry.prototype = {
     __proto__: Metrics.prototype,
+
+    set updateObjectFields(callback) {
+      _updateObjectFields = callback;
+    },
 
     _updateReport: function(type, value) {
 
@@ -166,7 +198,16 @@
           throw new Error('Unknown metric type ' + type);
         }
 
-        (report[type].push && report[type].push(value)) || report[type]++;
+        // We have three kinds of types with different behavior:
+        // * Numerics: We only need to increase
+        // * Array: We push the value
+        // * Object: We increase the key 'value' or we create it with 1 value
+        var field = report[type];
+        if (!(field.push && field.push(value) ||
+            typeof field === 'number' &&  ++report[type])) {
+          var key = value.toString();
+          field[key] = field[key] + 1 || 1;
+        }
 
         self.save(report, function() {
           _updateLock = false;
@@ -185,6 +226,10 @@
         return;
       }
       this._updateReport(name, value);
+    },
+
+    get reportAttributes() {
+      return _getReportAttributes();
     }
 
   };

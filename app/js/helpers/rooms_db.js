@@ -107,7 +107,9 @@
         'contactPrimaryInfo',
         'contactPhoto',
         'localCtime',
-        'user'
+        'user',
+        'smsNotification',
+        'emailNotification'
       ]},
 
     'roomEvents': {
@@ -211,6 +213,95 @@
         }, _roomsStore, {
           key: token
         });
+      });
+    },
+
+    /**
+     * Updates a report with the following rules:
+     *   - The object can have zero or more attributes which share a name with a
+     *      DB attribute of a room.
+     *   - For each of those fields, the report will have a attribute for each
+     *     frequency (number of times something has happened)
+     *   - We will increase by one (or set to one) the frequency of the value
+     *     that the corresponding attribute in the room has. If the attribute
+     *     doesn't exist then we have to increase the frequency of 0.
+     * So, for example, if the report has:
+     *   {
+     *     dbField: {
+     *        0: 5,
+     *        2: 6
+     *     }
+     *  }
+     *  Then if there's a room that has room.dbField = undefined, and another
+     *  that has room.dbField = 6 the exit report will have:
+     *   {
+     *     dbField: {
+     *        0: 6,
+     *        2: 6,
+     *        6: 1
+     *     }
+     *   }
+     *
+     * param report
+     *       Report with the initial set of frequency values to update.
+     *       Note that this function does NOT make a in depth copy of report,
+     *       and as such it takes ownership of the object. Any other processing
+     *       on the report should use the promise value
+     * param updateableAttributes
+     *       List containing the attribute names that should be updated.
+     *
+     * return Promise. The resolved promise will contain as result an updated
+     *                   Report.
+     *                 The rejected promise, an error string.
+     */
+    updateFrequencyValues: function(report, updateableAttributes) {
+      var needUpdateRooms = [];
+      return RoomsDB.getAll().then(cursor => {
+        return new Promise((resolve, reject) => {
+          if (!cursor) {
+            console.error('UpdateFrequencyValues. No cursor!');
+            return reject();
+          }
+
+          cursor.onsuccess = function onsuccess(event) {
+            var item = event.target.result;
+            if (item) {
+              var room = item.value;
+              var update = false;
+              updateableAttributes.forEach(att => {
+                var parsedValue = '0';
+                if (room[att]) {
+                  parsedValue = room[att].toString();
+                  delete room[att];
+                  update = true;
+                }
+                report[att][parsedValue] = report[att][parsedValue]  + 1 || 1;
+              });
+
+              update && needUpdateRooms.push(room);
+              item.continue();
+            } else {
+              // Reset updateableAttributes fields.
+              if (needUpdateRooms.length > 0) {
+                _dbHelper.newTxn(function(error, txn, store) {
+                  if (error) {
+                    console.error('Error updating telemetry frecuency ' +
+                                  'attributes of room');
+                    return;
+                  }
+                  needUpdateRooms.forEach(updateRoom => store.put(updateRoom));
+                }, 'readwrite', [_roomsStore]);
+              }
+              resolve(report);
+            }
+          };
+
+          cursor.onerror = function(event) {
+            console.error('Error iterating roomsCursor');
+          };
+        });
+      }, function() {
+          console.log('Could not retrieve rooms from DB');
       });
     },
 

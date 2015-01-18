@@ -580,6 +580,23 @@
     if (!Array.isArray(tokens)) {
       tokens = [tokens];
     }
+
+    // Save frequency values for telemetry before deleting the room
+    var updateableAttributes = Telemetry.reportAttributes;
+    if (updateableAttributes.length > 0) {
+      tokens.forEach(token => {
+        RoomsDB.get(token).then(room => {
+          updateableAttributes.forEach(keyReport => {
+            room[keyReport] &&
+            Telemetry.updateReport(keyReport, room[keyReport]);
+          });
+        }, function() {
+          console.error('Error We could not save telemetryValues before the ' +
+                        'room was deleted');
+        });
+      });
+    }
+
     return RoomsDB.delete(tokens).then(() => {
       _deleteElementsFromGroup(tokens, 'rooms');
     }, (error) => {
