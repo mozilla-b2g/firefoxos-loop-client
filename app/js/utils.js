@@ -4,7 +4,8 @@
 'use strict';
 
 (function(exports) {
-  var DEBUG = Config.debug;
+  var SERVER_URL = Config.server_url;
+  var TIMEOUT = 15000;
 
   //change default path for gaia-component-utils
   window.packagesBaseUrl = 'libs/components/';
@@ -44,9 +45,11 @@
       var seconds = _beautify(Math.floor(time%60));
       return minutes + ':' + seconds + ' min';
     },
-    getRevokeDate: function ut_getDurationPretty(time) {
-      var currentMs = (new Date()).getTime();
-      var diff = time - currentMs;
+    getRevokeDate: function ut_getDurationPretty(time, serverTime) {
+      var diff = 0, currentMs = 0;
+
+      currentMs = serverTime ? serverTime : ((new Date()).getTime());
+      diff = time - currentMs;
 
       var args = {
         value: 0
@@ -145,15 +148,6 @@
     },
 
     /**
-     * Simple dump function.
-     *
-     * @param {String} s Message.
-     */
-    log: function u_log(s) {
-      DEBUG && console.log(s);
-    },
-
-    /**
      * If config.allowUnsecure is true return the same value received by
      * parameter. Otherwise return the url upgrading the protocol to the
      * secure version (wss for ws and https for http)
@@ -180,6 +174,21 @@
             resolve(window.appInfo);
           });
         };
+      });
+    },
+
+    get serverTime() {
+      return new Promise(function(resolve, reject){
+        var url = SERVER_URL + '?t=' + Date.now();
+        var req = new XMLHttpRequest({mozSystem: true});
+        req.open('GET', url, true);
+        req.timeout = TIMEOUT;
+
+        req.onerror = req.ontimeout = reject;
+        req.onload = function() {
+          resolve(new Date(Date.parse(req.getResponseHeader('Date'))).getTime());
+        };
+        req.send(null);
       });
     }
   };
