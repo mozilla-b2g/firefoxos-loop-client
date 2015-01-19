@@ -116,7 +116,8 @@
         'smsNotification',
         'smsNotificationWithSubject',
         'emailNotification',
-        'emailNotificationWithSubject'
+        'emailNotificationWithSubject',
+        'timesRoomRenamed'
       ]},
 
     'roomEvents': {
