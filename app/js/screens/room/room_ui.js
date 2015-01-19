@@ -319,10 +319,9 @@
         window.clearInterval(pollingInterval);
         window.clearTimeout(timeoutShield);
         removeFakeVideo();
+        RoomUI.showRemoteVideo(isRemoteVideo);
         panel.dataset.status = 'connected';
         Countdown.start();
-        // TODO Check if we can now this in advance
-        RoomUI.showRemoteVideo(true);
       }
 
       timeoutShield = window.setTimeout(setCallStatus, TIMEOUT_SHIELD);
@@ -335,7 +334,9 @@
     },
 
     showRemoteVideo: function(isRemoteVideo) {
-      panel.dataset.remoteVideo = isRemoteVideo;
+      panel.dataset.remoteVideo = !!isRemoteVideo;
+      debug && console.log('Remote video is being displayed',
+                            panel.dataset.remoteVideo);
     },
 
     updateName: function(name) {

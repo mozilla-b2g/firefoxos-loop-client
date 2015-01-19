@@ -372,7 +372,7 @@
                   _initCommunicationEvent();
                   TonePlayerHelper.init('telephony');
                   TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);
-                  RoomUI.setConnected();
+                  RoomUI.setConnected(roomManager.isRemotePublishingVideo);
                   shouldRate = true;
                 },
                 participantVideoAdded: function(event) {
