@@ -60,10 +60,10 @@
 
   const _roomsStore = 'rooms';
   const _eventsStore = 'roomEvents';
-  const _fieldsToFilterByUser = ['', 'creationTime', 'localCtime'];
+  const _fieldsToFilterByUser = ['', 'creationTime', 'localCtime', 'ctime'];
   var _dbHelper = new DatabaseHelper({
     name: 'roomsLog',
-    version: 1,
+    version: 2,
     maxNumerOfRecords: 200,
     numOfRecordsToDelete: 50
   }, {
@@ -78,6 +78,9 @@
       }, {
         name: 'localCtime',
         fields: 'localCtime'
+      }, {
+        name: 'ctime',
+        fields: 'ctime'
       }, {
         name: 'user',
         fields: 'user'

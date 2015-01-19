@@ -895,7 +895,7 @@
 
   function _renderRoomsFromDB(update) {
     return new Promise((resolve, reject) => {
-      RoomsDB.getAll('localCtime', 'DESC').then((cursor) => {
+      RoomsDB.getAll('ctime', 'DESC').then((cursor) => {
         if (!cursor) {
           return resolve();
         }
@@ -1060,7 +1060,7 @@
   }
 
   function _getLastActivityDate(room) {
-    return new Date(+room.localCtime);
+    return new Date(+room.ctime * 1000);
   }
 
   function _addRoom(room) {
