@@ -20,7 +20,6 @@
   var _callee;
   var _calleeJoined = false;
   var _isCalleeUnavailable = true;
-  var _speakerManager;
   var _onhold = function noop() {};
   var _onpeeronhold = function noop() {};
   var _onpeerresume = function noop() {};
@@ -291,10 +290,7 @@
       if (!isSpeakerOn) {
         isSpeakerOn = false;
       }
-      if (!_speakerManager) {
-        _speakerManager = new window.MozSpeakerManager();
-      }
-      _speakerManager.forcespeaker = isSpeakerOn;
+      SpeakerManagerHelper.forcespeaker = isSpeakerOn;
       _useSpeaker = isSpeakerOn;
     },
 

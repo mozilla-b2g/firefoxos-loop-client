@@ -2,7 +2,7 @@
   'use strict';
 
   var debug = Config.debug;
-  var session = null, publisher = null, subscribers = [], speakerManager = null;
+  var session = null, publisher = null, subscribers = [];
 
   var TARGET_ELEMENT_PROPERTIES = {
     audioVolume: 100,
@@ -178,7 +178,6 @@
       disconnectSession();
       publisher = null;
       subscribers = null;
-      speakerManager = null;
       // Fire an OT.RoomManager.EventNames.LEFT event.
       this.dispatchEvent(new OT.Event(OT.RoomManager.EventNames.LEFT));
     },
@@ -222,17 +221,11 @@
     },
 
     forceSpeaker: function(value) {
-      if (!speakerManager) {
-        speakerManager = new window.MozSpeakerManager();
-      }
-      speakerManager.forcespeaker = value;
+      SpeakerManagerHelper.forcespeaker = value;
     },
 
     get isSpeakerEnabled() {
-      if (!speakerManager) {
-        speakerManager = new window.MozSpeakerManager();
-      }
-      return speakerManager.forcespeaker;
+      return SpeakerManagerHelper.forcespeaker;
     }
   };
 
