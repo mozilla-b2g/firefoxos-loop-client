@@ -2,7 +2,7 @@
   'use strict';
 
   var debug = Config.debug;
-  var session = null, publisher = null, subscribers = [];
+  var session = null, publisher = null, subscriber = null, subscribers = [];
 
   var TARGET_ELEMENT_PROPERTIES = {
     audioVolume: 100,
@@ -138,7 +138,7 @@
 
           streamCreated: function(event) {
             TARGET_ELEMENT_PROPERTIES.mirror = false;
-            var subscriber = session.subscribe(
+            subscriber = session.subscribe(
               event.stream,
               params.remoteTargetElement,
               TARGET_ELEMENT_PROPERTIES
@@ -176,7 +176,7 @@
 
     leave: function() {
       disconnectSession();
-      publisher = null;
+      publisher = subscriber = null;
       subscribers = null;
       // Fire an OT.RoomManager.EventNames.LEFT event.
       this.dispatchEvent(new OT.Event(OT.RoomManager.EventNames.LEFT));
@@ -203,7 +203,7 @@
     },
 
     subscribeToAudio: function(value) {
-      // Note: the first verison of the room implementatio define a room with
+      // Note: the first verison of the room implementation defines a room with
       // only two participants. Let's consider for the future that more
       // participants might take part.
       subscribers && subscribers.forEach(function(subscriber) {

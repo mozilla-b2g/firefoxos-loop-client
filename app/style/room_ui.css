@@ -254,8 +254,17 @@
   height: 100%;
 }
 
+#room-remote-video * {
+  display: none;
+}
+
 #room-remote-video .OT_video-container {
   background-color: #1c5e6f !important;
+  display: block;
+}
+
+#room-remote-video video {
+  display: block;
 }
 
 #room-local-video .OT_video-container {
