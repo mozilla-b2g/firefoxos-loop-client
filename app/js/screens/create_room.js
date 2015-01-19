@@ -138,7 +138,7 @@
     }).then((room) => {
       room.roomToken = token;
       Controller.onRoomCreated(room, userInteraction);
-      roomName === roomNameByDefault &&
+      (roomName === roomNameByDefault || !roomNameInput.value.trim().length) &&
                    asyncStorage.setItem(ROOM_NAME_COUNTER_KEY, ++roomNumber);
       userInteraction && hide();
       return room;
