@@ -51,22 +51,23 @@
   }
 
   var Wizard = {
-    init: function w_init(isFirstUse, success, error) {
+    init: function w_init(isFirstUse, isTutorial, success, error) {
 
       render();
 
-      Authenticate.init();
+      // Shield against empty functions
+      success = success || function() {};
+      error = error || function() {};
+
+      // Authenticate.init();
 
       if (!isFirstUse) {
-        // Show the right panel
-        wizardPanel.dataset.step = 6;
-        wizardPanel.classList.add('login');
-        wizardLogin.classList.add('show');
+        Authenticate.show();
         success();
         return;
       }
-
-      Tutorial.init();
+      Authenticate.hide();
+      Tutorial.show(isTutorial);
       success();
     },
 
@@ -76,6 +77,11 @@
       } else {
         navigator.mozL10n.ready(localize);
       }
+    },
+
+    showTutorial: function() {
+      Authenticate.hide();
+      Tutorial.show();
     }
   };
 

@@ -84,7 +84,7 @@
     return new Promise((resolve, reject) => {
       Loader.getWizard().then((Wizard) => {
         Navigation.to('wizard-panel', 'right');
-        Wizard.init(isFirstUse, resolve, reject);
+        Wizard.init(isFirstUse, false /*is not tutorial*/, resolve, reject);
       });
     });
   }
