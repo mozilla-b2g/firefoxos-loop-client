@@ -161,8 +161,13 @@
       roomName: name,
       expiresIn: CONFIG.expiresIn
     }).then((response) => {
+      // We have to get the room object remotely because the response only
+      // contains the "expiresAt" attribute and we need the "ctime" too.
+      return Rooms.get(room.roomToken);
+    }).then((remoteRoom) => {
       room.roomName = name;
-      room.expiresAt = response.expiresAt;
+      room.expiresAt = remoteRoom.expiresAt;
+      room.ctime = remoteRoom.ctime;
       Controller.onRoomUpdated(room, true);
       Loader.getRoomEvent().then(RoomEvent => {
         RoomEvent.save({type: RoomEvent.type.renamed,
