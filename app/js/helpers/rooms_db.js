@@ -110,7 +110,8 @@
         'localCtime',
         'user',
         'smsNotification',
-        'emailNotification'
+        'emailNotification',
+        'goBackground'
       ]},
 
     'roomEvents': {

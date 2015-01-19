@@ -12,6 +12,7 @@
   var _numberParticipants = 0;
   var _communicationEnd = true;
   var _communicationToken = null;
+  var _wentToBackground = false;
 
   const ROOM_ACTION_JOIN = 'join';
   const ROOM_CLIENT_MAX_SIZE = 2;
@@ -146,39 +147,60 @@
   }
 
   function handleBackgroundMode(params) {
-    document.hidden && Loader.getNotificationHelper().then(
-    function(NotificationHelper) {
-      Utils.getAppInfo().then(appInfo => {
-        var _ = navigator.mozL10n.get;
-        NotificationHelper.send({
-          raw: params.roomName
-        }, {
-          body: _('tapToReturn'),
-          icon: appInfo.icon,
-          tag: params.roomUrl
-        }).then((notification) => {
-          var onVisibilityChange = function() {
-            if (!document.hidden) {
+    if (document.hidden) {
+      _wentToBackground = true;
+      Loader.getNotificationHelper().then(
+      function(NotificationHelper) {
+        Utils.getAppInfo().then(appInfo => {
+          var _ = navigator.mozL10n.get;
+          NotificationHelper.send({
+            raw: params.roomName
+          }, {
+            body: _('tapToReturn'),
+            icon: appInfo.icon,
+            tag: params.roomUrl
+          }).then((notification) => {
+            var onVisibilityChange = function() {
+              if (!document.hidden) {
+                notification.close();
+              }
+            };
+            document.addEventListener('visibilitychange',
+                                      onVisibilityChange);
+            notification.onclose = function() {
+              document.removeEventListener('visibilitychange',
+                                           onVisibilityChange);
+              if (_wentToBackground){
+                  RoomsDB.get(currentToken).then(function (room){
+                    if (room.goBackground === undefined){
+                      room.goBackground = 1;
+                    } else {
+                      room.goBackground++;
+                    }
+                    RoomsDB.update(room).then(function() {
+                      debug && console.log("goBackground successfully updated");
+                    }, function () {
+                      console.error("could not update goBackground");
+                    });
+                  }, function () {
+                    console.error('error when retrieving room');
+                  });
+                  Telemetry.updateReport('backgroundMode');
+                }
+                _wentToBackground = false;
+              notification.onclose = notification.onclick = null;
+            };
+            notification.onclick = function() {
+              debug && console.log(
+                'Notification clicked for room: ' + params.roomUrl
+              );
+              appInfo.app.launch();
               notification.close();
-            }
-          };
-          document.addEventListener('visibilitychange',
-                                    onVisibilityChange);
-          notification.onclose = function() {
-            document.removeEventListener('visibilitychange',
-                                         onVisibilityChange);
-            notification.onclose = notification.onclick = null;
-          };
-          notification.onclick = function() {
-            debug && console.log(
-              'Notification clicked for room: ' + params.roomUrl
-            );
-            appInfo.app.launch();
-            notification.close();
-          };
+            };
+          });
         });
       });
-    });
+    }
   }
 
   function rate(callback) {
