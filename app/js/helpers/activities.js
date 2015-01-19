@@ -111,6 +111,10 @@
         return;
       }
 
+      // This must be called only when we're logged in, so it's safe to
+      // assume _isLogged to be true here
+      _isLogged = true;
+
       window.navigator.mozSetMessageHandler(
         'activity',
         _handleActivity
