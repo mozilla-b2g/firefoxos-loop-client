@@ -123,7 +123,11 @@
 
     CallLog.init(_identity);
     LoadingOverlay.hide();
-    Navigation.to('calllog-panel', 'left').then(_hideSplash);
+    Navigation.to('calllog-panel', 'left').then(function() {
+      _hideSplash;
+      // Start listening activities
+      Activities.init();
+    });
   }
 
   function _onlogin(event) {
@@ -211,9 +215,6 @@
         }
       });
       window.addEventListener('onloginerror', _onloginerror);
-
-      // Start listening activities
-      Activities.init();
 
       // Channels where I want to listen events from.
       var channels = [
