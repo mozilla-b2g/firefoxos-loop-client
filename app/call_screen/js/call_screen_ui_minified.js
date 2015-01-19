@@ -44,9 +44,9 @@
       });
 
       var subject = callParams.subject;
-      if (subject) {
+      if (subject && subject.trim().length > 0) {
         document.getElementById('subject').textContent =
-        document.querySelector('#call-bar .subject').textContent = subject;
+          document.querySelector('#call-bar .subject').textContent = subject;
         document.body.dataset.subject = true;
       }
 
