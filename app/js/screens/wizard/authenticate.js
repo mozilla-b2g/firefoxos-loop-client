@@ -1,7 +1,8 @@
 (function(exports) {
   'use strict';
 
-  var _fxaButton, _mobileIdButton, _wizardLogin, _termsOfService, _privacyNotice;
+  var _fxaButton, _mobileIdButton, _wizardLogin, _termsOfService, _privacyNotice,
+      _wizardPanel, _gotItButton;
 
   function _onButtonClick(id) {
     if (!navigator.onLine) {
@@ -26,20 +27,20 @@
 
   var Authenticate = {
     init: function a_init() {
-      if (!_fxaButton) {
-        _fxaButton = document.getElementById('authenticate-fxa-button');
+      if (_fxaButton) {
+        return;
       }
-
-      if (!_mobileIdButton) {
-        _mobileIdButton = document.getElementById('authenticate-msisdn-button');
-      }
-
-      if (!_wizardLogin) {
-        _wizardLogin = document.getElementById('wizard-login');
-      }
+      _fxaButton = document.getElementById('authenticate-fxa-button');
+      _mobileIdButton = document.getElementById('authenticate-msisdn-button');
+      _wizardLogin = document.getElementById('wizard-login');
+      _wizardPanel = document.getElementById('wizard-panel');
+      _gotItButton = document.getElementById('got-it-button');
 
       _fxaButton.addEventListener('click', _onFxaButtonClick);
       _mobileIdButton.addEventListener('click', _onMobileIdButtonClick);
+      _gotItButton.addEventListener('click', function() {
+        Navigation.to('calllog-panel', 'left').then(Settings.show);
+      });
 
       if (!_termsOfService) {
         _termsOfService = document.getElementById('terms-of-service');
@@ -58,6 +59,15 @@
           window.open(Config.pn_url);
         });
       }
+    },
+    show: function() {
+      Authenticate.init();
+      _wizardPanel.dataset.step = 6;
+      _wizardPanel.classList.add('login');
+    },
+    hide: function() {
+      Authenticate.init();
+      _wizardPanel.classList.remove('login');
     }
   };
 

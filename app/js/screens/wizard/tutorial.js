@@ -7,6 +7,7 @@
   var wizardWorld, wizardMainPins, wizardPins, wizardDottedLine, wizardLogin;
   var currentStep = 0, stepsLength;
   var viewportWidth;
+  var isTutorial = false;
   // Desplazamiento a aplicar
   var deltaX = 0;
   var referenceDelta = 0;
@@ -185,6 +186,11 @@
         wizardMainPins.classList.add('move');
       })
     }
+
+    if (currentStep === 6 && !isTutorial) {
+      Authenticate.show();
+    }
+
     wizardPanel.dataset.step = currentStep;
   }
 
@@ -230,6 +236,13 @@
       wizardTutorial.addEventListener('mousedown', _enableGestures);
 
       _initialized = true;
+    },
+    show: function(isTutorialParam) {
+      isTutorial = isTutorialParam;
+      Tutorial.init();
+      wizardPanel.dataset.step = 0;
+      currentStep = 0;
+      _updateProgress();
     }
   };
 

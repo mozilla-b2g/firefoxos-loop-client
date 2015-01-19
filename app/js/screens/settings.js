@@ -3,7 +3,8 @@
 
   var _settingsPanel, _closeSettingsButton, _logoutSettingsButton,
       _cleanCallsButton, _cleanRoomsButton, _videoDefaultSettings,
-      _commitHashTag, _cameraDefaultSettings, _loggedAs, _vibrateSettings;
+      _commitHashTag, _cameraDefaultSettings, _loggedAs, _vibrateSettings,
+      _tutorialButton;
 
   var _initialized = false;
 
@@ -114,8 +115,22 @@
         _cameraDefaultSettings = document.getElementById('camera-default-setting');
         _commitHashTag = document.getElementById('settings-commit-hash-tag');
         _vibrateSettings = document.getElementById('vibrate-setting');
+        _tutorialButton = document.getElementById('tutorial-button');
 
         // Add listeners just once
+        _tutorialButton.addEventListener(
+          'click',
+          function() {
+            Loader.getWizard().then(function(Wizard) {
+              Wizard.init(
+                true /*Boot from the first slide*/,
+                true /*Is a tutorial, no auth. is needed*/
+              );
+              Settings.hide(Navigation.to.bind(null, 'wizard-panel'));
+            });
+          }
+        )
+
         _cleanCallsButton.addEventListener(
           'click',
           function() {

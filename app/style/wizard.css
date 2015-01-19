@@ -738,6 +738,25 @@
   transition: all 0.4s ease-in 2.5s;
 }
 
+[data-step="6"].login #got-it-button {
+  display: none;
+}
+
+[data-step="6"] #authenticate-msisdn-button,
+[data-step="6"] #authenticate-fxa-button,
+[data-step="6"] #terms-of-service-and-privacy-notice {
+  display: none;
+}
+
+[data-step="6"].login #authenticate-msisdn-button,
+[data-step="6"].login #authenticate-fxa-button,
+[data-step="6"].login #terms-of-service-and-privacy-notice  {
+  display: block;
+}
+
+
+
+
 
 /*
  * Progress indicator
