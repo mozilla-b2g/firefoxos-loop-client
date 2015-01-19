@@ -16,7 +16,7 @@
   var debug = Config.debug;
   var SERVER_URL = Config.server_url;
   var CHANNEL = Config.channel;
-  var TIMEOUT = 15000;
+  var TIMEOUT = Config.request_timeout;
 
   /** HAWK credentials */
   var _hawkCredentials = null;
