@@ -12,6 +12,7 @@
   var _numberParticipants = 0;
   var _communicationEnd = true;
   var _communicationToken = null;
+  var _wentToBackground = false;
 
   const ROOM_ACTION_JOIN = 'join';
   const ROOM_CLIENT_MAX_SIZE = 2;
@@ -145,9 +146,10 @@
     });
   }
 
-  function handleBackgroundMode(params) {
+  function handleBackgroundMode(params, currentRoom) {
     document.hidden && Loader.getNotificationHelper().then(
     function(NotificationHelper) {
+      _wentToBackground = true;
       Utils.getAppInfo().then(appInfo => {
         var _ = navigator.mozL10n.get;
         NotificationHelper.send({
@@ -168,6 +170,19 @@
             document.removeEventListener('visibilitychange',
                                          onVisibilityChange);
             notification.onclose = notification.onclick = null;
+            if (_wentToBackground) {
+              currentRoom.backgroundMode = currentRoom.backgroundMode &&
+                                           currentRoom.backgroundMode + 1 || 1;
+              RoomsDB.update(currentRoom).then(function() {
+                debug &&
+                console.log('Field backgroundMode of the room successfully ' +
+                            'updated');
+              }, function() {
+                console.error('Field backgroundMode of the room ' +
+                              'unsuccessfully updated');
+              });
+            }
+            _wentToBackground = false;
           };
           notification.onclick = function() {
             debug && console.log(
@@ -312,7 +327,8 @@
               currentRoom = room;
               params.roomName = room.roomName;
               params.roomUrl = room.roomUrl;
-              backgroundModeHandler = handleBackgroundMode.bind(null, params);
+              backgroundModeHandler =
+                handleBackgroundMode.bind(null, params, currentRoom);
               document.addEventListener('visibilitychange',
                                         backgroundModeHandler);
               RoomUI.updateName(room.roomName);
