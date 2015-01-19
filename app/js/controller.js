@@ -124,7 +124,7 @@
     CallLog.init(_identity);
     LoadingOverlay.hide();
     Navigation.to('calllog-panel', 'left').then(function() {
-      _hideSplash;
+      _hideSplash();
       // Start listening activities
       Activities.init();
     });
