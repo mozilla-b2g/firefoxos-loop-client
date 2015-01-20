@@ -9,6 +9,8 @@
 
   const MAIL_SUBJECT = 'Firefox Hello';
 
+  const MAX_ROOM_NAME_CHARS_FOR_SMS = 10;
+
   var _ = navigator.mozL10n.get;
   const DEBUG = Config.debug;
 
@@ -16,7 +18,26 @@
     var body;
     switch(params.type) {
       case 'room':
-        body = params.url;
+        var messageParams = {
+          roomName: params.name,
+          roomURL: params.url,
+          serviceURL: Config.service_url
+        };
+
+        var messageID;
+        if (params.sharedBy === 'sms') {
+          messageID = 'shareRoomURLBySMS';
+          if (messageParams.roomName.length > MAX_ROOM_NAME_CHARS_FOR_SMS) {
+            var ellipsis = '...';
+            messageParams.roomName = messageParams.roomName.
+                    substring(0, MAX_ROOM_NAME_CHARS_FOR_SMS - ellipsis.length)
+                    + ellipsis;
+          }
+        } else {
+          messageID = 'shareRoomURLByEmail';
+        }
+
+        body = Branding.getTranslation(messageID, messageParams);
         break;
       case 'call':
         body = _('shareMessage') + ' ' + params.url;
@@ -173,6 +194,7 @@
 
     useSMS: function(params, identity, onsuccess, onerror) {
       setTimeout(function() {
+        params.sharedBy = 'sms';
         var text = _generateText(params);
         var activity = new MozActivity({
           name: 'new',
@@ -190,6 +212,7 @@
 
     useEmail: function(params, identity, onsuccess, onerror) {
       setTimeout(function() {
+        params.sharedBy = 'email';
         var text = _generateText(params);
         var activity = new MozActivity({
           name: 'new',
@@ -197,7 +220,7 @@
             type: 'mail',
             url: 'mailto:' + identity +
                   '?subject=' + MAIL_SUBJECT +
-                  '&body= '+ text
+                  '&body= '+ encodeURIComponent(text)
           }
         });
         activity.onsuccess = onsuccess;

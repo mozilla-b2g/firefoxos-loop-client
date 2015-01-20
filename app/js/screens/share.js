@@ -53,6 +53,7 @@
                 var method = contact ? 'toContact' : 'toIdentity';
                 var params = {
                   type: 'room',
+                  name: room.roomName,
                   url: room.roomUrl,
                   identity: identity,
                   contact: contact

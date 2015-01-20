@@ -34,7 +34,8 @@ Config = {
   },
   maxVersionCheckAttempts: 3, // Max number of retries checking version.
   tos_url: 'https://www.mozilla.org/about/legal/terms/firefox-hello/',
-  pn_url: 'https://www.mozilla.org/privacy/firefox-hello/'
+  pn_url: 'https://www.mozilla.org/privacy/firefox-hello/',
+  service_url: 'https://www.mozilla.org/firefox/hello/'
 };
 
 window.OTProperties = {
