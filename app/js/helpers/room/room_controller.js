@@ -54,6 +54,11 @@
            (connectionIds[roomToken].indexOf(connectionId) >= 0);
   }
 
+  function playEndedTone() {
+    TonePlayerHelper.init('telephony');
+    TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);
+  }
+
   function onHeadPhonesChange() {
     RoomUI.headphonesPresent = RoomController.headphonesPresent;
   }
@@ -368,6 +373,7 @@
                   refreshMembership(params.token, result.expires);
                 },
                 left: function(event) {
+                  playEndedTone();
                   // We take time here because we trying to set the count
                   // as exact than we can
                   var current = new Date().getTime();
@@ -415,16 +421,12 @@
                   debug && console.log('Room participant leaving');
                 },
                 participantLeft: function(event) {
+                  playEndedTone();
                   // We take time here because we trying to set the count
                   // as exact than we can
                   var current = new Date().getTime();
                   debug && console.log('Room participant left');
                   setNumberParticipants(_numberParticipants - 1);
-                  if (currentRoom &&
-                      (currentRoom.roomOwner === params.displayName)) {
-                    TonePlayerHelper.init('telephony');
-                    TonePlayerHelper.playEnded(RoomUI.isSpeakerEnabled);
-                  }
                   RoomUI.setWaiting();
                   _logEventCommunication (current);
                 },
