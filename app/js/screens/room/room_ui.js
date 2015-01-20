@@ -310,11 +310,11 @@
       // rid of it.
 
       var pollingInterval, timeoutShield;
+
+      appendTokboxTargets();
+
       var remoteVideoElement = remoteVideo.querySelector('video');
 
-      if (!remoteVideoElement) {
-        return;
-      }
       function setCallStatus() {
         window.clearInterval(pollingInterval);
         window.clearTimeout(timeoutShield);
