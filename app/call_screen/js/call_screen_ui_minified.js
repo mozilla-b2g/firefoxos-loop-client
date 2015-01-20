@@ -118,6 +118,11 @@
               _title.textContent = _callBarContactName.textContent =
                                    ContactsHelper.prettyPrimaryInfo(contact);
 
+              if (_remoteImage.style.backgroundImage) {
+                // The background image is already painted
+                return;
+              }
+
               if (contact && contact.photo && contact.photo[0]) {
                 var url = URL.createObjectURL(contact.photo[0]);
                 var urlString = 'url(' + url + ')';
