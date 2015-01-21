@@ -56,7 +56,9 @@
 
     var token = _getToken(params.url);
     RoomsDB.get(token).then(function(room) {
-      room[field] = room[field] && room[field] + 1 || 1;
+      var _field = room.usedDefaultName && field ||
+                   (field + Telemetry.suffixSubject);
+      room[_field] = room[_field] && room[_field] + 1 || 1;
       RoomsDB.update([room]).then(function() {
         DEBUG && console.log('Registered notification telemetry field:' +
                              field);

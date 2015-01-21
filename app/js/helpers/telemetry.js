@@ -83,9 +83,11 @@
     usedCamera: [],
     defaultRoomCamera: [],
     roomCamera: [],
+    receivedRooms: 0,
     smsNotification: {},
+    smsNotificationWithSubject: {},
     emailNotification: {},
-    receivedRooms: 0
+    emailNotificationWithSubject: {}
   };
 
   function _getReportAttributes() {
@@ -157,6 +159,8 @@
 
   Telemetry.prototype = {
     __proto__: Metrics.prototype,
+
+    suffixSubject: 'WithSubject',
 
     set updateObjectFields(callback) {
       _updateObjectFields = callback;
