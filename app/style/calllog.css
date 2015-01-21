@@ -196,12 +196,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
   font-style: italic;
 }
 
-#rooms-section-entries li:not([data-shared]):before {
-  background-position: 0 -4.9rem;
-  height: 2rem;
-}
-
-#rooms-section-entries li[data-shared][data-participants="0"]:before {
+#rooms-section-entries li[data-participants="0"]:before {
   background-position: 0 -3.3rem;
 }
 
