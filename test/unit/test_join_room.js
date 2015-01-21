@@ -1,5 +1,6 @@
 'use strict';
 
+require('unit/utils/mock_telemetry.js');
 require('js/screens/room/join_room.js');
 
 suite('Tests JoinRoom', function() {
