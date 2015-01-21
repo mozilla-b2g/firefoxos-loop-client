@@ -109,8 +109,12 @@
   }
 
   function _delete() {
-    LazyLoader.load('js/screens/delete_room.js', () => {
-      RoomDelete.show(_token, _isOwner).then(
+    Loader.getRoomDelete().then(RoomDelete => {
+      var param = {
+        token: _token,
+        isOwner: _isOwner
+      };
+      RoomDelete.show(param).then(
         function() {
           _onBack();
         },

@@ -157,56 +157,11 @@
           }.bind(this)
         );
 
-        _cleanRoomsButton.addEventListener(
-          'click',
-           function() {
-            var options = new OptionMenu({
-              type: 'action',
-              items: [
-                {
-                  name: 'Clean just revoked URLs',
-                  l10nId: 'cleanJustRevoked',
-                  method: function() {
-                    CallLog.cleanRevokedUrls();
-                    Settings.hide();
-                  },
-                  params: []
-                },
-                {
-                  name: 'Clean all',
-                  l10nId: 'cleanAll',
-                  method: function() {
-                    var doubleConfirmation = new OptionMenu({
-                      section: _('deleteAllUrlsConfirmation'),
-                      type: 'confirm',
-                      items: [
-                        {
-                          name: 'Cancel',
-                          l10nId: 'cancel'
-                        },
-                        {
-                          name: 'Delete',
-                          class: 'danger',
-                          l10nId: 'delete',
-                          method: function() {
-                            CallLog.cleanUrls();
-                            Settings.hide();
-                          },
-                          params: []
-                        }
-                      ]
-                    });
-                  },
-                  params: []
-                },
-                {
-                  name: 'Cancel',
-                  l10nId: 'cancel'
-                }
-              ]
-            });
-          }.bind(this)
-        );
+        _cleanRoomsButton.addEventListener('click', function() {
+          Loader.getRoomDelete().then(RoomDelete => {
+            RoomDelete.show().then(Settings.hide);
+          });
+        });
 
         _closeSettingsButton.addEventListener(
           'click',
@@ -330,8 +285,7 @@
      */
     onShown: function s_onShown() {
       _cleanCallsButton.disabled = CallLog.callsSectionEmpty;
-      // TODO https://bugzilla.mozilla.org/show_bug.cgi?id=1104764
-      _cleanRoomsButton.disabled = true;
+      _cleanRoomsButton.disabled = CallLog.roomsSectionEmpty;
     },
 
     hide: function s_hide(callback) {

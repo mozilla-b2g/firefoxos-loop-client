@@ -84,9 +84,12 @@
       name: 'Delete',
       l10nId: 'delete',
       method: function(room) {
-        LazyLoader.load('js/screens/delete_room.js', () => {
-          RoomDelete.show(room.roomToken,
-                          room.roomOwner === Controller.identity).catch(e => {
+        Loader.getRoomDelete().then(RoomDelete => {
+          var param = {
+            token: room.roomToken,
+            isOwner: room.roomOwner === Controller.identity
+          };
+          RoomDelete.show(param).catch(e => {
             if (e && e !== 'NO_CONNECTION') {
               // TODO Add error handling about this
               // https://bugzilla.mozilla.org/show_bug.cgi?id=1102847

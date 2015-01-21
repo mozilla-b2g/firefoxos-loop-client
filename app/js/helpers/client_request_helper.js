@@ -154,7 +154,7 @@
       }
 
       if (req.status !== 201 && req.status !== 200 && req.status !== 204 &&
-          req.status !== 302) {
+          req.status !== 207 && req.status !== 302) {
         _callback(onerror, [req.response]);
         return;
       }
@@ -430,10 +430,13 @@
       }, onsuccess, onerror);
     },
 
-    deleteRoom: function deleteRoom(token, onsuccess, onerror) {
+    deleteRooms: function deleteRooms(tokens, onsuccess, onerror) {
       _request({
-        method: 'DELETE',
-        url: SERVER_URL + '/rooms/' + token,
+        method: 'PATCH',
+        url: SERVER_URL + '/rooms',
+        body: {
+          deleteRoomTokens: tokens
+        },
         credentials: _hawkCredentials
       }, onsuccess, onerror);
     },
