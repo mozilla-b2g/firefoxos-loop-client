@@ -112,8 +112,11 @@
         'contactPhoto',
         'localCtime',
         'user',
+        'usedDefaultName',
         'smsNotification',
-        'emailNotification'
+        'smsNotificationWithSubject',
+        'emailNotification',
+        'emailNotificationWithSubject'
       ]},
 
     'roomEvents': {

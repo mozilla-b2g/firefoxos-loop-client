@@ -137,9 +137,11 @@
       return Rooms.get(token);
     }).then((room) => {
       room.roomToken = token;
+      room.usedDefaultName = (roomName === roomNameByDefault ||
+                              !roomNameInput.value.trim().length);
       Controller.onRoomCreated(room, userInteraction);
-      (roomName === roomNameByDefault || !roomNameInput.value.trim().length) &&
-                   asyncStorage.setItem(ROOM_NAME_COUNTER_KEY, ++roomNumber);
+      room.usedDefaultName && asyncStorage.setItem(ROOM_NAME_COUNTER_KEY,
+                                                   ++roomNumber);
       userInteraction && hide();
       return room;
     }).catch((error) => {
