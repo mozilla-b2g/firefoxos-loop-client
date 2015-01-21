@@ -140,6 +140,7 @@
       Share.pickContact(
         {
           type: 'room',
+          name: _room.roomName,
           url: _room.roomUrl
         },
         function onShared(contact, identity) {
