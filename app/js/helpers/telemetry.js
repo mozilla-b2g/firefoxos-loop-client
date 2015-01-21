@@ -87,7 +87,8 @@
     smsNotification: {},
     smsNotificationWithSubject: {},
     emailNotification: {},
-    emailNotificationWithSubject: {}
+    emailNotificationWithSubject: {},
+    timesRoomRenamed: {}
   };
 
   function _getReportAttributes() {
