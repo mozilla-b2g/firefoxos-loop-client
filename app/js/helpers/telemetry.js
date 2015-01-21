@@ -84,7 +84,8 @@
     defaultRoomCamera: [],
     roomCamera: [],
     smsNotification: {},
-    emailNotification: {}
+    emailNotification: {},
+    receivedRooms: 0
   };
 
   function _getReportAttributes() {

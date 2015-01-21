@@ -100,7 +100,7 @@
           return;
         }
         Controller.joinRoom(activityParams.token);
-        // TODO: Perhaps some Telemetry here
+        Telemetry.updateReport('receivedRooms');
         break;
     }
   }
