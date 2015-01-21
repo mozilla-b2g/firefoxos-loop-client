@@ -240,9 +240,9 @@
     show: function(isTutorialParam) {
       isTutorial = isTutorialParam;
       Tutorial.init();
-      wizardPanel.dataset.step = 0;
       currentStep = 0;
       _updateProgress();
+      wizardTutorial.style.transform = 'translateX(0%)';
     }
   };
 
