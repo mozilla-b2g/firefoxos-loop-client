@@ -159,7 +159,10 @@
 
         _cleanRoomsButton.addEventListener('click', function() {
           Loader.getRoomDelete().then(RoomDelete => {
-            RoomDelete.show().then(Settings.hide);
+            RoomDelete.show().then(function() {
+              Settings.hide();
+              CallLog.showRooms();
+            });
           });
         });
 
@@ -199,7 +202,7 @@
 
       // Set the commit based on the version
       var id = Version.id;
-      if (_commitHashTag && id) {
+      if (_commitHashTag && id !== 'unknown') {
         _commitHashTag.removeAttribute('data-l10n-id');
         _commitHashTag.textContent = id;
       }
