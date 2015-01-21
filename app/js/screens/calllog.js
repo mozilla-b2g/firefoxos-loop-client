@@ -82,7 +82,7 @@
     // Delete a room
     items.push({
       name: 'Delete',
-      l10nId: 'delete',
+      l10nId: 'deleteRoom',
       method: function(room) {
         Loader.getRoomDelete().then(RoomDelete => {
           var param = {
