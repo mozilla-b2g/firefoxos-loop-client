@@ -120,7 +120,9 @@
       });
     },
     getRoomCreate: function() {
-      if (window.RoomCreate) {
+      // RoomCreate could have been loaded by means of "getRoomCreateObj" method
+      // but we need to load the panel as well.
+      if (window.RoomCreate && window.RoomCreate.contentLoaded) {
         return Promise.resolve(RoomCreate);
       }
       return new Promise((resolve, reject) => {

@@ -137,8 +137,11 @@
       return Rooms.get(token);
     }).then((room) => {
       room.roomToken = token;
-      room.usedDefaultName = (roomName === roomNameByDefault ||
-                              !roomNameInput.value.trim().length);
+      if (userInteraction) {
+        room.usedDefaultName = !roomNameInput.value.trim().length;
+      } else {
+        room.usedDefaultName = roomName === roomNameByDefault;
+      }
       Controller.onRoomCreated(room, userInteraction);
       room.usedDefaultName && asyncStorage.setItem(ROOM_NAME_COUNTER_KEY,
                                                    ++roomNumber);
@@ -240,6 +243,10 @@
       return initRoomName().then(() => {
         return newRoom(subject || roomNameByDefault);
       });
+    },
+
+    get contentLoaded() {
+      return document.getElementById('new-room');
     }
   };;
 
