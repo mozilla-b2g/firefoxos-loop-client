@@ -39,10 +39,9 @@
   var _acm = navigator.mozAudioChannelManager;
   var _usedCamera = 'none';
   var _codec = {};
+  var _timerIDConversations = null;
 
   const TIMEOUT_SHIELD = 5000;
-  const MEAN_ELEMENTS = 16;
-  const TIME_INTERVAL_SECONDS = 3;
   const POLLING_INTERVAL_MILISECONDS = 100;
 
   /**
@@ -441,29 +440,7 @@
               }, POLLING_INTERVAL_MILISECONDS);
 
               if (_perfDebug) {
-                var meanFPS = 0;
-                var videoWidth = 640;
-                var videoHeight = 480;
-                var previousMozFrames = 0;
-
-                if (remoteVideoElement) {
-                  window.setInterval(function () {
-                    var fps = (remoteVideoElement.mozPaintedFrames - previousMozFrames) / TIME_INTERVAL_SECONDS;
-                    // mean of the last 16 fps
-                    meanFPS = (meanFPS * (MEAN_ELEMENTS - 1) + fps) / MEAN_ELEMENTS;
-                    debug && console.log('fps = ' + meanFPS);
-
-                    // same with video width and height
-                    videoWidth = (videoWidth * (MEAN_ELEMENTS - 1) + remoteVideoElement.videoWidth) / MEAN_ELEMENTS;
-                    videoHeight = (videoHeight * (MEAN_ELEMENTS - 1) + remoteVideoElement.videoHeight) / MEAN_ELEMENTS;
-                    debug && console.log(
-                      'videoWidth = ' + remoteVideoElement.videoWidth + ', ' +
-                      'videoHeight = ' + remoteVideoElement.videoHeight
-                    );
-
-                    previousMozFrames = remoteVideoElement.mozPaintedFrames;
-                  }, TIME_INTERVAL_SECONDS * 1000);
-                }
+                _timerIDConversations = CodecHelper.getVideoPerfInfo(remoteVideoElement);
               }
 
             }
@@ -679,6 +656,10 @@
 
       if (duration > 0) {
         connected = true;
+      }
+      if (_timerIDConversations) {
+        clearInterval(_timerIDConversations);
+        _timerIDConversations = null;
       }
 
       _codec = CodecHelper.getAVCodecNames(_publisher);

@@ -2,9 +2,13 @@
   'use strict';
 
   var debug = Config.debug;
+  var perfDebug = Config.performanceLog.enabled;
+
   var session = null, publisher = null, subscriber = null, subscribers = [];
 
-  var TARGET_ELEMENT_PROPERTIES = {
+  var timerIDRooms = null;
+
+  const TARGET_ELEMENT_PROPERTIES = {
     audioVolume: 100,
     width: "100%",
     height: "100%",
@@ -163,6 +167,14 @@
             );
             subscriber.on({
               loaded: function() {
+                if (perfDebug) {
+                  var remoteVideoContainer =
+                    document.getElementById(params.remoteTargetElement);
+                  var remoteVideoElement =
+                    remoteVideoContainer.querySelector('video');
+                  timerIDRooms =
+                    CodecHelper.getVideoPerfInfo(remoteVideoElement);
+                }
                 // Fire an OT.RoomManager.EventNames.PARTICIPANT_JOINED event.
                 self.dispatchEvent(
                   new OT.Event(OT.RoomManager.EventNames.PARTICIPANT_JOINED)
@@ -193,6 +205,10 @@
     },
 
     leave: function() {
+      if (timerIDRooms) {
+        clearInterval(timerIDRooms);
+        timerIDRooms = null;
+      }
       var codec = CodecHelper.getAVCodecNames(publisher);
       debug && console.log('Codecs Used video:' + codec.video +
         ' audio:'+ codec.audio);
@@ -207,6 +223,10 @@
     },
 
     interrupt: function() {
+      if (timerIDRooms) {
+        clearInterval(timerIDRooms);
+        timerIDRooms = null;
+      }
       var codec = CodecHelper.getAVCodecNames(publisher);
       debug && console.log('Codecs Used video:' + codec.video +
         ' audio:'+ codec.audio);
