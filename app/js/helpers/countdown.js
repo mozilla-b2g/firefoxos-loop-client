@@ -3,7 +3,9 @@
 
   var _countdownElements;
   var _counter = 0;
-  var _counterTimer;
+  var _counterTimer = null;
+
+  var debug = Config.debug;
 
   function _beautify(value) {
     if (value < 10) {
@@ -12,9 +14,18 @@
       return value;
     }
   }
-  
+
   function _reset() {
     _counter = 0;
+  }
+
+  function _paint(minutes, seconds) {
+    var len = _countdownElements.length;
+    minutes = _beautify(minutes);
+    seconds = _beautify(seconds);
+    for (var i = 0; i < len; i++) {
+      _countdownElements[i].textContent = minutes + ':' + seconds;
+    }
   }
 
   var Countdown = {
@@ -24,18 +35,20 @@
       return this;
     },
     start: function(element) {
+      if (_counterTimer !== null) {
+        debug && console.log('Warning, a countdown timer is running!');
+        return;
+      }
       _counterTimer = setInterval(function() {
         ++_counter;
-        var minutes = _beautify(Math.floor(_counter/60));
-        var seconds = _beautify(Math.floor(_counter%60));
-        var len = _countdownElements.length;
-        for (var i = 0; i < len; i++) {
-          _countdownElements[i].textContent = minutes + ':' + seconds;
-        }
+        var minutes = Math.floor(_counter/60);
+        var seconds = Math.floor(_counter%60);
+        _paint(minutes, seconds);
       }, 1000);
     },
     stop: function() {
       clearInterval(_counterTimer);
+      _counterTimer = null;
       return _counter;
     },
     reset: function() {
