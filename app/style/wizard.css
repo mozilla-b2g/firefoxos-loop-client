@@ -517,6 +517,7 @@
 }
 
 #wizard-login .gaia-footer p {
+  word-break: keep-all;
   text-align: center;
   color: #fff;
   font-size: 1.3rem;
