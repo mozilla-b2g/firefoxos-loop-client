@@ -135,7 +135,7 @@
           'click',
           function() {
             var options = new OptionMenu({
-              section: _('deleteAllConfirmation'),
+              section: _('deleteAllConfirmation1'),
               type: 'confirm',
               items: [
                 {

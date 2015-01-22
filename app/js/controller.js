@@ -686,7 +686,7 @@
             'js/screens/error_screen.js'
           ], function() {
             var _ = navigator.mozL10n.get;
-            ErrorScreen.show(_('genericServerError'), true);
+            ErrorScreen.show(_('genericServerError1'), true);
           });
         }
       );
@@ -701,6 +701,9 @@
       switch(reason) {
         case 'gum':
           alert(Branding.getTranslation('cameraPermission'));
+          break;
+        case 'genericServerError':
+          alert(_('genericServerError1'));
           break;
         default:
           alert(_(reason));

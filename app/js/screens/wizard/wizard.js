@@ -9,7 +9,7 @@
   function localize() {
     termsOfServiceElement.innerHTML = _('termsOfServiceAndPrivacyNotice');
     talkToAnyone.innerHTML = _('talkToAnyone');
-    anywhereInTheWorld.innerHTML = _('anywhereInTheWorld');
+    anywhereInTheWorld.innerHTML = _('anywhereInTheWorld1');
     startAConversation.innerHTML = _('startAConversation');
     createANewRoom.innerHTML = _('createANewRoom');
     shareItWith.innerHTML = _('shareItWith');

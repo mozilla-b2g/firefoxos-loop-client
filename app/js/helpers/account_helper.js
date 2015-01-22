@@ -99,7 +99,7 @@
         'js/screens/error_screen.js'
       ], function() {
         var _ = navigator.mozL10n.get;
-        ErrorScreen.show(_('genericServerError'), true);
+        ErrorScreen.show(_('genericServerError1'), true);
         Controller.logout();
       });
       return;
@@ -185,7 +185,7 @@
           'js/screens/error_screen.js'
         ], function() {
           var _ = navigator.mozL10n.get;
-          var message = _('genericServerError');
+          var message = _('genericServerError1');
           if (error && (error.code === 401) && (error.errno === 110)) {
             console.error('Unexpected authentication error while signing up');
             var unpackedAssertion = Utils.unpackAssertion(assertion);

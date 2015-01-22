@@ -414,7 +414,7 @@
           document.body.dataset.callStatus = 'ended';
           break;
         case 'genericServerError':
-          updateStatusInfo('genericServerError');
+          updateStatusInfo('genericServerError1');
           document.body.dataset.callStatus = 'ended';
           break;
       }

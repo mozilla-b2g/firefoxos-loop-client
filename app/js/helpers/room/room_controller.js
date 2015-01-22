@@ -66,7 +66,7 @@
   }
 
   function showError(errorMessage) {
-    errorMessage = errorMessage || 'genericServerError';
+    errorMessage = errorMessage || 'genericServerError1';
     Loader.getErrorScreen().then(ErrorScreen => {
       var _ = navigator.mozL10n.get;
       ErrorScreen.show(_(errorMessage));
