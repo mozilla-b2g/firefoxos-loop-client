@@ -117,7 +117,8 @@
         'smsNotificationWithSubject',
         'emailNotification',
         'emailNotificationWithSubject',
-        'timesRoomRenamed'
+        'timesRoomRenamed',
+        'backgroundMode'
       ]},
 
     'roomEvents': {

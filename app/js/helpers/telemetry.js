@@ -88,7 +88,8 @@
     smsNotificationWithSubject: {},
     emailNotification: {},
     emailNotificationWithSubject: {},
-    timesRoomRenamed: {}
+    timesRoomRenamed: {},
+    backgroundMode: {}
   };
 
   function _getReportAttributes() {
