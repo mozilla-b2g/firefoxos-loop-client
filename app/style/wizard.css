@@ -499,6 +499,7 @@
   opacity: 0;
   transition-delay: 0;
   pointer-events: none;
+  z-index: 11;
 }
 
 #wizard-login .gaia-footer {
