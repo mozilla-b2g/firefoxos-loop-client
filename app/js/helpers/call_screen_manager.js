@@ -245,6 +245,8 @@
   };
 
   function _launchAttention(type, params, incomingCall, contact) {
+    var isOutgoing = type === 'outgoing';
+    isOutgoing && LoadingOverlay.show(navigator.mozL10n.get('calling'));
     _generateAttentionParams(type, params, function(attentionParams) {
       AudioCompetingHelper.leaveCompetition();
       AudioCompetingHelper.destroy();
@@ -264,7 +266,7 @@
       _onAttentionLoaded(
         attention,
         function onLoaded() {
-
+          isOutgoing && LoadingOverlay.hide();
           function _listenToCallScreenMessages() {
             window.addEventListener(
               'message',
