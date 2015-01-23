@@ -329,6 +329,7 @@
               debug &&
                 console.log('Error while joining room. Some params missing');
 
+              removeHeadPhonesChangeHandler();
               RoomUI.hide();
               Rooms.leave(params.token);
               showError();
@@ -444,6 +445,27 @@
                   setNumberParticipants(_numberParticipants - 1);
                   RoomUI.setWaiting();
                   _logEventCommunication (current);
+                },
+                interrupt: function(event) {
+                  debug && console.log('Room chat interrupted.');
+                  window.clearTimeout(refreshTimeOut);
+                  Rooms.leave(currentToken);
+                  isConnected = false;
+                  currentToken = null;
+                  document.removeEventListener('visibilitychange',
+                                               backgroundModeHandler);
+                  removeHeadPhonesChangeHandler();
+
+                  if (document.hidden) {
+                    window.addEventListener('visibilitychange', function onVisibilityChange() {
+                      window.removeEventListener('visibilitychange', onVisibilityChange);
+                      RoomUI.hide();
+                      showError();
+                    });
+                  } else {
+                    RoomUI.hide();
+                    showError();
+                  }
                 },
                 error: function(event) {
                   debug && console.log('Error while joining room');
