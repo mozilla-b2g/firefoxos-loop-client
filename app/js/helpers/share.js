@@ -222,7 +222,7 @@
             type: 'mail',
             url: 'mailto:' + identity +
                   '?subject=' + MAIL_SUBJECT +
-                  '&body= '+ encodeURIComponent(text)
+                  '&body='+ encodeURIComponent(text)
           }
         });
         activity.onsuccess = onsuccess;
