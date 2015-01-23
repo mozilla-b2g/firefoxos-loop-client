@@ -65,14 +65,17 @@
   display: none;
   position: absolute;
   z-index: 100;
-  width: 100%;
+  width: calc(100% - 1rem);
   height: 9rem;
-  line-height: 9rem;
   text-align: center;
   top: calc(50% - 7.5rem);
   color: white;
   font-size: 1.9rem;
   background: linear-gradient(#5bc0a4, #00a9dc);
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  padding: 0 0.5rem;
 }
 
 /*
@@ -387,7 +390,7 @@
 }*/
 
 #room-ui[data-status="waiting"][data-participants="1"] #first-one-label {
-  display: block;
+  display: flex;
 }
 
 
