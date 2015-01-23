@@ -29,6 +29,19 @@
   // Connected users connectionId per room
   var connectionIds = {};
 
+  function _updateRoomAttribute(token, attribute) {
+    RoomsDB.get(token).then(function(room) {
+      room[attribute] = room[attribute] && room[attribute] + 1 || 1;
+      RoomsDB.update(room).then(function() {
+        debug && console.log(attribute + ' successfully set');
+      }, function() {
+        console.error('Error setting ' + attribute + ' field of the room');
+      });
+    }, function() {
+      console.error('Error retrieving room from RoomsDB');
+    });
+  }
+
   function addConnectionId(roomToken, connectionId) {
     debug && console.log("RoomConnections: Adding " + connectionId +
                          " to room " + roomToken);
@@ -353,6 +366,7 @@
                                     token: currentToken });
                   });
                 });
+                _updateRoomAttribute(currentToken, 'numberTimesIJoined');
               }
             });
 
@@ -405,6 +419,7 @@
                     }
                   });
                   // The communication has started exactly in this moment
+                  _updateRoomAttribute(currentToken, 'numberEstablishedConnections');
                   _initCommunicationEvent();
                   TonePlayerHelper.init('telephony');
                   TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);

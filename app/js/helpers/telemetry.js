@@ -90,7 +90,9 @@
     emailNotification: {},
     emailNotificationWithSubject: {},
     timesRoomRenamed: {},
-    backgroundMode: {}
+    backgroundMode: {},
+    numberTimesIJoined: {},
+    numberEstablishedConnections: {}
   };
 
   function _getReportAttributes() {
