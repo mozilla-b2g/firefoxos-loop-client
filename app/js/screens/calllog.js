@@ -292,18 +292,7 @@
           section === 'calls' ? 'true' : 'false');
     roomsTabSelector.setAttribute('aria-selected',
           section === 'rooms' ? 'true' : 'false');
-    // Calculate the translation needed
-    var translation = 0;
-    switch(section) {
-      case 'rooms':
-        translation = '0';
-        break;
-      case 'calls':
-        translation = '-50%';
-        break;
-    }
-    // Move the panel in order to show the right section
-    calllogSectionsContainer.style.transform = 'translateX(' + translation + ')';
+    calllogSectionsContainer.dataset.section = section;
   }
 
 

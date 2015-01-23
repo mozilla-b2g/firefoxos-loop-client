@@ -18,12 +18,17 @@
 .calllog-sections-container {
   width: 200%;
   overflow: hidden;
-  transition: all .2s ease-in-out;
 }
 
 .calllog-section {
-  width: 50%;
+  width: 100%;
   overflow: scroll;
+  transition: transform .2s ease-in-out;
+  transform: translateX(0);
+}
+
+.calllog-sections-container[data-section="calls"] .calllog-section {
+  transform: translateX(-100%);
 }
 
 .section-empty {
