@@ -22,6 +22,23 @@
     frontCamera: false
   };
 
+  function onMozInterrupBegin(roomManager) {
+    debug && console.log('onmozinterrupbegin event fired so handling interruption');
+    roomManager.interrupt();
+  }
+
+  function startHandlingGSMInterruptions(roomManager) {
+    var handler = onMozInterrupBegin.bind(null, roomManager);
+    AudioCompetingHelper.init();
+    AudioCompetingHelper.addListener('mozinterruptbegin', handler);
+    AudioCompetingHelper.compete();
+  }
+
+  function removeGSMInterruptionHandler() {
+    AudioCompetingHelper.leaveCompetition();
+    AudioCompetingHelper.destroy();
+  }
+
   function disconnectSession() {
     if (session) {
       session.off();
@@ -106,6 +123,7 @@
                   self.dispatchEvent(
                       new OT.Event(OT.RoomManager.EventNames.JOINED)
                   );
+                  startHandlingGSMInterruptions(self);
                 }
             });
           },
@@ -178,8 +196,18 @@
       disconnectSession();
       publisher = subscriber = null;
       subscribers = null;
+      removeGSMInterruptionHandler();
       // Fire an OT.RoomManager.EventNames.LEFT event.
       this.dispatchEvent(new OT.Event(OT.RoomManager.EventNames.LEFT));
+    },
+
+    interrupt: function() {
+      disconnectSession();
+      publisher = subscriber = null;
+      subscribers = null;
+      removeGSMInterruptionHandler();
+      // Fire an OT.RoomManager.EventNames.INTERRUPT event.
+      this.dispatchEvent(new OT.Event(OT.RoomManager.EventNames.INTERRUPT));
     },
 
     publishAudio: function(value) {
@@ -239,7 +267,8 @@
     PARTICIPANT_VIDEO_DELETED: 'participantVideoDeleted',
     PARTICIPANT_VIDEO_ADDED: 'participantVideoAdded',
     LEFT: 'left',
-    ERROR: 'error'
+    ERROR: 'error',
+    INTERRUPT: 'interrupt'
   };
 
   OT.ErrorEvent = function(type, code, message) {
