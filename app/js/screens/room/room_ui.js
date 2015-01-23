@@ -296,7 +296,7 @@
       panel.dataset.remoteVideo = false;
       stopRotationHandler();
 
-      var guestText = _('guest');
+      var guestText = _('guestTitle');
         roomAvatar.textContent = guestText[0];
         participantName.textContent = guestText;
     },

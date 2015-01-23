@@ -219,7 +219,9 @@
      */
     getParticipantName: function(participant) {
       if (!participant.account) {
-        return Promise.resolve(participant.displayName);
+        var name = participant.displayName;
+        return Promise.resolve((!name || (name === 'Guest')) ?
+          _('guestTitle') : name);
       }
 
       return new Promise(resolve => {

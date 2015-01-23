@@ -246,7 +246,7 @@
     },
 
     get contentLoaded() {
-      return document.getElementById('new-room');
+      return document.getElementById('save-room-action');
     }
   };;
 
