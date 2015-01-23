@@ -84,6 +84,7 @@
     defaultRoomCamera: [],
     roomCamera: [],
     receivedRooms: 0,
+    fteLaunch: 0,
     smsNotification: {},
     smsNotificationWithSubject: {},
     emailNotification: {},
