@@ -126,7 +126,11 @@
                 true /*Boot from the first slide*/,
                 true /*Is a tutorial, no auth. is needed*/
               );
-              Settings.hide(Navigation.to.bind(null, 'wizard-panel'));
+              Settings.hide(function() {
+                Navigation.to('wizard-panel').then(
+                  () => Telemetry.updateReport('fteLaunch')
+                );
+              });
             });
           }
         )
