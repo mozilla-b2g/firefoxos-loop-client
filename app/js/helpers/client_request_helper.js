@@ -279,10 +279,10 @@
       );
     },
 
-    getCallUrl: function getCallUrl(token, onsuccess, onerror) {
+    getCallUrl: function getCallUrl(params, onsuccess, onerror) {
       _request({
         method: 'GET',
-        url: SERVER_URL + '/calls/' + token
+        url: SERVER_URL + '/calls/' + params.token
       }, onsuccess, onerror);
     },
 
