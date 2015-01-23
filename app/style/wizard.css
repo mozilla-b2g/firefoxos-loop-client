@@ -502,6 +502,11 @@
   z-index: 11;
 }
 
+#wizard-login * {
+  -moz-user-select: none !important;
+  user-select: none !important;
+}
+
 #wizard-login .gaia-footer {
   background: none;
   border: none;
