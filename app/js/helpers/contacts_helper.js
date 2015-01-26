@@ -218,22 +218,22 @@
      * an account and display name.
      */
     getParticipantName: function(participant) {
+      var name = participant.displayName;
+      name = (!name || (name === 'Guest')) ? _('guestTitle') : name;
       if (!participant.account) {
-        var name = participant.displayName;
-        return Promise.resolve((!name || (name === 'Guest')) ?
-          _('guestTitle') : name);
+        return Promise.resolve(name);
       }
 
       return new Promise(resolve => {
         _findByIdentity(participant.account, result => {
           var contacts = result.contacts;
           if (!Array.isArray(contacts) || contacts.length === 0) {
-            resolve(participant.displayName);
+            resolve(name);
           } else {
             resolve(getPrimaryInfo(contacts[0]));
           }
         }, error => {
-          resolve(participant.displayName);
+          resolve(name);
         });
       });
     },
