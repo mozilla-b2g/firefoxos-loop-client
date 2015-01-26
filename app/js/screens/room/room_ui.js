@@ -346,28 +346,13 @@
     },
 
     updateParticipant: function(name, account) {
-      if (name && name.length > 0) {
-        participantName.textContent = name;
-        roomAvatar.textContent = name[0];
-      }
-
-      if (!account) {
-        return;
-      }
-
-      ContactsHelper.find(
-        {
-          identities: [account]
-        },
-        function(result) {
-          var contacts = result.contacts;
-          if (!contacts || contacts.length === 0) {
-            return;
-          }
-          participantName.textContent =
-            ContactsHelper.getPrimaryInfo(contacts[0]);
-        }
-      );
+      ContactsHelper.getParticipantName({
+        displayName: name,
+        account: account
+      }).then(_name => {
+        participantName.textContent = _name;
+        roomAvatar.textContent = _name[0];
+      });
     },
 
     show: function(params) {
