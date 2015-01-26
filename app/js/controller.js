@@ -277,67 +277,68 @@
             }
 
             room.participants.forEach((participant) => {
-              if ((participant.account !== Controller.identity) &&
-                  !RoomController.isParticipant(room.roomToken,
-                                                participant.roomConnectionId)) {
+              ContactsHelper.getParticipantName(participant).then(name => {
+                participant.displayName = name;
 
-                // If the owner is connected (plenty room) and the app is in
-                // foreground, no notification should be fired.
-                // NOTE: Now, we check owner is connected looking to
-                // MAX_PARTICIPANTS, but this will not be valid in more than 2
-                // participants rooms.
-                if ((room.participants.length !== MAX_PARTICIPANTS) ||
-                    document.hidden) {
+                if ((participant.account !== Controller.identity) &&
+                    !RoomController.isParticipant(room.roomToken,
+                                    participant.roomConnectionId)) {
 
-                  Loader.getNotificationHelper().then(
-                    function(NotificationHelper) {
-                      TonePlayerHelper.init('publicnotification');
-                      TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
+                  // If the owner is connected (plenty room) and the app is in
+                  // foreground, no notification should be fired.
+                  // NOTE: Now, we check owner is connected looking to
+                  // MAX_PARTICIPANTS, but this will not be valid in more than 2
+                  // participants rooms.
+                  if ((room.participants.length !== MAX_PARTICIPANTS) ||
+                      document.hidden) {
 
-                      ContactsHelper.getParticipantName(participant).then(
-                        name => {
-                          NotificationHelper.send({
-                            raw: room.roomName
-                          }, {
-                            body: _('hasJoined', {
-                              name: name
-                            }),
-                            icon: appInfo.icon,
-                            tag: room.roomUrl
-                          }).then((notification) => {
-                            var onVisibilityChange = function() {
-                              !document.hidden && notification.close();
-                            };
+                    Loader.getNotificationHelper().then(
+                      function(NotificationHelper) {
+                        TonePlayerHelper.init('publicnotification');
+                        TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
 
-                            document.addEventListener('visibilitychange',
-                                                      onVisibilityChange);
-                            notification.onclose = function() {
-                              document.removeEventListener('visibilitychange',
-                                                           onVisibilityChange);
-                              notification.onclose = notification.onclick = null;
-                            };
+                        NotificationHelper.send({
+                          raw: room.roomName
+                        }, {
+                          body: _('hasJoined', {
+                            name: name
+                          }),
+                          icon: appInfo.icon,
+                          tag: room.roomUrl
+                        }).then((notification) => {
+                          var onVisibilityChange = function() {
+                            !document.hidden && notification.close();
+                          };
 
-                            notification.onclick = function() {
-                              debug && console.log(
-                                'Notification clicked for room: ' + room.roomUrl
-                              );
-                              appInfo.app.launch();
-                              notification.close();
-                            };
-                          });
+                          document.addEventListener('visibilitychange',
+                                                    onVisibilityChange);
+                          notification.onclose = function() {
+                            document.removeEventListener('visibilitychange',
+                                                         onVisibilityChange);
+                            notification.onclose = notification.onclick = null;
+                          };
+
+                          notification.onclick = function() {
+                            debug && console.log(
+                              'Notification clicked for room: ' + room.roomUrl
+                            );
+                            appInfo.app.launch();
+                            notification.close();
+                          };
                         });
-                    });
+                      });
+                  }
+                  RoomController.addParticipant(
+                    room.roomToken,
+                    participant.displayName,
+                    participant.account,
+                    participant.roomConnectionId
+                  );
+                  _registerOtherJoinEvt(room.roomToken,
+                                        participant,
+                                        _getLastStateRoom(room));
                 }
-                RoomController.addParticipant(
-                  room.roomToken,
-                  participant.displayName,
-                  participant.account,
-                  participant.roomConnectionId
-                );
-                _registerOtherJoinEvt(room.roomToken,
-                                      participant,
-                                      _getLastStateRoom(room));
-              }
+              });
             });
 
             // Clean disconnected users
