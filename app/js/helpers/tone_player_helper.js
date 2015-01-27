@@ -28,7 +28,16 @@
       'playing',
       function tonePlaying() {
         _audioElement.removeEventListener('playing', tonePlaying);
-        SpeakerManagerHelper.forcespeaker = isSpeaker;
+        // The MozSpeakerManager API is able to route the audio to the
+        // speakers only if the phone audio state is either
+        // MODE_IN_CALL or MODE_IN_COMMUNICATION (which happens only
+        // when the telephony audio channel is in use). There is no
+        // reason to change anything if the telephony audio channel is
+        // not in use.
+        if ((_channel === 'telephony') &&
+            (typeof isSpeaker === 'boolean')) {
+          SpeakerManagerHelper.forcespeaker = isSpeaker;
+        }
         if (typeof cb === 'function') {
           cb();
         }
@@ -142,7 +151,9 @@
           window.clearTimeout(timeout);
           resolve();
         });
-        _playTone(SOMEONE_JOINED_ROOM_TONE, true /*isSpeaker*/);
+        // This tone is played on the notification audio channel, we
+        // do not force routing the audio through the speaker.
+        _playTone(SOMEONE_JOINED_ROOM_TONE);
       });
     },
 
