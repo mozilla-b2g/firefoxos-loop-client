@@ -69,7 +69,7 @@
 
   function playEndedTone() {
     TonePlayerHelper.init('telephony');
-    TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);
+    TonePlayerHelper.playEnded(RoomUI.isSpeakerEnabled);
   }
 
   function onHeadPhonesChange() {
