@@ -88,12 +88,12 @@
   }
 
   function checkButtons() {
-    var name = roomNameInput.value.trim();
+    var name = roomNameInput.value;
     var total = name.length;
     var countdown = counter.dataset.countdown = CONFIG.maxRoomNamesSize - total;
     saveButton.disabled = countdown < 0;
     if (!saveButton.disabled && isInEditMode()) {
-      saveButton.disabled = name === room.roomName || name === '';
+      saveButton.disabled = name === room.roomName || name.trim() === '';
     }
     var key = countdown < 0 ? 'negativeCharactersCountdown' : 'charactersCountdown';
     counter.textContent = _(key, {
@@ -123,9 +123,9 @@
   }
 
   function newRoom(roomName) {
-    roomName = roomName || roomNameInput.value.trim();
+    roomName = roomName || roomNameInput.value;
     var params = {
-      roomName: roomName.length ? roomName : roomNameByDefault,
+      roomName: roomName.trim().length ? roomName : roomNameByDefault,
       expiresIn: CONFIG.expiresIn,
       roomOwner: Controller.identity,
       maxSize: CONFIG.maxSize
@@ -161,7 +161,7 @@
   }
 
   function updateRoom() {
-    var name = roomNameInput.value.trim();
+    var name = roomNameInput.value;
     return Rooms.update(room.roomToken, {
       roomName: name,
       expiresIn: CONFIG.expiresIn
