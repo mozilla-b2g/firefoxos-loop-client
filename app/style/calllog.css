@@ -184,7 +184,7 @@ form[role="dialog"][data-type="confirm"] button.icon:before {
 }
 
 #rooms-section-entries li[data-is-owner="false"]:before,
-#rooms-section-entries li[data-is-owner="false"] .secondary-info {
+#rooms-section-entries li:not([data-no-longer-available])[data-is-owner="false"] .secondary-info {
   display: none;
 }
 
