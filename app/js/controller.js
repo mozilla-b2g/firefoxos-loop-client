@@ -291,7 +291,7 @@
 
                   Loader.getNotificationHelper().then(
                     function(NotificationHelper) {
-                      TonePlayerHelper.init('publicnotification');
+                      TonePlayerHelper.init('notification');
                       TonePlayerHelper.playSomeoneJoinedARoomYouOwn();
 
                       ContactsHelper.getParticipantName(participant).then(
