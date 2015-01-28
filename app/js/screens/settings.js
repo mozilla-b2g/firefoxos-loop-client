@@ -117,6 +117,10 @@
         _vibrateSettings = document.getElementById('vibrate-setting');
         _tutorialButton = document.getElementById('tutorial-button');
 
+        window.addEventListener('joinstart', () => {
+          _settingsPanel.classList.contains('show') && Settings.hide();
+        });
+
         // Add listeners just once
         _tutorialButton.addEventListener(
           'click',
