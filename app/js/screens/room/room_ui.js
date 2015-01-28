@@ -243,6 +243,10 @@
     RoomUI.setWaiting();
   }
 
+  function isTrue(value) {
+    return value === true || value === 'true';
+  }
+
   var RoomUI = {
     get localTargetElement() {
       return LOCAL_TARGET_ELEMENT;
@@ -358,7 +362,7 @@
     show: function(params) {
       return new Promise((resolve, reject) => {
         render(params);
-        if (params.video !== 'false') {
+        if (isTrue(params.video)) {
           Loader.getJoinRoom(params.roomName).then((JoinRoom) => {
             JoinRoom.show().then((roomParams) => {
               params.frontCamera = roomParams.isFrontCamera;
@@ -370,6 +374,7 @@
             Navigation.to('room-ui', 'top');
           });
         } else {
+          params.frontCamera = isTrue(params.frontCamera);
           join(params);
           Navigation.to('room-ui', 'top');
           resolve();
