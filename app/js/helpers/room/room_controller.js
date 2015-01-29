@@ -295,6 +295,12 @@
 
       window.dispatchEvent(new CustomEvent('joinstart'));
 
+      var forceReject = (params.action === 'reject');
+      if (forceReject) {
+        showError();
+        return;
+      }
+
       if (!navigator.onLine) {
         Loader.getOfflineScreen().then(OfflineScreen => {
           var _ = navigator.mozL10n.get;

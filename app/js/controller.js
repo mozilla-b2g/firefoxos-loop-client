@@ -372,12 +372,18 @@
 
     joinRoom: function(token, roomName) {
       Loader.getRoomController().then((RoomController) => {
-        RoomController.join({
-          token: token,
-          roomName: roomName,
-          displayName: Controller.identity,
-          video: Settings.isVideoDefault,
-          frontCamera: Settings.isFrontalCamera
+        _getCallScreenManager().then((csm) => {
+          var params = {
+            token: token,
+            roomName: roomName,
+            displayName: Controller.identity,
+            video: Settings.isVideoDefault,
+            frontCamera: Settings.isFrontalCamera
+          };
+          if (csm.callActive) {
+            params.action = 'reject';
+          }
+          RoomController.join(params);
         });
       });
     },
