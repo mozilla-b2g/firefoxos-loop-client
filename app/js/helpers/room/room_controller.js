@@ -293,6 +293,8 @@
     join: function(params) {
       debug && console.log('Join room with params: ' + JSON.stringify(params));
 
+      window.dispatchEvent(new CustomEvent('joinstart'));
+
       if (!navigator.onLine) {
         Loader.getOfflineScreen().then(OfflineScreen => {
           var _ = navigator.mozL10n.get;
