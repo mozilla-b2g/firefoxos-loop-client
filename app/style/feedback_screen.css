@@ -14,6 +14,11 @@
   margin: 0 !important;
 }
 
+#feedback  * {
+  -moz-user-select: none !important;
+  user-select: none !important;
+}
+
 .feedback-questions {
   width: 200%;
   height: 100%;
