@@ -240,15 +240,18 @@
      */
     onConversationEvent: function(version) {
       _getCallScreenManager().then((csm) => {
-        csm.launch(
-          'incoming',
-          {
+        Loader.getRoomController().then((rc) => {
+          var params = {
             version: version,
             frontCamera: Settings.isFrontalCamera,
             vibrate: Settings.shouldVibrate
+          };
+          if (rc.roomActive) {
+            params.action = 'reject';
           }
-        );
-        _oncall(true /* isIncoming */);
+          csm.launch('incoming', params);
+          _oncall(true /* isIncoming */);
+        });
       });
     },
 
