@@ -56,7 +56,7 @@
       };
 
       if (diff > 0) {
-        args.value = Math.round(diff/86400000);
+        args.value = Math.ceil(diff/86400000);
       }
       return navigator.mozL10n.get('daysLeft', args);
     },
