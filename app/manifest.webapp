@@ -23,6 +23,9 @@
     "moz-audio-channel-telephony": {
       "description": "Allow Firefox Hello to route the audio call through the telephony channel. This permission is required to be able to switch between Firefox Hello and GSM calls"
     },
+    "audio-channel-notification": {
+      "description": "Allow Firefox Hello to play a sound notification when someone joins a room the logged user owns"
+    },
     "camera": {
       "description": "Give Firefox Hello control to toggle between the front and rear cameras in your device if they are available"
     },
