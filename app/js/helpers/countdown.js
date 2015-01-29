@@ -17,6 +17,7 @@
 
   function _reset() {
     _counter = 0;
+    _paint(0, 0);
   }
 
   function _paint(minutes, seconds) {
