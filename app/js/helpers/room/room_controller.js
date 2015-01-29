@@ -287,6 +287,9 @@
   }
 
   var RoomController = {
+    get roomActive() {
+      return isConnected;
+    },
     join: function(params) {
       debug && console.log('Join room with params: ' + JSON.stringify(params));
 

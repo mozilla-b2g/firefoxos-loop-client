@@ -385,6 +385,7 @@
 
   var CallScreenManager = {
     launch: function(type, params) {
+      var forceReject = (params.action === 'reject');
       AudioCompetingHelper.init();
       AudioCompetingHelper.compete();
 
@@ -400,7 +401,7 @@
         // until we have a proper multi-party feature in place.
         // Bug 1058628 - Do not allow make a call while there is another one in
         // place
-        if (_inCall) {
+        if (_inCall || forceReject) {
           AudioCompetingHelper.leaveCompetition();
           AudioCompetingHelper.destroy();
           return;
@@ -429,7 +430,7 @@
             // of having one call working at the moment, we need to reject
             // the new ones
             if (!callsInfo.calls[i].state) {
-              if (_inCall || !!call) {
+              if (_inCall || !!call || forceReject) {
                 callsToReject.push(callsInfo.calls[i]);
                 continue;
               }
@@ -448,7 +449,7 @@
           }
 
           // If we have a valid incoming call, let's launch the attention screen.
-          if (!call || _inCall) {
+          if (!call || _inCall || forceReject) {
             return;
           }
 
