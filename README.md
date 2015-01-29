@@ -1,5 +1,7 @@
 # Firefox OS Loop Client
 
+[![Build Status](https://travis-ci.org/mozilla-b2g/firefoxos-loop-client.svg?branch=master)](https://travis-ci.org/mozilla-b2g/firefoxos-loop-client)
+
 Firefox OS client for the Loop service
 
 ## Want to contribute?
