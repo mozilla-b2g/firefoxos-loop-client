@@ -220,10 +220,6 @@
     roomControls.classList.remove('hide');
     attachHandlers();
 
-    // Tokbox is removing the elements where the video is appended to, so
-    // we need to restore them if missing
-    appendTokboxTargets();
-
     isSpeakerEnabled = isVideoEnabled = params.video !== 'false';
     isMicEnabled = true;
     panel.dataset.localVideo = isVideoEnabled;
@@ -295,14 +291,18 @@
     },
 
     setWaiting: function() {
+      // Tokbox is removing the elements where the video is appended to, so
+      // we need to restore them if missing
+      appendTokboxTargets();
+
       isVideoEnabled && showFakeVideo();
       panel.dataset.status = 'waiting';
       panel.dataset.remoteVideo = false;
       stopRotationHandler();
 
       var guestText = _('guestTitle');
-        roomAvatar.textContent = guestText[0];
-        participantName.textContent = guestText;
+      roomAvatar.textContent = guestText[0];
+      participantName.textContent = guestText;
     },
 
     setConnected: function(isRemoteVideo) {
@@ -314,8 +314,6 @@
       // rid of it.
 
       var pollingInterval, timeoutShield;
-
-      appendTokboxTargets();
 
       var remoteVideoElement = remoteVideo.querySelector('video');
 
