@@ -193,6 +193,11 @@
     },
 
     leave: function() {
+      var codec = CodecHelper.getAVCodecNames(publisher);
+      debug && console.log('Codecs Used video:' + codec.video +
+        ' audio:'+ codec.audio);
+      Telemetry.updateReport('audioCodecName', codec.audio);
+      Telemetry.updateReport('videoCodecName', codec.video);
       disconnectSession();
       publisher = subscriber = null;
       subscribers = null;
@@ -202,6 +207,11 @@
     },
 
     interrupt: function() {
+      var codec = CodecHelper.getAVCodecNames(publisher);
+      debug && console.log('Codecs Used video:' + codec.video +
+        ' audio:'+ codec.audio);
+      Telemetry.updateReport('audioCodecName', codec.audio);
+      Telemetry.updateReport('videoCodecName', codec.video);
       disconnectSession();
       publisher = subscriber = null;
       subscribers = null;

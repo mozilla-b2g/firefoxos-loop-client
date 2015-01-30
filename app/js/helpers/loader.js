@@ -280,6 +280,7 @@
           [
             'libs/tokbox/' + window.OTProperties.version + '/js/TB.js',
             'libs/opentok.js',
+            'js/helpers/codec_helper.js',
             'js/helpers/room/room_manager.js'
           ],
           () => {

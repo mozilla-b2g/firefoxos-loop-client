@@ -37,17 +37,8 @@
   var _isVideoCall = false;
   var _peersConnection = null;
   var _acm = navigator.mozAudioChannelManager;
-  var _videoCodecName = 'unknown';
-  var _audioCodecName = 'unknown';
   var _usedCamera = 'none';
-
-  // These strings will be found in SDP answer if H264 video codec is used
-  const H264_STRING_126 = 'a=rtpmap:126 H264';
-  const H264_STRING_97 = 'a=rtpmap:97 H264';
-  // This string will be found in SDP answer if VP8 video codec is used
-  const VP8_STRING = 'a=rtpmap:120 VP8';
-  // This string will be found in SDP answer if OPUS audio codec is used
-  const OPUS_STRING = 'a=rtpmap:109 opus';
+  var _codec = {};
 
   const TIMEOUT_SHIELD = 5000;
   const MEAN_ELEMENTS = 16;
@@ -474,6 +465,7 @@
                   }, TIME_INTERVAL_SECONDS * 1000);
                 }
               }
+
             }
           });
           _publishersInSession += 1;
@@ -689,14 +681,17 @@
         connected = true;
       }
 
+      _codec = CodecHelper.getAVCodecNames(_publisher);
+      debug && console.log('Codecs Used video:' + _codec.video +
+       ' audio:'+_codec.audio);
       function sendParams(message, feedback) {
         var params = {
           call: _call,
           duration: duration,
           connected: connected,
           video: _isVideoCall,
-          videoCodecName: _videoCodecName,
-          audioCodecName: _audioCodecName,
+          videoCodecName: _codec.video,
+          audioCodecName: _codec.audio,
           usedCamera: _usedCamera,
           feedback: feedback || null
         };
@@ -717,24 +712,6 @@
         ControllerCommunications.send(message);
       }
 
-      if (_publisher && _publisher.answerSDP) {
-        var description = _publisher.answerSDP;
-        if (description.indexOf(H264_STRING_126) != -1 ||
-            description.indexOf(H264_STRING_97) != -1) {
-          _videoCodecName = 'H264';
-        } else if (description.indexOf(VP8_STRING) != -1) {
-          _videoCodecName = 'VP8';
-        } else {
-          _videoCodecName = 'unknown';
-        }
-        debug && console.log("Video Codec used: " + _videoCodecName);
-        if (description.indexOf(OPUS_STRING) != -1) {
-          _audioCodecName = 'OPUS';
-        } else {
-          _audioCodecName = 'unknown';
-        }
-        debug && console.log("Audio Codec used: " + _audioCodecName);
-      }
       // Send hangout message to Controller
       sendParams('hangout');
 

@@ -78,6 +78,7 @@
         '../js/helpers/tone_player_helper.js',
         '../js/helpers/audio_competing_helper.js',
         '../js/helpers/countdown.js',
+        '../js/helpers/codec_helper.js',
         'js/ringer.js',
         'js/call_manager.js',
         '../js/branding.js',
