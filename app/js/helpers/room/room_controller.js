@@ -453,7 +453,10 @@
                   // as exact than we can
                   var current = new Date().getTime();
                   debug && console.log('Room participant left');
-                  setNumberParticipants(_numberParticipants - 1);
+                  Rooms.get(currentToken).then(room => {
+                    _participants = room.participants;
+                    setNumberParticipants(_participants.length);
+                  });
                   RoomUI.setWaiting();
                   _logEventCommunication (current);
                 },
