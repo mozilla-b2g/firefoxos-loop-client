@@ -306,6 +306,7 @@
     },
 
     setConnected: function(isRemoteVideo) {
+      Countdown.stop();
       Countdown.reset();
       startRotationHandler();
 
