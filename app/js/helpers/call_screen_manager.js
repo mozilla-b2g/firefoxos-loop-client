@@ -384,6 +384,9 @@
   }
 
   var CallScreenManager = {
+    get callActive() {
+      return _inCall;
+    },
     launch: function(type, params) {
       var forceReject = (params.action === 'reject');
       AudioCompetingHelper.init();
