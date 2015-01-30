@@ -14,7 +14,7 @@
 
       var codecName = {audio: 'unknown',
                        video: 'unknown'};
-      if (!publisher && !publisher.answerSDP) {
+      if (!publisher || !publisher.answerSDP) {
         return codecName
       }
       var description = publisher.answerSDP;
