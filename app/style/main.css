@@ -211,6 +211,15 @@ label.pack-radio.white input ~ span:after {
 }
 
 /* Error screen */
+#error-screen {
+  /*
+   * Mirrors from navigation are using 10000, so I would need a bigger
+   * value for the error screen. If not, mirror transition will hide this
+   * error message
+   */
+  z-index: 10001 !important;
+}
+
 #error-screen ul {
   display: none;
 }
