@@ -190,6 +190,19 @@
         };
         req.send(null);
       });
+    },
+
+    onForeground: function() {
+      if (!document.hidden) {
+        return Promise.resolve();
+      }
+
+      return new Promise(function(resolve, reject) {
+         window.addEventListener('visibilitychange', function onVisibility() {
+          window.removeEventListener('visibilitychange', onVisibility);
+          resolve();
+        });
+      });
     }
   };
 
