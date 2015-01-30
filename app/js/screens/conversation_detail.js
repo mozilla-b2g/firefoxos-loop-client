@@ -153,7 +153,9 @@
         dismissAction = reject;
         render();
         init(params);
-        show(attachHandlers);
+        Utils.onForeground().then(() => {
+          show(attachHandlers);
+        });
       });
     }
   };

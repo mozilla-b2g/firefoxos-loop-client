@@ -17,19 +17,6 @@
     return Promise.resolve();
   }
 
-  function onForeground() {
-    if (!document.hidden) {
-      return Promise.resolve();
-    }
-
-    return new Promise(function(resolve, reject) {
-       window.addEventListener('visibilitychange', function onVisibility() {
-        window.removeEventListener('visibilitychange', onVisibility);
-        resolve();
-      });
-    });
-  }
-
   var Navigation = {
     to: function(to, transition) {
       if (!_currentPanelID || _currentPanelID === to) {
@@ -38,7 +25,7 @@
       return Navigation.go(_currentPanelID, to, transition);
     },
     go: function(from, to, transition) {
-      return onForeground().then(() => {
+      return Utils.onForeground().then(() => {
         return new Promise(function(resolve, reject) {
           var fromPanel = document.getElementById(from);
           var toPanel = document.getElementById(to);
