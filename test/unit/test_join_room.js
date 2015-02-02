@@ -1,6 +1,8 @@
 'use strict';
 
 require('unit/utils/mock_telemetry.js');
+require('js/config.js');
+require('js/utils.js');
 require('js/screens/room/join_room.js');
 
 suite('Tests JoinRoom', function() {
@@ -13,10 +15,18 @@ suite('Tests JoinRoom', function() {
     frontCamera = dialog.querySelector('input[value="camera-front"]');
     cancelButton = dialog.querySelector('menu .cancel');
     joinButton = dialog.querySelector('menu .join');
+    sinon.stub(Utils, 'onForeground', () => {
+      return {
+        then: function(resolve) {
+          resolve();
+        }
+      }
+    });
   });
 
   suiteTeardown(function() {
     document.body.innerHTML = '';
+    Utils.onForeground.restore();
   });
 
   function checkInitialization() {

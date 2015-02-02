@@ -88,7 +88,7 @@
         cancelAction = reject;
         render();
         attachHandlers();
-        show();
+        Utils.onForeground().then(show);
       });
     }
   };
