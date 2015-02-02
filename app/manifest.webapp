@@ -108,7 +108,7 @@
   "icons": {
     "84": "/style/images/icons/Icon_Hello@1.png",
     "126": "/style/images/icons/Icon_Hello@1.5.png",
-    "189": "/style/images/icons/Icon_Hello@2.png"
+    "168": "/style/images/icons/Icon_Hello@2.png"
   },
   "orientation": "portrait",
   "origin": "app://loop.services.mozilla.com",
