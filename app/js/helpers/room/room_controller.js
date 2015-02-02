@@ -347,7 +347,7 @@
               return;
             }
 
-            var shouldRate = false;
+            var shouldRate = false, shouldPlayEnded = false;
             var currentRoom = null;
             isConnected = true;
             currentToken = params.token;
@@ -436,7 +436,7 @@
                   TonePlayerHelper.init('telephony');
                   TonePlayerHelper.playConnected(RoomUI.isSpeakerEnabled);
                   RoomUI.setConnected(roomManager.isRemotePublishingVideo);
-                  shouldRate = true;
+                  shouldRate = shouldPlayEnded = true;
                 },
                 participantVideoAdded: function(event) {
                   RoomUI.showRemoteVideo(true);
@@ -448,7 +448,14 @@
                   debug && console.log('Room participant leaving');
                 },
                 participantLeft: function(event) {
-                  playEndedTone();
+                  // There might be chances the local party receives
+                  // the 'participantLeft' event even when the remote
+                  // party couldn't join the room successfully. That
+                  // is the case when the remote party tries to join a
+                  // room when a GSM/CDMA call is active in the remote
+                  // device. It's kinda wierd to play the ended tone
+                  // when the call didn't connected actually.
+                  shouldPlayEnded && playEndedTone();
                   // We take time here because we trying to set the count
                   // as exact than we can
                   var current = new Date().getTime();
