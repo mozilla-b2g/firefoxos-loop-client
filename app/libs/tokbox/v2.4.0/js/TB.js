@@ -22904,7 +22904,8 @@ OT.Publisher = function(options) {
             onStreamAvailableError,
             onAccessDialogOpened,
             onAccessDialogClosed,
-            onAccessDenied
+            onAccessDenied,
+            OT.$.customGetUserMedia
           );
         }
 
