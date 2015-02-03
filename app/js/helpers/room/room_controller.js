@@ -223,7 +223,6 @@
       function(FeedbackScreen){
         FeedbackScreen.show(function(feedback) {
           if (!feedback) {
-            callback();
             return;
           }
           LazyLoader.load([
@@ -233,9 +232,8 @@
             // We distinguish between calls and room chats with the type prop.
             feedback.type = ROOM_FEEDBACK_TYPE;
             Feedback.send(feedback);
-            callback();
           });
-        });
+        }).then(callback);
     });
   }
 
