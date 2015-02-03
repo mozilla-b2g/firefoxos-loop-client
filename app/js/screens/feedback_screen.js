@@ -20,70 +20,75 @@
 
   var FeedbackScreen = {
     show: function(callback) {
-      if (!_dialog) {
-        _dialog = document.getElementById('feedback');
-        document.getElementById('skip-feedback-button').addEventListener(
-          'click',
-          function() {
-            _callback();
-            FeedbackScreen.hide();
-          }
-        );
-        _rateButton = document.getElementById('rate-feedback-button');
-        _rateButton.addEventListener(
-          'click',
-          function onRate() {
-            var description = [];
-            var checked = _dialog.querySelectorAll(':checked');
-            if (checked) {
-              for (var i = 0, l = checked.length; i < l; i++) {
-                description.push(checked[i].value);
-              }
+      return new Promise((resolve, reject) => {
+        _callback = callback;
+        if (typeof _callback !== 'function') {
+          _callback = function() {};
+        }
+
+        if (!_dialog) {
+          _dialog = document.getElementById('feedback');
+          document.getElementById('skip-feedback-button').addEventListener(
+            'click',
+            function() {
+              _callback();
+              FeedbackScreen.hide();
             }
+          );
+          _rateButton = document.getElementById('rate-feedback-button');
+          _rateButton.addEventListener(
+            'click',
+            function onRate() {
+              var description = [];
+              var checked = _dialog.querySelectorAll(':checked');
+              if (checked) {
+                for (var i = 0, l = checked.length; i < l; i++) {
+                  description.push(checked[i].value);
+                }
+              }
 
-            _callback(new Feedback(false /* happy */, description));
-            FeedbackScreen.hide();
-          }
-        );
+              _callback(new Feedback(false /* happy */, description));
+              FeedbackScreen.hide();
+            }
+          );
 
-        _dialog.querySelector('.fq-options ul').addEventListener('click',
-          function onClick() {
-            var numberChecked = _dialog.querySelectorAll(':checked').length;
-            _rateButton.disabled = numberChecked === 0;
-          }
-        );
+          _dialog.querySelector('.fq-options ul').addEventListener('click',
+            function onClick() {
+              var numberChecked = _dialog.querySelectorAll(':checked').length;
+              _rateButton.disabled = numberChecked === 0;
+            }
+          );
 
-        _dialog.querySelector('#answer-happy').addEventListener(
-          'click',
-          function onAnswerHappy() {
-            _callback(new Feedback(true /* happy */));
-            FeedbackScreen.hide();
-          }
-        );
+          _dialog.querySelector('#answer-happy').addEventListener(
+            'click',
+            function onAnswerHappy() {
+              _callback(new Feedback(true /* happy */));
+              FeedbackScreen.hide();
+            }
+          );
 
-        document.getElementById('answer-sad').addEventListener(
-          'click',
-          function onAnswerSad() {
-            _dialog.classList.add('two-options');
-            document.querySelector('[data-question]').dataset.question = 2;
-          }
-        );
-      }
+          document.getElementById('answer-sad').addEventListener(
+            'click',
+            function onAnswerSad() {
+              _dialog.classList.add('two-options');
+              document.querySelector('[data-question]').dataset.question = 2;
+            }
+          );
+        }
 
-      _callback = callback;
-      if (typeof _callback !== 'function') {
-        _callback = function() {};
-      }
+        Branding.naming(_dialog);
 
+        navigator.mozL10n.translateFragment(_dialog);
 
-      Branding.naming(_dialog);
-
-      navigator.mozL10n.translateFragment(_dialog);
-
-      _dialog.classList.remove('hide');
-      setTimeout(function() {
-        _dialog.classList.add('show');
-      }, 400);
+        _dialog.classList.remove('hide');
+        setTimeout(function() {
+          _dialog.addEventListener('transitionend', function ended() {
+            _dialog.removeEventListener('transitionend', ended);
+            resolve();
+          });
+          _dialog.classList.add('show');
+        }, 400);
+      });
     },
     hide: function() {
       _dialog.addEventListener('transitionend', function ended() {

@@ -18,7 +18,7 @@
   height: 100%;
   top: 0;
   left: 0;
-  
+
   display: none;
   z-index: 10000;
   background-color: white;
@@ -40,18 +40,18 @@ body[data-transition="left"] .mirror,
 body[data-transition="top"] .mirror,
 body[data-transition="right"] .mirror,
 body[data-transition="bottom"] .mirror {
-  transition: transform .8s ease-in-out;
-} 
+  transition: transform .5s ease;
+}
 
 
 body[data-uidebug="true"][data-transition="left"] .mirror,
 body[data-uidebug="true"][data-transition="right"] .mirror,
 body[data-uidebug="true"][data-transition="top"] .mirror,
 body[data-uidebug="true"][data-transition="bottom"] .mirror {
-  transition: transform 2s ease-in-out;
+  transition: transform 2s ease;
 }
 
- 
+
 body[data-transition="left"] #mirror-current,
 body[data-transition="top"] #mirror-current,
 body[data-transition="right"] #mirror-current,
