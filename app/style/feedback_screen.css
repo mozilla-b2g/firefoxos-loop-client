@@ -8,7 +8,7 @@
   height: 100%;
   top: 0;
   position: absolute;
-  z-index: 300;
+  z-index: 10001; /* above room ui mirror */
   overflow: hidden;
   padding: 0 !important;
   margin: 0 !important;
