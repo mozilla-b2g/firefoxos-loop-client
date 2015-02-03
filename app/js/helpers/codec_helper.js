@@ -9,6 +9,9 @@
   // This string will be found in SDP answer if OPUS audio codec is used
   const OPUS_STRING = 'a=rtpmap:109 opus';
 
+  const TIME_INTERVAL_SECONDS = 3;
+  const MEAN_ELEMENTS = 16;
+
   var CodecHelper = {
     getAVCodecNames: function ut_getAVCodecNames(publisher) {
 
@@ -35,6 +38,36 @@
         codecName.audio = 'unknown';
       }
       return codecName;
+    },
+
+    getVideoPerfInfo: function ut_getVideoPerfInfo(remoteVideoElement) {
+      var meanFPS = 0;
+      var videoWidth = 640;
+      var videoHeight = 480;
+      var previousMozFrames = 0;
+
+      if (!remoteVideoElement) {
+        return null;
+      }
+      return window.setInterval(function () {
+        var fps = (remoteVideoElement.mozPaintedFrames - previousMozFrames) /
+          TIME_INTERVAL_SECONDS;
+        // mean of the last 16 fps
+        meanFPS = (meanFPS * (MEAN_ELEMENTS - 1) + fps) / MEAN_ELEMENTS;
+        console.log('fps = ' + meanFPS.toFixed(2));
+
+        // same with video width and height
+        videoWidth = (videoWidth * (MEAN_ELEMENTS - 1) +
+          remoteVideoElement.videoWidth) / MEAN_ELEMENTS;
+        videoHeight = (videoHeight * (MEAN_ELEMENTS - 1) +
+          remoteVideoElement.videoHeight) / MEAN_ELEMENTS;
+        console.log(
+          'videoWidth = ' + remoteVideoElement.videoWidth + ', ' +
+          'videoHeight = ' + remoteVideoElement.videoHeight
+        );
+
+        previousMozFrames = remoteVideoElement.mozPaintedFrames;
+      }, TIME_INTERVAL_SECONDS * 1000);
     }
   };
 
