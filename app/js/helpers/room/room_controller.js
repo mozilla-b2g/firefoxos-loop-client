@@ -21,6 +21,7 @@
   const DEFAULT_JOIN_PARAMS = {
     displayName: '',
     video: true,
+    audio: true,
     frontCamera: false
   };
 
@@ -324,6 +325,7 @@
         RoomUI.show(params).then(() => {
           handleHeadPhonesChange();
 
+          params.audio = RoomUI.isMicEnabled;
           params.localTargetElement = RoomUI.localTargetElement;
           params.remoteTargetElement = RoomUI.remoteTargetElement;
 
@@ -391,6 +393,7 @@
                 joined: function(event) {
                   debug && console.log('Room joined');
 
+                  roomManager.publishAudio(RoomUI.isMicEnabled);
                   if (currentRoom &&
                       (currentRoom.roomOwner === params.displayName)) {
                     TonePlayerHelper.init('telephony');
@@ -514,7 +517,7 @@
               };
 
               RoomUI.onToggleMic = function() {
-                roomManager.publishAudio(!roomManager.isPublishingAudio);
+                roomManager.publishAudio(RoomUI.isMicEnabled);
               };
 
               RoomUI.onSwitchSpeaker = function() {

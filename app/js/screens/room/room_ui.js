@@ -277,6 +277,10 @@
       return isSpeakerEnabled;
     },
 
+    get isMicEnabled() {
+      return isMicEnabled;
+    },
+
     set onToggleVideo(onToggleVideo) {
       if (typeof onToggleVideo !== 'function') {
         return;

@@ -19,6 +19,7 @@
 
   const DEFAULT_JOIN_PARAMS = {
     video: true,
+    audio: true,
     frontCamera: false
   };
 
@@ -72,6 +73,7 @@
         params.param = params.param || DEFAULT_JOIN_PARAMS.param;
       }
 
+      var audio = params.audio;
       var video = (params.video !== 'false') && (params.video !== false);
       var frontCamera = params.frontCamera;
       var mode = !!frontCamera ? 'user': 'environment';
@@ -117,6 +119,7 @@
                                       error.code,
                                       error.message));
                 } else {
+                  self.publishAudio(audio);
                   self.publishVideo(video);
                   self.forceSpeaker(video);
                   // Fire an OT.RoomManager.EventNames.JOINED event.
