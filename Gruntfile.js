@@ -59,7 +59,8 @@ module.exports = function(grunt) {
 
           // Generate the test file list automatically... Maybe there's an
           // easier way to do this.
-          urls: grunt.file.expand({}, [TEST_DIR + 'test_*.js']).map(
+          urls: grunt.file.expand({},
+                           [TEST_DIR + ('test_' + (grunt.option('testFile') || '*') + '.js')]).map(
             function(path) {
               var testContent = '<script src="' + path.replace(TEST_BASE_DIR, '') + '"></script>'
               var outputFile = ('gtest_' + path.substring(TEST_DIR_LENGTH)).replace('.js', '.html');
