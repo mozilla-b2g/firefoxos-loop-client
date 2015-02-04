@@ -531,10 +531,18 @@
               params.sessionToken = result.sessionToken;
               roomManager.join(params);
             });
+            // We compare with false because we've assumed that by default
+            // is a video call (when the parameter is not present)
+            // and its behavior will be the same as RoomManager.join
+            var isVideoCall = params.video !== 'false' &&
+                              params.video !== false;
             Telemetry.updateReport('roomCamera',
-              (params.frontCamera === true || params.frontCamera === 'true') ?
-                'front' :
-                'back');
+              isVideoCall ?
+                (params.frontCamera === true || params.frontCamera === 'true') ?
+                  'front' :
+                  'back' :
+                'none'
+              );
           },
           function(error) {
             debug && console.log('Error while joining room');
