@@ -378,8 +378,8 @@
                                     token: currentToken });
                   });
                 });
-                _updateRoomAttribute(currentToken, 'numberTimesIJoined');
               }
+              _updateRoomAttribute(currentToken, 'numberTimesIJoined');
             });
 
             Loader.getRoomManager().then((RoomManager) => {
