@@ -175,6 +175,7 @@
       room.ctime = remoteRoom.ctime;
       room.timesRoomRenamed = room.timesRoomRenamed &&
                               room.timesRoomRenamed + 1 || 1;
+      room.usedDefaultName = false;
       Controller.onRoomUpdated(room, true);
       Loader.getRoomEvent().then(RoomEvent => {
         RoomEvent.save({type: RoomEvent.type.renamed,
