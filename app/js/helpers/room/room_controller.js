@@ -165,7 +165,7 @@
     });
   }
 
-  function handleBackgroundMode(params, currentRoom) {
+  function handleBackgroundMode(params) {
     document.hidden && Loader.getNotificationHelper().then(
     function(NotificationHelper) {
       _wentToBackground = true;
@@ -190,15 +190,17 @@
                                          onVisibilityChange);
             notification.onclose = notification.onclick = null;
             if (_wentToBackground) {
-              currentRoom.backgroundMode = currentRoom.backgroundMode &&
-                                           currentRoom.backgroundMode + 1 || 1;
-              RoomsDB.update(currentRoom).then(function() {
-                debug &&
-                console.log('Field backgroundMode of the room successfully ' +
-                            'updated');
-              }, function() {
-                console.error('Field backgroundMode of the room ' +
-                              'unsuccessfully updated');
+              RoomsDB.get(currentToken).then(room => {
+                room.backgroundMode = room.backgroundMode &&
+                                      room.backgroundMode + 1 || 1;
+                RoomsDB.update(room).then(function() {
+                  debug &&
+                  console.log('Field backgroundMode of the room successfully ' +
+                              'updated');
+                }, function() {
+                  console.error('Field backgroundMode of the room ' +
+                                'unsuccessfully updated');
+                });
               });
             }
             _wentToBackground = false;
@@ -357,8 +359,7 @@
               currentRoom = room;
               params.roomName = room.roomName;
               params.roomUrl = room.roomUrl;
-              backgroundModeHandler =
-                handleBackgroundMode.bind(null, params, currentRoom);
+              backgroundModeHandler = handleBackgroundMode.bind(null, params);
               document.addEventListener('visibilitychange',
                                         backgroundModeHandler);
               RoomUI.updateName(room.roomName);
