@@ -72,16 +72,16 @@
   }
 
   function onClose() {
-    dismissAction();
     hide();
+    dismissAction();
   }
 
   function onCall() {
+    hide();
     callAction({
       subject: subjectInput.value.trim(),
       isFrontCamera: frontCamera.checked
     });
-    hide();
   }
 
   function preventDefault(evt) {
