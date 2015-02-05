@@ -12,7 +12,7 @@
   border-bottom: none;
 }
 
-#conversation-detail form p.counter {
+#conversation-detail form p.charCounter {
   margin-top: -.5rem;
   font-size: 1.4rem;
   height: 1.4rem;
@@ -22,11 +22,11 @@
   -moz-font-feature-settings: 'tnum';
 }
 
-#conversation-detail form p.counter[data-countdown='140'] {
+#conversation-detail form p.charCounter[data-countdown='124'] {
   visibility: hidden;
 }
 
-#conversation-detail form p.counter[data-countdown^='-'] {
+#conversation-detail form p.charCounter[data-countdown^='-'] {
   color: #b90000;
 }
 
