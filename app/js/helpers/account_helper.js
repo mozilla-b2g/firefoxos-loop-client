@@ -289,7 +289,18 @@
         debug && console.log('FxA: Ready');
       },
       onlogin: _onlogin,
-      onlogout: _onlogout,
+      onlogout: function() {
+        // User could be logged into via MobileID so let's log the
+        // user out if that's not the case.
+        AccountHelper.getAccount(account => {
+          if (!account ||
+              !account.id ||
+              !account.id.type ||
+              (account.id.type === 'fxa')) {
+            _onlogout();
+          }
+        });
+      },
       onerror: function(err) {
         var errorName = JSON.parse(err).name;
         if (errorName !== 'OFFLINE') {
