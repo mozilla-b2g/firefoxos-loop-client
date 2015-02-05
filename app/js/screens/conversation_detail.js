@@ -28,7 +28,7 @@
     frontCamera = modal.querySelector('input[value="camera-front"]');
     cameraOptions = [rearCamera, frontCamera];
     cameraContainer = modal.querySelector('.camera-container');
-    counter = modal.querySelector('.counter');
+    counter = modal.querySelector('.charCounter');
     form = modal.querySelector('form');
   }
 
@@ -100,7 +100,7 @@
   }
 
   function calculateCounter() {
-    var subject = subjectInput.value.trim();
+    var subject = subjectInput.value;
     var countdown = counter.dataset.countdown = CONFIG.maxSubjectSize - subject.length;
     var key = countdown < 0 ? 'negativeCharactersCountdown' : 'charactersCountdown';
     counter.textContent = _(key, {

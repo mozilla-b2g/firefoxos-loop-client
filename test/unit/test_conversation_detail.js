@@ -19,7 +19,7 @@ suite('Tests ConversationDetail', function() {
     callButton = modal.querySelector('.call');
     cameraContainer = modal.querySelector('.camera-container');
     subjectInput = modal.querySelector('input');
-    counter = modal.querySelector('.counter');
+    counter = modal.querySelector('.charCounter');
     sinon.stub(Utils, 'onForeground', () => {
       return {
         then: function(resolve) {
