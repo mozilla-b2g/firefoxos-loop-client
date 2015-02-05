@@ -59,6 +59,7 @@
       switch (message.messageType) {
         case 'hello':
           that._state = message.state;
+          that._reason = message.reason || 'unknown';
           that._ready = true;
           that._onready();
           break;
