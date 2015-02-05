@@ -241,7 +241,9 @@
     create: (subject) => {
       userInteraction = false;
       return initRoomName().then(() => {
-        return newRoom(subject || roomNameByDefault);
+        subject = subject ? subject.substring(0, CONFIG.maxRoomNamesSize) :
+                            roomNameByDefault;
+        return newRoom(subject);
       });
     },
 
