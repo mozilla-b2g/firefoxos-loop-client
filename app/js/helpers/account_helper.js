@@ -401,12 +401,14 @@
             forceSelection: true
           }).then(
             _onlogin,
-            () => {
-              Loader.getSignUpErrorScreen().then(SignUpErrorScreen => {
-                var _ = navigator.mozL10n.get;
-                SignUpErrorScreen.show(_('signUpFail'));
-                _onloginerror();
-              });
+            (error) => {
+              if (!error || (error.name !== 'DIALOG_CLOSED_BY_USER')) {
+                Loader.getSignUpErrorScreen().then(SignUpErrorScreen => {
+                  var _ = navigator.mozL10n.get;
+                  SignUpErrorScreen.show(_('signUpFail'));
+                });
+              }
+              _onloginerror();
             });
           Telemetry.updateReport('mobileIdLogins');
           break;
