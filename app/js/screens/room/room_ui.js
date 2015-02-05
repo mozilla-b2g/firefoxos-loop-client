@@ -168,7 +168,7 @@
     participantName.textContent = '';
   }
 
-  function hide() {
+  function hide(cb) {
     panel.dataset.status = panel.dataset.participants = '';
     removeFakeVideo();
     removeHandlers();
@@ -176,6 +176,7 @@
       cleanUI();
       Countdown.stop();
       Countdown.reset();
+      (typeof cb === 'function') && cb();
     });
   }
 
