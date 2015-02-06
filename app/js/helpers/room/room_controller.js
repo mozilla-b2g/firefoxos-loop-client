@@ -133,22 +133,29 @@
 
   function onInvalidToken(params) {
     var token = params.token;
-    var options = new OptionMenu({
-      section: navigator.mozL10n.get('invalidRoomToken'),
-      type: 'confirm',
-      items: [
-        {
-          name: 'Cancel',
-          l10nId: 'cancel',
-          method: (token) => {
-            RoomsDB.get(token).then(room => {
-              room.noLongerAvailable = true;
-              Controller.onRoomUpdated(room);
-            });
-          },
-          params: [token]
-        },
-        {
+
+    RoomsDB.get(token).then(room => {
+      var parameters = {
+        type: 'confirm',
+        items: [
+          {
+            name: 'Cancel',
+            l10nId: 'cancel'
+          }
+        ]
+      };
+
+      var title;
+
+      if (room) {
+        title = 'invalidRoomTokenAndDelete';
+
+        parameters.items[0].method = () => {
+          room.noLongerAvailable = true;
+          Controller.onRoomUpdated(room);
+        };
+
+        parameters.items.push({
           name: 'Delete',
           class: 'danger',
           l10nId: 'delete',
@@ -160,8 +167,19 @@
             Rooms.delete(token).then(deleteFromDB, deleteFromDB);
           },
           params: [token]
-        }
-      ]
+        });
+      } else {
+        title = 'invalidRoomToken';
+
+        var item = parameters.items[0];
+        item.name = 'OK';
+        item.l10nId = 'ok';
+        item.class = 'full';
+      }
+
+      parameters.section = navigator.mozL10n.get(title);
+
+      var options = new OptionMenu(parameters);
     });
   }
 
@@ -550,18 +568,19 @@
             currentToken = null;
             isConnected = false;
             removeHeadPhonesChangeHandler();
-            RoomUI.hide();
-            // See https://docs.services.mozilla.com/loop/apis.html
-            if (error) {
-              if (error.code === 400 && error.errno === 202) {
-                // Room full
-                return removeMyselfFromRoom(params);
-              } else if (error.code === 404) {
-                return onInvalidToken(params);
+            RoomUI.hide(() => {
+              // See https://docs.services.mozilla.com/loop/apis.html
+              if (error) {
+                if (error.code === 400 && error.errno === 202) {
+                  // Room full
+                  return removeMyselfFromRoom(params);
+                } else if (error.code === 404) {
+                  return onInvalidToken(params);
+                }
               }
-            }
 
-            showError();
+              showError();
+            });
           });
         }, () => {
           // The user cancels
