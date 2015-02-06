@@ -56,14 +56,15 @@
 
     var token = _getToken(params.url);
     RoomsDB.get(token).then(function(room) {
+      field = field + (params.isCreation ? 'OnCreation' : '');
       var _field = room.usedDefaultName && field ||
                    (field + Telemetry.suffixSubject);
       room[_field] = room[_field] && room[_field] + 1 || 1;
       RoomsDB.update([room]).then(function() {
         DEBUG && console.log('Registered notification telemetry field:' +
-                             field);
+                             _field);
       }, function() {
-        console.error('Error updating telemetry notification field: ' + field);
+        console.error('Error updating telemetry notification field: ' + _field);
       });
     }, function() {
       console.error('[Telemetry notification] Could not find room with token ' +

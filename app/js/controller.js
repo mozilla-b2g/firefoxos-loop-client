@@ -388,9 +388,10 @@
       });
     },
 
-    onRoomCreated: function(room, navigateToDetail) {
+    onRoomCreated: function(room, navigateToDetail, roomBeingCreated) {
       CallLog.addRoom(room).then(room => {
-        navigateToDetail && Controller.showRoomDetails(room);
+        navigateToDetail && Controller.showRoomDetails(room,
+                                                       roomBeingCreated);
       });
     },
 
@@ -418,12 +419,12 @@
       return CallLog.removeRooms(token);
     },
 
-    showRoomDetails: function (room) {
+    showRoomDetails: function (room, roomBeingCreated) {
       if (!room) {
         return;
       }
       Loader.getRoomDetail().then((RoomDetail) => {
-        RoomDetail.show(room);
+        RoomDetail.show(room, roomBeingCreated);
       });
     },
 
