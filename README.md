@@ -78,12 +78,31 @@ really need as otherwise it might interfere with Loop Production metrics.
 
 ##### loopServer
 
-Configures the Loop server to be used. Possible values are
-production|stage|development. This changes the server in the config.js and
-the origin in the manifest.webapp file. E.g.
-```
+Configures the Loop server to be used.
+
+You can use one of the pre-defined servers, where possible values are
+production|stage|development. Alternatively you can pass a full URL·
+(including the protocol e.g. https://myloopserver.com).
+
+This changes the server in the config.js and the origin in the·
+manifest.webapp file.
+
+E.g. for a predefined server.
+
+``
 $ grunt build --loopServer=production
-```
+``
+
+E.g. for a custom server.
+
+``
+$ grunt build --loopServer=https://myloopserver.com
+``
+
+Please note that although the use of encryption is encouraged, the
+tool allows using servers using plain http. If an http server is
+used, the allowUnsecure parameter will be set to true in the·
+application config.js.
 
 ##### enforceDevices
 
