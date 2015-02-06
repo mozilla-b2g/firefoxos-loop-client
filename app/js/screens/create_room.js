@@ -142,7 +142,12 @@
       } else {
         room.usedDefaultName = roomName === roomNameByDefault;
       }
-      Controller.onRoomCreated(room, userInteraction);
+
+      // Update the telemetry values...
+      Telemetry.updateReport(room.usedDefaultName ?
+                               'created' : 'createdWithSubject');
+
+      Controller.onRoomCreated(room, userInteraction, true);
       room.usedDefaultName && asyncStorage.setItem(ROOM_NAME_COUNTER_KEY,
                                                    ++roomNumber);
       userInteraction && hide();

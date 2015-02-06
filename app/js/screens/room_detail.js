@@ -5,6 +5,7 @@
       _showHistoryButton, _deleteButton, _backButton, _expirationUI, _urlUI;
   var _room = null, _token = null;
   var _isOwner = false;
+  var _roomBeingCreated = false;
   var _ = navigator.mozL10n.get;
 
   function _onBack(event) {
@@ -141,7 +142,8 @@
         {
           type: 'room',
           name: _room.roomName,
-          url: _room.roomUrl
+          url: _room.roomUrl,
+          isCreation: _roomBeingCreated
         },
         function onShared(contact, identity) {
           Controller.onRoomShared(_room, contact, identity);
@@ -198,9 +200,12 @@
   }
 
   var RoomDetail = {
-    show: function(room) {
+    show: function(room, roomBeingCreated) {
       // Check if we are the owners
       _isOwner = room.roomOwner === Controller.identity;
+      // If this show doesn't come from a room creation,
+      // roomBeingCreated will be falsey
+      _roomBeingCreated = !!roomBeingCreated;
 
       // Cache room object for future methods
       _room = room;

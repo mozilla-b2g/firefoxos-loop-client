@@ -56,7 +56,8 @@
                   name: room.roomName,
                   url: room.roomUrl,
                   identity: identity,
-                  contact: contact
+                  contact: contact,
+                  isCreation: true
                 };
                 Share[method](params, function onShared(contact, identity) {
                   Controller.onRoomShared(room, contact, identity);
