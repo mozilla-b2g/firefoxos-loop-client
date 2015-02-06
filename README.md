@@ -51,7 +51,7 @@ PhantomJS.
 
 To add a new test, you only have to write the test (and add it somewhere under
 the test/ directory, preferably on test/unit) and then add a new .html file to
-test/test_scripts. That file should have the <script> tags to load your unit
+test/test_scripts. That file should have the &lt;script&gt; tags to load your unit
 test and any other script file you need (like the one you're actually testing).
 
 More notes about testing. We're using SlimerJS and grunt-mocha-slimerjs for
@@ -59,15 +59,21 @@ testing.  The Spec reporter (as set by default) do *not* log errors or stack
 traces on failures.  So if you want to see the errors (and believe me, you will)
 then you need to specify the JSON reporter. The easiest way to do this is with:
 
-grunt test --testReporter=JSON
+```
+  grunt test --testReporter=JSON
+```
 
 If you want to run only the test contained on test_name.js, execute:
 
-grunt test --testFile=name
+```
+  grunt test --testFile=name
+```
 
 e.g. to run only the test in test_join_room.js:
 
-grunt test --testFile=join_room
+```
+  grunt test --testFile=join_room
+```
 
 #### Grunt options
 
