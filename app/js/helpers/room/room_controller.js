@@ -481,8 +481,12 @@
                   var current = new Date().getTime();
                   debug && console.log('Room participant left');
                   Rooms.get(currentToken).then(room => {
-                    _participants = room.participants;
-                    setNumberParticipants(_participants.length);
+                    var participants = _participants = room.participants.length;
+                    if (event && event.connectionEvent &&
+                        (event.connectionEvent.reason === 'networkDisconnected')) {
+                      participants-=1;
+                    }
+                    setNumberParticipants(participants);
                   });
                   RoomUI.setWaiting();
                   _logEventCommunication (current);

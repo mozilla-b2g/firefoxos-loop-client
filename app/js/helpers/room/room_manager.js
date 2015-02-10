@@ -135,6 +135,17 @@
             });
           },
 
+          sessionDisconnected: function(event) {
+            if (event && (event.reason === 'networkDisconnected')) {
+              // tokbox.com/opentok/libraries/client/js/reference/Error.html
+              this.dispatchEvent(
+                new OT.ErrorEvent(OT.RoomManager.EventNames.ERROR,
+                                  1006,
+                                  'Connect failed')
+              );
+            }
+          },
+
           connectionCreated: function(event) {
             // The Session object dispatches a connectionCreated event when a
             // client (including your own) connects to a Session so we should
@@ -156,9 +167,7 @@
 
           connectionDestroyed: function(event) {
             // Fire an OT.RoomManager.EventNames.PARTICIPANT_LEFT event.
-            this.dispatchEvent(
-              new OT.Event(OT.RoomManager.EventNames.PARTICIPANT_LEFT)
-            );
+            this.dispatchEvent(new OT.ParticipantLeftEvent(event));
           },
 
           streamCreated: function(event) {
@@ -302,6 +311,14 @@
     LEFT: 'left',
     ERROR: 'error',
     INTERRUPT: 'interrupt'
+  };
+
+  OT.ParticipantLeftEvent = function(connectionEvent) {
+    OT.Event.call(this,
+                  OT.RoomManager.EventNames.PARTICIPANT_LEFT,
+                  false);
+
+    this.connectionEvent = connectionEvent;
   };
 
   OT.ErrorEvent = function(type, code, message) {
