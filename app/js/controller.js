@@ -371,19 +371,26 @@
     },
 
     joinRoom: function(token, roomName) {
-      Loader.getRoomController().then((RoomController) => {
-        _getCallScreenManager().then((csm) => {
-          var params = {
-            token: token,
-            roomName: roomName,
-            displayName: Controller.identity,
-            video: Settings.isVideoDefault,
-            frontCamera: Settings.isFrontalCamera
-          };
-          if (csm.callActive) {
-            params.action = 'reject';
+      return new Promise((resolve, reject) =>{
+        Loader.getRoomController().then((RoomController) => {
+          if (RoomController.roomActive) {
+            reject();
+            return;
           }
-          RoomController.join(params);
+          _getCallScreenManager().then((csm) => {
+            var params = {
+              token: token,
+              roomName: roomName,
+              displayName: Controller.identity,
+              video: Settings.isVideoDefault,
+              frontCamera: Settings.isFrontalCamera
+            };
+            if (csm.callActive) {
+              params.action = 'reject';
+            }
+            RoomController.join(params);
+            resolve();
+          });
         });
       });
     },

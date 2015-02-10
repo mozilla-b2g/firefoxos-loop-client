@@ -99,7 +99,13 @@
           console.error('Activity is not sending required data');
           return;
         }
-        Controller.joinRoom(activityParams.token);
+        Controller.joinRoom(activityParams.token).catch(
+          () => {
+            Loader.getErrorScreen().then(ErrorScreen => {
+              ErrorScreen.show(navigator.mozL10n.get('genericServerError1'));
+            });
+          }
+        );
         Telemetry.updateReport('receivedRooms');
         break;
     }
