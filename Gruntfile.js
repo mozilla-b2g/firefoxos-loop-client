@@ -11,7 +11,6 @@ module.exports = function(grunt) {
     'grunt-contrib-connect',
     'grunt-contrib-copy',
     'grunt-bower-task',
-    'grunt-firefoxos',
     'grunt-gitinfo',
     'grunt-mocha-slimer'
   ].forEach(grunt.loadNpmTasks);
@@ -137,19 +136,22 @@ module.exports = function(grunt) {
     ffospush: {
       app: {
         appId: '<%= grunt.config.get("origin") %>',
-        zip: 'application.zip'
+        localPort: 'tcp:6000',
+        appPath: 'build'
       }
     },
 
     ffosstop: {
       app: {
-        appId: '<%= grunt.config.get("origin") %>'
+        appId: '<%= grunt.config.get("origin") %>',
+        localPort: 'tcp:6000'
       }
     },
 
     ffoslaunch: {
       app: {
         appId: '<%= grunt.config.get("origin") %>',
+        localPort: 'tcp:6000'
       }
     }
   });
