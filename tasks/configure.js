@@ -143,7 +143,7 @@ module.exports = function(grunt) {
         break;
       case "production":
         config.metrics.enabled = true;
-        config.metrics.feedback.serverUrl = FEEDBACK_SERVER_PROD;
+        config.metrics.feedback.serverUrl = FEEDBACK_SERVER_PRODUCTION;
         break;
     }
 
