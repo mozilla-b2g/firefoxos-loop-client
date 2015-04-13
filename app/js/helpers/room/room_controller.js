@@ -194,7 +194,13 @@
         }, {
           body: _('tapToReturn'),
           icon: appInfo.icon,
-          tag: params.roomUrl
+          tag: params.roomUrl,
+          // Definition of vibrationPattern to 1ms is a
+          // workaround of this bug #1132245 that prevent
+          // to use 0 or empty array to cancel a vibration
+          mozbehavior: {
+            vibrationPattern: [1]
+          }
         }).then((notification) => {
           var onVisibilityChange = function() {
             if (!document.hidden) {
