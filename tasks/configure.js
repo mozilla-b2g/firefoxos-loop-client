@@ -10,7 +10,7 @@ module.exports = function(grunt) {
     grunt.option("loopServer", "production");
     grunt.option("metrics", "production");
     grunt.option("debug", false);
-    grunt.option("enforceDevices", true);
+    grunt.option("enforceDevices", false);
     grunt.option("performanceLog", "false");
   });
 
