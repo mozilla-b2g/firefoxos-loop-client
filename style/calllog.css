@@ -1,0 +1,559 @@
+#calllog-panel {
+  background-color: white;
+}
+
+#calllog-container {
+  overflow: hidden;
+  /* In order to have scroll working properly
+   * we stablish the 'real' heigh of the list, removing
+   * the space used by the header
+   */
+  height: calc(100% - 5rem);
+}
+
+.hidden {
+  display: none !important;
+}
+
+.calllog-sections-container {
+  width: 200%;
+  overflow: hidden;
+}
+
+.calllog-section {
+  width: 100%;
+  overflow: scroll;
+  transition: transform .2s ease-in-out;
+  transform: translateX(0);
+}
+
+.calllog-sections-container[data-section="calls"] .calllog-section {
+  transform: translateX(-100%);
+}
+
+.section-empty {
+  display: none;
+  height: calc(100% - 10rem);
+  position: relative;
+  margin: 0 1.5rem;
+}
+
+.section-empty-label {
+  border-top: 0.1rem solid rgba(96, 96, 96, 0.5);
+  color: #606060;
+  font-size: 2rem;
+  line-height: 3rem;
+  font-weight: 300;
+  padding: 1rem 1.5rem;
+  margin-top: 10rem;
+  flex: 1;
+}
+
+.calllog-section ul:last-child {
+  margin-bottom: 10rem;
+}
+
+.section-entries li * {
+  pointer-events: none;
+}
+
+.section-entries li .primary-action,
+.section-entries li .secondary-action {
+  pointer-events: all;
+}
+
+.section-entries li .primary-action {
+  padding: 1rem 1.5rem;
+}
+
+.section-entries li .secondary-action:active {
+  background-color: transparent;
+  color: #858585;
+}
+
+#rooms-section.empty .section-empty {
+  background-image: url(images/empty_rooms_log.png);
+}
+
+#calls-section.empty .section-empty {
+  background-image: url(images/empty_conversations_log.png);
+}
+
+#calls-section.empty .section-empty,
+#rooms-section.empty .section-empty {
+  display: flex;
+  align-items: center;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 19.4rem auto;
+  font-style: italic;
+}
+
+#calls-section.empty .calls-section-entries,
+#rooms-section.empty .rooms-section-entries {
+  display: none;
+}
+
+/* Icons */
+section[role="region"] > header:first-child .icon-settings,
+form[role="dialog"][data-type="confirm"] button.icon:before {
+  background-image: url(images/ico_settings.png);
+}
+
+.call-type-icon {
+  background: url(images/ico_calllog_sp.png) center no-repeat;
+  background-size: 2rem auto;
+  width: 2.5rem;
+  height: 3rem;
+  margin: 0 0.5rem;
+}
+
+.missed .call-type-icon {
+  background-position: 0 -12rem;
+}
+
+.outgoing-audio .call-type-icon {
+  background-position: 0 -9rem;
+}
+
+.incoming-audio .call-type-icon {
+  background-position: 0 -6rem;
+}
+
+.outgoing-video .call-type-icon {
+  background-position: 0 -3rem;
+}
+
+.incoming-video .call-type-icon {
+  background-position: 0 0;
+}
+
+/* List elements */
+#calls-section li p {
+  margin-left: 0;
+}
+
+.call-time {
+  line-height: 2rem;
+}
+
+.calllog-section .call-time,
+.calllog-section .retry-count,
+.calllog-section .secondary-info,
+.calllog-section .subject {
+  font-size: 1.5rem;
+  color: #858585;
+  white-space: nowrap;
+}
+
+#rooms-section-entries li {
+  padding: 0;
+  min-height: 6rem;
+  font-size: 1.5rem;
+  color: #858585;
+  font-weight: 400;
+}
+
+#rooms-section-entries header {
+  padding: 0 3.5rem;
+}
+
+#rooms-section-entries .secondary-info {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  margin: -0.5rem 0 .5rem 2rem;
+}
+
+#rooms-section-entries li .primary-info {
+  font-size: 1.9rem;
+  color: #333333;
+  padding: .5rem 2rem 1rem .5rem;
+}
+
+#rooms-section-entries li[data-participants]:before {
+  position: absolute;
+  content: "";
+  top: 1.7rem;
+  left: 1rem;
+  height: 1.6rem;
+  width: 2rem;
+  background: url("images/rooms_list_sprite.png") 0 -1.7rem no-repeat;
+  background-size: 2rem auto;
+}
+
+#rooms-section-entries li[data-is-owner="false"]:before,
+#rooms-section-entries li:not([data-no-longer-available])[data-is-owner="false"] .secondary-info {
+  display: none;
+}
+
+#rooms-section-entries li[data-is-owner="false"] .room-time span {
+  margin: 0 3rem 0 0;
+}
+
+#rooms-section-entries li[data-is-owner="false"] .primary-info {
+  line-height: 6rem;
+  padding: 0 0 0 .5rem;
+}
+
+#rooms-section-entries li:not([data-shared]) .secondary-info {
+  font-style: italic;
+}
+
+#rooms-section-entries li[data-participants="0"]:before {
+  background-position: 0 -3.3rem;
+}
+
+#rooms-section-entries li[data-participants="full"]:before {
+  background-position: 0 0;
+}
+
+#rooms-section-entries .room-time {
+  width: auto;
+  background-color: transparent;
+  border: none;
+  color: #858585;
+  padding: 2rem 0;
+  margin-right: 1.5rem !important;
+  font-size: 1.5rem;
+}
+
+#rooms-section-entries li .room-time span {
+  margin-right: 3rem;
+  font-style: normal;
+}
+
+#rooms-section-entries li[data-is-owner="true"][data-participants="full"] .room-time {
+  color: #bc1515;
+}
+
+.calllog-section .subject {
+  font-size: 1.6rem;
+}
+
+.calllog-section .missed .call-time {
+  color: #bc1515;
+}
+
+#calls-section .retry-count {
+  flex: 0.4
+}
+
+#rooms-section .secondary-info {
+  white-space: normal;
+}
+
+#rooms-section li[data-no-longer-available] .secondary-info {
+  color: #d74345;
+}
+
+#rooms-section .retry-count {
+  font-style: italic;
+  color: #00a9dc;
+}
+
+/* FOOTER */
+
+#calllog-actions {
+  width: 100%;
+  height: 11rem;
+  position: absolute;
+  bottom: 0;
+  background: linear-gradient(to top, rgba(255,255,255,1) 0%,
+                              rgba(255,255,255,1) 50%, rgba(255,255,255,0) 100%);
+}
+
+#calllog-actions button {
+  height: 6rem;
+  width: 6rem;
+  position: absolute;
+  top: 2rem;
+  left: calc(50% - 3rem);
+  pointer-events: auto;
+  border-radius: 50%;
+  overflow: visible;
+}
+
+/* Button to show actions */
+
+#calllog-actions .toggle-actions {
+  z-index: 1; /* This button is over rest of them */
+}
+
+/* The "toggle" button needs three layers: icon, dark blue and light blue layers */
+
+#calllog-actions .toggle-actions > label {
+  z-index: 1;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  border-radius: 50%;
+  background: url(images/ico_toggle_actions.png) no-repeat 2.25rem;
+  background-size: 1.5rem;
+}
+
+#calllog-actions .toggle-actions::before,
+#calllog-actions .toggle-actions::after {
+  content: '';
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  border-radius: 50%;
+  position: absolute;
+}
+
+#calllog-actions .toggle-actions::before {
+  background-color: #61cff0
+}
+
+#calllog-actions .toggle-actions::after {
+  background-color: #00a9dc
+}
+
+/* Room and conversation buttons */
+
+#calllog-actions .action {
+  background-color: #00a9dc;
+}
+
+#calllog-actions .action:active {
+  background-color: #a4e8fc;
+  color: #575757;
+}
+
+/* Button's labels below icons */
+
+#calllog-actions .action > label {
+  width: 300%;
+  height: 1.4rem;
+  position: absolute;
+  bottom: 1.4rem;
+  left: -100%;
+  font-size: 1.4rem;
+  color: #575757;
+  font-weight: 400;
+}
+
+/* This layer contains the icon for action buttons (room and conversation) */
+
+#calllog-actions .action::after {
+  content: '';
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: 1;
+}
+
+#calllog-actions .create-room::after {
+  background: url(images/ico_create_room.png) no-repeat 1.65rem 1.55rem;
+  background-size: 2.7rem 2.9rem;
+}
+
+#calllog-actions .new-conversation::after {
+  background: url(images/ico_new_conversation.png) no-repeat 1.75rem 1.8rem;
+  background-size: 2.5rem 2.4rem;
+}
+
+/* All transitions for the footer */
+
+/* The "toggle" icon is rotating during the whole transition */
+
+#calllog-actions .toggle-actions > label {
+  transform: rotate(0);
+  transition: transform .5s;
+}
+
+#calllog-actions.show .toggle-actions > label {
+  transform: rotate(405deg); /* 360deg + 45deg */
+}
+
+/* The "toggle" icon changes its color from dark to light (the ::after layer
+   disappears allowing users to see the ::before layer) */
+
+#calllog-actions .toggle-actions::after {
+  opacity: 1;
+  transition: opacity .5s;
+}
+
+#calllog-actions.show .toggle-actions::after {
+  opacity: 0;
+}
+
+/* "room" and "conversation" icons move from the center to the sides turning
+   100% opacity at the time they reach the final position */
+
+#calllog-actions .action {
+  opacity: .6;
+  transform: translateX(0);
+  transition: opacity .2s .3s, transform .2s .3s;
+}
+
+#calllog-actions.show .action {
+  opacity: 1;
+  transition: opacity .2s, transform .2s;
+}
+
+#calllog-actions.show .create-room {
+  transform: translateX(-9.2rem);
+}
+
+#calllog-actions.show .new-conversation {
+  transform: translateX(9.2rem);
+}
+
+/* Icons move from bottom to the center of the button from 25% opacity to 100% */
+
+#calllog-actions .action::after {
+  transform: translateY(1.65rem);
+  opacity: 0.25;
+  transition: opacity .2s .2s, transform .2s .2s;
+}
+
+#calllog-actions.show .action::after {
+  transform: translateY(0);
+  opacity: 1;
+  transition: opacity .2s .1s, transform .2s .1s;
+}
+
+/* Buttons labels slide from top to bottom, from 25% opacity to 100% when
+   reaching final position. */
+
+#calllog-actions .action > label {
+  opacity: 0;
+  transform: translateY(0);
+  transition: opacity .15s, transform .2s;
+}
+
+#calllog-actions.show .action > label {
+  opacity: 1;
+  transform: translateY(1.7rem);
+  transition: opacity .15s .35s, transform .2s .3s;
+}
+
+/*
+  MEDIA QUERIES FOR device-pixel-ratio
+*/
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+
+  section[role="region"] > header:first-child .icon-settings,
+  form[role="dialog"][data-type="confirm"] button.icon:before {
+    background-image: url(images/ico_settings@1.5x.png);
+  }
+
+  .call-type-icon {
+    background-image: url(images/ico_calllog_sp@1.5x.png);
+  }
+
+  #calllog-actions .toggle-actions > label {
+    background: url(images/ico_toggle_actions@1.5x.png) no-repeat 2.25rem;
+    background-size: 1.5rem;
+  }
+
+  #calllog-actions .create-room::after {
+    background: url(images/ico_create_room@1.5x.png) no-repeat 1.65rem 1.55rem;
+    background-size: 2.7rem 2.9rem;
+  }
+
+  #calllog-actions .new-conversation::after {
+    background: url(images/ico_new_conversation@1.5x.png) no-repeat 1.75rem 1.8rem;
+    background-size: 2.5rem 2.4rem;
+  }
+
+  #rooms-section.empty .section-empty {
+    background-image: url(images/empty_rooms_log@1.5x.png);
+  }
+
+  #calls-section.empty .section-empty {
+    background-image: url(images/empty_conversations_log@1.5x.png);
+  }
+
+  #rooms-section-entries li[data-participants]:before {
+    background-image: url(images/rooms_list_sprite@1.5x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+
+  section[role="region"] > header:first-child .icon-settings,
+  form[role="dialog"][data-type="confirm"] button.icon:before {
+    background-image: url(images/ico_settings@2x.png);
+  }
+  .call-type-icon {
+    background-image: url(images/ico_calllog_sp@2x.png);
+  }
+
+  #calllog-actions .toggle-actions > label {
+    background: url(images/ico_toggle_actions@2x.png) no-repeat 2.25rem;
+    background-size: 1.5rem;
+  }
+
+  #calllog-actions .create-room::after {
+    background: url(images/ico_create_room@2x.png) no-repeat 1.65rem 1.55rem;
+    background-size: 2.7rem 2.9rem;
+  }
+
+  #calllog-actions .new-conversation::after {
+    background: url(images/ico_new_conversation@2x.png) no-repeat 1.75rem 1.8rem;
+    background-size: 2.5rem 2.4rem;
+  }
+
+  #rooms-section.empty .section-empty {
+    background-image: url(images/empty_rooms_log@2x.png);
+  }
+
+  #calls-section.empty .section-empty {
+    background-image: url(images/empty_conversations_log@2x.png);
+  }
+
+  #rooms-section-entries li[data-participants]:before {
+    background-image: url(images/rooms_list_sprite@2x.png);
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+
+  section[role="region"] > header:first-child .icon-settings,
+  form[role="dialog"][data-type="confirm"] button.icon:before {
+    background-image: url(images/ico_settings@2.25x.png);
+  }
+
+  .call-type-icon {
+    background-image: url(images/ico_calllog_sp@2.25x.png);
+  }
+
+  #calllog-actions .toggle-actions > label {
+    background: url(images/ico_toggle_actions@2.25x.png) no-repeat 2.25rem;
+    background-size: 1.5rem;
+  }
+
+  #calllog-actions .create-room::after {
+    background: url(images/ico_create_room@2.25x.png) no-repeat 1.65rem 1.55rem;
+    background-size: 2.7rem 2.9rem;
+  }
+
+  #calllog-actions .new-conversation::after {
+    background: url(images/ico_new_conversation@2.25x.png) no-repeat 1.75rem 1.8rem;
+    background-size: 2.5rem 2.4rem;
+  }
+
+  #rooms-section.empty .section-empty {
+    background-image: url(images/empty_rooms_log@2.25x.png);
+  }
+
+  #calls-section.empty .section-empty {
+    background-image: url(images/empty_conversations_log@2.25x.png);
+  }
+
+  #rooms-section-entries li[data-participants]:before {
+    background-image: url(images/rooms_list_sprite@2.25x.png);
+  }
+
+}

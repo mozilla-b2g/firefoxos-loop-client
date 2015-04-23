@@ -1,0 +1,925 @@
+html, body {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+}
+
+.screen-disabled-workaround {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  display: none;
+
+  background: black;
+
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+.screen-disabled-workaround.on {
+  display: block;
+}
+
+.panel {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #1c5e6f;
+}
+
+.hide {
+  display: none !important;
+}
+/*
+ * Remove the styles by default
+ */
+
+* {
+  -moz-user-select: none !important;
+  user-select: none !important;
+}
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+/*
+ * Buttons
+ */
+
+.action-button {
+  position: absolute;
+  height: 6.6rem;
+  width: 6.6rem;
+  z-index: 10;
+  position: absolute;
+  border-radius: 3.3rem;
+  border: 0.3rem solid rgba(0,0,0,0.2);
+  margin: 0;
+  background-clip: padding-box !important;
+}
+
+.action-button span {
+  background-image: url(images/CallSprite.png);
+  background-repeat: no-repeat;
+  width: 4rem;
+  height: 4rem;
+  display: block;
+}
+
+/*
+ * Specific buttons for the incoming call layout. Some of them are shown
+ * as well in other states of the call.
+ */
+
+#hang-up {
+  bottom: 3rem;
+  left: 2.7rem;
+  z-index: 10;
+  background: #d74345;
+}
+
+#hang-up span {
+  background-position: 0rem -16rem;
+}
+
+#hang-up:active {
+  background: #9d3638;
+}
+
+#answer {
+  right: calc(50% - 3.3rem);
+  bottom: 12.6rem;
+  background-color: #5bc0a4;
+}
+
+#answer span {
+  background-position: 0.2rem -20rem;
+}
+
+#answer-video {
+  bottom: 3rem;
+  right: 2.7rem;
+  background-color: #5bc0a4;
+}
+
+#answer-video span {
+  background-position: -4rem 0rem;
+}
+
+#answer:active,
+#answer-video:active{
+  background-color: #a4e8fc;
+}
+
+/*
+ * Buttons when the call is connected/connecting related
+ * with the Settings of the call
+ */
+
+.setting-button,
+#call-settings-speaker.setting-enabled {
+  background-color: #00a9dc;
+  border: 0.3rem solid rgba(0,169,220,0.2);
+}
+
+.setting-button:active,
+#call-settings-speaker:active {
+  background-color: #a4e8fc;
+  border: 0.3rem solid rgba(255,255,255,0.2);
+}
+
+.setting-disabled {
+  background: rgba(0,0,0,0.5);
+  border: 0.3rem solid rgba(0,0,0,0.2);
+}
+
+#call-settings-video {
+  bottom: 3rem;
+  right: 2.7rem;
+}
+
+#call-settings-video span {
+  background-position: -4rem -4rem;
+}
+
+#call-settings-video.setting-disabled span {
+  background-position: 0 -4rem;
+}
+
+#call-settings-mute {
+  bottom: 10.3rem;
+  right: 2.7rem;
+}
+
+#call-settings-mute span {
+  background-position: 0 -20rem;
+}
+
+#call-settings-mute.setting-disabled span {
+  background-position: 0 -8rem;
+}
+
+#call-settings-speaker {
+  bottom: 17.6rem;
+  right: 2.7rem;
+  background: rgba(0,0,0,0.5);
+  border: 0.3rem solid rgba(0,0,0,0.2);
+}
+
+#call-settings-speaker span {
+  background-position: -4.3rem -12rem;
+}
+
+#call-settings-speaker.setting-enabled span {
+  background-position: 0 -12rem;
+}
+
+#resume-button {
+  bottom: 3rem;
+  right: 2.7rem;
+  background: #5bc0a4;
+  color: white;
+  width: calc(100% - 13.7rem);
+}
+
+#resume-button:active {
+  background-color: #a4e8fc;
+}
+
+/*
+ * Remote buble. We show a picture of the contact we are calling to.
+ * This will dissapear if the other will answer.
+ */
+
+.remote-bubble {
+  position: absolute;
+  top: 7rem;
+  left: calc(50% - 8rem);
+  width: 16rem;
+  height: 16rem;
+  background-size: 16rem 16rem;
+  background-repeat: no-repeat;
+  color: #27c8c2;
+  opacity: 1;
+  z-index: 10;
+  font-weight: 300;
+  border-radius: 50%;
+}
+
+body[data-subject="true"] .remote-bubble {
+  top: 9.5rem; /* Translated 2.5rem to show subject */
+}
+
+.remote-bubble-shadow {
+  position: absolute;
+  top: 6.7rem;
+  left: calc(50% - 8.3rem);
+  width: 16.6rem;
+  height: 16.6rem;
+  border-radius: 50%;
+  background: linear-gradient(#5bc0a4 0, #00a9dc 100%);
+  z-index: 5;
+}
+
+body[data-subject="true"] .remote-bubble-shadow {
+  top: 9.2rem; /* Translated 2.5rem to show subject */
+}
+
+.remote-bubble.default {
+  background: #1c5e6f url(images/avatar_x.png) no-repeat center;
+  background-size: 100% auto;
+}
+
+.remote-bubble {
+  font-weight: 400;
+}
+
+.local-bubble {
+  height: 8.5rem !important;
+  width: 8.5rem !important;
+
+  position: absolute !important;
+  bottom: 1.6rem !important;
+  left: calc(50% - 4.25rem) !important;
+  z-index: 10;
+
+  border-radius: 50% !important;
+  overflow: hidden !important;
+}
+
+.local-bubble-shadow {
+  height: 9.1rem;
+  width: 9.1rem;
+  position: absolute;
+  bottom: 1.3rem;
+  left: calc(50% - 4.55rem);
+  border-radius: 50%;
+  z-index: 5;
+  background: linear-gradient(#5bc0a4 0, #00a9dc 100%);
+}
+
+#local-video {
+  background: #113843;
+}
+
+#local-video progress{
+  display: block !important;
+  position: absolute;
+  left: 2.75rem;
+  top: 2.75rem;
+}
+
+.fake-local-video {
+  z-index: 15 !important;
+}
+
+/*
+ * Contact info.
+ */
+
+#contact-name-details, #subject {
+  margin: 0;
+  text-align: center;
+  position: absolute;
+  font-style: italic;
+  font-weight: 300;
+  width: 100%;
+  color: white;
+  box-sizing: border-box;
+  overflow: hidden !important;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  z-index: 10;
+}
+
+#contact-name-details {
+  top: 2rem;
+  font-size: 2.7rem;
+  padding: .5rem 3rem;
+}
+
+body[data-subject="true"] #contact-name-details {
+  top: 1rem;
+}
+
+#subject {
+  top: 5rem;
+  font-size: 2rem;
+  padding: 0 3rem;
+  font-weight: 400;
+}
+
+#call-info {
+  display: flex;
+  text-align: center;
+  transform: translateY(24.5rem);
+  z-index: 10;
+  justify-content: center;
+}
+
+body[data-subject="true"] #call-info {
+  transform: translateY(27rem);
+}
+
+#counter {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 2rem;
+  padding: 0 0.5rem;
+}
+
+.counter {
+  display: none;
+  color: #97e0f6;
+  -moz-font-feature-settings: 'tnum';
+  font-feature-settings: 'tnum';
+}
+
+body[data-call-status='connected'] .counter,
+body[data-call-status='hold'] .counter,
+body[data-call-status='remotehold'] .counter {
+  display: block;
+}
+
+#call-status-info {
+  color: white;
+  font-size: 1.8rem;
+  font-style: italic;
+  font-weight: 300;
+  box-sizing: border-box;
+  padding: 0.2rem 0.5rem 0;
+}
+
+.call-status-info {
+  display: none;
+}
+
+body[data-call-status='dialing'] .call-status-info,
+body[data-call-status='outgoing'] .call-status-info,
+body[data-call-status='connecting'] .call-status-info,
+body[data-call-status='unavailable'] .call-status-info,
+body[data-call-status='hold'] .call-status-info,
+body[data-call-status='remotehold'] .call-status-info,
+body[data-call-status='ended'] .call-status-info {
+  display: block;
+}
+
+body[data-call-status='connecting'] #resume-button,
+body[data-call-status='connecting'] #answer-video,
+body[data-call-status='connecting'] #answer {
+  display: none;
+}
+
+body[data-call-status='dialing'] #resume-button,
+body[data-call-status='dialing'] #answer-video,
+body[data-call-status='dialing'] #answer,
+body[data-call-status='unavailable'] #resume-button,
+body[data-call-status='unavailable'] #answer-video,
+body[data-call-status='unavailable'] #answer,
+body[data-call-status='unavailable'] #call-settings-video,
+body[data-call-status='unavailable'] #call-settings-speaker,
+body[data-call-status='unavailable'] #call-settings-mute,
+body[data-call-status='unavailable'] #hang-up {
+  display: none;
+}
+
+body[data-call-status='dialing'] .call-status-info,
+body[data-call-status='connecting'] .call-status-info,
+body[data-call-status='outgoing'] .call-status-info {
+  animation: animateFade 2s infinite;
+}
+
+@keyframes animateFade {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.2; }
+  100% { opacity: 1; }
+}
+
+/*
+ * Wrapper to the video one
+ */
+
+.video-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+
+/*
+ * Status bar of the call screen
+ */
+
+#call-bar {
+  line-height: 4rem;
+  font-size: 1.7rem;
+  color: white;
+  font-weight: 400;
+  visibility: hidden;
+  pointer-events: none;
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  background-color: #4e4e4e;
+  height: 4rem;
+  background-image: url(images/ico_callstatusbar.png);
+  background-size: 3rem;
+  background-position: .5rem;
+  background-repeat: no-repeat;
+}
+
+#call-bar .call-info {
+  float: left;
+  padding-left: 4.3rem;
+  max-width: 50%;
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#call-bar .call-info .contact-name {
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 4rem;
+  display: block;
+}
+
+body[data-subject='true'] #call-bar .call-info .contact-name {
+  margin-top: .2rem;
+  line-height: 2rem;
+}
+
+#call-bar .call-info .subject {
+  margin-top: -0.4rem;
+  font-size: 1.4rem;
+  font-weight: 400;
+  line-height: 2rem;
+  display: none;
+}
+
+body[data-subject='true'] #call-bar .call-info .subject {
+  display: inline-block;
+}
+
+#call-bar > span {
+  float: right;
+}
+
+#call-bar .counter,
+#call-bar .call-status-info {
+  padding-right: 1.5rem;
+}
+
+#call-bar .icon {
+  display: none;
+  background-image: url(images/callstatusbar_sprite.png);
+  background-repeat: no-repeat;
+  margin-top: .5rem;
+  width: 2.4rem;
+  height: 3rem;
+  background-size: 2.4rem 15rem;
+}
+
+#call-bar .micro-info.disabled {
+  background-position: 0rem -6rem;
+}
+
+#call-bar .video-info.disabled {
+  background-position: 0rem -12rem;
+}
+
+#call-bar .on-hold-info {
+  background-position: 0rem 0rem;
+}
+
+body[data-call-status='connected'] #call-bar .micro-info.disabled,
+body[data-call-status='connected'] #call-bar .video-info.disabled,
+body[data-call-status='hold'] #call-bar .on-hold-info,
+body[data-call-status='remotehold'] #call-bar .on-hold-info {
+  display: block;
+}
+
+body[data-call-status='hold'] #call-bar .call-status-info,
+body[data-call-status='remotehold'] #call-bar .call-status-info {
+  display: none;
+}
+
+body.status-bar #call-bar {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/*
+ * Call types
+ */
+
+body[data-local-video="on"] .local-bubble,
+body[data-local-video="on"] .local-bubble-shadow {
+  display: block;
+}
+
+body[data-local-video="off"] .local-bubble,
+body[data-local-video="off"] .local-bubble-shadow,
+body[data-call-status='unavailable'] #local-video,
+body[data-call-status='unavailable'] .local-bubble-shadow {
+  display: none;
+}
+
+/*
+ * OpenTok tweaks
+ */
+
+#local-video *,
+#fullscreen-video * {
+  display: none !important;
+}
+
+#local-video .OT_video-container{
+  display: block !important;
+  position: relative !important;
+  width: 120% !important;
+  height: 120% !important;
+  margin-top: -10%;
+  z-index: 10;
+}
+
+#local-video video{
+  display: block !important;
+  position: absolute !important;
+  width: 100% !important;
+  height: auto !important;
+  left: 0 !important;
+}
+
+#fullscreen-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 100% !important;
+  height: 100% !important;
+  background: #1c5e6f !important;
+}
+
+#fullscreen-image {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  background: #1c5e6f;
+  background-size: auto 100%;
+  background-position: 50%;
+  background-repeat: no-repeat;
+  background-blend-mode: luminosity;
+}
+
+#fullscreen-mask {
+  z-index: 5;
+  background-size: auto 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+}
+
+#fullscreen-video .OT_video-container {
+  display: block !important;
+  background: #1c5e6f !important;
+}
+
+#fullscreen-video .OT_video-container video{
+  display: block !important;
+}
+
+
+/*
+ * STATES of the app
+ * - data-settings: true/false
+ *   Show/Hide the buttons. We need to use combined with 'no-transition' style
+ * - data-call-status: dialing/connecting/connected/unavailable/
+ *                     hold/remotehold/ended/feedback
+ *   Show the layout according to the status of the call
+ */
+
+
+
+body.no-transition .setting-button{
+  opacity: 0;
+}
+
+
+/*
+ * - data-call-status: incoming/outgoing/connected/hold/feedback
+ *   Show the layout according to the status of the call
+ */
+body[data-call-status='outgoing'] #answer,
+body[data-call-status='outgoing'] #answer-video,
+body[data-call-status='outgoing'] #resume-button {
+  display: none;
+}
+
+
+body[data-call-status='incoming'] #call-settings,
+body[data-call-status='incoming'] #call-settings-speaker ,
+body[data-call-status='incoming'] #call-settings-video,
+body[data-call-status='incoming'] #call-settings-mute,
+body[data-call-status='incoming'] #resume-button {
+  display: none;
+}
+
+body[data-call-status='connected'] #answer,
+body[data-call-status='connected'] #answer-video,
+body[data-call-status='connected'] #resume-button {
+  display: none;
+}
+
+body[data-call-status='hold'] #call-settings,
+body[data-call-status='hold'] #call-settings-speaker ,
+body[data-call-status='hold'] #call-settings-video,
+body[data-call-status='hold'] #call-settings-mute,
+body[data-call-status='hold'] #answer,
+body[data-call-status='hold'] #answer-video,
+body[data-call-status='hold'] #local-video,
+body[data-call-status='hold'] .local-bubble-shadow {
+  display: none;
+}
+
+body[data-call-status='remotehold'] #call-settings,
+body[data-call-status='remotehold'] #call-settings-speaker ,
+body[data-call-status='remotehold'] #call-settings-video,
+body[data-call-status='remotehold'] #call-settings-mute,
+body[data-call-status='remotehold'] #answer,
+body[data-call-status='remotehold'] #answer-video,
+body[data-call-status='remotehold'] #local-video,
+body[data-call-status='remotehold'] #resume-button,
+body[data-call-status='remotehold'] .local-bubble-shadow {
+  display: none;
+}
+
+body[data-call-status='ended'] #call-settings,
+body[data-call-status='ended'] #call-settings-speaker ,
+body[data-call-status='ended'] #call-settings-video,
+body[data-call-status='ended'] #call-settings-mute,
+body[data-call-status='ended'] #answer,
+body[data-call-status='ended'] #answer-video,
+body[data-call-status='ended'] #local-video,
+body[data-call-status='ended'] #resume-button,
+body[data-call-status='ended'] #hang-up,
+body[data-call-status='ended'] .local-bubble-shadow {
+  display: none;
+}
+
+body[data-call-status='connected'][data-remote-video="on"][data-rotation="0"] #call-info,
+body[data-call-status='connected'][data-remote-video="on"][data-rotation="180"] #call-info {
+  transform: translateY(6rem);
+}
+
+body[data-subject='true'][data-call-status='connected'][data-remote-video="on"][data-rotation="0"] #call-info,
+body[data-subject='true'][data-call-status='connected'][data-remote-video="on"][data-rotation="180"] #call-info {
+  transform: translateY(8.5rem);
+}
+
+body[data-call-status='hold'] .remote-bubble-shadow,
+body[data-call-status='remotehold'] .remote-bubble-shadow {
+  background: rgba(255,255,255,0.5);
+}
+
+body[data-call-status='connected'][data-remote-video="on"] .remote-bubble,
+body[data-call-status='connected'][data-remote-video="on"] .remote-bubble-shadow {
+  display: none;
+}
+
+body[data-remote-video="off"] #fullscreen-video {
+  display: none;
+}
+
+body[data-remote-video="on"] #fullscreen-video {
+  display: block;
+}
+
+body[data-remote-video="off"] #fullscreen-image {
+  display: block;
+}
+
+body[data-remote-video="on"] #fullscreen-image {
+  display: none;
+}
+
+
+/*
+  Landscape layout
+*/
+
+body[data-rotation="90"] .panel,
+body[data-rotation="270"] .panel {
+  transform: rotate(270deg) translate(-100%, 0);
+  transform-origin: 0 0;
+  width: 100vh;
+  height: 100vw;
+}
+
+body[data-rotation="270"] .panel {
+  transform: rotate(90deg) translate(0, -100%);
+}
+
+body[data-rotation="90"] #contact-name-details,
+body[data-rotation="270"] #contact-name-details {
+  top: 1.5rem;
+  padding: 0 1.5rem;
+}
+
+body[data-subject="true"][data-rotation="90"] #contact-name-details,
+body[data-subject="true"][data-rotation="90"] #contact-name-details {
+  top: 1rem;
+}
+
+body[data-subject="true"][data-rotation="90"] #subject,
+body[data-subject="true"][data-rotation="90"] #subject {
+  top: 4.5rem;
+  padding: 0 3rem;
+}
+
+body[data-rotation="90"] #call-info,
+body[data-rotation="270"] #call-info{
+  transform: translateY(4.5rem);
+}
+
+body[data-subject="true"][data-rotation="90"] #call-info,
+body[data-subject="true"][data-rotation="270"] #call-info{
+  transform: translateY(23rem);
+}
+
+body[data-subject="true"][data-call-status='connected'][data-remote-video="on"][data-rotation="90"] #call-info,
+body[data-subject="true"][data-call-status='connected'][data-remote-video="on"][data-rotation="270"] #call-info{
+  transform: translateY(8rem);
+}
+
+body[data-rotation="90"] #fullscreen-video .OT_video-container video,
+body[data-rotation="270"] #fullscreen-video .OT_video-container video {
+  width: 100% !important;
+}
+
+body[data-rotation="90"] #hang-up,
+body[data-rotation="270"] #hang-up {
+  bottom: 1.5rem;
+  left: 1.5rem;
+}
+
+body[data-rotation="90"] #call-settings-video,
+body[data-rotation="270"] #call-settings-video {
+  bottom: 8.9rem;
+  left: 1.5rem;
+}
+
+body[data-rotation="90"] #call-settings-mute,
+body[data-rotation="270"] #call-settings-mute {
+  bottom: 16.4rem;
+  left: 1.5rem;
+}
+
+body[data-rotation="90"] #call-settings-speaker,
+body[data-rotation="270"] #call-settings-speaker {
+  bottom: 23.9rem;
+  left: 1.5rem;
+}
+
+body[data-rotation="90"] #call-settings-video:active,
+body[data-rotation="270"] #call-settings-video:active,
+body[data-rotation="90"] #call-settings-mute:active,
+body[data-rotation="270"] #call-settings-mute:active,
+body[data-rotation="90"] #call-settings-speaker:active,
+body[data-rotation="270"] #call-settings-speaker:active {
+  transform: translate(-0.8rem, 0.8rem);
+}
+
+body[data-rotation="90"] .remote-bubble,
+body[data-rotation="270"] .remote-bubble {
+  top: 8rem;
+  left: calc(50% - 7rem);
+  width: 14rem;
+  height: 14rem;
+}
+
+body[data-rotation="90"] .remote-bubble-shadow,
+body[data-rotation="270"] .remote-bubble-shadow {
+    position: absolute;
+    top: 7.7rem;
+    left: calc(50% - 7.3rem);
+    width: 14.6rem;
+    height: 14.6rem;
+}
+
+body[data-rotation="90"] .local-bubble-shadow,
+body[data-rotation="270"] .local-bubble-shadow {
+  left: unset;
+  right: 1.5rem;
+  bottom: 1.5rem;
+}
+
+body[data-rotation="90"] #local-video,
+body[data-rotation="270"] #local-video {
+  right: 1.8rem !important;
+  bottom: 1.8rem !important;
+  left: unset !important;
+  transform: rotate(90deg)
+}
+
+body[data-rotation="270"] #local-video {
+  transform: rotate(270deg)
+}
+
+body[data-rotation="90"] #resume-button,
+body[data-rotation="270"] #resume-button  {
+  right: unset;
+  width: 18rem;
+  bottom: 1.5rem;
+  left: calc(50% - 9rem);
+}
+
+
+/*
+  MEDIA QUERIES FOR device-pixel-ratio
+*/
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+
+  #feedback label.pack-checkbox input:checked ~ span:after {
+    background-image: url(images/ico_check@1.5x.png);
+  }
+
+  .remote-bubble.default {
+    background-image: url(images/avatar_x@1.5x.png);
+  }
+
+  .action-button span,
+  .feedback-icon {
+    background-size: 12.8rem;
+    background-image: url(images/CallSprite@1.5x.png);
+  }
+
+  #call-bar {
+    background-image: url(images/ico_callstatusbar@1.5x.png);
+  }
+
+  #call-bar .icon {
+    background-image: url(images/callstatusbar_sprite@1.5x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+
+  #feedback label.pack-checkbox input:checked ~ span:after {
+    background-image: url(images/ico_check@2x.png);
+  }
+
+  .remote-bubble.default {
+    background-image: url(images/avatar_x@2x.png);
+  }
+
+  .action-button span,
+  .feedback-icon {
+    background-size: 12.8rem;
+    background-image: url(images/CallSprite@2x.png);
+  }
+
+  #call-bar {
+    background-image: url(images/ico_callstatusbar@2x.png);
+  }
+
+  #call-bar .icon {
+    background-image: url(images/callstatusbar_sprite@2x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+
+  #feedback label.pack-checkbox input:checked ~ span:after {
+    background-image: url(images/ico_check@2.25x.png);
+  }
+
+  .remote-bubble.default {
+    background-image: url(images/avatar_x@2.25x.png);
+  }
+
+  .action-button span,
+  .feedback-icon {
+    background-size: 12.8rem;
+    background-image: url(images/CallSprite@2.25x.png);
+  }
+
+  #call-bar {
+    background-image: url(images/ico_callstatusbar@2.25x.png);
+  }
+
+  #call-bar .icon {
+    background-image: url(images/callstatusbar_sprite@2.25x.png);
+  }
+}

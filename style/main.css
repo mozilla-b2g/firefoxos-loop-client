@@ -1,0 +1,230 @@
+html {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  font-size: 10px;
+  overflow-x: hidden !important;
+  overflow-y: hidden !important;
+  font-family: 'Fira Sans', sans-serif;
+  background: white;
+}
+
+.panel {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  height: 100%;
+  width: 100%;
+}
+
+.panel.show {
+  display: block;
+}
+
+.modal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: white;
+  z-index: 100;
+  transition: all ease .5s;
+  transform: translateY(100%);
+}
+
+.modal.show {
+  transition: all ease .5s;
+  transform: translateY(0);
+}
+
+.dialog {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 300;
+  opacity: 1;
+}
+
+.dialog.show {
+  display: block;
+}
+
+input::-moz-focus-inner,
+button::-moz-focus-inner {
+  border: 0;
+}
+
+.hide {
+  display: none;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.no-overflow {
+  overflow: hidden;
+}
+
+.expand {
+  width: 100%;
+}
+
+.max-height {
+  height: 100%;
+}
+
+.italic {
+  font-style: italic;
+}
+
+/* General overrides for BB and lib/components */
+section.skin-comms[role="region"] > header:first-child {
+  background-color: #00a9dc;
+}
+
+.skin-comms .bb-tablist[data-type="filter"] > li > a[aria-selected="true"],
+.skin-comms .bb-tablist[data-type="filter"] > li > button[aria-selected="true"] {
+  color: #00a9dc;
+  border-bottom: 0.3rem solid #00a9dc;
+}
+
+.skin-comms .bb-tablist[data-type="filter"] > li > a[aria-selected="true"],
+.skin-comms .bb-tablist[data-type="filter"] > li > button[aria-selected="true"] {
+  color: #00a9dc;
+}
+
+.skin-comms .gaia-list header {
+  color: #00a9dc;
+}
+
+form[role="dialog"][data-type="confirm"],
+form[role="dialog"][data-type="action"] {
+  background: linear-gradient(#00a9dc, #5bc0a4);
+}
+
+form[role="dialog"][data-type="confirm"] p {
+  border-color: #fff;
+}
+
+ form[role="dialog"][data-type="confirm"] ul {
+  border-top: none;
+  border-bottom: 0.1rem solid #fff;
+  padding: 0 1.5rem 0.5rem;
+}
+
+[role="dialog"][data-type="action"] > menu > button {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  color: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+form[role="dialog"][data-type="confirm"] menu,
+[role="dialog"][data-type="action"] > menu > button:last-child:before {
+  background: none;
+}
+
+form[role="dialog"][data-type="confirm"] section button {
+  margin-left: -1.5rem;
+  width: calc(100% + 3rem);
+  color: #fff;
+}
+
+form[role="dialog"][data-type="confirm"] menu button,
+[role="dialog"][data-type="action"] > menu > button:last-child {
+  background: #fff;
+  color: #575757;
+  border: none;
+}
+
+button.recommend,
+form[role="dialog"][data-type="confirm"] menu button.recommend {
+  background: #00a9dc;
+  color: #fff;
+}
+
+button.danger,
+form[role="dialog"][data-type="confirm"] menu button.danger {
+  background: #d74345;
+  color: #fff;
+}
+
+button:active,
+form[role="dialog"][data-type="confirm"] menu button:active,
+[role="dialog"][data-type="action"] > menu > button:active {
+  background-color: #b2f2ff;
+  color: #fff;
+}
+
+li button.icon-view {
+  background-color: transparent;
+  border: none;
+}
+
+li button.icon-view:before {
+  right: -10px;
+}
+
+input:focus,
+textarea:focus {
+  box-shadow: 0px -0.1rem 0px #00a9dc inset;
+  border-bottom-color: #00a9dc;
+}
+
+label.pack-radio.white input ~ span:after {
+  background-image: url(images/switches/images/radio/white.png);
+}
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+  label.pack-radio.white input ~ span:after {
+    background-image: url(images/switches/images/radio/white@1.5x.png);
+  }
+  li button.icon-view:before {
+    background-image: url("bb/buttons/images/next@1.5x.png");
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+  label.pack-radio.white input ~ span:after {
+    background-image: url(images/switches/images/radio/white@2x.png);
+  }
+  li button.icon-view:before {
+    background-image: url("bb/buttons/images/next@2x.png");
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+  label.pack-radio.white input ~ span:after {
+    background-image: url(images/switches/images/radio/white@2.25x.png);
+  }
+  li button.icon-view:before {
+    background-image: url("bb/buttons/images/next@2.25x.png");
+  }
+}
+
+/* Error screen */
+#error-screen {
+  /*
+   * Mirrors from navigation are using 10000, so I would need a bigger
+   * value for the error screen. If not, mirror transition will hide this
+   * error message
+   */
+  z-index: 10001 !important;
+}
+
+#error-screen ul {
+  display: none;
+}
+
+#error-screen[data-type="offline"] ul,
+#error-screen[data-type="signuperror"] ul {
+  display: block;
+}

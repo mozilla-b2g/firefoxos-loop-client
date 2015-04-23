@@ -1,0 +1,27 @@
+<element name="room-history-panel" extends="section">
+
+  <link rel="stylesheet" type="text/css" href="style/history_room.css"></link>
+  <script src="js/screens/room/room_history.js"></script>
+
+  <template>
+    <header>
+      <button id="rhp-back-button" class="icon icon-back"></button>
+      <h1 data-l10n-id="roomHistory"></h1>
+    </header>
+    <section>
+      <div id="rhp-events-section-entries" class="events-section gaia-list active sticky">
+      </div>
+    </section>
+    <div id="rhp-history-tmpl" class="hide">
+      <!--
+      <div class="vbox no-overflow expand">
+        <div class="hbox">
+          <p class="fit room-evt-text">${evtString}</p>
+          <span class="room-evt-time">${evtTime}</span>
+        </div>
+        <p class="room-evt-details">${evtDuration}</p>
+      </div>
+      -->
+    </div>
+  </template>
+</element>

@@ -1,0 +1,8 @@
+#shared-with section {
+  /* In order to have scroll working properly
+   * we stablish the 'real' heigh of the list, removing
+   * the space used by the header
+   */
+  height: calc(100% - 5rem);
+  background: #fff;
+}

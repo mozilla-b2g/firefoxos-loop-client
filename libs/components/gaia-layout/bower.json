@@ -1,0 +1,14 @@
+{
+  "name": "gaia-layout",
+  "version": "0.1.5",
+  "homepage": "https://github.com/gaia-components/gaia-layout",
+  "authors": [
+    "The Gaia Team"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ]
+}

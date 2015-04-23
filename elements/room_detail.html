@@ -1,0 +1,45 @@
+<element name="room-detail-panel" extends="section">
+
+  <link rel="stylesheet" type="text/css" href="style/room_detail.css"></link>
+  <script src="js/screens/room_detail.js"></script>
+
+  <template>
+    <section class="vbox skin-comms max-height" role="region">
+      <header>
+        <button id="rdp-back-button" class="icon icon-back"></button>
+        <menu type="toolbar">
+          <button id="rdp-edit-button" data-l10n-id="edit"></button>
+        </menu>
+        <h1 data-l10n-id="roomDetail"></h1>
+      </header>
+      <section id="" class="gaia-list fit scroll">
+        <ul>
+          <li class="vbox">
+            <p id="rdp-name" class="title"></p>
+            <p id="rdp-url" class="italic"></p>
+            <p id="rdp-creation-date" class="italic"></p>
+            <p id="rdp-owner" class="italic"></p>
+          </li>
+          <li id="rdp-share-section" class="vbox">
+            <label data-l10n-id="shareRoom"></label>
+            <button data-l10n-id="pickContact" class="icon icon-pick-contact" id="rdp-share-contact"></button>
+          </li>
+          <li id="rdp-invitees-section" class="vbox active">
+            <button id="rdp-show-invitees" class="icon icon-view" data-l10n-id="sharedWith"></button>
+          </li>
+          <li id="rdp-history-section" class="active">
+            <button data-l10n-id="history" id="rdp-show-history" class="icon icon-view">
+            </button>
+          </li>
+          <li id="rdp-expiration-section" class="vbox">
+            <label data-l10n-id="roomExpiration" class="title"></label>
+            <p id="rdp-expiration" class="italic"></p>
+          </li>
+        </ul>
+      </section>
+      <footer class="gaia-footer">
+        <button data-l10n-id="deleteRoom" id="rdp-delete" class="danger"></button>
+      </footer>
+    </section>
+  </template>
+</element>

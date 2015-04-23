@@ -1,0 +1,13 @@
+diff --git a/app/libs/tokbox/v2.2.9.3/js/TB.js b/app/libs/tokbox/v2.2.9.3/js/TB.js
+index e5d442a..b673ce6 100644
+--- a/app/libs/tokbox/v2.2.9.3/js/TB.js
++++ b/app/libs/tokbox/v2.2.9.3/js/TB.js
+@@ -3509,7 +3509,7 @@
+     }
+ 
+     if (!props.configURL) props.configURL = props.assetURL + '/js/dynamic_config.min.js';
+-    if (!props.cssURL) props.cssURL = props.assetURL + '/css/ot.min.css';
++    if (!props.cssURL) props.cssURL = props.assetURL + '/css/ot.css';
+ 
+     return props;
+   }(OT.properties);

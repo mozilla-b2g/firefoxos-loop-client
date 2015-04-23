@@ -1,0 +1,147 @@
+#conversation-detail {
+  z-index: 200;
+}
+
+#conversation-detail form {
+  padding: 3rem 0 2.6rem;
+  margin: 0 1.5rem;
+  border-bottom: 0.1rem solid #e7e7e7;
+}
+
+#conversation-detail[data-is-video="false"] form {
+  border-bottom: none;
+}
+
+#conversation-detail form p.charCounter {
+  margin-top: -.5rem;
+  font-size: 1.4rem;
+  height: 1.4rem;
+  font-weight: 400;
+  color: #858585;
+  font-style: italic;
+  -moz-font-feature-settings: 'tnum';
+}
+
+#conversation-detail form p.charCounter[data-countdown='124'] {
+  visibility: hidden;
+}
+
+#conversation-detail form p.charCounter[data-countdown^='-'] {
+  color: #b90000;
+}
+
+#conversation-detail .gaia-list header {
+  text-transform: none;
+  color: #5a6061;
+  font-size: 1.6rem;
+  font-weight: 400;
+}
+
+#conversation-detail .gaia-list li.icon {
+  background-position: 2.2rem center;
+  padding-left: 4.5rem;
+}
+
+#conversation-detail .gaia-list li.icon::before {
+  content: '';
+  top: 0;
+  left: 2.2rem;
+  bottom: 0;
+  width: 3rem;
+  background: rgba(255, 255, 255, .5);
+  position: absolute;
+  visibility: hidden;
+}
+
+#conversation-detail .icon-camera-front {
+  background-image: url("images/ico_Camerafront.png");
+}
+
+#conversation-detail .icon-camera-front:after {
+  border-bottom: none;
+}
+
+#conversation-detail .icon-camera-back {
+  background-image: url("images/ico_Camerarear.png");
+}
+
+#conversation-detail[data-is-video="false"] .camera-container {
+  display: none;
+}
+
+#conversation-detail .camera-container[data-camera="camera-back"] .icon-camera-front::before,
+#conversation-detail .camera-container[data-camera="camera-front"] .icon-camera-back::before {
+  visibility: visible;
+}
+
+#conversation-detail label.pack-radio input ~ span {
+  font-weight: 300;
+  font-style: italic;
+  font-size: 2.1rem;
+  color: #333333;
+}
+
+#conversation-detail label.pack-radio input:checked ~ span {
+  font-weight: 400;
+}
+
+#conversation-detail .reminder {
+  padding-left: 3rem;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #858585;
+}
+
+#conversation-detail .gaia-footer {
+  z-index: 1;
+}
+
+#conversation-detail .gaia-footer button {
+  background-color: #0dca95;
+  color: white;
+}
+
+#conversation-detail .gaia-footer button:disabled {
+  background-color: #9fd9c9;
+  color: rgba(255, 255, 255, .5);
+}
+
+/*
+  MEDIA QUERIES FOR device-pixel-ratio
+*/
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+
+  #conversation-detail .icon-camera-front {
+    background-image: url("images/ico_Camerafront@1.5x.png");
+  }
+
+  #conversation-detail .icon-camera-back {
+    background-image: url("images/ico_Camerarear@1.5x.png");
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+
+  #conversation-detail .icon-camera-front {
+    background-image: url("images/ico_Camerafront@2x.png");
+  }
+
+  #conversation-detail .icon-camera-back {
+    background-image: url("images/ico_Camerarear@2x.png");
+  }
+
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+
+  #conversation-detail .icon-camera-front {
+    background-image: url("images/ico_Camerafront@2.25x.png");
+  }
+
+  #conversation-detail .icon-camera-back {
+    background-image: url("images/ico_Camerarear@2.25x.png");
+  }
+
+}

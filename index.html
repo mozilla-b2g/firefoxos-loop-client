@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="theme-color" content="#00a9dc">
+    <title>Loop sketch</title>
+    <!-- Prevent scrolling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+    <!-- App styles -->
+    <link rel="stylesheet" type="text/css" href="style/bb/progress_activity.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/tabs.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/switches.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/headers.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/buttons.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/input_areas.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/confirm.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/action_menu.css">
+    <link rel="stylesheet" type="text/css" href="style/bb/status.css">
+    <link rel="stylesheet" type="text/css" href="libs/components/gaia-layout/style.css">
+
+    <link rel="stylesheet" type="text/css" href="style/settings.css">
+    <link rel="stylesheet" type="text/css" href="style/loading_overlay.css">
+    <link rel="stylesheet" type="text/css" href="style/calllog.css">
+    <link rel="stylesheet" type="text/css" href="style/main.css">
+    <link rel="stylesheet" type="text/css" href="style/navigation.css">
+    <link id="splash-screen-stylesheet"rel="stylesheet" type="text/css" href="style/splash_screen.css">
+    <!--
+      Adding all elements to be imported directly. Add 'is' with the
+      same attribute as your HTML element in order to use the Loader
+      properly.
+    -->
+    <link rel="import" href="elements/create_room.html" is="new-room">
+    <link rel="import" href="elements/shared_with.html" is="shared-with">
+    <link rel="import" href="elements/room_detail.html" is="room-detail-panel">
+    <link rel="import" href="elements/room_history.html" is="room-history-panel">
+    <link rel="import" href="elements/room_ui.html" is="room-ui">
+    <link rel="import" href="elements/conversation_detail.html" is="conversation-detail">
+    <link rel="import" href="elements/join_room.html" is="join-room">
+
+    <link rel="manifest" href="manifest.webapp">
+    <link rel="localization" href="locales/loop.{locale}.properties">
+    <link rel="localization" href="locales/date/date.{locale}.properties">
+
+    <script defer src="js/config.js"></script>
+    <script defer src="js/version.js"></script>
+    <script defer src="js/utils.js"></script>
+
+    <script defer src="libs/html_imports.js"></script>
+    <script defer src="libs/template.js"></script>
+    <script defer src="libs/lazy_loader.js"></script>
+    <script defer src="libs/l10n.js"></script>
+    <script defer src="libs/l10n_date.js"></script>
+    <script defer src="libs/async_storage.js"></script>
+    <script defer src="js/helpers/hawk.js"></script>
+    <script defer src="libs/uuid.js"></script>
+
+    <script defer src="js/compatibility_checker.js"></script>
+    <script defer src="js/navigation.js"></script>
+    <script defer src="js/helpers/loader.js"></script>
+    <script defer src="js/helpers/speaker_manager.js"></script>
+    <script defer src="js/helpers/notification_channels.js"></script>
+    <script defer src="js/helpers/rooms.js"></script>
+    <script defer src="js/helpers/contacts_helper.js"></script>
+    <script defer src="js/helpers/database_helper.js"></script>
+    <script defer src="js/helpers/action_log_db.js"></script>
+    <script defer src="js/helpers/rooms_db.js"></script>
+    <script defer src="js/helpers/tone_player_helper.js"></script>
+    <script defer src="js/helpers/audio_competing_helper.js"></script>
+    <script defer src="js/helpers/activities.js"></script>
+    <script defer src="js/helpers/account.js"></script>
+    <script defer src="js/helpers/account_helper.js"></script>
+    <script defer src="js/helpers/account_storage.js"></script>
+    <script defer src="js/helpers/call_helper.js"></script>
+    <script defer src="js/helpers/simple_push_helper.js"></script>
+    <script defer src="js/helpers/client_request_helper.js"></script>
+    <script defer src="js/helpers/metrics.js"></script>
+    <script defer src="js/helpers/telemetry.js"></script>
+
+    <script defer src="js/controller.js"></script>
+
+    <script defer src="js/screens/loading_overlay.js"></script>
+    <script defer src="js/screens/option_menu.js"></script>
+    <script defer src="js/screens/splash_screen.js"></script>
+    <script defer src="js/screens/settings.js"></script>
+    <script defer src="js/screens/calllog.js"></script>
+    <script defer src="js/screens/settings.js"></script>
+    <script defer src="js/branding.js"></script>
+
+    <script defer src="js/boot.js"></script>
+  </head>
+
+  <body role="application" class="" data-transition="" data-uidebug="">
+    <section id="loading-overlay" class="dialog" role="region" data-type="dialog">
+      <p><progress class="light"></progress></p>
+      <p id="loading-overlay-message"></p>
+    </section>
+    <section id="splash-screen" class="show">
+    </section>
+    <section id="error-screen" class="dialog">
+      <!--
+      <form role="dialog" data-type="confirm">
+        <section>
+          <h1 data-branding-service-name></h1>
+          <p id="error-message"></p>
+          <ul>
+            <li>
+              <button id="error-screen-settings" data-l10n-id="checkSettings" class="icon icon-settings"></button>
+            </li>
+          </ul>
+        </section>
+        <menu>
+          <button id="error-screen-ok" data-l10n-id="ok" class="full">OK</button>
+        </menu>
+      </form>
+      -->
+    </section>
+    <!--
+      Every relevant screen which have it own 'panel'
+    -->
+    <section id="wizard-panel" data-step="0" class="panel">
+      <!--
+      <section id="wizard-tutorial-section"  class="wizard-section vbox current">
+        <ul id="wizard-tutorial-slideshow" class="fit">
+          <li class="wizard-tutorial-step">
+            <header id="wizard-tutorial-header">
+              <p data-branding-service-name="welcome"></p>
+            </header>
+            <p data-branding-service-name="tagline1"></p>
+            <footer data-l10n-id="face2face1"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="talk-to-anyone"></header>
+            <footer data-l10n-id="anyoneWithBrowser1"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="anywhere-in-the-world"></header>
+            <footer data-l10n-id="itIsVeryEasy"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="start-a-conversation"></header>
+            <footer data-l10n-id="comunicateInstantly"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="create-a-new-room"></header>
+            <footer data-l10n-id="createASpace"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="share-it-with"></header>
+            <footer data-l10n-id="noInstallRequired"></footer>
+          </li>
+          <li class="wizard-tutorial-step">
+            <header id="see-who-is"></header>
+            <footer data-l10n-id="youCanSee"></footer>
+          </li>
+        </ul>
+        <ul id="wizard-tutorial-progress" class="tutorial-progress-indicator">
+        </ul>
+        <div id="wizard-elements">
+          <div id="wizard-face-1" class="layer-4"></div>
+          <div id="wizard-mobile" class="layer-3"></div>
+          <div id="wizard-face-2" class="layer-2"></div>
+          <div id="wizard-circle" class="layer-1"></div>
+          <div id="wizard-tablet" class="layer-2"></div>
+          <div id="wizard-desktop" class="layer-1"></div>
+          <ul id="wizard-main-pins" class="pins-container layer-3">
+            <li id="wizard-dottedline"></li>
+            <li id="pin-1" class="left large"><span></span></li>
+            <li id="pin-2" class="right large"><span></span></li>
+          </ul>
+          <ul id="wizard-pins" class="pins-container layer-3">
+            <li id="pin-3" class="left"><span></span></li>
+            <li id="pin-4" class="right"><span></span></li>
+            <li id="pin-5" class="right"><span></span></li>
+            <li id="pin-6" class="right"><span></span></li>
+            <li id="pin-7" class="left"><span></span></li>
+            <li id="pin-8" class="left"><span></span></li>
+            <li id="pin-9" class="right"><span></span></li>
+            <li id="pin-10" class="right"><span></span></li>
+            <li id="pin-11" class="right"><span></span></li>
+            <li id="pin-12" class="right"><span></span></li>
+            <li id="pin-13" class="left"><span></span></li>
+            <li id="pin-14" class="left "><span></span></li>
+          </ul>
+          <ul id="phone-screens" class="layer-2">
+            <li class="conversation layer-4"></li>
+            <li class="room layer-4"></li>
+            <li class="share-room layer-4">
+              <div>
+                <p data-l10n-id="shareRoom"></p>
+                <button data-l10n-id="pickContact"></button>
+              </div>
+            </li>
+            <li class="wrapper-rooms layer-4 vbox middle">
+              <section class="empty-room hbox middle">
+                <span class="box-image"></span>
+                <p id="room-is-empty"></p>
+              </section>
+              <section class="join-room hbox middle">
+                <span class="box-image"></span>
+                <p id="friend-joined"></p>
+              </section>
+              <section class="full-room hbox middle">
+                <span class="box-image"></span>
+                <p id="room-is-full"></p>
+              </section>
+            </li>
+            <li class="phone-screen-1 layer-3"></li>
+            <li class="phone-screen-2 layer-3"></li>
+            <li class="phone-screen-3 layer-3"></li>
+          </ul>
+          <ul id="wizard-backgrounds">
+            <li id="wizard-map" class="layer-1"></li>
+            <li id="wizard-world" class="layer-0"></li>
+          </ul>
+        </div>
+      </section>
+      <section id="wizard-login" class="wizard-section vbox">
+        <header>
+          <p data-branding-service-name="startUsing1"></p>
+        </header>
+        <footer class="gaia-footer vbox">
+          <p id="terms-of-service-and-privacy-notice"></p>
+          <button id="authenticate-msisdn-button" class="wizard-button" data-l10n-id="usePhone">
+          </button>
+          <button id="authenticate-fxa-button" class="wizard-button" data-l10n-id="useFxA">
+          </button>
+          <button id="got-it-button" data-l10n-id="gotIt" class="wizard-button">
+          </button>
+        </footer>
+      </section>
+      -->
+    </section>
+    <section id="calllog-panel" class="panel vbox skin-comms" role="region">
+      <header>
+        <menu type="toolbar">
+          <a id="open-settings-button"><span class="icon icon-settings"></span></a>
+        </menu>
+        <h1 data-branding-service-name></h1>
+      </header>
+      <section id="calllog-container" class="vbox fit">
+        <nav>
+          <ul role="tablist" class="bb-tablist" data-type="filter">
+            <li role="presentation">
+              <a id="rooms-section-filter" role="tab" aria-selected="true" data-l10n-id="roomsTab"></a>
+            </li>
+            <li role="presentation">
+              <a id="calls-section-filter" role="tab" aria-selected="false" data-l10n-id="callsTab"></a>
+            </li>
+          </ul>
+        </nav>
+        <div data-section="rooms" class="calllog-sections-container hbox fit">
+          <div id="rooms-section" class="calllog-section gaia-list sticky">
+            <div class="section-empty">
+              <p class="section-empty-label" data-l10n-id="emptyRoomsLog">
+              </p>
+            </div>
+            <div id="rooms-section-entries" class="section-entries">
+            </div>
+          </div>
+          <div id="calls-section" class="calllog-section gaia-list active sticky">
+            <div class="section-empty">
+              <p class="section-empty-label" data-l10n-id="emptyCallsLog">
+              </p>
+            </div>
+            <div id="calls-section-entries" class="section-entries vbox middle">
+            </div>
+          </div>
+        </div>
+      </section>
+      <footer id="calllog-actions">
+        <button class="create-room action">
+          <label data-l10n-id="createRoom"></label>
+        </button>
+        <button class="toggle-actions">
+          <label></label>
+        </button>
+        <button class="new-conversation action">
+          <label data-l10n-id="newConversation"></label>
+        </button>
+      </footer>
+    </section>
+
+    <section id="room-detail-panel" is="room-detail-panel" class="panel">
+    </section>
+    <section id="conversation-detail" is="conversation-detail" role="region" class="modal vbox skin-comms hide">
+    </section>
+    <section id="join-room" is="join-room" class="dialog hide">
+    </section>
+    <section id="new-room" is="new-room" role="region" class="modal skin-comms hide">
+    </section>
+    <section id="shared-with" is="shared-with" role="region" class="panel vbox skin-comms">
+    </section>
+    <section id="room-history-panel" is="room-history-panel" class="panel vbox skin-comms" role="region">
+    </section>
+    <section id="room-ui" is="room-ui" role="region" class="panel vbox skin-comms hide" data-rotation="0" data-is-front-camera="true">
+    </section>
+    <section id="share-panel" class="modal share skin-comms hide" role="region">
+      <!--
+      <header>
+        <button id="share-close-button"><span class="icon icon-close"></span></button>
+        <h1 data-l10n-id="shareTitle"></h1>
+      </header>
+      <section class="share-contact-info">
+        <div class="share-contact-photo"></div>
+        <div class="share-contact-details">
+          <p id="contact-name-to-share" class="share-contact-details-primary"></p>
+          <p id="sharing-reason" class="share-contact-details-secondary"></p>
+        </div>
+      </section>
+      <section class="share-explanation" data-l10n-id="noProblem1">
+      </section>
+      <section class="share-link">
+        <span class="share-link-label"></span>
+        <span id="link-to-share" class="share-link-url">
+        </span>
+      </section>
+      <section class="share-options gaia-list">
+        <header class="share-options-title" data-l10n-id="shareVia">
+        </header>
+        <ul>
+          <li id="share-by-sms" class="active">
+            <a>
+              <p data-l10n-id="message"></p>
+            </a>
+          </li>
+          <li id="share-by-email" class="active">
+            <a>
+              <p data-l10n-id="email"></p>
+            </a>
+          </li>
+          <li id="share-by-others" class="active">
+            <a>
+              <p data-l10n-id="other">Other</p>
+            </a>
+          </li>
+        </ul>
+      </section>
+      -->
+    </section>
+    <section id="settings-panel" class="modal settings vbox skin-organic hide" role="region">
+      <header>
+        <menu type="toolbar">
+          <button id="settings-close-button" data-l10n-id="done"></button>
+        </menu>
+        <h1 data-l10n-id="settingsTitle"></h1>
+      </header>
+      <section id="settings-container" class="gaia-list fit scroll">
+        <ul>
+          <li class="vbox">
+            <span class="button icon icon-dialog">
+              <select id="video-default-setting">
+                <option value="true" data-l10n-id="defaultModeVideo"></option>
+                <option value="false" data-l10n-id="defaultModeAudio"></option>
+              </select>
+            </span>
+          </li>
+          <li class="vbox">
+            <span class="button icon icon-dialog">
+              <select id="camera-default-setting">
+                <option value="true" data-l10n-id="frontCamera"></option>
+                <option value="false" data-l10n-id="backCamera"></option>
+              </select>
+            </span>
+          </li>
+          <li class="active">
+            <label class="pack-switch vbox">
+              <input type="checkbox" id="vibrate-setting" checked></input>
+              <span data-l10n-id="vibrationMode">Vibrate</span>
+              <p class="explanation" data-l10n-id="vibrationModeDetails">on incoming calls</p>
+            </label>
+          </li>
+          <li>
+            <button id="settings-clean-rooms-button" data-l10n-id="cleanAllRooms"></button>
+          </li>
+          <li>
+            <button id="settings-clean-calls-button" data-l10n-id="cleanAllCalls"></button>
+          </li>
+          <li>
+            <button id="tutorial-button" data-l10n-id="tutorial"></button>
+          </li>
+          <li class="vbox">
+            <p data-l10n-id="version"></p>
+            <p id="settings-commit-hash-tag" data-l10n-id="unknown"></p>
+          </li>
+        </ul>
+      </section>
+      <footer class="gaia-footer vbox">
+        <p id="settings-logout-identity"></p>
+        <button id="settings-logout-button" data-l10n-id="logOut"></button>
+      </footer>
+    </section>
+
+    <section id="mirror-current" class="mirror">
+    </section>
+    <section id="mirror-future" class="mirror">
+    </section>
+
+    <!-- Templates -->
+
+    <div id="calls-url-tmpl" class="hide">
+      <!--
+      <div class="hbox fit middle no-overflow ${iconName}">
+        <span class="call-type-icon"></span>
+        <div class="vbox fit no-overflow">
+          <div class="primary-info hbox bottom">
+            <p class="fit ellipsis">${primary}</p>
+            <span class="call-time">${time}</span>
+          </div>
+          <div class="hbox bottom">
+            <p class="subject fit ellipsis">${subject}</p>
+          </div>
+          <div class="hbox bottom no-overflow">
+            <span class="retry-count">${duration}</span>
+            <span class="url ellipsis fit">${link}</span>
+          </div>
+        </div>
+      </div>
+      -->
+    </div>
+    <div id="calls-without-url-tmpl" class="hide">
+      <!--
+      <div class="hbox fit middle no-overflow ${iconName}">
+        <span class="call-type-icon"></span>
+        <div class="vbox fit no-overflow">
+          <div class="primary-info hbox bottom">
+            <p class="fit ellipsis">${primary}</p>
+            <span class="call-time">${time}</span>
+          </div>
+          <div class="hbox bottom">
+            <p class="subject fit ellipsis">${subject}</p>
+          </div>
+          <div class="hbox bottom no-overflow">
+            <span class="retry-count">${duration}</span>
+          </div>
+        </div>
+      </div>
+      -->
+    </div>
+    <div id="rooms-tmpl" class="hide">
+      <!--
+      <div class="hbox expand" data-room-token="${roomToken}">
+        <div class="primary-action vbox fit no-overflow" data-room-token="${roomToken}" data-room-name="${roomName}">
+          <p class="primary-info ellipsis">${roomName}</p>
+          <p class="secondary-info">${info}</p>
+        </div>
+        <button class="secondary-action room-time icon icon-view" data-room-token="${roomToken}">
+          <span>${lastActivityTime}</span>
+        </button>
+      </div>
+      -->
+    </div>
+  </body>
+</html>

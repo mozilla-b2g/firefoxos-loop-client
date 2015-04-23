@@ -1,0 +1,186 @@
+.share {
+  z-index: 100;
+  -webkit-transform: translateY(100%);
+  transform: translateY(100%);
+  font-weight: 300;
+  transition: transform 0.2s ease;
+}
+
+.share * {
+  color: #333;
+}
+
+.share.show {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+}
+
+.gaia-list header.share-options-title {
+  font-weight: 300;
+  font-size: 1.8rem;
+  text-transform: none;
+  color: #333;
+}
+
+.share-link {
+  width: 100%;
+  padding: 0 3rem;
+  font-size: 1.8rem;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #999;
+}
+
+.share-link-label {
+  background-image: url(images/ico_link_share.png);
+  background-repeat: no-repeat;
+  height: 3rem;
+  width: 3rem;
+  display: inline-block;
+  vertical-align: middle;
+  background-size: 100%;
+}
+
+.share-link-url {
+  color: #858585;
+  font-size: 1.5rem !important;
+}
+
+.share-explanation {
+  font-size: 1.8rem;
+  padding: 1rem 3rem;
+  width: 100%;
+  overflow: hidden;
+  max-height: 12rem;
+  box-sizing: border-box;
+  line-height: 2.4rem;
+  color: #333;
+}
+
+.share-contact-info {
+  width: 100%;
+  padding: .5rem 3rem;
+  box-sizing: border-box;
+  height: 8rem;
+}
+
+
+.share-contact-details {
+  height: 5rem;
+  margin-top: 1.5rem;
+  width: calc(100% - 7rem);
+  float: right;
+}
+
+.share-contact-info.has-no-photo .share-contact-photo {
+  display: none;
+}
+
+.share-contact-info.has-no-photo .share-contact-details {
+  height: 5rem;
+  margin-top: 1.5rem;
+  width: 100%;
+  float: right;
+}
+
+.share-contact-details p {
+  font-weight: 300;
+  height: 50%;
+}
+
+.share-contact-details-primary {
+  padding-top: .3rem;
+  font-size: 1.8rem;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.share-contact-details-secondary {
+  padding-top: .3rem;
+  box-sizing: border-box;
+  color: #999;
+  font-size: 1.5rem !important;
+  overflow: hidden;
+}
+
+.share-contact-photo {
+  height: 5rem;
+  width: 5rem;
+  border-radius: 2.5rem;
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  float: left;
+  margin-top: 1.5rem;
+  margin-right: .5rem;
+}
+
+#share-panel .gaia-list p {
+  font-style: italic;
+  margin-left: 7rem;
+  position: relative;
+  line-height: inherit;
+}
+
+#share-panel .gaia-list p:before {
+  position: absolute;
+  content: "";
+  top: -0.8rem;
+  left: -5.5rem;
+  width: 4.2rem;
+  height: 4.2rem;
+  background-size: 100%;
+  background-repeat: no-repeat;
+}
+
+#share-by-sms p:before {
+  background-image: url(images/sms_84.png);
+}
+
+#share-by-email p:before {
+  background-image: url(images/email_84.png);
+}
+
+#share-by-others p:before {
+  background-image: url(images/ico_share.png);
+}
+
+
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+  #share-by-sms p:before {
+    background-image: url(images/sms_142.png);
+  }
+  #share-by-email p:before {
+    background-image: url(images/email_142.png);
+  }
+  #share-by-others p:before {
+    background-image: url(images/ico_share@1.5x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+  #share-by-sms p:before {
+    background-image: url(images/sms_189.png);
+  }
+  #share-by-email p:before {
+    background-image: url(images/email_189.png);
+  }
+  #share-by-others p:before {
+    background-image: url(images/ico_share@2x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+  #share-by-sms p:before {
+    background-image: url(images/sms_284.png);
+  }
+  #share-by-email p:before {
+    background-image: url(images/email_284.png);
+  }
+  #share-by-others p:before {
+    background-image: url(images/ico_share@2.25x.png);
+  }
+}

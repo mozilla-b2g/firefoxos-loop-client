@@ -1,0 +1,7 @@
+.settings.panel, .settings.panel li  {
+  background: #f4f4f4;
+}
+
+#settings-logout-identity {
+  word-break: break-all;
+}

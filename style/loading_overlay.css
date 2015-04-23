@@ -1,0 +1,38 @@
+section[data-type="dialog"] {
+  z-index: 200;
+  display: none;
+}
+
+section[data-type="dialog"].show {
+  display: block;
+}
+
+#overlay section {
+  height: 100%;
+  width: 100%;
+  overflow: auto
+}
+
+#loading-overlay {
+  background: rgba(0, 153, 204, 0.75);
+  color: white;
+}
+
+#loading-overlay p {
+  text-align: center;
+}
+
+#loading-overlay p:first-child {
+  margin-top: 60%;
+  margin-bottom: 1rem;
+}
+
+#loading-overlay p:last-child {
+  font-size: 1.5rem;
+  font-weight: 300;
+}
+
+#loading-overlay progress{
+  width: 4rem;
+  height: 4rem;
+}

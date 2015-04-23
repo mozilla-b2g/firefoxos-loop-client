@@ -1,0 +1,44 @@
+#splash-screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: #FFF;
+  position: absolute;
+  z-index: 300;
+  background-image: url(images/splash.png);
+  background-repeat: no-repeat;
+  background-size: 21.2rem 18.8rem;
+  background-position: center 45%;
+  transition: opacity linear .5s ;
+  opacity: 1;
+}
+
+#splash-screen.invisible {
+  opacity: 0;
+}
+
+#splash-screen.show {
+  display: block;
+}
+
+/*
+  MEDIA QUERIES FOR device-pixel-ratio
+*/
+
+@media (min--moz-device-pixel-ratio: 1.5) {
+  #splash-screen {
+    background-image: url(images/splash@1.5x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2) {
+  #splash-screen {
+    background-image: url(images/splash@2x.png);
+  }
+}
+
+@media (min--moz-device-pixel-ratio: 2.25) {
+  #splash-screen {
+    background-image: url(images/splash@2.25x.png);
+  }
+}
