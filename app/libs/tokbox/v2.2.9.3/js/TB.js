@@ -10,7 +10,10 @@
  */
 
 (function(window) {
-  if (!window.OT) window.OT = {};
+  if (!window.OT) window.OT = {
+    inboundStats: {},
+    outboundStats: {}
+  };
 
   OT.properties = {
     version: 'v2.2.9.3',         // The current version (eg. v2.0.4) (This is replaced by gradle)
@@ -15809,7 +15812,12 @@ waitForDomReady();
           (stats[key].type === 'outboundrtp' || stats[key].type === 'inboundrtp')) {
 
           var res = stats[key];
-
+          if ((!res.isRemote && res.type === 'outboundrtp') ||
+              (res.isRemote && res.type === 'inboundrtp')) {
+            OT.outboundStats[key] = res;
+          } else {
+            OT.inboundStats[key] = res;
+          }
           var statsString = 'WebRTC stats - ' + key + ' * ';
           if (!res.isRemote) {
             if (res.mozAvSyncDelay !== undefined ||

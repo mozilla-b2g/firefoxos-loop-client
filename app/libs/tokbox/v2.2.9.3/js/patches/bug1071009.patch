@@ -1,0 +1,30 @@
+diff --git a/app/libs/tokbox/v2.2.9.3/js/TB.js b/app/libs/tokbox/v2.2.9.3/js/TB.js
+index e1636fc..35e6937 100644
+--- a/app/libs/tokbox/v2.2.9.3/js/TB.js
++++ b/app/libs/tokbox/v2.2.9.3/js/TB.js
+@@ -10,7 +10,10 @@
+  */
+ 
+ (function(window) {
+-  if (!window.OT) window.OT = {};
++  if (!window.OT) window.OT = {
++    inboundStats: {},
++    outboundStats: {}
++  };
+ 
+   OT.properties = {
+     version: 'v2.2.9.3',         // The current version (eg. v2.0.4) (This is replaced by gradle)
+@@ -15809,7 +15812,12 @@ waitForDomReady();
+           (stats[key].type === 'outboundrtp' || stats[key].type === 'inboundrtp')) {
+ 
+           var res = stats[key];
+-
++          if ((!res.isRemote && res.type === 'outboundrtp') ||
++              (res.isRemote && res.type === 'inboundrtp')) {
++            OT.outboundStats[key] = res;
++          } else {
++            OT.inboundStats[key] = res;
++          }
+           var statsString = 'WebRTC stats - ' + key + ' * ';
+           if (!res.isRemote) {
+             if (res.mozAvSyncDelay !== undefined ||
