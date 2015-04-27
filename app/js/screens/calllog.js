@@ -809,6 +809,7 @@
   function _updateListWithContactInfo(reason, contactInfo) {
     var entries = [];
     var query;
+    var updateEntry;
 
     // Remove events can be applied to specific entries matching the affected
     // contact. Create or update events require a full list iteration as there
@@ -817,10 +818,17 @@
     switch (reason) {
       case 'remove':
         query = 'li[data-contact-id="' + contactInfo + '"]';
+        updateEntry = _updateContactInfo;
         break;
       case 'create':
+        query = 'li';
+        updateEntry = function(entry) {
+          _updateContactInfo(entry, contactInfo);
+        }
+        break;
       case 'update':
         query = 'li';
+        updateEntry = _updateContactInfoCheckingMatching;
         break;
       default:
         console.warn('_updateListWithContactInfo with no known reason');
@@ -831,13 +839,16 @@
                       .querySelectorAll(query);
 
     Object.keys(entries).forEach(function(index) {
-      var entry = entries[index];
-      if (reason === 'remove') {
-        _updateContactInfo(entry);
-        return;
-      }
-      _updateContactInfo(entry, contactInfo);
+      updateEntry(entries[index]);
     });
+  }
+
+  function _updateContactInfoCheckingMatching(entry) {
+    ContactsHelper.find({
+      identities: entry.dataset.identities
+    }, function(contactInfo) {
+      _updateContactInfo(entry, contactInfo.contacts[0]);
+    }, _updateContactInfo.bind(null, entry));
   }
 
   function _manageScroll() {
