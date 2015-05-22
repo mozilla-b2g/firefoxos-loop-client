@@ -262,7 +262,7 @@
   display: none;
 }
 
-#room-remote-video .OT_video-container {
+#room-remote-video .OT_widget-container {
   background-color: #1c5e6f !important;
   display: block;
 }
@@ -271,7 +271,7 @@
   display: block;
 }
 
-#room-local-video .OT_video-container {
+#room-local-video .OT_widget-container {
   position: relative !important;
   top: -10% !important;
   height: auto !important;
@@ -364,15 +364,15 @@
   transform: rotate(90deg);
 }
 
-#room-ui[data-rotation="90"] #room-local-video .OT_video-container,
-#room-ui[data-rotation="270"] #room-local-video .OT_video-container {
+#room-ui[data-rotation="90"] #room-local-video .OT_widget-container,
+#room-ui[data-rotation="270"] #room-local-video .OT_widget-container {
   top: -30% !important;
   width: 120% !important;
   transform: rotate(90deg);
 }
 
-#room-ui[data-rotation="90"][data-is-front-camera="false"] #room-local-video .OT_video-container,
-#room-ui[data-rotation="270"][data-is-front-camera="true"] #room-local-video .OT_video-container {
+#room-ui[data-rotation="90"][data-is-front-camera="false"] #room-local-video .OT_widget-container,
+#room-ui[data-rotation="270"][data-is-front-camera="true"] #room-local-video .OT_widget-container {
   transform: rotate(270deg);
 }
 
