@@ -102,6 +102,10 @@
     "it": {
       "name": "Firefox Hello",
       "description": "Firefox Hello"
+    },
+    "zh-CN": {
+      "name": "Firefox Hello",
+      "description": "Firefox Hello"
     }
   },
   "default_locale": "en-US",
